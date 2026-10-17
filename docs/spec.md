@@ -27,7 +27,11 @@ Agreed while reviewing the schema in section 6, which already reflects them.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
 - **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-Still open: timestamp precision (seconds or milliseconds), whether one login equals one household, and whether pinning a better recipe updates the bag's override or the bean's default.
+- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns pantry, hardware, toolkits and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, personas without their own login ([name] as a persona on [name]'s account); phase 3, invites, so [name] signs in and claims her persona with its history. Only the UI changes between phases.
+- **Shots record whose taste and who logged them.** One person often pulls for both, so the persona (whose taste) and the logging user (who tapped) are separate fields.
+- **The network needs the person's own consent.** A persona's shots reach the Cold Start network only when the persona is claimed by a user who opted in. Logging for someone without their own login never shares their data.
+
+Still open: timestamp precision (seconds or milliseconds), and whether pinning a better recipe updates the bag's override or the bean's default.
 
 ## 1. The North Star Vision & UVP
 
@@ -41,8 +45,8 @@ The system is built on a highly structured, real-world physical hierarchy to all
 
 ### The Entity Hierarchy
 
-- **Household (The Auth Tenant):** Managed via a single Google OAuth login.
-- **Personas:** Sub-profiles for different consumers (e.g., "[name]", "[name]") to isolate taste graphs.
+- **Household (The Tenant):** Owns everything shared in the kitchen: pantry, hardware, toolkits, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
+- **Personas:** Sub-profiles for different consumers (e.g., "[name]", "[name]") to isolate taste graphs. A persona can exist without its own login and be claimed later when that person signs up. Who logs a shot and whose taste it records are separate: one person often pulls for both.
 - **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT). Each component is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser).
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Context:** The target output (Espresso, Milk Drink, Additives like Sugar).
@@ -80,7 +84,7 @@ The interface follows a modern, digital Japandi aesthetic (clean, minimalist, pr
 
 ## 5. Privacy, GDPR & Localization (i18n)
 
-- **Consent:** Explicit opt-in required to push anonymized telemetry to the global Cold Start network.
+- **Consent:** Explicit opt-in required to push anonymized telemetry to the global Cold Start network. Consent is personal: a persona's shots reach the network only once that person has their own login and has opted in, regardless of who logged them.
 - **Decoupling:** Network extractions strip PII and use cohort IDs.
 - **Localization:** No hardcoded strings. UI respects European vs. US numerical formatting (comma vs. decimal) while saving canonical floats to the database. RTL-ready logical CSS properties (Tailwind).
 
@@ -89,7 +93,7 @@ The interface follows a modern, digital Japandi aesthetic (clean, minimalist, pr
 Instructions for the coding agent: Implement this relational schema to support the Stateful Hardware Ledger, Toolkits, Batches, and Pinned Recipes.
 
 ```ts
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, primaryKey } from 'drizzle-orm/sqlite-core';
 
 // --- CANONICAL & GLOBAL ---
 export const canonicalBeans = sqliteTable('canonical_beans', {
@@ -119,6 +123,7 @@ export const canonicalHardware = sqliteTable('canonical_hardware', {
   capabilities: text('capabilities', { mode: 'json' }),
 });
 
+// A login: one person with a Google account. Consent is personal, so it lives here.
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(), // Auth UUID
   shareDataConsent: integer('share_data_consent', { mode: 'boolean' }).default(false),
@@ -126,18 +131,37 @@ export const users = sqliteTable('users', {
 });
 
 // --- TENANT HIERARCHY ---
+// The household owns everything shared in the kitchen: pantry, hardware, toolkits,
+// personas and their recipes. The MVP creates one household per user at sign-up.
+export const households = sqliteTable('households', {
+  id: text('id').primaryKey(),
+  name: text('name'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
+
+// Which logins belong to which household. One row in the MVP; invites add rows later.
+export const householdMembers = sqliteTable('household_members', {
+  householdId: text('household_id').references(() => households.id).notNull(),
+  userId: text('user_id').references(() => users.id).notNull(),
+  role: text('role').notNull(), // 'owner', 'member'
+  joinedAt: integer('joined_at', { mode: 'timestamp' }).notNull(),
+}, (t) => [primaryKey({ columns: [t.householdId, t.userId] })]);
+
+// A taste profile. userId is null for a persona without its own login (phase 2);
+// it's set when that person signs up and claims the persona, keeping its history.
 export const personas = sqliteTable('personas', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => users.id).notNull(),
+  householdId: text('household_id').references(() => households.id).notNull(),
+  userId: text('user_id').references(() => users.id), // The login that claimed it, if any
   name: text('name').notNull(),
   isDefault: integer('is_default', { mode: 'boolean' }).default(false),
 });
 
 // The physical units a household owns. Maintenance and grind history belong to a unit,
 // not to the model (every Niche Zero) or to a toolkit (one grinder can be in several).
-export const userHardware = sqliteTable('user_hardware', {
+export const ownedHardware = sqliteTable('owned_hardware', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => users.id).notNull(),
+  householdId: text('household_id').references(() => households.id).notNull(),
   hardwareId: text('hardware_id').references(() => canonicalHardware.id).notNull(), // The model
   nickname: text('nickname'),
   acquiredAt: integer('acquired_at', { mode: 'timestamp' }),
@@ -146,9 +170,9 @@ export const userHardware = sqliteTable('user_hardware', {
 
 export const toolkits = sqliteTable('toolkits', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => users.id).notNull(),
+  householdId: text('household_id').references(() => households.id).notNull(),
   name: text('name').notNull(), // e.g., "Daily Espresso"
-  components: text('components', { mode: 'json' }).notNull(), // Array of userHardware IDs
+  components: text('components', { mode: 'json' }).notNull(), // Array of ownedHardware IDs
 });
 
 // Maintenance on one owned unit. For a grinder, each event starts a new grind period:
@@ -158,7 +182,7 @@ export const toolkits = sqliteTable('toolkits', {
 // Stored recipes are never rewritten; the mapping is applied when reading.
 export const maintenanceEvents = sqliteTable('maintenance_events', {
   id: text('id').primaryKey(),
-  userHardwareId: text('user_hardware_id').references(() => userHardware.id).notNull(),
+  ownedHardwareId: text('owned_hardware_id').references(() => ownedHardware.id).notNull(),
   kind: text('kind').notNull(), // 'burrs', 'clean', 'rezero', 'repair', 'other'
   note: text('note'),
   occurredAt: integer('occurred_at', { mode: 'timestamp' }).notNull(),
@@ -169,9 +193,9 @@ export const maintenanceEvents = sqliteTable('maintenance_events', {
 
 // --- PANTRY ---
 // The bag as bought. Status, remaining weight and bean age are calculated, not stored.
-export const userBatches = sqliteTable('user_batches', {
+export const batches = sqliteTable('batches', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => users.id).notNull(),
+  householdId: text('household_id').references(() => households.id).notNull(),
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   lotCode: text('lot_code'), // Roaster's lot, if printed on the bag
   roastDate: integer('roast_date', { mode: 'timestamp' }), // Null if only best-before is printed
@@ -184,7 +208,7 @@ export const userBatches = sqliteTable('user_batches', {
 // What physically exists: a whole bag is one portion; splitting to freeze creates more.
 export const batchPortions = sqliteTable('batch_portions', {
   id: text('id').primaryKey(),
-  batchId: text('batch_id').references(() => userBatches.id).notNull(),
+  batchId: text('batch_id').references(() => batches.id).notNull(),
   weight: real('weight').notNull(), // Grams
   frozenAt: integer('frozen_at', { mode: 'timestamp' }),
   thawedAt: integer('thawed_at', { mode: 'timestamp' }),
@@ -204,11 +228,12 @@ export const stockChecks = sqliteTable('stock_checks', {
 // --- TELEMETRY & EXTRACTIONS ---
 export const extractions = sqliteTable('extractions', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => users.id).notNull(),
-  personaId: text('persona_id').references(() => personas.id).notNull(),
+  householdId: text('household_id').references(() => households.id).notNull(),
+  personaId: text('persona_id').references(() => personas.id).notNull(), // Whose taste it records
+  loggedByUserId: text('logged_by_user_id').references(() => users.id).notNull(), // Who tapped; often not the persona
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
-  grinderId: text('grinder_id').references(() => userHardware.id).notNull(), // Grind only means something for this unit
-  machineId: text('machine_id').references(() => userHardware.id).notNull(), // Temperature and pressure steps belong to it
+  grinderId: text('grinder_id').references(() => ownedHardware.id).notNull(), // Grind only means something for this unit
+  machineId: text('machine_id').references(() => ownedHardware.id).notNull(), // Temperature and pressure steps belong to it
   portionId: text('portion_id').references(() => batchPortions.id).notNull(), // Batch and bean follow from the portion
   drinkContext: text('drink_context').notNull(), // 'Espresso', 'Milk', 'Sweetened'
 
@@ -233,6 +258,8 @@ export const extractions = sqliteTable('extractions', {
   scoreBody: integer('score_body'),
   defects: text('defects', { mode: 'json' }),
 
+  // True only with the full MVPayload and a persona claimed by a user who opted in.
+  // A persona without its own login never reaches the network, whoever logged the shot.
   isNetworkEligible: integer('is_network_eligible', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
@@ -242,14 +269,14 @@ export const extractions = sqliteTable('extractions', {
 // bean's default for that one bag. Re-pinning adds a row; the latest pinnedAt wins.
 export const pinnedRecipes = sqliteTable('pinned_recipes', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => users.id).notNull(),
+  householdId: text('household_id').references(() => households.id).notNull(),
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(),
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
-  grinderId: text('grinder_id').references(() => userHardware.id).notNull(),
-  machineId: text('machine_id').references(() => userHardware.id).notNull(),
+  grinderId: text('grinder_id').references(() => ownedHardware.id).notNull(),
+  machineId: text('machine_id').references(() => ownedHardware.id).notNull(),
   drinkContext: text('drink_context').notNull(),
-  batchId: text('batch_id').references(() => userBatches.id), // Null = the bean's default
+  batchId: text('batch_id').references(() => batches.id), // Null = the bean's default
 
   grindSize: real('grind_size').notNull(),
   doseWeight: real('dose_weight').notNull(),
