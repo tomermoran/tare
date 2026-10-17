@@ -4,9 +4,16 @@
 
 An espresso journal for everyday home enthusiasts that learns your palate and
 gives drift-aware dial-in advice. Portfolio prototype. Product spec:
-`docs/spec.md`.
+`docs/spec.md` (its "Updates" section overrides older sections).
 
-**Phase 1 (current): project setup and design system only. No app screens.**
+## Phases
+
+- **Phase 0, foundations (done):** project setup and the design system
+  (tokens, Button, Card, Input, NumberWheel).
+- **Phase 1 (current):** a basic app for logging shots and managing recipes,
+  toolkits and the pantry. **No AI features yet**: no LLM calls, bag
+  scanning, Diagnostic Coach or network cold-start.
+- **Later:** AI features, each shipped with evals and observability.
 
 ## Stack
 
