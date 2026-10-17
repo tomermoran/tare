@@ -17,8 +17,12 @@ const inter = Inter({
 // (the app does the same on <html> in the root layout).
 document.documentElement.classList.add(inter.variable);
 
+// Stories show fictional local times as written, so use the viewer's time zone.
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 // Mirrors the app's root layout: translated strings plus lang/dir on <html>,
 // with the direction switchable from the toolbar to check RTL layouts.
+
 function AppShell({
   dir,
   children,
@@ -31,7 +35,7 @@ function AppShell({
     document.documentElement.dir = dir;
   }, [dir]);
   return (
-    <NextIntlClientProvider locale={defaultLocale} messages={messages}>
+    <NextIntlClientProvider locale={defaultLocale} messages={messages} timeZone={timeZone}>
       {children}
     </NextIntlClientProvider>
   );
