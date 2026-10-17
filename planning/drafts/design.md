@@ -1,15 +1,17 @@
-# Tare design (draft, round 1)
+# Tare design (draft, round 2)
 
 Source: `planning/drafts/epics.md` (approved by the Head of Product, revision
-3, 30 epics), `docs/spec.md` S-01 to S-09 (S-01 and S-02 override older
+4, 30 epics, with PEC-01 to PEC-06 applied as approved amendments), `docs/spec.md` S-01 to S-09 (S-01 and S-02 override older
 sections), and the Phase 0 design system: `src/styles/tokens.css`,
 `src/components/ui` (Button, Card, Input, NumberWheel), `src/components/brand`
 (Logo) and `src/stories/Tokens.mdx`. `planning/drafts/stories.md` (first
 version) was read for context only; this design is per epic, and stories will
 be revised against it.
 
-**Status: draft for the Head of Product, design review round 1.** No GitHub
-issues have been created. Nothing here is production code.
+**Status: draft for the Head of Product, design review round 2.** Round 2
+updates only the flows touched by revision 4 of the epics (EPIC-01-01,
+01-02, 01-05, 01-06, 02-02, 04-01); everything else is unchanged from round 1.
+No GitHub issues have been created. Nothing here is production code.
 
 ## How to read this file
 
@@ -203,6 +205,29 @@ run) and EPIC-03-03 and 03-04 (age and remaining coffee).
    portion in use, `home.remaining` ["142 g left in this bag"] (EPIC-03-04).
    Hidden when unknown.
 
+**Changing drink or coffee (EPIC-02-02, PEC-03, revision 4):**
+
+- Both selects open SH-SELECT. The default option is marked with
+  `home.usual` [usual] in `text-overline` `ink-secondary`, so the way back is
+  always visible without an extra reset button.
+- Choosing updates the card in place (drink title, coffee line, values,
+  toolkit line) with a 200 ms cross-fade of the values only; the buttons
+  don't move. No navigation.
+- If the new drink and coffee have no recipe, the card switches to the
+  no-recipe state (`home.noRecipe`, primary `home.dialIn`) in place.
+- The coffee list shows beans with an unfinished portion: bean as primary,
+  roaster and age as secondary, beans that have a recipe for this drink first.
+- **Does a change stick? (DQ-17, assumption.)** A change applies to the next
+  pull only and is never saved as a setting:
+  - *Drink:* after a pull, the time-of-day rule (DQ-02) picks the drink just
+    pulled anyway, so a pulled change sticks naturally through history. A
+    change with no pull resets to the time-of-day default after the app has
+    been away from the home screen for 30 minutes.
+  - *Coffee:* the coffee of the last pull for this persona and drink wins
+    over the DQ-03 default while it still has an unfinished portion. That
+    keeps a user on the bag they switched to, without a setting. A change with
+    no pull resets like the drink.
+
 **After a pull (in place, no toast, no navigation):** the two buttons are
 replaced by the pulled state (NC-07), in the same space so nothing jumps:
 
@@ -226,6 +251,7 @@ replaced by the pulled state (NC-07), in the same space so nothing jumps:
 | Kit and coffee, no recipe for this drink | Drink and coffee lines as normal; the values grid is replaced by one sentence `home.noRecipe` [no recipe yet for this drink and coffee]; the primary button is `home.dialIn`, opening a blank SCR-LOG with drink, coffee and toolkit chosen. This is the spec's "Dial in" in place of "Pull This Shot". |
 | Recipe, but no portion of that coffee open | Normal layout. Pull opens SH-PORTION (EPIC-02-02). |
 | Recipe, but the coffee is finished | Values shown in `ink-secondary`; `home.coffeeFinished` [you've finished this coffee]; primary `home.chooseCoffee` opens the coffee select; secondary `home.addBag`. |
+| Recipe pinned on a unit no longer in its toolkit | Values in `ink-secondary` with `home.needsRedial`; primary `home.dialIn` pre-filled from the recipe; no one-tap pull (EPIC-01-02 toolkit edits, PEC-07). |
 | Pull failed | Card stays in its normal state; inline notice (NC-10, neutral) `home.pullFailed` with `actions.retry`. No shot is recorded. |
 | Load failed | Inline notice `states.loadFailed` with `actions.retry`, in place of the card. |
 
@@ -248,7 +274,7 @@ story with text from `en.json`, axe checks and a right-to-left story.
 | NC-07 | **PulledState** | The in-place result of a one-tap pull: confirmation, undo for the window, good and off chips, live-region announcement | New behaviour | SCR-HOME |
 | NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, shots, bag recipes, pin sheet |
 | NC-09 | **ShotDial** | The shot log's editor: a row of compact value tabs (grind, dose, yield, time, plus temperature and pressure when the machine has them) above one full NumberWheel for the selected value. Shows the starting value under any changed value ("was 18.0"). Optional values have an unset state | Four stacked 96 px wheels don't fit a phone screen; optional values need "unset" | SCR-LOG |
-| NC-10 | **Notice** | Inline message: neutral (ink on `surface`, for errors, info, empty results) or warning (`signal` on `signal-subtle`, shot warnings only, enforced by the API: the warning tone only takes a shot-warning kind) | Nothing exists; keeps signal use auditable | Errors everywhere; shot warnings |
+| NC-10 | **Notice** | Inline message: neutral (ink on `surface`, for errors, info, empty results) or warning (`signal` on `signal-subtle`, shot warnings only, enforced by the API: the warning tone only takes a shot-warning kind). Two sizes: block (detail and tasting screens) and inline (one line of `signal` text with no fill, for list rows) | Nothing exists; keeps signal use auditable | Errors everywhere; shot warnings |
 | NC-11 | **Skeleton** | `surface-sunken` blocks with `radius-sm`, a slow opacity pulse that stops under reduced motion; `aria-busy` on the region | Loading states | All data screens |
 | NC-12 | **EmptyState** and **Checklist** | Empty state: `text-h2` line, one `text-body` sentence, one action. Checklist: numbered steps with done, next and later states | Empty and first-run states | All lists; first run |
 | NC-13 | **Toggle** | On or off switch with a visible label, `role="switch"` | No boolean control exists | Sweetened, recalibration, "only best-before printed" |
@@ -278,6 +304,14 @@ plain `text-overline` text in `ink-secondary`.
 ### INIT-01: Log a shot against your real kit in seconds
 
 #### EPIC-01-01: Start brewing without setting anything up
+
+**Scope note (revision 4, PEC-01).** This epic now owns the app shell: TabBar
+(NC-01), PageHeader (NC-02), the full-screen task frame, the shared state
+patterns (Skeleton NC-11, EmptyState and Checklist NC-12, Notice NC-10) and
+the SCR-PROFILE frame. It owns the frame only; each tab's content belongs to
+its own epic. Because the shell ships first, each tab shows its EmptyState
+(with no action, or an action only once its target exists) until the owning
+epic fills it, so no tab is ever blank or broken in between builds.
 
 **UX flow**
 
@@ -316,6 +350,10 @@ plain `text-overline` text in `ink-secondary`.
 - SCR-START shows only the wordmark until it is slow or fails; no spinner.
 - The role label appears wherever the persona name would, translated.
 - The device notice uses ink and `text-body`, never `signal`.
+- Every screen built on the shell uses PageHeader and the shared loading,
+  empty and error patterns; no screen invents its own spinner or error style.
+- Before a tab's owning epic ships, the tab shows an EmptyState, never a
+  blank screen or a dead action.
 - Tab bar: four text tabs, the active tab marked by its bar, not by colour
   alone (ink against ink-secondary is too subtle on its own), each tab at least 44 px
   tall, labels never truncated in any shipped locale (test with a long
@@ -332,6 +370,8 @@ plain `text-overline` text in `ink-secondary`.
   colour (`ink-tertiary` at 16 px) to a token that passes contrast.
 - DES-01-01-05 Define the shared state patterns: Skeleton (NC-11), EmptyState
   and Checklist (NC-12), Notice (NC-10); add their stories.
+- DES-01-01-06 Define the interim empty state for each tab before its owning
+  epic ships (round 2).
 
 #### EPIC-01-02: Describe your kit once
 
@@ -354,11 +394,21 @@ plain `text-overline` text in `ink-secondary`.
    (Input, date, optional). A capabilities summary in `text-label`, read-only
    (for example "temperature: exact, 85 to 100 °C" composed from keys).
 5. Save. Back to SCR-KIT, or return-to.
-6. **First toolkit shortcut.** When the household has at least one machine and
-   one grinder and no toolkit, SCR-KIT (and the checklist) offers
-   `toolkit.suggest` [make these your toolkit], opening SCR-TOOLKIT with both
-   preselected and a translated default name (DQ-01, proposed epic change
-   PEC-02). This saves a step for nearly everyone.
+6. **First toolkit shortcut** (in scope, PEC-02). When the household has at
+   least one machine and one grinder and no toolkit, a Card on SCR-KIT (and
+   the checklist's first step on SCR-HOME) offers `toolkit.suggest` [make
+   these your toolkit], naming the machine and grinder it will use.
+   - With exactly one machine and one grinder: one primary tap creates the
+     toolkit with the translated default name `toolkit.defaultName` (stored at
+     creation, DQ-01) and lands back where the user was, with a short
+     confirmation and a ghost `toolkit.rename`. No form.
+   - With more than one of either: the tap opens SCR-TOOLKIT with the most
+     recently added machine and grinder preselected and the default name
+     filled in.
+   - Right after the user adds their second required unit (a grinder after a
+     machine, or the reverse), the add-kit flow ends on this offer instead of
+     SCR-KIT, so the first toolkit is never a separate errand.
+   - The offer disappears once any toolkit exists.
 
 **UX flow: toolkit (SCR-TOOLKIT)**
 
@@ -369,9 +419,22 @@ plain `text-overline` text in `ink-secondary`.
 3. Save. Exactly one machine and one grinder are required (shots and recipes
    record one of each); the save button stays enabled and on save the missing
    part is named in a neutral Notice, so the rule is explained, not hidden.
-4. Edit: the same screen. Proposed: editing is allowed, with a one-line note
-   `toolkit.editNote` that past shots keep the kit they were pulled with
-   (history is safe, S-02).
+4. **Edit** (in scope, PEC-02), from the toolkit Card on SCR-KIT: the same
+   screen, title `toolkit.editTitle`. When the toolkit has shots, a one-line
+   note `toolkit.editNote` under the header says past shots keep the kit they
+   were pulled with (S-02). Renaming and changing baskets or accessories save
+   without a prompt.
+5. **Changing the machine or grinder of a toolkit with recipes** opens
+   SH-CONFIRM before saving: `toolkit.swapTitle`, naming how many recipes
+   were pinned with the old unit, and explaining that those recipes need a
+   new dial-in on the new unit, because grind (and temperature or pressure
+   steps) only mean something on the unit they were set on (S-02). Primary
+   `toolkit.swapConfirm`, secondary `actions.cancel`.
+   - After the swap, those recipes are kept but not offered for one tap: on
+     SCR-HOME the card shows the old values in `ink-secondary` with
+     `home.needsRedial` [pinned on your previous grinder], and the primary
+     button becomes `home.dialIn`, pre-filled from that recipe. Pinning the
+     new shot restores one tap. This needs an epic decision (PEC-07).
 
 **UX flow: kit and units (SCR-KIT, SCR-UNIT)**
 
@@ -410,6 +473,13 @@ plain `text-overline` text in `ink-secondary`.
   the button.
 - Retired units are never offered when building a toolkit, and still show on
   past shots.
+- With one machine and one grinder, the first toolkit takes exactly one tap
+  after adding the second unit, with no typing.
+- Editing a toolkit never changes what a past shot shows.
+- Swapping a toolkit's machine or grinder is never silent when recipes depend
+  on it; the consequence is explained before saving.
+- A recipe pinned on a unit no longer in its toolkit is never pulled with one
+  tap.
 
 **Design tasks** (`design`)
 
@@ -421,6 +491,9 @@ plain `text-overline` text in `ink-secondary`.
 - DES-01-02-04 Design SCR-TOOLKIT (create and edit).
 - DES-01-02-05 Add Storybook stories for ListRow (NC-03), ChipGroup (NC-04),
   Icon (NC-14) and Sheet (NC-05).
+- DES-01-02-06 Design the one-tap toolkit shortcut, toolkit editing with the
+  "past shots keep their kit" note, and the machine or grinder swap
+  confirmation, with the home screen's needs-re-dial state (round 2).
 
 #### EPIC-01-03: Log a shot in seconds
 
@@ -531,8 +604,9 @@ ShotDial gains extra tabs only when the toolkit's machine declares them:
 - °F is display only: the wheel shows °F with the machine's step, and the
   stored value is °C (INIT-01 Q5).
 
-**States:** as SCR-LOG. If a machine's capabilities are missing (user-added
-model without them), no extra tabs show.
+**States:** as SCR-LOG. If a user-added machine's temperature or pressure
+answer is "not sure", that tab doesn't show (see "Shot log with 'not sure'
+capabilities" under EPIC-01-06).
 
 **Components:** ShotDial (NC-09), NumberWheel (with `fahrenheit`), ChipGroup
 (NC-04), Button.
@@ -565,8 +639,23 @@ model without them), no extra tabs show.
    (`taste.low`, `taste.high`).
 4. **Defects**: multi-choice ChipGroup with the defect list (`defects.*`,
    list not yet defined, DQ-08).
-5. **Shot warning**: if channelling is tagged, Notice (warning tone)
-   `shot.warnings.channelling`. "Ran fast" waits for a threshold (DQ-09).
+5. **Shot warning** (in scope, PEC-04): as soon as channelling is tagged, a
+   block Notice in the warning tone, `shot.warnings.channelling`, appears
+   directly under the defects group (no layout jump above the user's thumb);
+   untagging removes it. "Ran fast" is out until a threshold exists (DQ-09).
+
+**Where the warning appears.** This epic owns the warning; other screens reuse
+it, never restyle it:
+
+| Place | Form |
+|---|---|
+| SCR-TASTE | Block Notice under the defects, on tagging |
+| SCR-SHOT | Block Notice under the values |
+| SCR-SHOTS rows | Inline Notice: one line of `signal` text, after the markers |
+| SCR-LOG edit mode | Block Notice under the defects, as on SCR-TASTE |
+
+Nowhere else uses `signal`. The defect chip itself stays monochrome when
+selected, like every other chip: the warning is the Notice, not the chip.
 6. Actions: primary `taste.done`, and secondary `recipe.pin` [pin as recipe]
    (EPIC-02-01). In fix and dial-in modes, pin is the primary action and done
    is secondary, because pinning is why the user came.
@@ -591,7 +680,12 @@ The same controls appear in SCR-SHOT for rating later, through edit.
 - Each scale is operable by touch and keyboard (arrow keys move, space or
   enter selects) and announced as a radio group with its label.
 - Choosing a score can be undone by tapping it again (back to unscored).
-- Signal colour appears only for the channelling warning.
+- Signal colour appears only for the channelling warning, and only while
+  channelling is tagged.
+- The warning reads the same everywhere a shot is shown (SCR-TASTE, SCR-SHOT,
+  SCR-SHOTS, edit), using the shared Notice in block or inline size.
+- The warning is text plus colour, never colour alone, so it passes without
+  colour vision.
 - The screen fits without scrolling on 430 x 932; on 375 x 667, defects may
   scroll but Done stays visible.
 
@@ -602,6 +696,8 @@ The same controls appear in SCR-SHOT for rating later, through edit.
 - DES-01-05-03 Design Notice (NC-10) warning tone and the rule that limits it
   to shot warnings; add stories.
 - DES-01-05-04 Propose a starter defect list for the Head of Product (DQ-08).
+- DES-01-05-05 Design the channelling warning in each place it appears
+  (block and inline Notice) and add stories for both sizes (round 2).
 
 #### EPIC-01-06: Add what's missing from the catalog
 
@@ -624,14 +720,56 @@ carried over as the name.
    (preset from the add-kit flow). For coffee: roaster (same pattern), bean
    name, and optional roast level (ChipGroup of the fixed list, S-09) and
    tasting notes (Input).
-4. **Capabilities (machines and grinders only).** Plain-language questions,
-   each with a "not sure" option that keeps the shot log simple (DQ-11):
-   - Machine temperature: ChipGroup `catalog.cap.none`, `catalog.cap.steps`
-     (then a count), `catalog.cap.exact` (then unit, min, max, step);
-     pressure: none, manual with gauge (Toggle), steps, exact.
-   - Grinder: stepped or stepless, lowest and highest number on the dial,
-     step, and "which way is coarser" (ChipGroup with
-     `catalog.cap.coarserHigher` and `catalog.cap.coarserLower`).
+4. **Capabilities (machines and grinders only; in scope, PEC-05).** The user
+   answers; the admin doesn't fill them in. A section `catalog.cap.title`
+   with one sentence on why (so the shot log shows the right fields). Each
+   question is a single ChipGroup whose last chip is `catalog.cap.notSure`.
+   Follow-up questions appear only after the answer that needs them. An
+   unanswered question saves as "not sure", and the section says so
+   (`catalog.cap.skipHint`), so the user can save without answering anything.
+
+   | Question | Answers | Follow-ups |
+   |---|---|---|
+   | Machine: `catalog.cap.tempQ` [can you set the brew temperature?] | no; a few settings; an exact number; not sure | Settings: `catalog.cap.howMany` (chips 2 to 5, not sure). Exact: unit (°C, °F, not sure), then lowest and highest (Input, decimal, optional) |
+   | Machine: `catalog.cap.pressureQ` [can you set or read the pressure?] | no; a lever, paddle or valve; a few settings; an exact number; not sure | Lever etc.: `catalog.cap.gaugeQ` [is there a pressure gauge?] yes, no, not sure. Settings: how many. Exact: lowest and highest bar (optional) |
+   | Grinder: `catalog.cap.dialQ` [does the dial click into steps?] | clicks; turns smoothly; not sure | |
+   | Grinder: `catalog.cap.rangeQ` [lowest and highest number on the dial] | two Inputs, decimal, each optional | |
+   | Grinder: `catalog.cap.stepQ` [smallest change you can make] | Input, decimal, optional; shown only for "clicks" | |
+   | Grinder: `catalog.cap.coarserQ` [which way is coarser?] | higher numbers; lower numbers; not sure | |
+
+   Every question is phrased around what the user sees on the machine or
+   grinder, never schema words (control, stepless, capabilities).
+
+**Shot log with "not sure" capabilities (DQ-11, updated round 2).** A "not
+sure" answer never blocks logging and never invents a guess that matters.
+Unknown parts fall back to the simplest honest behaviour:
+
+| Not sure about | Shot log behaviour |
+|---|---|
+| Temperature control | No temperature tab (as "none"). |
+| Number of temperature or pressure settings | Tab shows a numbered ChipGroup 1 to 5. |
+| Temperature unit | °C. |
+| Exact temperature range | NumberWheel 80 to 100 °C, step 0.5. |
+| Pressure control, or gauge on a lever machine | No pressure tab (as "none"). |
+| Exact pressure range | NumberWheel 0 to 12 bar, step 0.5. |
+| Clicks or smooth | Treated as smooth: grind step 0.1. |
+| Dial range | Grind wheel 0 to 100. Typed entry is the quickest way in, and the ruler only draws visible ticks, so a wide range costs nothing. |
+| Step (clicks) | Step 1. |
+| Which way is coarser | No finer and coarser captions on the grind wheel. Direction is never guessed, because a wrong caption is worse than none. |
+
+- When any part is "not sure", the grind tab or the affected tab shows a quiet
+  ghost link under its wheel, `log.capUnknown` [tell us about your grinder],
+  opening SCR-UNIT's capabilities. It shows at most once per screen, never as
+  a Notice, and disappears once answered.
+- **Answer later.** SCR-UNIT shows the capabilities with "not sure" ones
+  marked `unit.capNotSure`, and `unit.editCapabilities` reopens the same
+  questions for models the household added itself (unverified). Answering
+  later changes the shot log from then on; old shots keep their stored values
+  (grind is a number, steps are steps), so nothing is reinterpreted. This
+  "answer later" path needs an epic decision (PEC-08).
+- **Old values outside a new range.** If a later answer narrows the range,
+  editing an old shot widens that wheel's range to include its stored value,
+  so it's shown as saved and never clamped silently.
 5. **More links and other names**, under a disclosure `catalog.more`: repeatable
    rows of URL plus market (SelectField), and name plus market. Each extra
    link is checked like the first.
@@ -660,14 +798,24 @@ Button, PageHeader, ListRow.
   coarser"), not schema terms, and every one has a "not sure" answer.
 - After saving, the user lands back in the flow they came from with the new
   entry selected, in one step.
+- A machine or grinder can be saved with every capability question
+  unanswered, and the shot log still works for it.
+- Follow-up questions appear only when an answer needs them; a machine with
+  no temperature or pressure control is two taps.
+- With "not sure" about the coarser direction, the grind wheel shows no
+  direction captions, never a guessed one.
+- No "not sure" fallback ever shows as a warning or uses `signal`.
 
 **Design tasks** (`design`)
 
 - DES-01-06-01 Wireframe SCR-CATALOG-ADD for hardware and for coffee.
 - DES-01-06-02 Design the duplicate-found state and its two outcomes.
-- DES-01-06-03 Design the capability questions, with copy direction for
-  the story writer.
+- DES-01-06-03 Design the capability questions and follow-ups, with copy
+  direction for the story writer.
 - DES-01-06-04 Design the repeatable links and other names rows.
+- DES-01-06-05 Design the shot log's "not sure" fallbacks, the
+  `log.capUnknown` link, and the "answer later" capabilities on SCR-UNIT; add
+  ShotDial stories for a fully "not sure" grinder and machine (round 2).
 
 ### INIT-02: Every new bag starts from what you already learned
 
@@ -728,24 +876,31 @@ Button, PageHeader, ListRow.
 
 **UX flow**
 
-1. SCR-HOME shows the recipe for the persona, the drink (time-of-day default,
-   changeable) and the coffee (default per DQ-03, changeable). See section
-   2.3 for layout.
-2. Tap `home.pull`. The shot is recorded at once (optimistic, then confirmed),
+1. SCR-HOME shows the recipe for the persona, the drink (time-of-day default)
+   and the coffee (default per DQ-03). See section 2.3 for layout.
+2. **Optional: change drink or coffee** (in scope, PEC-03). Tap the drink
+   title or the coffee line; SH-SELECT opens with the usual choice marked;
+   choosing updates the card in place, and the pull uses the chosen drink and
+   coffee. A change applies to the next pull; whether it sticks is assumed in
+   section 2.3 (DQ-17). The user can change the drink while PulledState is
+   showing; that ends PulledState (the reaction stays available on the shot
+   in SCR-SHOTS) and shows the new recipe ready to pull.
+3. Tap `home.pull`. The shot is recorded at once (optimistic, then confirmed),
    with the recipe's values, its toolkit, and the earliest-opened open
    portion of the coffee. No rating is asked.
-3. PulledState (NC-07) appears in place: confirmation, undo for the window,
+4. PulledState (NC-07) appears in place: confirmation, undo for the window,
    good and off (EPIC-02-03).
-4. **No open portion of the coffee:** SH-PORTION opens before recording:
+5. **No open portion of the coffee:** SH-PORTION opens before recording:
    `portion.chooseTitle`, ListRows of unfinished portions of this coffee
    (bag, state, age, remaining). Choosing one records the shot against it and
    marks it opened today (DQ-06). Cancel records nothing.
-5. **No portion of the coffee at all:** SH-PORTION shows `portion.noneLeft`
+6. **No portion of the coffee at all:** SH-PORTION shows `portion.noneLeft`
    with secondary `home.addBag`; nothing is recorded.
-6. **Undo:** removes the shot entirely, and the portion's opened date if this
+7. **Undo:** removes the shot entirely, and the portion's opened date if this
    shot set it. Announced (`home.undone`).
-7. **Edit later** through SCR-SHOTS (EPIC-02-06).
-8. **No recipe:** primary becomes `home.dialIn` (section 2.3).
+8. **Edit later** through SCR-SHOTS (EPIC-02-06).
+9. **No recipe** for the drink and coffee shown, including after a change:
+   primary becomes `home.dialIn` (section 2.3).
 
 **States:** see section 2.3. Pull is protected against double taps: the
 button turns into PulledState immediately, so a second tap can't pull twice.
@@ -763,7 +918,13 @@ Checklist, Notice.
 - Undo is offered for the whole window and disappears quietly, with no
   countdown.
 - Changing drink or coffee on the home screen updates the recipe shown
-  without leaving the screen.
+  without leaving the screen, and the buttons don't move.
+- After a change, the one-tap pull is still one tap: two taps to choose, one
+  to pull, with no confirmation in between.
+- The usual drink and coffee are always marked in the select, so the way back
+  needs no reset control.
+- A change never becomes a hidden setting: the next default is explained by
+  history alone (DQ-17).
 - Only one primary button is on screen in every state.
 
 **Design tasks** (`design`)
@@ -772,6 +933,9 @@ Checklist, Notice.
 - DES-02-02-02 Design PulledState (NC-07) and its timing; add its story.
 - DES-02-02-03 Design SH-PORTION (choose, none left).
 - DES-02-02-04 Design the first-run Checklist on SCR-HOME.
+- DES-02-02-05 Design changing drink and coffee on SCR-HOME: SH-SELECT with
+  the usual marker, the in-place update, and the switch to the no-recipe
+  state (round 2).
 
 #### EPIC-02-03: Fix a bad shot from your recipe
 
@@ -824,10 +988,8 @@ SCR-TASTE.
    - end: compact ShotValues (dose to yield, time; grind on a second line);
    - markers in `text-overline` `ink-secondary`: `shots.oneTap` for one-tap
      shots, the reaction (`shots.good`, `shots.off`), `bag.fromFrozen`;
-   - shot warnings as warning-tone text (`signal`) only for channelling.
-   - Grind period dividers (EPIC-04-01): a hairline with `shots.maintenance`
-     [grinder maintenance, date] between shots on either side of a grinder
-     event.
+   - the channelling warning as an inline Notice (EPIC-01-05 owns it).
+   - Grind period dividers: owned by EPIC-04-01 and specified there.
 3. The list shows the last 30 days, then `shots.showOlder` (DQ-13).
 4. Tap a row: SCR-SHOT.
 
@@ -1061,9 +1223,27 @@ row.
    burrs, clean, re-zero, repair, other), date (default today), note
    (Input, optional), and for grinders a Toggle `maintenance.isRecalibration`
    (on by default for burrs and re-zero, DQ-15). Primary `maintenance.save`.
-3. For grinders, events split history into grind periods: SCR-UNIT shows the
-   current period's start (`maintenance.periodSince`), and SCR-SHOTS shows
-   dividers between periods (EPIC-02-06).
+3. For grinders, events split history into grind periods. This epic owns
+   where periods show (in scope, PEC-06):
+   - **SCR-UNIT:** above the maintenance list, one line `maintenance.periodSince`
+     [current grind period since 3 October], with the number of shots in it
+     (`maintenance.periodShots`). With no events: `maintenance.periodAll`
+     [all shots are in one period].
+   - **SCR-SHOTS dividers:** at the event's place in time, a full-width
+     divider: a `line-strong` hairline with one line of `text-overline`
+     `ink-secondary` text, `shots.maintenance` [grinder name, event kind,
+     date], plus `maintenance.recalibration` when marked. The grinder is named
+     by nickname, else model, so two grinders are never confused.
+   - A divider shows only for grinder events (not machine, basket or
+     accessory work), and only when the list holds at least one shot with that
+     grinder; a household with two grinders sees only the dividers that
+     matter to its listed shots.
+   - Dividers sit between day groups' rows without breaking them: an event on
+     a day with shots appears among that day's rows at its time.
+   - Tapping a divider opens SCR-UNIT for that grinder. It is a list item with
+     its text read aloud, not a decorative `hr`.
+   - Adding or back-dating an event moves its divider at once; past shots are
+     never changed.
 4. No offset or re-dial prompt in the MVP (EPIC-04-03 is Next).
 
 **States**
@@ -1079,12 +1259,20 @@ row.
 
 - Logging a re-zero today is three taps: add, re-zero, save.
 - The recalibration mark is text, not a colour or icon alone.
-- Period dividers in SCR-SHOTS appear only for the shot's own grinder.
+- Period dividers in SCR-SHOTS appear only for grinder events, and only for
+  grinders with shots in the list.
+- A divider names its grinder, the kind of work and the date, in text, and is
+  quieter than a shot row (overline size, no values) so the list still reads
+  as shots first.
+- The current period's start is visible on SCR-UNIT without opening anything.
+- Dividers mirror in right-to-left and are announced by screen readers.
 
 **Design tasks** (`design`)
 
 - DES-04-01-01 Design SH-MAINTENANCE and the maintenance section of SCR-UNIT.
-- DES-04-01-02 Design grind period dividers in SCR-SHOTS.
+- DES-04-01-02 Design grind period dividers in SCR-SHOTS, including two
+  grinders and an event on a day with shots, and the current-period line on
+  SCR-UNIT (updated round 2).
 
 ---
 
@@ -1204,6 +1392,23 @@ a fact, in ink, with signal reserved for shot warnings.
 
 For the epic-planner, who owns epics. Not designed around silently.
 
+### Accepted and applied
+
+PEC-01 to PEC-06 were **accepted by the Head of Product in round 2 and applied
+by the epic-planner in `epics.md` revision 4**. For PEC-05 the Head of Product
+chose the main proposal: users answer the capability questions, each with
+"not sure"; the admin does not fill them in. The text below is kept as
+proposed, for the record.
+
+| PEC | Epic | Status | Size in revision 4 |
+|---|---|---|---|
+| PEC-01 | EPIC-01-01 | Accepted, applied | S to M |
+| PEC-02 | EPIC-01-02 | Accepted, applied | M |
+| PEC-03 | EPIC-02-02 | Accepted, applied | M |
+| PEC-04 | EPIC-01-05 | Accepted, applied | S |
+| PEC-05 | EPIC-01-06 | Accepted, applied (user-answered) | M to L |
+| PEC-06 | EPIC-04-01 | Accepted, applied | S |
+
 - **PEC-01 EPIC-01-01: add the app shell.** No epic owns navigation (TabBar),
   page headers, the shared state patterns (loading, empty, error) or
   SCR-PROFILE's frame, yet every MVP epic needs them. Proposal: add them to
@@ -1236,6 +1441,29 @@ For the epic-planner, who owns epics. Not designed around silently.
   period dividers in SCR-SHOTS and the period start on SCR-UNIT belong to
   EPIC-04-01, answering its open question. No size change.
 
+### New in round 2 (proposed, pending the Head of Product)
+
+Both came out of designing the revision 4 changes.
+
+- **PEC-07 EPIC-02-01 (with EPIC-01-02): recipes after a toolkit's machine or
+  grinder changes.** Toolkit editing (PEC-02) lets a user swap the grinder or
+  machine in a toolkit that has recipes. A recipe's grind (and any temperature
+  or pressure step) only means something on the unit it was pinned with
+  (S-02), so pulling it with one tap on the new unit would record a shot that
+  never happened. Proposal: EPIC-02-01, which owns "which recipe applies now",
+  treats a recipe whose grinder or machine is no longer in its toolkit as
+  needing a re-dial: it is kept, shown, and offered for a pre-filled dial-in,
+  but never for a one-tap pull, until a new recipe is pinned. EPIC-01-02's
+  edit flow warns before such a swap. Small; no size change expected. In
+  Next, EPIC-04-03 offsets could later map such recipes instead, but only for
+  maintenance on the same unit, not for a different unit.
+- **PEC-08 EPIC-01-06: answer capabilities later.** With "not sure" accepted,
+  a user who later learns the answer has no way to give it, short of the admin.
+  Proposal: a household can edit the capabilities of models it added itself
+  while they are unverified, from SCR-UNIT, with the same questions. Old shots
+  are unaffected. Small within L. Whether verified entries' capabilities can
+  be corrected by households stays out (admin, then EPIC-06-07).
+
 ---
 
 ## 7a. UX concerns
@@ -1260,6 +1488,15 @@ For the epic-planner, who owns epics. Not designed around silently.
 - **Six value tabs in ShotDial.** Machines with exact temperature and
   pressure give six tabs; on a 375 px screen they fit only as compact values.
   Needs testing with real locales (long labels in some languages).
+- **"Not sure" degrades quietly (round 2).** Most people won't know their
+  grinder's dial range or which way is coarser. The fallbacks keep logging
+  working, but a grind wheel without direction captions and a 0 to 100 range
+  is a weaker experience exactly where Tare promises to know your kit. The
+  quiet `log.capUnknown` link and "answer later" (PEC-08) are the only nudges;
+  a seed list that covers common grinders matters more than this form.
+- **Toolkit swaps lose one tap (round 2).** After swapping a grinder, every
+  recipe on that toolkit needs a dial-in before one tap returns (PEC-07). That
+  is correct, but it can surprise; the swap confirmation must say so plainly.
 
 ## 8. Design questions for the Head of Product
 
@@ -1294,9 +1531,13 @@ reversed without changing the structure.
   it is.
 - **DQ-10** Duplicate link found: may the user still add their own entry?
   Design supports both; the ghost "add anyway" is hidden if not.
-- **DQ-11** "Not sure" capabilities: assumed no temperature or pressure field,
-  and for grinders a stepless 0 to 50 scale with step 0.5. Confirm, or prefer
-  the admin to fill them in.
+- **DQ-11** "Not sure" capabilities. *Updated round 2:* the Head of Product
+  chose user-answered questions with "not sure" (PEC-05). The shot log's
+  fallbacks are specified under EPIC-01-06 ("Shot log with 'not sure'
+  capabilities"): no temperature or pressure tab when control is unknown;
+  grind 0 to 100, step 0.1 (or 1 for clicking dials), no direction captions
+  when the coarser direction is unknown. Still to confirm: the exact fallback
+  ranges.
 - **DQ-12** Off reaction plus fix: assumed two records (the one-tap shot keeps
   "off", the fix is a new measured shot), as in `stories.md` (SQ-14 on doses).
 - **DQ-13** "Recent": assumed the last 30 days, then "show older".
@@ -1307,6 +1548,14 @@ reversed without changing the structure.
 - **DQ-16** Google sign-in button (Next): Google's branded button is colourful.
   Use it as-is in the one place it appears, or a monochrome variant if their
   guidelines allow?
+- **DQ-17** (round 2, the EPIC-02-02 open question) Does a drink or coffee
+  changed on the home screen stick for the next pull? Assumed: no saved
+  setting. A change applies to the next pull. Once pulled, the drink sticks
+  through history (the time-of-day rule picks the drink just pulled), and the
+  coffee sticks because the last pulled coffee for this persona and drink wins
+  over the DQ-03 default while it has an unfinished portion. A change with no
+  pull resets after 30 minutes away from the home screen. Details in section
+  2.3.
 
 ---
 
@@ -1316,14 +1565,14 @@ All labelled `design`.
 
 | Epic | Tasks |
 |---|---|
-| EPIC-01-01 | DES-01-01-01 to 05 |
-| EPIC-01-02 | DES-01-02-01 to 05 |
+| EPIC-01-01 | DES-01-01-01 to 06 |
+| EPIC-01-02 | DES-01-02-01 to 06 |
 | EPIC-01-03 | DES-01-03-01 to 05 |
 | EPIC-01-04 | DES-01-04-01, 02 |
-| EPIC-01-05 | DES-01-05-01 to 04 |
-| EPIC-01-06 | DES-01-06-01 to 04 |
+| EPIC-01-05 | DES-01-05-01 to 05 |
+| EPIC-01-06 | DES-01-06-01 to 05 |
 | EPIC-02-01 | DES-02-01-01 to 04 |
-| EPIC-02-02 | DES-02-02-01 to 04 |
+| EPIC-02-02 | DES-02-02-01 to 05 |
 | EPIC-02-03 | DES-02-03-01, 02 |
 | EPIC-02-06 | DES-02-06-01 to 03 |
 | EPIC-03-01 | DES-03-01-01 to 03 |
@@ -1333,7 +1582,9 @@ All labelled `design`.
 | EPIC-04-01 | DES-04-01-01, 02 |
 | Next (8 epics) | DES-05-03-01, DES-02-05-01, DES-02-04-01, DES-03-05-01, DES-05-01-01, 02, DES-04-02-01, DES-04-03-01, DES-04-04-01 |
 
-MVP: 50 design tasks. Next: 9. Later: none until re-planned.
+MVP: 55 design tasks (5 added in round 2: DES-01-01-06, DES-01-02-06,
+DES-01-05-05, DES-01-06-05, DES-02-02-05; DES-04-01-02 updated). Next: 9.
+Later: none until re-planned.
 
 ---
 
@@ -1350,3 +1601,39 @@ MVP: 50 design tasks. Next: 9. Later: none until re-planned.
   (NC-01 to NC-15) and two extensions to NumberWheel.
 - **Sent to the epic-planner:** proposed epic changes PEC-01 to PEC-06
   (section 7), pending the Head of Product's review. Not yet sent.
+
+### Round 2 (2026-10-18)
+
+- **Feedback received:** the Head of Product accepted all six proposed epic
+  changes, PEC-01 to PEC-06. For PEC-05, users answer the simple capability
+  questions, each with "not sure"; the admin does not fill them in. The
+  epic-planner applied them in `epics.md` revision 4. No feedback on the rest
+  of the design.
+- **What changed** (only what revision 4 affects; all IDs kept):
+  - EPIC-01-01: scope note for the app shell; interim empty state per tab
+    before its epic ships; shell acceptance criteria; DES-01-01-06.
+  - EPIC-01-02: the toolkit shortcut detailed (one tap with one machine and
+    one grinder, offered at the end of adding the second unit); toolkit
+    editing after shots exist; swap confirmation and the home screen's
+    needs-re-dial state (new row in the section 2.3 states table);
+    DES-01-02-06.
+  - EPIC-01-05: the channelling warning, when it appears, and where it is
+    reused (block and inline Notice); NC-10 gains an inline size (a variant,
+    not a new component); DES-01-05-05.
+  - EPIC-01-06: the capability questions and follow-ups, "not sure" on every
+    one, unanswered saves as "not sure"; the shot log's "not sure" fallbacks
+    (DQ-11 updated); "answer later" on SCR-UNIT; DES-01-06-05. EPIC-01-04's
+    states note points to the fallbacks.
+  - EPIC-02-02 and section 2.3: changing drink and coffee on the home screen
+    (usual marker, in-place update, no-recipe switch); the stickiness
+    assumption (new DQ-17); DES-02-02-05.
+  - EPIC-04-01: grind period dividers and the current-period line specified
+    (two grinders, events on a day with shots, accessibility); EPIC-02-06 now
+    points to EPIC-04-01 for them; DES-04-01-02 updated.
+  - Section 7: PEC-01 to PEC-06 marked accepted and applied.
+  - No new components.
+- **Sent to the epic-planner:** two new proposed changes, PEC-07 (recipes
+  whose grinder or machine left their toolkit need a re-dial, not a one-tap
+  pull; EPIC-02-01 with EPIC-01-02) and PEC-08 (a household can answer
+  capabilities later for models it added; EPIC-01-06), pending the Head of
+  Product.
