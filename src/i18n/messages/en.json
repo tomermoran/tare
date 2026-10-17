@@ -2,5 +2,30 @@
   "app": {
     "name": "Tare",
     "tagline": "An espresso journal that learns your palate."
+  },
+  "actions": {
+    "logShot": "Log shot",
+    "cancel": "Cancel",
+    "edit": "Edit"
+  },
+  "shot": {
+    "dose": "Dose",
+    "yield": "Yield",
+    "time": "Time",
+    "temperature": "Temperature",
+    "pressure": "Pressure",
+    "grind": "Grind",
+    "bean": "Bean",
+    "beanPlaceholder": "Ethiopia Guji, washed",
+    "doseHint": "Weigh the dry coffee in the basket.",
+    "doseRequired": "Enter a dose to log this shot.",
+    "ratio": "1 : {ratio}",
+    "warnings": {
+      "tooFast": "Ran fast",
+      "channelling": "Possible channelling"
+    },
+    "units": {
+      "bar": "bar"
+    }
   }
 }
