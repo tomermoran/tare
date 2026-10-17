@@ -20,13 +20,14 @@ Agreed while reviewing the schema in section 6, which already reflects them.
 - **Recipes belong to the bean.** A pinned recipe is scoped to bean, persona, toolkit and drink context, so a new bag of the same coffee starts from what was learned before. An optional batch override handles a bag that behaves differently.
 - **Batches hold portions.** The batch is the bag as bought (bean, roaster's lot code, roast date, best-before, bag weight, purchase date). Portions are what physically exists: their weight and when each was frozen, thawed, opened and finished. Shots are logged against a portion. Splitting a bag never duplicates roast date or lot.
 - **Freezing pauses aging.** Bean age runs from the roast date (best-before as a fallback when no roast date is printed), minus time in the freezer. A shot ground straight from frozen beans is identifiable from the dates alone.
-- **Calibration events mark breaks in grind history.** Re-zeroing, new burrs, deep cleans and toolkit component swaps are logged with a date, so shots before and after aren't compared as equals.
+- **Grind is relative to one grinder and one maintenance period.** A grind value only means something together with the physical grinder (an owned unit, not the model) and the period since its last maintenance event (burrs, cleaning, re-zero). Shots and recipes record the grinder and machine units directly, so later toolkit changes can't rewrite history. After maintenance, the user re-dials one coffee; the difference becomes the period's offset and is applied, when reading, to every recipe pinned on that grinder before the event. Bean aging between the two dial-ins is subtracted first, so it isn't blamed on the maintenance.
+- **Grind offsets are exact values, not percentages.** Dial numbers have an arbitrary zero, and a re-zero or worn burrs move the gap by the same amount at every setting, so a percentage would overcorrect coarse recipes and undercorrect fine ones. The offset is a shift in grinder units (e.g. -3), plus a stretch factor that stays 1 until two or more coffees are re-dialed after the same event (needed when new burrs of a different design change what each step means). Once the user confirms a re-dial, the offset is stored on the event: it's a user decision, kept stable and editable.
 - **Run-out prediction uses facts, not stored estimates.** Inputs: portion weights (including frozen stock), doses from logged shots, when portions were finished, optional stock checks (weighing what's left) and purchase dates. The one-tap "Pull This Shot" must record an extraction, or daily use is invisible. Finished portions give each household's real usage rate and how much of it logging captures.
 - **Calculated, never stored:** remaining weight, bag status (open, finished), bean age, usage rate, and drift adjustments.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
 - **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-Still open: timestamp precision (seconds or milliseconds), whether one login equals one household, grind as a per-grinder offset, and whether pinning a better recipe updates the bag's override or the bean's default.
+Still open: timestamp precision (seconds or milliseconds), whether one login equals one household, and whether pinning a better recipe updates the bag's override or the bean's default.
 
 ## 1. The North Star Vision & UVP
 
@@ -42,11 +43,11 @@ The system is built on a highly structured, real-world physical hierarchy to all
 
 - **Household (The Auth Tenant):** Managed via a single Google OAuth login.
 - **Personas:** Sub-profiles for different consumers (e.g., "[name]", "[name]") to isolate taste graphs.
-- **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT). Each component is canonical hardware that declares what it can control, e.g. a machine's temperature: none, steps or exact.
+- **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT). Each component is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser).
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Context:** The target output (Espresso, Milk Drink, Additives like Sugar).
-- **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Context, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, kit calibration) is calculated from logged shots on top of the pinned recipe, not stored.
-- **Calibration Events:** Dated changes to a Toolkit (grinder re-zeroed, new burrs, deep clean, component swapped). Shots on either side of an event are not directly comparable.
+- **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Context, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, kit maintenance) is calculated from logged shots on top of the pinned recipe, not stored.
+- **Maintenance Events:** Dated work on one owned unit (new burrs, cleaning, re-zero, repair). For a grinder, each event starts a new grind period; shots on either side are not directly comparable.
 
 ## 3. Algorithmic Intelligence & Data Trust
 
@@ -107,7 +108,9 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 //   pressure:    { control: 'none' | 'manual', gauge: boolean }    // fixed, or lever/paddle/valve
 //              | { control: 'steps', count: n }
 //              | { control: 'exact', min, max, step }               // bar
-// Grinders will describe their grind scale here (still an open question).
+// for grinders:
+//   grind: { type: 'stepped' | 'stepless', min, max, step, coarser: 'higher' | 'lower' }
+//   (`coarser` turns advice like "grind finer" into the right direction on the dial)
 export const canonicalHardware = sqliteTable('canonical_hardware', {
   id: text('id').primaryKey(),
   kind: text('kind').notNull(), // 'machine', 'grinder', 'basket', 'accessory'
@@ -130,21 +133,38 @@ export const personas = sqliteTable('personas', {
   isDefault: integer('is_default', { mode: 'boolean' }).default(false),
 });
 
+// The physical units a household owns. Maintenance and grind history belong to a unit,
+// not to the model (every Niche Zero) or to a toolkit (one grinder can be in several).
+export const userHardware = sqliteTable('user_hardware', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').references(() => users.id).notNull(),
+  hardwareId: text('hardware_id').references(() => canonicalHardware.id).notNull(), // The model
+  nickname: text('nickname'),
+  acquiredAt: integer('acquired_at', { mode: 'timestamp' }),
+  retiredAt: integer('retired_at', { mode: 'timestamp' }),
+});
+
 export const toolkits = sqliteTable('toolkits', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id).notNull(),
   name: text('name').notNull(), // e.g., "Daily Espresso"
-  components: text('components', { mode: 'json' }).notNull(), // Array of canonicalHardware IDs
+  components: text('components', { mode: 'json' }).notNull(), // Array of userHardware IDs
 });
 
-// Calibration history: shots either side of an event aren't directly comparable.
-export const calibrationEvents = sqliteTable('calibration_events', {
+// Maintenance on one owned unit. For a grinder, each event starts a new grind period:
+// shots either side aren't directly comparable. Once the user finalises a re-dial after
+// the event, the confirmed shift is stored here (a user decision, so it is kept rather
+// than recalculated). Grind in the new period = old grind x grindScale + grindShift.
+// Stored recipes are never rewritten; the mapping is applied when reading.
+export const maintenanceEvents = sqliteTable('maintenance_events', {
   id: text('id').primaryKey(),
-  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
-  component: text('component').notNull(), // Canonical hardware ID, e.g. the grinder
-  kind: text('kind').notNull(), // 'rezero', 'burrs', 'clean', 'swap'
+  userHardwareId: text('user_hardware_id').references(() => userHardware.id).notNull(),
+  kind: text('kind').notNull(), // 'burrs', 'clean', 'rezero', 'repair', 'other'
   note: text('note'),
   occurredAt: integer('occurred_at', { mode: 'timestamp' }).notNull(),
+  grindShift: real('grind_shift'), // Grinder units; set when a re-dial is confirmed
+  grindScale: real('grind_scale'), // Stretch factor; 1 unless 2+ coffees were re-dialed
+  offsetSourceRecipeId: text('offset_source_recipe_id').references(() => pinnedRecipes.id), // The re-dial it came from
 });
 
 // --- PANTRY ---
@@ -187,6 +207,8 @@ export const extractions = sqliteTable('extractions', {
   userId: text('user_id').references(() => users.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(),
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  grinderId: text('grinder_id').references(() => userHardware.id).notNull(), // Grind only means something for this unit
+  machineId: text('machine_id').references(() => userHardware.id).notNull(), // Temperature and pressure steps belong to it
   portionId: text('portion_id').references(() => batchPortions.id).notNull(), // Batch and bean follow from the portion
   drinkContext: text('drink_context').notNull(), // 'Espresso', 'Milk', 'Sweetened'
 
@@ -224,6 +246,8 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(),
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  grinderId: text('grinder_id').references(() => userHardware.id).notNull(),
+  machineId: text('machine_id').references(() => userHardware.id).notNull(),
   drinkContext: text('drink_context').notNull(),
   batchId: text('batch_id').references(() => userBatches.id), // Null = the bean's default
 
