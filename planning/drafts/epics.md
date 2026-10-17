@@ -280,10 +280,15 @@ scope, so they don't count as overlap:
 - **Description:** After a measured shot the user can rate it overall and score
   sweetness, acidity, bitterness and body from 1 to 5, and tag defects. This is
   the taste history later palate learning and coaching build on.
-- **Source sections:** S-08 (S-06 tactile inputs)
+- **Source sections:** S-08 (S-06 tactile inputs, S-01 shot-warning colour)
 - **Scope**
   - In: overall rating 1-5, four sensory scores 1-5, defect tags, all on the
     shot.
+  - In (PEC-04): shot warnings. When channelling is tagged, a channelling
+    warning shows in the signal colour, the only use of that colour. Other
+    epics that show a shot (such as the recent shots list, EPIC-02-06) reuse
+    this warning.
+  - Out: the "ran fast" warning, until a threshold is defined.
   - Out: the good/off reaction on one-tap shots (EPIC-02-03).
   - Out: any interpretation of the scores (EPIC-06-02, EPIC-06-04).
 - **Dependencies:** EPIC-01-03.
@@ -292,9 +297,9 @@ scope, so they don't count as overlap:
 - **Risks and open questions**
   - INIT-01 Q3: which sensory fields are required on a dial-in shot.
   - The defect list is not defined. S-09 names "Channelling"; the full set,
-    and whether it is fixed or user-defined, is missing.
-  - Shot warnings (too fast, channelling) use the signal colour, but the spec
-    doesn't define the thresholds for "too fast".
+    and whether it is fixed or user-defined, is missing (DQ-08).
+  - The "ran fast" threshold is not defined, so that warning stays out (DQ-09).
+    Until then the only MVP warning repeats a defect the user just tagged.
 
 ### EPIC-01-06: Add what's missing from the catalog
 
@@ -316,6 +321,10 @@ scope, so they don't count as overlap:
     and offers the existing entry.
   - In: applies to both catalogs (hardware and coffee), from the kit and
     pantry flows.
+  - In (PEC-05): for a user-added machine or grinder, enter its capabilities
+    by answering simple questions in the user's words (temperature and
+    pressure control, dial numbers, step, which way is coarser), each with a
+    "not sure" option.
   - Out: in-app tooling for verification and merges. Until EPIC-06-07 these
     are a manual admin task (S-02).
   - Out: fuzzy or LLM matching (EPIC-06-07).
@@ -323,15 +332,19 @@ scope, so they don't count as overlap:
   Shot logging doesn't depend on it, so it can be built in parallel with
   EPIC-01-03.
 - **Priority:** MVP
-- **Rough size:** M
+- **Rough size:** L (was M; capability entry was added in revision 4, PEC-05)
 - **Risks and open questions**
   - Ownership: the catalog serves both INIT-01 (hardware) and INIT-03 (coffee).
     Placed under INIT-01 as one epic so URL, alias and flag rules are built
     once. INIT-03 is not one of its sources in `initiatives.md`, which predates
     this decision.
-  - Who declares a user-added model's capabilities (temperature and pressure
-    control, grind scale, coarser direction)? The shot log depends on them,
-    but S-02 doesn't say whether the household enters them.
+  - Closed (PEC-05): the household enters a user-added model's capabilities.
+  - Capability entry is the riskiest part of this epic. What does "not sure"
+    mean for the shot log? Design assumes no temperature or pressure field,
+    and a generic stepless grind scale (DQ-11); confirm. Can the admin correct
+    capabilities on verification?
+  - At L, consider splitting if it runs long: coffee additions are simpler than
+    hardware additions with capabilities.
   - Closed (S-02): unverified additions are private to their household, and
     verification and merges are a manual admin task in the MVP.
   - Does the URL flag check other households' private entries? Matching
@@ -390,6 +403,9 @@ scope, so they don't count as overlap:
 - **Scope**
   - In: home screen uses the persona selected there (in the MVP, the one main
     persona) and that persona's last drink type at this time of day.
+  - In (PEC-03): before a pull, the user can change the drink and the coffee
+    on the home screen; the recipe shown updates in place, and the pull uses
+    the chosen drink and coffee.
   - In: "Pull This Shot" copies the pinned recipe's values into a shot marked
     one-tap, with the recipe's toolkit and the earliest-opened open portion of
     that bean; if no portion of the bean is open, it asks.
@@ -408,7 +424,12 @@ scope, so they don't count as overlap:
 - **Rough size:** M
 - **Risks and open questions**
   - What counts as "this time of day" (window size), and which drink is shown
-    for a persona with no history at this time? Not in the spec.
+    for a persona with no history at this time? Not in the spec (design
+    assumption DQ-02).
+  - PEC-03 answers the "can the user change it" part of SQ-06. Which coffee
+    the home screen shows by default is still open (DQ-03).
+  - Does a drink changed on the home screen stick for the next pull, or reset
+    to the time-of-day default? Not in the spec.
   - Opening a portion when none is open: does answering the prompt mark a
     portion opened? Links to the EPIC-03-02 question on who sets "opened".
   - Undo window length ("a few seconds") to be set at story level.
@@ -503,6 +524,8 @@ scope, so they don't count as overlap:
   - In: open a shot and edit its values in the shot log UI.
   - Out: filtering, search, charts or analysis (not in the spec).
   - Out: undo right after a one-tap shot (EPIC-02-02).
+  - Out: grind period dividers in the list (EPIC-04-01) and the shot warning
+    itself (EPIC-01-05); this list only hosts them.
 - **Dependencies:** EPIC-01-03 (shots to list, and the log UI to edit in),
   EPIC-01-04 (edits include temperature and pressure).
 - **Priority:** MVP (S-02: recent shots are visible in the MVP).
@@ -660,8 +683,12 @@ scope, so they don't count as overlap:
   - In: for grinders, each event starts a new grind period (derived from the
     dates); shots and recipes can be placed in a period.
   - In: let the user mark a recalibration (S-01).
+  - In (PEC-06): where grind periods show: maintenance dividers between shots
+    in the recent shots list, for the shot's own grinder, and the current
+    period's start on the unit screen.
   - Out: offsets (EPIC-04-03, EPIC-04-04).
-- **Dependencies:** EPIC-01-02.
+- **Dependencies:** EPIC-01-02 (units), EPIC-02-06 (the recent shots list the
+  dividers sit in).
 - **Priority:** MVP. Differs from the initiative (Next): S-02 now says
   maintenance events are recorded from Phase 1, so grind history is split
   correctly from day one.
@@ -672,9 +699,10 @@ scope, so they don't count as overlap:
 - **Rough size:** S
 - **Risks and open questions**
   - Is "mark a recalibration" (S-01) the same as a 'rezero' event, or a flag
-    on any event? Not in the spec.
-  - Where are grind periods visible to the user in the MVP? The recent shots
-    list (EPIC-02-06) is the obvious place, but it isn't specified there.
+    on any event? Not in the spec (design assumes a flag on any grinder
+    event, DQ-15).
+  - Closed (PEC-06): grind periods show as dividers in the recent shots list
+    and as the period start on the unit screen.
 
 ### EPIC-04-02: Suggested grind that follows bean age and recent shots
 
@@ -1024,7 +1052,7 @@ become its own epic again.
 
 | Initiative | Source sections | Covered by |
 |---|---|---|
-| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-03 (and design constraint); S-02: 01-01, 01-02, 01-03, 01-04, 01-06; S-04: 01-01, 01-02, 01-06; S-06: 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
+| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01, 01-02, 01-03, 01-04, 01-06; S-04: 01-01, 01-02, 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
 | INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01; S-02: 02-01 to 02-06; S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
 | INIT-03 | S-02, S-04, S-08 | S-02: all; S-04: 03-01, 03-02; S-08: 03-01, 03-02, 03-04, 03-05 |
 | INIT-04 | S-01, S-02, S-04, S-08 | S-01: 04-01, 04-02; S-02: all; S-04: 04-01, 04-02; S-08: 04-01, 04-03, 04-04 |
@@ -1061,6 +1089,16 @@ EPIC-06-05), maintenance from Phase 1 (EPIC-04-01).
   depends on it.
 - Editing shots: the recent shots list and edit flow are EPIC-02-06; EPIC-02-02
   only links to them for one-tap shots; undo stays in EPIC-02-02.
+- App shell (revision 4): the frame (tabs, headers, shared state patterns,
+  profile screen frame) is EPIC-01-01; each screen's content belongs to the
+  epic that owns it.
+- Shot warnings (revision 4): owned by EPIC-01-05; the recent shots list
+  (EPIC-02-06) only displays them.
+- Grind period display (revision 4): owned by EPIC-04-01; the recent shots
+  list (EPIC-02-06) and unit screen (EPIC-01-02) host it.
+- Catalog capabilities (revision 4): seeded models' capabilities come with the
+  seed list (EPIC-01-02); user-added models' capabilities are entered in
+  EPIC-01-06.
 
 ## Resolved questions
 
@@ -1094,6 +1132,16 @@ Answered by the Head of Product and recorded in S-02:
 - X-3, in part: one-tap shots are never network-eligible. Whether eligibility
   is computed from day one for measured shots stays open.
 
+Closed by the design review round 1 amendments (revision 4):
+
+- Toolkit editing after shots are logged (EPIC-01-02): allowed (PEC-02).
+- Who declares a user-added model's capabilities (EPIC-01-06): the household,
+  through simple questions with "not sure" (PEC-05).
+- Where grind periods are visible in the MVP (EPIC-04-01): recent shots
+  dividers and the unit screen (PEC-06).
+- Changing drink and coffee before a one-tap pull (EPIC-02-02, part of SQ-06):
+  allowed on the home screen (PEC-03).
+
 ## Suggested build order
 
 Dependencies first; within a priority, earlier delivers daily value sooner.
@@ -1107,8 +1155,8 @@ Dependencies first; within a priority, earlier delivers daily value sooner.
 5. EPIC-01-03 Log a shot in seconds (after 01-02, 03-01)
 6. EPIC-01-04 Record temperature and pressure (after 01-03)
 7. EPIC-02-06 See your recent shots (after 01-03, 01-04)
-8. EPIC-04-01 Record maintenance on your kit (after 01-02; early so grind
-   periods are right from the first shots)
+8. EPIC-04-01 Record maintenance on your kit (after 01-02, 02-06; early so
+   grind periods are right from the first shots)
 9. EPIC-02-01 Pin the recipe that worked (after 01-03, 01-04, 03-01)
 10. EPIC-02-02 Pull your daily shot in one tap (after 02-01, 02-06)
 11. EPIC-02-03 Fix a bad shot from your recipe (after 02-02)
