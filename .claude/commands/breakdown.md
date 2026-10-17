@@ -14,8 +14,8 @@ Run the Tare planning team on docs/spec.md. Stop for my approval at every gate.
    - Labels: initiative, epic, story, task, design, frontend, backend, qa
    - Create top-down so parents exist first, and link each child to its parent as a sub-issue
    - Every issue body starts with its planning ID and "Source: S-xx"
-   - Add every issue to the Tare project board
+   - Don't add issues to the project board with `gh`: the Tare board's auto-add workflow picks up new issues from this repo
 8. Write planning/trace.json (section ID → issue numbers and planning IDs) and save the current commit hash to planning/last-sync.txt. Commit the planning folder.
-9. Show a summary: issue counts per level and a link to the board.
+9. Show a summary: issue counts per level and a link to the repository's issues.
 
 Extra instructions from me, if any: $ARGUMENTS
