@@ -24,8 +24,9 @@ Agreed while reviewing the schema in section 6, which already reflects them.
 - **Run-out prediction uses facts, not stored estimates.** Inputs: portion weights (including frozen stock), doses from logged shots, when portions were finished, optional stock checks (weighing what's left) and purchase dates. The one-tap "Pull This Shot" must record an extraction, or daily use is invisible. Finished portions give each household's real usage rate and how much of it logging captures.
 - **Calculated, never stored:** remaining weight, bag status (open, finished), bean age, usage rate, and drift adjustments.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
+- **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-Still open: timestamp precision (seconds or milliseconds), whether one login equals one household, storing temperature and pressure, grind as a per-grinder offset, and whether pinning a better recipe updates the bag's override or the bean's default.
+Still open: timestamp precision (seconds or milliseconds), whether one login equals one household, grind as a per-grinder offset, and whether pinning a better recipe updates the bag's override or the bean's default.
 
 ## 1. The North Star Vision & UVP
 
@@ -41,7 +42,7 @@ The system is built on a highly structured, real-world physical hierarchy to all
 
 - **Household (The Auth Tenant):** Managed via a single Google OAuth login.
 - **Personas:** Sub-profiles for different consumers (e.g., "[name]", "[name]") to isolate taste graphs.
-- **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT).
+- **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT). Each component is canonical hardware that declares what it can control, e.g. a machine's temperature: none, steps or exact.
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Context:** The target output (Espresso, Milk Drink, Additives like Sugar).
 - **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Context, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, kit calibration) is calculated from logged shots on top of the pinned recipe, not stored.
@@ -98,6 +99,23 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
   tastingNotes: text('tasting_notes', { mode: 'json' }),
 });
 
+// Machines, grinders, baskets and accessories, with what each can control.
+// capabilities (JSON), for machines:
+//   temperature: { control: 'none' }
+//              | { control: 'steps', count: 3 }                     // e.g. a 1-3 setting
+//              | { control: 'exact', unit: 'C' | 'F', min, max, step }
+//   pressure:    { control: 'none' | 'manual', gauge: boolean }    // fixed, or lever/paddle/valve
+//              | { control: 'steps', count: n }
+//              | { control: 'exact', min, max, step }               // bar
+// Grinders will describe their grind scale here (still an open question).
+export const canonicalHardware = sqliteTable('canonical_hardware', {
+  id: text('id').primaryKey(),
+  kind: text('kind').notNull(), // 'machine', 'grinder', 'basket', 'accessory'
+  brand: text('brand').notNull(),
+  model: text('model').notNull(),
+  capabilities: text('capabilities', { mode: 'json' }),
+});
+
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(), // Auth UUID
   shareDataConsent: integer('share_data_consent', { mode: 'boolean' }).default(false),
@@ -116,7 +134,7 @@ export const toolkits = sqliteTable('toolkits', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id).notNull(),
   name: text('name').notNull(), // e.g., "Daily Espresso"
-  components: text('components', { mode: 'json' }).notNull(), // Array of canonical hardware IDs
+  components: text('components', { mode: 'json' }).notNull(), // Array of canonicalHardware IDs
 });
 
 // Calibration history: shots either side of an event aren't directly comparable.
@@ -178,6 +196,13 @@ export const extractions = sqliteTable('extractions', {
   yieldWeight: real('yield_weight').notNull(),
   yieldTime: integer('yield_time').notNull(), // milliseconds; shown as seconds with one decimal
 
+  // Optional, only when the machine can set them. At most one of each pair is filled,
+  // matching the machine's capability; steps are never converted to °C or bar.
+  brewTempC: real('brew_temp_c'), // Exact temperature, always stored in °C
+  brewTempStep: integer('brew_temp_step'), // Stepped setting, e.g. 2 on a 1-3 dial
+  pressureBar: real('pressure_bar'), // Exact setting, or peak gauge reading on manual machines
+  pressureStep: integer('pressure_step'), // Stepped setting
+
   // Sensory outputs (1-5) & Diagnostics
   userRating: integer('user_rating'), // 1-5 overall
   scoreSweetness: integer('score_sweetness'),
@@ -206,6 +231,10 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   doseWeight: real('dose_weight').notNull(),
   yieldWeight: real('yield_weight').notNull(),
   yieldTime: integer('yield_time').notNull(), // Milliseconds
+  brewTempC: real('brew_temp_c'), // Same optional pairs as extractions
+  brewTempStep: integer('brew_temp_step'),
+  pressureBar: real('pressure_bar'),
+  pressureStep: integer('pressure_step'),
 
   sourceExtractionId: text('source_extraction_id').references(() => extractions.id), // The shot it came from, if any
   pinnedAt: integer('pinned_at', { mode: 'timestamp' }).notNull(),
