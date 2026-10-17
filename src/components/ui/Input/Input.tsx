@@ -49,12 +49,12 @@ export function Input({
           aria-describedby={message ? messageId : undefined}
           className={cx(
             "min-w-0 flex-1 bg-transparent text-body text-ink outline-none",
-            "placeholder:text-ink-tertiary disabled:cursor-not-allowed",
+            "placeholder:text-ink-secondary disabled:cursor-not-allowed",
           )}
           {...props}
         />
         {unit && (
-          <span aria-hidden="true" className="text-body text-ink-tertiary">
+          <span aria-hidden="true" className="text-body text-ink-secondary">
             {unit}
           </span>
         )}
