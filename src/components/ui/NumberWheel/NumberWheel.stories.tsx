@@ -67,6 +67,31 @@ export const Time: Story = {
     majorEvery: 10,
     unit: "second",
   },
+  /** Type a time read off the scale. Only digits and "." get through. */
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("textbox", { name: shot.time });
+    const slider = canvas.getByRole("slider", { name: shot.time });
+
+    // Letters are dropped and a second decimal digit is blocked.
+    await userEvent.click(field);
+    await userEvent.keyboard("2a9.35s");
+    await expect(field).toHaveValue("29.3");
+    await userEvent.keyboard("{Enter}");
+    await expect(slider).toHaveAttribute("aria-valuenow", "29.3");
+
+    // Escape cancels without saving.
+    await userEvent.click(field);
+    await userEvent.keyboard("31{Escape}");
+    await expect(slider).toHaveAttribute("aria-valuenow", "29.3");
+    await expect(field).toHaveValue("29.3");
+
+    // Out-of-range values clamp to the maximum when the field loses focus.
+    await userEvent.click(field);
+    await userEvent.keyboard("99");
+    await userEvent.click(slider);
+    await expect(slider).toHaveAttribute("aria-valuenow", "60");
+  },
 };
 
 export const Temperature: Story = {

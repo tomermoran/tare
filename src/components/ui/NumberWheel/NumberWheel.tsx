@@ -12,7 +12,14 @@ import {
   type PointerEvent,
 } from "react";
 import { cx } from "@/lib/cx";
-import { decimalsOf, formatValueParts, type CanonicalUnit } from "@/lib/units";
+import {
+  decimalSeparator,
+  decimalsOf,
+  formatValueParts,
+  parseDecimal,
+  sanitizeDecimal,
+  type CanonicalUnit,
+} from "@/lib/units";
 
 type NumberWheelProps = {
   /** Visible label, e.g. "Dose". Also the slider's accessible name. */
@@ -45,6 +52,10 @@ const MAX_FLICK_PX_PER_MS = 3;
  * the fixed centre needle; it snaps to the nearest step. Fully operable by
  * keyboard (arrows, Page Up/Down, Home/End) and announced as a slider.
  * In right-to-left layouts the ruler mirrors: values increase leftwards.
+ *
+ * The big number is also a text field, for typing a value read off a scale.
+ * It accepts digits and one decimal mark only, and commits on Enter or blur
+ * (snapped to the step and clamped to the range). Escape cancels.
  */
 export function NumberWheel({
   label,
@@ -60,6 +71,7 @@ export function NumberWheel({
 }: NumberWheelProps) {
   const locale = useLocale();
   const labelId = useId();
+  const unitId = useId();
   const rulerRef = useRef<HTMLDivElement>(null);
   const decimals = decimalsOf(step);
 
@@ -68,6 +80,9 @@ export function NumberWheel({
   const [livePosition, setLivePosition] = useState<number | null>(null);
   const position = livePosition ?? value;
   const [width, setWidth] = useState(0);
+  // Text being typed into the big number; null when not editing.
+  const [draft, setDraft] = useState<string | null>(null);
+  const separator = decimalSeparator(locale);
 
   // Handlers and animation frames read these between renders.
   const positionRef = useRef(position);
@@ -273,10 +288,43 @@ export function NumberWheel({
     emit(next);
   };
 
+  // Enter and Escape blur the field themselves; the blur that follows must
+  // not commit again (or, after Escape, commit the text being cancelled).
+  const skipBlurCommit = useRef(false);
+
+  const commitDraft = () => {
+    if (skipBlurCommit.current) {
+      skipBlurCommit.current = false;
+      return;
+    }
+    if (draft === null) return;
+    const typed = parseDecimal(draft, separator);
+    setDraft(null);
+    if (typed === null) return;
+    stopAnimation();
+    setLivePosition(null);
+    emit(typed);
+  };
+
+  const onDraftKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitDraft();
+      skipBlurCommit.current = true;
+      e.currentTarget.blur();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setDraft(null);
+      skipBlurCommit.current = true;
+      e.currentTarget.blur();
+    }
+  };
+
   // Display the snapped value even mid-drag, so digits change in whole steps.
   const shown = snap(position);
   const parts = formatValueParts(locale, shown, decimals, unit);
   const unitText = unitLabel ?? parts.unit;
+  const fieldText = draft ?? parts.number;
   const valueText = unitLabel
     ? `${parts.number} ${unitLabel}`
     : new Intl.NumberFormat(locale, {
@@ -307,9 +355,35 @@ export function NumberWheel({
         {label}
       </span>
 
-      <div className="flex items-baseline gap-2" aria-hidden="true">
-        <span className="text-display-xl">{parts.number}</span>
-        {unitText && <span className="text-h2 text-ink-tertiary">{unitText}</span>}
+      <div className="flex items-baseline gap-2">
+        <input
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          enterKeyHint="done"
+          aria-labelledby={labelId}
+          aria-describedby={unitText ? unitId : undefined}
+          value={fieldText}
+          onFocus={(e) => {
+            setDraft(parts.number);
+            e.currentTarget.select();
+          }}
+          onChange={(e) =>
+            setDraft(sanitizeDecimal(e.target.value, separator, decimals))
+          }
+          onBlur={commitDraft}
+          onKeyDown={onDraftKeyDown}
+          className={cx(
+            "text-display-xl bg-transparent text-end text-ink outline-none",
+            "border-b border-transparent focus:border-ink",
+          )}
+          style={{ width: fieldWidth(fieldText, separator) }}
+        />
+        {unitText && (
+          <span id={unitId} aria-hidden="true" className="text-h2 text-ink-tertiary">
+            {unitText}
+          </span>
+        )}
       </div>
 
       <div
@@ -361,6 +435,13 @@ export function NumberWheel({
       </div>
     </div>
   );
+}
+
+/** Sizes the field to its text: tabular digits are 1ch, the decimal mark about half. */
+function fieldWidth(text: string, separator: string) {
+  const marks = text.split(separator).length - 1;
+  const digits = text.length - marks;
+  return `${Math.max(1, digits + marks * 0.5)}ch`;
 }
 
 function isRtl(el: Element) {

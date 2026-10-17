@@ -17,6 +17,52 @@ export function secondsToMs(seconds: number) {
   return Math.round(seconds * 1000);
 }
 
+/** The locale's decimal mark: "." in English, "," in German. */
+export function decimalSeparator(locale: string) {
+  return (
+    new Intl.NumberFormat(locale)
+      .formatToParts(1.1)
+      .find((p) => p.type === "decimal")?.value ?? "."
+  );
+}
+
+/**
+ * Filters typed text down to a decimal number: digits plus one decimal mark
+ * (".", or the locale's own), with at most `maxDecimals` digits after it.
+ * Everything else is dropped as it is typed.
+ */
+export function sanitizeDecimal(
+  raw: string,
+  separator: string,
+  maxDecimals: number,
+) {
+  let out = "";
+  let seenMark = false;
+  let decimals = 0;
+  for (const ch of raw) {
+    if (ch >= "0" && ch <= "9") {
+      if (seenMark) {
+        if (decimals >= maxDecimals) continue;
+        decimals++;
+      }
+      out += ch;
+    } else if ((ch === "." || ch === separator) && !seenMark) {
+      // With no decimals allowed, the mark isn't shown and digits after it
+      // are ignored, so "28.5" stays 28 rather than becoming 285.
+      seenMark = true;
+      if (maxDecimals > 0) out += separator;
+    }
+  }
+  return out;
+}
+
+/** Parses sanitised text back to a number; null if there's nothing to parse. */
+export function parseDecimal(text: string, separator: string) {
+  if (!/\d/.test(text)) return null;
+  const n = Number(text.replace(separator, "."));
+  return Number.isFinite(n) ? n : null;
+}
+
 /** Number of decimals implied by a step: 0.1 → 1, 0.25 → 2, 1 → 0. */
 export function decimalsOf(step: number) {
   return (String(step).split(".")[1] ?? "").length;
