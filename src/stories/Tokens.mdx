@@ -1,0 +1,54 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import {
+  GreyScale,
+  RadiusScale,
+  SemanticColors,
+  SpacingScale,
+  TypeScale,
+} from "./TokenDocs";
+
+<Meta title="Foundations/Tokens" />
+
+# Tokens
+
+Everything is defined once in `src/styles/tokens.css`. Tailwind turns each token
+into utility classes (`text-ink`, `bg-surface`, `text-h1`, `rounded-md`), and this
+page reads the same values live.
+
+Tare is calm and minimal. Hierarchy comes from **size, weight and space**, not
+colour. Numbers use thin weights at large sizes, and every number is tabular so
+digits line up and don't jitter as values change.
+
+## Type scale
+
+Inter. Weight 200 for display numbers, 300 for headings, 400 for everything small.
+
+<TypeScale />
+
+## Colour
+
+### Warm grey scale
+
+From paper white to warm charcoal. Components never use these steps directly.
+
+<GreyScale />
+
+### Semantic colours
+
+What components actually use. A future dark theme only needs to redefine these.
+`signal` is reserved for shot warnings (too fast, channelling) and nothing else.
+
+<SemanticColors />
+
+## Spacing
+
+A 4px base. Generous space between sections (48–96px) is what makes the layout feel calm.
+
+<SpacingScale />
+
+## Radius
+
+Soft but not bubbly. `md` for controls, `lg` for cards. No shadows: hairlines and
+surface steps separate things instead.
+
+<RadiusScale />

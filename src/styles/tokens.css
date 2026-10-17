@@ -11,9 +11,12 @@
  *   override the semantic variables, nothing else changes.
  * - Hierarchy comes from size, weight and spacing — not colour.
  * - `signal` is reserved for shot warnings (too fast, channelling, …).
+ *
+ * `static` emits every variable even when no class uses it yet, so the
+ * Storybook token page and any custom CSS can always rely on them.
  */
 
-@theme {
+@theme static {
   /* Remove Tailwind's default palette and shadows so only Tare tokens exist. */
   --color-*: initial;
   --shadow-*: initial;
