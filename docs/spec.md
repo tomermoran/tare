@@ -5,7 +5,7 @@ Master Product & Engineering Specification
 > The updates below are newer than the rest of this spec. Where they differ,
 > the updates win.
 
-## Updates (October 2026)
+## S-01 Updates (October 2026)
 
 - Target user: everyday home enthusiasts, not semi-pros. Goal: great coffee from every new bag, in fewer shots, tuned to your palate.
 - Core differentiators: palate learning and drift-aware dial-in.
@@ -13,9 +13,9 @@ Master Product & Engineering Specification
 - Roadmap: Phase 1 is a basic app for logging shots and managing recipes, toolkits and the pantry. AI features come later, each with evals and observability. RAG will ground the Diagnostic Coach in extraction guides and equipment manuals.
 - Design: Inter, thin weights at large sizes, regular weight for small labels. Monochrome warm grey palette with one muted colour for shot warnings.
 
-## Data model decisions (October 2026)
+## S-02 Data model decisions (October 2026)
 
-Agreed while reviewing the schema in section 6, which already reflects them.
+Agreed while reviewing the schema in S-08, which already reflects them.
 
 - **Recipes belong to the bean.** A pinned recipe is scoped to bean, persona, toolkit and drink context, so a new bag of the same coffee starts from what was learned before. An optional batch override handles a bag that behaves differently.
 - **Batches hold portions.** The batch is the bag as bought (bean, roaster's lot code, roast date, best-before, bag weight, purchase date). Portions are what physically exists: their weight and when each was frozen, thawed, opened and finished. Shots are logged against a portion. Splitting a bag never duplicates roast date or lot.
@@ -33,13 +33,13 @@ Agreed while reviewing the schema in section 6, which already reflects them.
 
 Still open: timestamp precision (seconds or milliseconds), and whether pinning a better recipe updates the bag's override or the bean's default.
 
-## 1. The North Star Vision & UVP
+## S-03 The North Star Vision & UVP
 
 **The Vision:** To build the definitive context-aware operating system for the specialty coffee ritual. Tare eliminates the "Cold Start" waste of dialing in espresso by transforming single-player brewing diaries into a dynamic, predictive network matched to the user’s exact hardware and personal palate.
 
 **Unique Value Proposition (UVP):** "The only coffee journal that actually knows your setup and your taste. Stop guessing, start brewing."
 
-## 2. Core Product Architecture & Ontology
+## S-04 Core Product Architecture & Ontology
 
 The system is built on a highly structured, real-world physical hierarchy to allow for frictionless, "smart default" daily use.
 
@@ -53,7 +53,7 @@ The system is built on a highly structured, real-world physical hierarchy to all
 - **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Context, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, kit maintenance) is calculated from logged shots on top of the pinned recipe, not stored.
 - **Maintenance Events:** Dated work on one owned unit (new burrs, cleaning, re-zero, repair). For a grinder, each event starts a new grind period; shots on either side are not directly comparable.
 
-## 3. Algorithmic Intelligence & Data Trust
+## S-05 Algorithmic Intelligence & Data Trust
 
 ### A. The "Cold Start" Baseline & Temporal Anchoring
 
@@ -73,7 +73,7 @@ Technical perfection does not equal subjective preference. When displaying a Col
 
 **Output:** If the Pro optimizes for bright acidity but the user prefers chocolate/heavy body, the UI surfaces a Match Score Warning and the AI Coach suggests an automatic variable translation to push the Pro's recipe toward the user's palate.
 
-## 4. UX/UI Philosophy: The Frictionless Ritual
+## S-06 UX/UI Philosophy: The Frictionless Ritual
 
 The interface follows a modern, digital Japandi aesthetic (clean, minimalist, progressive disclosure).
 
@@ -82,13 +82,13 @@ The interface follows a modern, digital Japandi aesthetic (clean, minimalist, pr
 - **Exception-Based Logging:** Users do not log every successful shot. They only interact with the extraction UI when dialing in a new bag, or when a shot goes wrong (e.g., due to bean aging), at which point the app pre-fills the Pinned Recipe variables for a quick micro-adjustment.
 - **Tactile Inputs:** Large, draggable number wheels/scrubbers for variables. No tiny text keyboards.
 
-## 5. Privacy, GDPR & Localization (i18n)
+## S-07 Privacy, GDPR & Localization (i18n)
 
 - **Consent:** Explicit opt-in required to push anonymized telemetry to the global Cold Start network. Consent is personal: a persona's shots reach the network only once that person has their own login and has opted in, regardless of who logged them.
 - **Decoupling:** Network extractions strip PII and use cohort IDs.
 - **Localization:** No hardcoded strings. UI respects European vs. US numerical formatting (comma vs. decimal) while saving canonical floats to the database. RTL-ready logical CSS properties (Tailwind).
 
-## 6. The Database Schema (Drizzle ORM / SQLite)
+## S-08 The Database Schema (Drizzle ORM / SQLite)
 
 Instructions for the coding agent: Implement this relational schema to support the Stateful Hardware Ledger, Toolkits, Batches, and Pinned Recipes.
 
@@ -292,7 +292,7 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
 });
 ```
 
-## 7. Core GenAI System Prompts
+## S-09 Core GenAI System Prompts
 
 ### Prompt 1: The Vision Scanner (Gemini Flash)
 
