@@ -72,7 +72,7 @@ The interface follows a modern, digital Japandi aesthetic (clean, minimalist, pr
 Instructions for the coding agent: Implement this relational schema to support the Stateful Hardware Ledger, Toolkits, Batches, and Pinned Recipes.
 
 ```ts
-import { sqliteTable, text, integer, real, boolean } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
 // --- CANONICAL & GLOBAL ---
 export const canonicalBeans = sqliteTable('canonical_beans', {
@@ -85,7 +85,7 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(), // Auth UUID
-  shareDataConsent: boolean('share_data_consent').default(false),
+  shareDataConsent: integer('share_data_consent', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
 
@@ -94,7 +94,7 @@ export const personas = sqliteTable('personas', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id).notNull(),
   name: text('name').notNull(),
-  isDefault: boolean('is_default').default(false),
+  isDefault: integer('is_default', { mode: 'boolean' }).default(false),
 });
 
 export const toolkits = sqliteTable('toolkits', {
@@ -136,7 +136,7 @@ export const extractions = sqliteTable('extractions', {
   scoreBody: integer('score_body'),
   defects: text('defects', { mode: 'json' }),
 
-  isNetworkEligible: boolean('is_network_eligible').default(false),
+  isNetworkEligible: integer('is_network_eligible', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
 ```
