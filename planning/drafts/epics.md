@@ -1,14 +1,15 @@
-# Tare epics (approved, revision 4)
+# Tare epics (final, revision 5)
 
 Source: `planning/drafts/initiatives.md` (approved by the Head of Product) and
 `docs/spec.md`, sections S-01 to S-09. S-01 and S-02 override older sections
 where they differ. Revision 2 applied the Head of Product's answers; revision 3
 applied the three changes made at approval, also recorded in S-02; revision 4
-applies the epic changes from design review round 1 (PEC-01 to PEC-06 in
-`planning/drafts/design.md`), accepted by the Head of Product.
+applied the epic changes from design review round 1 (PEC-01 to PEC-06 in
+`planning/drafts/design.md`); revision 5 applies PEC-07 and PEC-08 from design
+review round 2. All were accepted by the Head of Product.
 
-**Status: approved by the Head of Product** (revision 3), with the revision 4
-changes below as approved amendments. No GitHub issues have been created.
+**Status: final, approved by the Head of Product after design review**
+(revision 5). No GitHub issues have been created.
 
 Initiative open questions are referenced as `INIT-NN Q#`, numbered in the order
 they appear in `initiatives.md`. Cross-cutting questions are `X-1` (timestamp
@@ -16,6 +17,17 @@ precision), `X-2` (success targets) and `X-3` (network eligibility in Phase 1).
 Questions answered in this revision are listed under "Resolved questions".
 
 ## Changes in this revision
+
+Revision 5 (design review round 2, approved amendments PEC-07 and PEC-08):
+
+- **PEC-07, EPIC-02-01 with EPIC-01-02, sizes unchanged (M, M):** a recipe
+  whose grinder or machine is no longer in its toolkit can't be pulled with one
+  tap. It's kept, and offered for a pre-filled dial-in until a new recipe is
+  pinned. EPIC-01-02 warns before swapping a toolkit's machine or grinder when
+  recipes were pinned on it.
+- **PEC-08, EPIC-01-06, size unchanged (L):** a household can edit the
+  capabilities of models it added itself while they're still unverified. Old
+  shots keep their stored values.
 
 Revision 4 (design review round 1, approved amendments PEC-01 to PEC-06):
 
@@ -199,6 +211,9 @@ scope, so they don't count as overlap:
     these your toolkit", with both preselected and a translated default name.
   - In (PEC-02): edit a toolkit after shots are logged against it; past shots
     keep their own grinder and machine, so nothing is lost (S-02).
+  - In (PEC-07): before swapping a toolkit's machine or grinder, warn how many
+    recipes were pinned on the old unit and that they'll need a new dial-in.
+    What happens to those recipes is EPIC-02-01.
   - Out: adding missing makers or models (EPIC-01-06).
   - Out: maintenance events (EPIC-04-01).
 - **Dependencies:** EPIC-01-01 (units and toolkits belong to a household).
@@ -325,6 +340,11 @@ scope, so they don't count as overlap:
     by answering simple questions in the user's words (temperature and
     pressure control, dial numbers, step, which way is coarser), each with a
     "not sure" option.
+  - In (PEC-08): while a model the household added is still unverified, the
+    household can edit its capabilities, for example to answer a "not sure"
+    later. Changes apply to the shot log from then on; old shots keep their
+    stored values, so nothing is reinterpreted.
+  - Out: editing capabilities of seeded or verified models.
   - Out: in-app tooling for verification and merges. Until EPIC-06-07 these
     are a manual admin task (S-02).
   - Out: fuzzy or LLM matching (EPIC-06-07).
@@ -376,6 +396,10 @@ scope, so they don't count as overlap:
   - In: re-pinning adds a row; the latest pin wins.
   - In: see the current recipe for a bean, persona, toolkit and drink type; it
     applies to every batch of that bean.
+  - In (PEC-07): a recipe whose grinder or machine is no longer in its toolkit
+    can't be pulled with one tap. It's kept, marked as needing a new dial-in,
+    and offered for a pre-filled dial-in until a new recipe is pinned, which
+    restores one tap.
   - Out: batch overrides (EPIC-02-04).
   - Out: drift or offset adjustments when reading (INIT-04).
 - **Dependencies:** EPIC-01-03 (pin from a shot), EPIC-01-04 (recipes carry the
@@ -391,6 +415,8 @@ scope, so they don't count as overlap:
     is nullable, so the schema allows it, but no flow is described.
   - Can a one-tap shot be pinned? It only copies a recipe, so pinning it would
     add nothing; confirm it's excluded.
+  - PEC-07 covers a unit swapped out of a toolkit. Does the same rule apply
+    when a unit in the toolkit is retired? It's implied but not stated.
 
 ### EPIC-02-02: Pull your daily shot in one tap
 
@@ -1097,8 +1123,12 @@ EPIC-06-05), maintenance from Phase 1 (EPIC-04-01).
 - Grind period display (revision 4): owned by EPIC-04-01; the recent shots
   list (EPIC-02-06) and unit screen (EPIC-01-02) host it.
 - Catalog capabilities (revision 4): seeded models' capabilities come with the
-  seed list (EPIC-01-02); user-added models' capabilities are entered in
-  EPIC-01-06.
+  seed list (EPIC-01-02); user-added models' capabilities are entered, and
+  edited while unverified (revision 5), in EPIC-01-06.
+- Recipes on a swapped-out unit (revision 5): the swap warning is EPIC-01-02;
+  the rule that such a recipe can't be pulled with one tap, and is offered for
+  a pre-filled dial-in, is EPIC-02-01; the home screen (EPIC-02-02) only
+  applies it.
 
 ## Resolved questions
 

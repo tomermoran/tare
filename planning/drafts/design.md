@@ -1,4 +1,4 @@
-# Tare design (draft, round 2)
+# Tare design (approved)
 
 Source: `planning/drafts/epics.md` (approved by the Head of Product, revision
 4, 30 epics, with PEC-01 to PEC-06 applied as approved amendments), `docs/spec.md` S-01 to S-09 (S-01 and S-02 override older
@@ -8,7 +8,8 @@ sections), and the Phase 0 design system: `src/styles/tokens.css`,
 version) was read for context only; this design is per epic, and stories will
 be revised against it.
 
-**Status: draft for the Head of Product, design review round 2.** Round 2
+**Status: design approved by the Head of Product after review round 2.**
+PEC-07 and PEC-08 were also accepted (applied in epics revision 5). Round 2
 updates only the flows touched by revision 4 of the epics (EPIC-01-01,
 01-02, 01-05, 01-06, 02-02, 04-01); everything else is unchanged from round 1.
 No GitHub issues have been created. Nothing here is production code.
@@ -1441,9 +1442,10 @@ proposed, for the record.
   period dividers in SCR-SHOTS and the period start on SCR-UNIT belong to
   EPIC-04-01, answering its open question. No size change.
 
-### New in round 2 (proposed, pending the Head of Product)
+### New in round 2 (accepted, applied in epics revision 5)
 
-Both came out of designing the revision 4 changes.
+Both came out of designing the revision 4 changes. **Both were accepted by
+the Head of Product at approval and are applied in `epics.md` revision 5.**
 
 - **PEC-07 EPIC-02-01 (with EPIC-01-02): recipes after a toolkit's machine or
   grinder changes.** Toolkit editing (PEC-02) lets a user swap the grinder or
@@ -1637,3 +1639,9 @@ Later: none until re-planned.
   pull; EPIC-02-01 with EPIC-01-02) and PEC-08 (a household can answer
   capabilities later for models it added; EPIC-01-06), pending the Head of
   Product.
+
+### Approval (2026-10-18)
+
+- **Outcome of round 2:** the Head of Product approved the design, and
+  accepted PEC-07 and PEC-08; the epic-planner applies them as epics
+  revision 5. No further feedback.
