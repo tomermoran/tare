@@ -7,7 +7,9 @@
   "actions": {
     "logShot": "Log shot",
     "cancel": "Cancel",
-    "edit": "Edit"
+    "edit": "Edit",
+    "retry": "Try again",
+    "save": "Save"
   },
   "shot": {
     "dose": "Dose",
@@ -27,6 +29,93 @@
     },
     "units": {
       "bar": "bar"
-    }
+    },
+    "compact": "{dose} → {yield} · {time}",
+    "valuesLabel": "Shot values",
+    "grindValue": "Grind {grind}"
+  },
+  "nav": {
+    "label": "Main",
+    "brew": "Brew",
+    "shots": "Shots",
+    "pantry": "Pantry",
+    "kit": "Kit"
+  },
+  "profile": {
+    "defaultName": "Me"
+  },
+  "drinks": {
+    "espresso": "Espresso",
+    "ristretto": "Ristretto",
+    "lungo": "Lungo",
+    "americano": "Americano",
+    "cortado": "Cortado",
+    "flatWhite": "Flat white",
+    "cappuccino": "Cappuccino",
+    "latte": "Latte",
+    "macchiato": "Macchiato"
+  },
+  "home": {
+    "pull": "Pull this shot",
+    "dialIn": "Dial in",
+    "pulled": "Shot logged",
+    "undo": "Undo",
+    "reactionLabel": "How was it?",
+    "reactionGood": "Good",
+    "reactionOff": "Off",
+    "remaining": "{amount} left in this bag",
+    "age": "Day {days}",
+    "noRecipe": "No recipe yet for this drink and coffee. Dial one in and pin it.",
+    "usual": "usual",
+    "changeDrink": "Change drink",
+    "changeCoffee": "Change coffee",
+    "setup": {
+      "title": "Let's get your first shot",
+      "body": "Three steps, about two minutes.",
+      "kit": "Add your machine and grinder",
+      "kitHint": "Pick them from the list, or add what's missing.",
+      "bag": "Add a bag of coffee",
+      "bagHint": "Roast date and weight are enough.",
+      "shot": "Pull your first shot",
+      "addKit": "Add kit",
+      "done": "Done"
+    },
+    "coffeeLine": "{bean} · {roaster} · {age}"
+  },
+  "log": {
+    "titleNew": "New shot",
+    "titleDialIn": "Dial in",
+    "titleFix": "Fix this shot",
+    "titleEdit": "Edit shot",
+    "toolkit": "Toolkit",
+    "drink": "Drink",
+    "coffee": "Coffee",
+    "sweetened": "Sweetened",
+    "save": "Save shot",
+    "values": "Shot values",
+    "was": "was {value}"
+  },
+  "shots": {
+    "title": "Shots",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "oneTap": "One tap",
+    "good": "Good",
+    "off": "Off",
+    "maintenanceDivider": "{unit}: {work}, {date}",
+    "empty": "No shots yet. Your first one will show up here.",
+    "rowTitle": "{drink} · {time}"
+  },
+  "maintenance": {
+    "burrs": "New burrs",
+    "clean": "Cleaned",
+    "rezero": "Re-zeroed"
+  },
+  "unit": {
+    "finer": "Finer",
+    "coarser": "Coarser"
+  },
+  "states": {
+    "notBuilt": "This tab isn't built yet."
   }
 }
