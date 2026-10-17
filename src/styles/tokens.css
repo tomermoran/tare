@@ -1,0 +1,147 @@
+/*
+ * Tare design tokens — the single source of truth.
+ *
+ * Tailwind v4 turns every variable in @theme into a utility class
+ * (--color-ink → text-ink / bg-ink / border-ink, --text-h1 → text-h1, …)
+ * and also exposes it as a plain CSS variable for Storybook and custom CSS.
+ *
+ * Rules:
+ * - Components use the semantic colours (paper, surface, ink, line, action,
+ *   signal), never the raw grey steps. That keeps a dark theme possible:
+ *   override the semantic variables, nothing else changes.
+ * - Hierarchy comes from size, weight and spacing — not colour.
+ * - `signal` is reserved for shot warnings (too fast, channelling, …).
+ */
+
+@theme {
+  /* Remove Tailwind's default palette and shadows so only Tare tokens exist. */
+  --color-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  /* ── Warm grey scale ─────────────────────────────────────────────── */
+  --color-grey-0: #faf9f7; /* paper white */
+  --color-grey-50: #f4f2ef;
+  --color-grey-100: #ece9e4;
+  --color-grey-200: #dedad3;
+  --color-grey-300: #c9c4bb;
+  --color-grey-400: #a9a39a;
+  --color-grey-500: #8a847b;
+  --color-grey-600: #6b655d;
+  --color-grey-700: #4f4a44;
+  --color-grey-800: #36322e;
+  --color-grey-900: #24211e; /* warm charcoal */
+  --color-grey-950: #171513;
+
+  /* ── Semantic colours ────────────────────────────────────────────── */
+  --color-paper: var(--color-grey-0); /* page background */
+  --color-surface: var(--color-grey-50); /* cards */
+  --color-surface-sunken: var(--color-grey-100); /* inputs, wheel track */
+  --color-line: var(--color-grey-200); /* hairlines */
+  --color-line-strong: var(--color-grey-300); /* secondary button, ticks */
+
+  --color-ink: var(--color-grey-900); /* primary text ≈15:1 */
+  --color-ink-secondary: var(--color-grey-600); /* labels ≈5.6:1 (AA) */
+  --color-ink-tertiary: var(--color-grey-500); /* units, large text only */
+  --color-ink-disabled: var(--color-grey-400);
+
+  --color-action: var(--color-grey-900); /* primary button */
+  --color-action-hover: var(--color-grey-800);
+  --color-on-action: var(--color-grey-0);
+
+  --color-focus: var(--color-grey-900);
+
+  /* Shot warnings only. */
+  --color-signal: #a65a3f; /* muted clay ≈5:1 on paper */
+  --color-signal-subtle: #f3e7e1;
+
+  /* ── Typography ──────────────────────────────────────────────────── */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Display sizes are for numbers: thin, tight. */
+  --text-display-xl: 6rem; /* 96 — number wheel value */
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.03em;
+  --text-display-xl--font-weight: 200;
+
+  --text-display: 4rem; /* 64 — hero stats */
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 200;
+
+  --text-h1: 2.5rem; /* 40 — page titles */
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 300;
+
+  --text-h2: 1.75rem; /* 28 — section titles */
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 300;
+
+  --text-h3: 1.25rem; /* 20 — card titles */
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 400;
+
+  --text-body: 1rem; /* 16 */
+  --text-body--line-height: 1.6;
+  --text-body--font-weight: 400;
+
+  --text-label: 0.8125rem; /* 13 — field labels */
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.01em;
+  --text-label--font-weight: 400;
+
+  --text-overline: 0.6875rem; /* 11 — "DOSE", "TIME"; pair with `uppercase` */
+  --text-overline--line-height: 1.4;
+  --text-overline--letter-spacing: 0.08em;
+  --text-overline--font-weight: 400;
+
+  /* ── Spacing ─────────────────────────────────────────────────────── */
+  /* 4px base: p-1=4 · 2=8 · 3=12 · 4=16 · 6=24 · 8=32 · 12=48 · 16=64 · 24=96 · 32=128 */
+  --spacing: 0.25rem;
+
+  /* ── Radius ──────────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 10px; /* controls */
+  --radius-lg: 16px; /* cards */
+
+  /* ── Motion ──────────────────────────────────────────────────────── */
+  --ease-calm: cubic-bezier(0.2, 0, 0, 1);
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: var(--ease-calm);
+}
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
