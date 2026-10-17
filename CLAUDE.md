@@ -76,6 +76,13 @@ npm 10.8 on this machine crashes resolving Storybook's peer deps
 - Every component gets a story; story tests must pass axe accessibility
   checks (`a11y.test: "error"`).
 
+### No personal data in the repo
+- The repo is public. Never put real people's names, emails or other personal
+  details in code, docs, specs, fixtures, tests, stories or agent prompts.
+- Describe people by role: household, household member, main persona, sub
+  persona, Head of Product.
+- Example data must be obviously fictional or generic.
+
 ### Commits
 - Small and focused: one concern per commit, clear imperative subject, a body
   that says why.
