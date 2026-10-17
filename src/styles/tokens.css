@@ -56,7 +56,7 @@
   --color-focus: var(--color-grey-900);
 
   /* Shot warnings only. */
-  --color-signal: #a65a3f; /* muted clay ≈5:1 on paper */
+  --color-signal: #9a5236; /* muted clay: 5.5:1 on paper, 4.8:1 on signal-subtle */
   --color-signal-subtle: #f3e7e1;
 
   /* ── Typography ──────────────────────────────────────────────────── */
