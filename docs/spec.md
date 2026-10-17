@@ -13,6 +13,20 @@ Master Product & Engineering Specification
 - Roadmap: Phase 1 is a basic app for logging shots and managing recipes, toolkits and the pantry. AI features come later, each with evals and observability. RAG will ground the Diagnostic Coach in extraction guides and equipment manuals.
 - Design: Inter, thin weights at large sizes, regular weight for small labels. Monochrome warm grey palette with one muted colour for shot warnings.
 
+## Data model decisions (October 2026)
+
+Agreed while reviewing the schema in section 6, which already reflects them.
+
+- **Recipes belong to the bean.** A pinned recipe is scoped to bean, persona, toolkit and drink context, so a new bag of the same coffee starts from what was learned before. An optional batch override handles a bag that behaves differently.
+- **Batches hold portions.** The batch is the bag as bought (bean, roaster's lot code, roast date, best-before, bag weight, purchase date). Portions are what physically exists: their weight and when each was frozen, thawed, opened and finished. Shots are logged against a portion. Splitting a bag never duplicates roast date or lot.
+- **Freezing pauses aging.** Bean age runs from the roast date (best-before as a fallback when no roast date is printed), minus time in the freezer. A shot ground straight from frozen beans is identifiable from the dates alone.
+- **Calibration events mark breaks in grind history.** Re-zeroing, new burrs, deep cleans and toolkit component swaps are logged with a date, so shots before and after aren't compared as equals.
+- **Run-out prediction uses facts, not stored estimates.** Inputs: portion weights (including frozen stock), doses from logged shots, when portions were finished, optional stock checks (weighing what's left) and purchase dates. The one-tap "Pull This Shot" must record an extraction, or daily use is invisible. Finished portions give each household's real usage rate and how much of it logging captures.
+- **Calculated, never stored:** remaining weight, bag status (open, finished), bean age, usage rate, and drift adjustments.
+- **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
+
+Still open: timestamp precision (seconds or milliseconds), whether one login equals one household, storing temperature and pressure, grind as a per-grinder offset, and whether pinning a better recipe updates the bag's override or the bean's default.
+
 ## 1. The North Star Vision & UVP
 
 **The Vision:** To build the definitive context-aware operating system for the specialty coffee ritual. Tare eliminates the "Cold Start" waste of dialing in espresso by transforming single-player brewing diaries into a dynamic, predictive network matched to the user’s exact hardware and personal palate.
@@ -28,9 +42,10 @@ The system is built on a highly structured, real-world physical hierarchy to all
 - **Household (The Auth Tenant):** Managed via a single Google OAuth login.
 - **Personas:** Sub-profiles for different consumers (e.g., "[name]", "[name]") to isolate taste graphs.
 - **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT).
-- **The Pantry (Batches):** Separates the Canonical Bean (the global product) from the User Batch (the physical bag sitting on the counter right now).
+- **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Context:** The target output (Espresso, Milk Drink, Additives like Sugar).
-- **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Context, and specific Batch.
+- **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Context, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, kit calibration) is calculated from logged shots on top of the pinned recipe, not stored.
+- **Calibration Events:** Dated changes to a Toolkit (grinder re-zeroed, new burrs, deep clean, component swapped). Shots on either side of an event are not directly comparable.
 
 ## 3. Algorithmic Intelligence & Data Trust
 
@@ -104,13 +119,48 @@ export const toolkits = sqliteTable('toolkits', {
   components: text('components', { mode: 'json' }).notNull(), // Array of canonical hardware IDs
 });
 
+// Calibration history: shots either side of an event aren't directly comparable.
+export const calibrationEvents = sqliteTable('calibration_events', {
+  id: text('id').primaryKey(),
+  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  component: text('component').notNull(), // Canonical hardware ID, e.g. the grinder
+  kind: text('kind').notNull(), // 'rezero', 'burrs', 'clean', 'swap'
+  note: text('note'),
+  occurredAt: integer('occurred_at', { mode: 'timestamp' }).notNull(),
+});
+
+// --- PANTRY ---
+// The bag as bought. Status, remaining weight and bean age are calculated, not stored.
 export const userBatches = sqliteTable('user_batches', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id).notNull(),
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
-  status: text('status').default('open'), // open, archived
-  openedAt: integer('opened_at', { mode: 'timestamp' }).notNull(),
-  pinnedRecipeId: text('pinned_recipe_id'), // FK to extractions.id
+  lotCode: text('lot_code'), // Roaster's lot, if printed on the bag
+  roastDate: integer('roast_date', { mode: 'timestamp' }), // Null if only best-before is printed
+  bestBefore: integer('best_before', { mode: 'timestamp' }),
+  bagWeight: real('bag_weight').notNull(), // Grams, as bought
+  purchasedAt: integer('purchased_at', { mode: 'timestamp' }), // For reorder timing
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
+
+// What physically exists: a whole bag is one portion; splitting to freeze creates more.
+export const batchPortions = sqliteTable('batch_portions', {
+  id: text('id').primaryKey(),
+  batchId: text('batch_id').references(() => userBatches.id).notNull(),
+  weight: real('weight').notNull(), // Grams
+  frozenAt: integer('frozen_at', { mode: 'timestamp' }),
+  thawedAt: integer('thawed_at', { mode: 'timestamp' }),
+  openedAt: integer('opened_at', { mode: 'timestamp' }),
+  finishedAt: integer('finished_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
+
+// Optional: the user weighs what's left, correcting the run-out estimate.
+export const stockChecks = sqliteTable('stock_checks', {
+  id: text('id').primaryKey(),
+  portionId: text('portion_id').references(() => batchPortions.id).notNull(),
+  remainingWeight: real('remaining_weight').notNull(), // Grams
+  checkedAt: integer('checked_at', { mode: 'timestamp' }).notNull(),
 });
 
 // --- TELEMETRY & EXTRACTIONS ---
@@ -119,7 +169,7 @@ export const extractions = sqliteTable('extractions', {
   userId: text('user_id').references(() => users.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(),
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
-  batchId: text('batch_id').references(() => userBatches.id).notNull(),
+  portionId: text('portion_id').references(() => batchPortions.id).notNull(), // Batch and bean follow from the portion
   drinkContext: text('drink_context').notNull(), // 'Espresso', 'Milk', 'Sweetened'
 
   // MVPayload
@@ -138,6 +188,27 @@ export const extractions = sqliteTable('extractions', {
 
   isNetworkEligible: integer('is_network_eligible', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
+
+// --- RECIPES ---
+// Pinned per bean, persona, toolkit and drink context. A set batchId overrides the
+// bean's default for that one bag. Re-pinning adds a row; the latest pinnedAt wins.
+export const pinnedRecipes = sqliteTable('pinned_recipes', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').references(() => users.id).notNull(),
+  beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
+  personaId: text('persona_id').references(() => personas.id).notNull(),
+  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  drinkContext: text('drink_context').notNull(),
+  batchId: text('batch_id').references(() => userBatches.id), // Null = the bean's default
+
+  grindSize: real('grind_size').notNull(),
+  doseWeight: real('dose_weight').notNull(),
+  yieldWeight: real('yield_weight').notNull(),
+  yieldTime: integer('yield_time').notNull(), // Milliseconds
+
+  sourceExtractionId: text('source_extraction_id').references(() => extractions.id), // The shot it came from, if any
+  pinnedAt: integer('pinned_at', { mode: 'timestamp' }).notNull(),
 });
 ```
 
