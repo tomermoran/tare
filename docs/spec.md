@@ -27,7 +27,7 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
 - **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns pantry, hardware, toolkits and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, personas without their own login ([name] as a persona on [name]'s account); phase 3, invites, so [name] signs in and claims her persona with its history. Only the UI changes between phases.
+- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns pantry, hardware, toolkits and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. Only the UI changes between phases.
 - **Shots record whose taste and who logged them.** One person often pulls for both, so the persona (whose taste) and the logging user (who tapped) are separate fields.
 - **The network needs the person's own consent.** A persona's shots reach the Cold Start network only when the persona is claimed by a user who opted in. Logging for someone without their own login never shares their data.
 
@@ -46,7 +46,11 @@ The system is built on a highly structured, real-world physical hierarchy to all
 ### The Entity Hierarchy
 
 - **Household (The Tenant):** Owns everything shared in the kitchen: pantry, hardware, toolkits, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
-- **Personas:** Sub-profiles for different consumers (e.g., "[name]", "[name]") to isolate taste graphs. A persona can exist without its own login and be claimed later when that person signs up. Who logs a shot and whose taste it records are separate: one person often pulls for both.
+- **Personas:** Taste profiles for the different people a household brews for, each with its own taste graph. Two types:
+  - **Main persona:** a person's own profile, linked to their login. Every login has exactly one.
+  - **Sub persona:** a profile with no login of its own, e.g. a partner or a regular guest that a household member brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
+
+  The type is not stored: a persona is a main persona when it's linked to a login. Who logs a shot and whose taste it records are separate: one person often pulls for both.
 - **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT). Each component is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser).
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Context:** The target output (Espresso, Milk Drink, Additives like Sugar).
