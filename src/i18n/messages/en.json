@@ -1,6 +1,7 @@
 {
   "app": {
     "name": "Tare",
+    "wordmark": "tare",
     "tagline": "An espresso journal that learns your palate."
   },
   "actions": {
