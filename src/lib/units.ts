@@ -1,10 +1,21 @@
 /**
- * Canonical units, matching how values are stored in the database.
+ * Units values are displayed in. They match the database except for shot
+ * time, which is stored in milliseconds (see msToSeconds / secondsToMs).
  * Names are Intl.NumberFormat unit identifiers, so the browser supplies the
  * localised symbol ("g", "s", "°C") and no unit strings live in our code.
  * Pressure (bar) has no Intl unit; pass its label from the messages instead.
  */
 export type CanonicalUnit = "gram" | "second" | "celsius";
+
+/** Stored shot time (ms) → displayed seconds, to one decimal like a scale timer. */
+export function msToSeconds(ms: number) {
+  return Math.round(ms / 100) / 10;
+}
+
+/** Displayed seconds → stored shot time (whole ms). */
+export function secondsToMs(seconds: number) {
+  return Math.round(seconds * 1000);
+}
 
 /** Number of decimals implied by a step: 0.1 → 1, 0.25 → 2, 1 → 0. */
 export function decimalsOf(step: number) {

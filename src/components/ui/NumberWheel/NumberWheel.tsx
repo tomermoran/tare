@@ -17,12 +17,12 @@ import { decimalsOf, formatValueParts, type CanonicalUnit } from "@/lib/units";
 type NumberWheelProps = {
   /** Visible label, e.g. "Dose". Also the slider's accessible name. */
   label: string;
-  /** Canonical value (grams, seconds, °C). Always a multiple of `step`. */
+  /** Value in display units (grams, seconds, °C). Always a multiple of `step`. */
   value: number;
   onChange: (value: number) => void;
   min: number;
   max: number;
-  /** Smallest change, e.g. 0.1 for dose, 1 for time. */
+  /** Smallest change, e.g. 0.1 for dose and time. */
   step: number;
   /** A labelled major tick every N steps. */
   majorEvery?: number;

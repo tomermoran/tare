@@ -54,7 +54,10 @@ npm 10.8 on this machine crashes resolving Storybook's peer deps
 
 ### Canonical floats in the database
 - Measurements are `real` columns in one fixed unit: grams (dose, yield),
-  seconds (time), °C (temperature), bar (pressure).
+  °C (temperature), bar (pressure).
+- Shot time is the exception: an `integer` in milliseconds, displayed in
+  seconds with one decimal (27.6 s), like a scale timer. Convert with
+  `msToSeconds` / `secondsToMs` in `src/lib/units.ts`.
 - Convert units only for display. Never store derived values (ratio, flow) or
   formatted strings. Timestamps are integer ms since epoch, UTC.
 

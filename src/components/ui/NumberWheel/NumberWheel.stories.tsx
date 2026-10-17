@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState, type ComponentProps } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
+import { msToSeconds } from "@/lib/units";
 import { NumberWheel } from "./NumberWheel";
 
 const { shot } = messages;
@@ -59,11 +60,11 @@ export const Dose: Story = {
 export const Time: Story = {
   args: {
     label: shot.time,
-    value: 28,
+    value: msToSeconds(27_600),
     min: 0,
     max: 60,
-    step: 1,
-    majorEvery: 5,
+    step: 0.1,
+    majorEvery: 10,
     unit: "second",
   },
 };

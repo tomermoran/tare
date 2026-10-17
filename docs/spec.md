@@ -126,7 +126,7 @@ export const extractions = sqliteTable('extractions', {
   grindSize: real('grind_size').notNull(),
   doseWeight: real('dose_weight').notNull(),
   yieldWeight: real('yield_weight').notNull(),
-  yieldTime: integer('yield_time').notNull(),
+  yieldTime: integer('yield_time').notNull(), // milliseconds; shown as seconds with one decimal
 
   // Sensory outputs (1-5) & Diagnostics
   userRating: integer('user_rating'), // 1-5 overall
