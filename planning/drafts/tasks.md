@@ -1,26 +1,45 @@
-# Tare engineering tasks (draft, MVP)
+# Tare engineering tasks (approved, MVP)
 
 Source: `planning/drafts/stories.md` (revision 2, approved, 119 stories),
 `planning/drafts/design.md` (approved), `planning/drafts/epics.md` (revision 5,
-final, MVP build order), `docs/spec.md` (S-02 decisions, S-08 target schema)
-and the codebase on branch `planning/breakdown-drafts`, plus open PR #3
+final, MVP build order), `docs/spec.md` (S-02 decisions, S-08 schema) and the
+codebase on branch `planning/breakdown-drafts`, plus open PR #3
 (`design/mvp-screens`) as described below.
 
-**Status: draft for the Head of Product.** Nothing is built, no code is
-written and no GitHub issues are created. Questions that block a task are
-named in that task's dependencies (`TQ-NN`, `DQ-NN`, `X-1` and so on) and
-listed in section 9.
+**Status: approved by the Head of Product.** Technical decisions TQ-01 to
+TQ-07 are resolved and recorded in S-02. S-08 now matches the schema tasks.
+The build order is confirmed, with tasting (EPIC-01-05) moved up after
+EPIC-01-04. Nothing is built, no code is written and no GitHub issues are
+created. Questions that are still open are named in each task's dependencies
+and listed in section 9.
 
 **Scope.** Only the 69 MVP stories in the 15 MVP epics are broken down:
 **252 tasks, 851 hours** (about 106 developer-days). Next and Later stories are
 listed in section 1 and not broken down.
+
+## Changes at approval
+
+- **Status.** The file is now marked approved.
+- **TQ-01 to TQ-07 resolved.** Each was accepted as proposed (section 9.1).
+  Their IDs are removed from task dependencies, and section 4 now states them
+  as decisions.
+- **S-08 matches.** S-08 now uses `timestamp_ms` throughout, has
+  `isRecalibration` on `maintenance_events`, and documents the "not sure"
+  capability values. Wording that treated these as pending deviations is
+  removed from section 6, from TASK-01-01-01-QA1, TASK-04-01-01-BE1 and
+  TASK-01-02-01-BE1, and from the risks (R-03).
+- **X-1 (timestamp precision) closed**, by the TQ-04 decision.
+- **Build order confirmed.** Wave 0 no longer waits for technical answers.
+  Product question 9 (build order) is closed.
+- **Estimates and totals unchanged.** The decisions match the proposals the
+  estimates were based on.
 
 ## Contents
 
 1. Not broken down yet
 2. How to read this file
 3. What exists and what this plan assumes
-4. Technical approach (proposed, with flagged decisions)
+4. Technical approach (decided)
 5. Definition of done for every task
 6. Schema and migrations (first)
 7. Tasks by story
@@ -41,7 +60,7 @@ need.
 
 | Epic | Stories | Why not now |
 |---|---|---|
-| EPIC-05-03 Keep your coffee history when you change phones | STORY-05-03-01, 02, 03 | First Next epic. The plan depends on how Firebase auth is wired in the MVP (TQ-01). |
+| EPIC-05-03 Keep your coffee history when you change phones | STORY-05-03-01, 02, 03 | First Next epic. It builds on the MVP's Firebase session (TQ-01, decided), so it's planned once that exists. |
 | EPIC-02-05 Make the drink list yours | STORY-02-05-01, 02, 03, 04 | Next. What happens to recipes when their drink is hidden is still open. |
 | EPIC-02-04 Give one bag its own recipe | STORY-02-04-01, 02 | Next, and blocked on INIT-02 Q1 (bag override or bean default). |
 | EPIC-03-05 Know when you'll run out | STORY-03-05-01, 02, 03 | Next. "Enough history" and the accuracy target (X-2) aren't defined. |
@@ -83,10 +102,10 @@ through one function.
 - **Dependencies** are task IDs plus:
   - `DES-*`: design tasks from `design.md`.
   - `PR-3`: open PR #3 merged into `main`.
-  - Questions that must be answered first (section 9).
+  - Questions that are still open (section 9).
 - **Grouping.** Schema and migration tasks are listed first (section 6), each
   with the story that first needs it. Everything else is grouped by epic and
-  story (section 7). The suggested order across all tasks is section 8.
+  story (section 7). The order across all tasks is section 8.
 - **Estimates** are hours of focused work, 2 to 16, including the task's own
   stories or tests and its review fixes. Nothing exceeds 16.
 - **"Wire"** means connecting a props-only screen to a route, its data
@@ -149,11 +168,11 @@ through one function.
 
 ---
 
-## 4. Technical approach (proposed, with flagged decisions)
+## 4. Technical approach (decided)
 
-The spec doesn't settle these decisions, so each one is a question in section
-9. The tasks are written against the proposals below, so a different answer
-changes only the tasks named.
+TQ-01 to TQ-07 were accepted by the Head of Product as proposed and are
+recorded in S-02. The other entries below are tech-lead decisions; those still
+open for confirmation are TQ-08 to TQ-15 in section 9.
 
 **Module layout**
 
@@ -169,32 +188,41 @@ changes only the tasks named.
 | `src/server/actions/` | `"use server"` mutations. Each one verifies the session and household ownership first (STORY-01-01-04). |
 | `src/app/(app)/` | Tab routes with the TabBar: `/` (Brew), `/shots`, `/shots/[shotId]`, `/pantry`, `/pantry/[batchId]`, `/kit`, `/kit/units/[unitId]` |
 | `src/app/(task)/` | Full-screen tasks without the TabBar: `/log`, `/taste/[shotId]`, `/pantry/add`, `/kit/add`, `/kit/toolkits/new`, `/kit/toolkits/[toolkitId]`, `/catalog/pick`, `/catalog/add`, `/profile` |
-| `src/app/api/` | Route Handlers, used only where Server Actions don't fit (TQ-03): `session`, `catalog/search`, `catalog/check-url` |
+| `src/app/api/` | Route Handlers, only for the session exchange, catalog search and the duplicate-URL check (TQ-03): `session`, `catalog/search`, `catalog/check-url` |
 | `src/components/screens/` | Props-only screens with stories, following PR #3's pattern. Fixtures stay generic and fictional. |
 
-**Proposals that tasks depend on**
+**Decisions**
 
-- **Auth (TQ-01).**
+- **Auth (TQ-01, decided).**
   - The browser signs in anonymously with the Firebase JS SDK.
-  - It posts the ID token to `POST /api/session`. The server verifies the
+  - It sends its ID token once to `POST /api/session`. The server verifies the
     token with the Firebase Admin SDK and sets an httpOnly session cookie.
   - The DAL verifies the cookie on each request (cached per request with
     React `cache`) and maps the Firebase uid to a user and household.
   - When the cookie expires, the client silently exchanges a fresh token.
-- **Database access (TQ-02).** Server Components and Server Actions call the
-  DAL directly on the Node.js runtime. There's no separate API server, and
-  migrations run at deploy time, never at request time.
-- **Mutations (TQ-03).**
+  - Firebase keys live outside the public repo.
+- **Database access (TQ-02, decided).** One server-side libSQL client. Server
+  Components and Server Actions call the DAL directly on the Node.js runtime,
+  with no separate API server. Locally it uses `./data/tare.db`; a deployed
+  prototype uses hosted Turso (`DATABASE_URL`, `DATABASE_AUTH_TOKEN`).
+  Migrations run at deploy time, never at request time.
+- **Mutations (TQ-03, decided).**
   - Server Actions handle every write, then call `refresh()` or
     `revalidatePath`.
-  - Route Handlers serve typeahead search and the URL check, because the
-    client dispatches Server Actions one at a time and can't abort them.
-- **Timestamps (TQ-04, X-1).** Drizzle `integer(..., { mode: 'timestamp_ms' })`,
-  as `CLAUDE.md` and the `schema.ts` comment require. S-08 as written uses
-  `mode: 'timestamp'`, which stores seconds.
-- **Local days (TQ-07).** The client stores its IANA time zone in a cookie.
-  Day grouping, "today", the time-of-day drink and bean age are computed in
-  that zone. A back-dated date is stored as local noon of that day.
+  - Route Handlers serve only the session exchange, catalog search and the
+    duplicate-URL check.
+- **Timestamps (TQ-04, decided; closes X-1).** Integer milliseconds,
+  `integer(..., { mode: 'timestamp_ms' })`, as S-08 now specifies throughout.
+- **Recalibration (TQ-05, decided).** A flag on the maintenance event,
+  `is_recalibration` (boolean, not null, default false), as in S-08.
+- **"Not sure" capabilities (TQ-06, decided).** Unknown values in the
+  capabilities JSON, as documented in S-08's comment. Seeded rows never use
+  them.
+- **Local days (TQ-07, decided).** The device's IANA time zone is sent in a
+  cookie, and nothing is stored for it. Day grouping, "today", the time-of-day
+  drink and bean age are computed in that zone. Tech-lead detail: a
+  back-dated date is stored as local noon of that day, so DST changes can't
+  move it to another day.
 - **IDs (TQ-11).** `crypto.randomUUID()` text keys. A one-tap pull sends a
   client-generated ID, which makes double taps idempotent.
 - **Validation.** Hand-written guards in `src/domain` and `src/server`. No new
@@ -239,24 +267,21 @@ These apply to every task and aren't repeated in each one:
 
 ## 6. Schema and migrations (first)
 
-These implement S-08 in `src/db/schema.ts`, each as its own task with its own
-generated migration, before any feature code uses the table. They differ
-from S-08 in three ways, each flagged as a question:
-
-- Timestamps use `timestamp_ms` (TQ-04).
-- `maintenance_events` gets an `is_recalibration` column (TQ-05).
-- The `capabilities` JSON shape allows "not sure" values (TQ-06).
-
-They also add indexes, which change no behaviour. Circular references
-(`maintenance_events.offset_source_recipe_id` to `pinned_recipes`, and
-`pinned_recipes.source_extraction_id` to `extractions`) use Drizzle's
-lazy `references(() => …)`, as S-08 does.
+These implement S-08 in `src/db/schema.ts` exactly as it now stands, each as
+its own task with its own generated migration, before any feature code uses
+the table. S-08 already includes the decided timestamp mode (`timestamp_ms`),
+the `is_recalibration` column and the "not sure" capability values, so the
+schema has no deviations. The tasks only add indexes, which change no
+behaviour. Circular references (`maintenance_events.offset_source_recipe_id`
+to `pinned_recipes`, and `pinned_recipes.source_extraction_id` to
+`extractions`) use Drizzle's lazy `references(() => …)`, as S-08 does.
 
 ##### TASK-01-01-01-BE1 · Add the database client and data access layer skeleton
-`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: TQ-02
+`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: none
 - **Build:**
   - `src/db/client.ts`: a libSQL client and Drizzle instance with
-    `server-only`, reading `DATABASE_URL` and `DATABASE_AUTH_TOKEN`. Check
+    `server-only`, reading `DATABASE_URL` and `DATABASE_AUTH_TOKEN` (hosted
+    Turso when deployed, `file:./data/tare.db` locally, per TQ-02). Check
     whether foreign keys are enforced on libSQL connections, and turn them on
     if not.
   - The ID helper `src/db/ids.ts` (TQ-11).
@@ -266,19 +291,20 @@ lazy `references(() => …)`, as S-08 does.
     `.gitignore` if it's missing.
 - **Done when:**
   - `npm run dev` connects to `file:./data/tare.db`.
+  - The same client connects to a Turso URL when the env variables are set.
   - Importing the client from a client component fails the build.
   - Foreign-key enforcement is verified on.
   - No secrets are committed.
 
 ##### TASK-01-01-01-BE2 · Add users, households, household members and personas tables
-`backend` · Parent: STORY-01-01-01 (also 01-01-03, 01-01-04) · 3 h · Depends on: TASK-01-01-01-BE1, TQ-04
+`backend` · Parent: STORY-01-01-01 (also 01-01-03, 01-01-04) · 3 h · Depends on: TASK-01-01-01-BE1
 - **Build:** The S-08 tables `users` (with `firebase_uid` unique),
   `households`, `household_members` (composite primary key) and `personas`
-  (nullable `name`, `is_default`), in `src/db/schema.ts`. Timestamps per
-  TQ-04, plus a migration.
+  (nullable `name`, `is_default`), in `src/db/schema.ts`. Timestamps use
+  `timestamp_ms`. Plus a migration.
 - **Done when:**
   - The migration applies to an empty database.
-  - Column names and types match S-08, except for the timestamp mode.
+  - Column names, types and timestamp modes match S-08.
   - `firebase_uid` uniqueness is enforced.
 
 ##### TASK-01-01-02-BE1 · Add the drink types table
@@ -290,18 +316,20 @@ lazy `references(() => …)`, as S-08 does.
   one with only `name` are both valid.
 
 ##### TASK-01-02-01-BE1 · Add hardware makers and models, with a typed capabilities shape
-`backend` · Parent: STORY-01-02-01 (also 01-02-02, 01-06-06 to 09) · 4 h · Depends on: TASK-01-01-01-BE2, TQ-06
+`backend` · Parent: STORY-01-02-01 (also 01-02-02, 01-06-06 to 09) · 4 h · Depends on: TASK-01-01-01-BE2
 - **Build:**
   - `hardware_makers` and `canonical_hardware` per S-08 (`source`, `status`,
     `merged_into_id`, `created_by_household_id`), plus a migration.
   - `src/domain/capabilities.ts`: the TypeScript type for the `capabilities`
-    JSON (machine temperature and pressure, grinder grind), including the
-    "not sure" values proposed in TQ-06, a `parseCapabilities` guard that
-    rejects malformed JSON, and the column typed with `$type<>()`.
+    JSON (machine temperature and pressure, grinder grind), including S-08's
+    "not sure" values (`control: 'unknown'`, a null gauge, null counts, units,
+    min, max and step, and `grind: { type: 'unknown', …, coarser: 'unknown' }`).
+  - A `parseCapabilities` guard that rejects malformed JSON, and the column
+    typed with `$type<>()`.
 - **Done when:**
   - The migration applies.
-  - The guard accepts every shape in S-08 and the TQ-06 unknowns, and rejects
-    an unknown `control`.
+  - The guard accepts every shape in S-08, including the unknowns, and
+    rejects an unknown `control`.
   - The guard has unit tests (run once TASK-01-01-04-QA1 lands).
 
 ##### TASK-01-02-01-BE2 · Add catalog URLs, aliases and merges tables
@@ -359,16 +387,15 @@ lazy `references(() => …)`, as S-08 does.
   so re-pinning adds a row.
 
 ##### TASK-04-01-01-BE1 · Add the maintenance events table
-`backend` · Parent: STORY-04-01-01 (also 04-01-02 to 04) · 2 h · Depends on: TASK-02-01-01-BE1, TQ-05
-- **Build:**
-  - `maintenance_events` per S-08 (`grind_shift`, `grind_scale` and
-    `offset_source_recipe_id` stay null in the MVP), with an index on
-    `(owned_hardware_id, occurred_at)`.
-  - If TQ-05 is approved, add `is_recalibration` (boolean, not null, default
-    false). Otherwise ship without it and add it in its own migration later.
-  - A migration.
-- **Done when:** The migration applies, and the offset columns exist but no MVP
-  code writes them.
+`backend` · Parent: STORY-04-01-01 (also 04-01-02 to 04) · 2 h · Depends on: TASK-02-01-01-BE1
+- **Build:** `maintenance_events` per S-08, including `is_recalibration`
+  (boolean, not null, default false), with an index on
+  `(owned_hardware_id, occurred_at)`, plus a migration. `grind_shift`,
+  `grind_scale` and `offset_source_recipe_id` stay null in the MVP.
+- **Done when:**
+  - The migration applies.
+  - `is_recalibration` defaults to false.
+  - The offset columns exist, but no MVP code writes them.
 
 ##### TASK-01-01-04-QA1 · Add a Node test project with a migrated test database and fixtures
 `qa` · Parent: STORY-01-01-04 · 5 h · Depends on: TASK-01-01-01-BE1, TQ-09
@@ -390,9 +417,9 @@ lazy `references(() => …)`, as S-08 does.
 ##### TASK-01-01-01-QA1 · Verify the schema and migrations against S-08
 `qa` · Parent: STORY-01-01-01 · 3 h · Depends on: TASK-04-01-01-BE1, TASK-01-01-04-QA1
 - **Build:** A schema test that applies all migrations from empty and checks:
-  - every S-08 table and column exists with the right type and nullability;
+  - every S-08 table and column exists with the right type and nullability,
+    including `timestamp_ms` timestamps and `is_recalibration`;
   - `yield_time` is an integer and measurements are `real`;
-  - the documented deviations (TQ-04, TQ-05) are present;
   - none of the calculated values (remaining weight, status, age) has a
     column.
 - **Done when:** The test passes and fails if a column is renamed or retyped.
@@ -408,7 +435,7 @@ lazy `references(() => …)`, as S-08 does.
 Schema: TASK-01-01-01-BE1, TASK-01-01-01-BE2, TASK-01-01-01-QA1 (section 6).
 
 ##### TASK-01-01-01-BE3 · Add Firebase anonymous sign-in on the client
-`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: TASK-01-01-01-BE1, TQ-01
+`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: TASK-01-01-01-BE1
 - **Build:**
   - `src/lib/firebase/client.ts`: initialises the Firebase app from public env
     config (`NEXT_PUBLIC_FIREBASE_*`), signs in with `signInAnonymously`, and
@@ -422,11 +449,12 @@ Schema: TASK-01-01-01-BE1, TASK-01-01-01-BE2, TASK-01-01-01-QA1 (section 6).
   - Config comes only from env, and none is committed.
 
 ##### TASK-01-01-01-BE4 · Verify the Firebase ID token on the server and keep a session
-`backend` · Parent: STORY-01-01-01 · 6 h · Depends on: TASK-01-01-01-BE3, TASK-01-01-01-BE2, TQ-01, TQ-03
+`backend` · Parent: STORY-01-01-01 · 6 h · Depends on: TASK-01-01-01-BE3, TASK-01-01-01-BE2
 - **Build:**
-  - `src/app/api/session/route.ts` (POST) verifies the ID token with
-    `firebase-admin` `verifyIdToken`, then sets an httpOnly, Secure,
-    SameSite=Lax session cookie made with `createSessionCookie`.
+  - `src/app/api/session/route.ts` (POST) receives the ID token once,
+    verifies it with `firebase-admin` `verifyIdToken`, and sets an httpOnly,
+    Secure, SameSite=Lax session cookie made with `createSessionCookie`
+    (TQ-01).
   - `src/server/auth/session.ts` provides `getSession()`, which verifies the
     cookie and resolves user, household and default persona, with a
     per-request `cache`, and `requireSession()`, which throws if the session
@@ -843,16 +871,17 @@ Schema: TASK-01-02-01-BE1, TASK-01-02-01-BE2.
     `source='seed'` and `status='verified'`, and computes `normalized_url`
     with TASK-01-06-01-BE1's function.
   - An `npm run db:seed` script, and capabilities validated with
-    `parseCapabilities`.
+    `parseCapabilities`. Seeded rows never use the "not sure" values (S-08).
   - The initial content is a small placeholder list until TQ-10 names a
     curator.
 - **Done when:**
   - Running the seed twice changes nothing.
-  - Invalid capabilities fail the seed with a clear error.
+  - Invalid capabilities, or unknown values in a seeded row, fail the seed
+    with a clear error.
   - The seed has no personal data.
 
 ##### TASK-01-02-01-BE4 · Add hardware catalog search and browse
-`backend` · Parent: STORY-01-02-01 · 6 h · Depends on: TASK-01-02-01-BE5, TASK-01-01-04-BE1, TQ-03
+`backend` · Parent: STORY-01-02-01 · 6 h · Depends on: TASK-01-02-01-BE5, TASK-01-01-04-BE1
 - **Build:**
   - DAL `searchHardware({ kind, query })`: case-insensitive match on model
     name, maker name and aliases; returns surviving models with their maker,
@@ -860,8 +889,8 @@ Schema: TASK-01-02-01-BE1, TASK-01-02-01-BE2.
   - `listMakers({ kind })`: alphabetical, only makers with visible models of
     that kind.
   - `listModels({ makerId, kind })`.
-  - Exposed through `GET /api/catalog/search?catalog=hardware` (TQ-03) for
-    typeahead.
+  - Exposed through the Route Handler `GET /api/catalog/search?catalog=hardware`
+    (TQ-03) for typeahead.
 - **Done when:**
   - An alias query finds its model (AC 1, AC 3).
   - Merged rows never appear (AC 4).
@@ -1798,12 +1827,12 @@ check (STORY-01-06-01 to 05) can ship before the capability stories
 #### STORY-01-06-04: Get pointed to an entry that already exists
 
 ##### TASK-01-06-04-BE1 · Add the duplicate URL check
-`backend` · Parent: STORY-01-06-04 · 4 h · Depends on: TASK-01-06-01-BE1, TASK-01-06-03-BE1, TQ-03
+`backend` · Parent: STORY-01-06-04 · 4 h · Depends on: TASK-01-06-01-BE1, TASK-01-06-03-BE1
 - **Build:**
   - DAL `findByNormalizedUrl(catalog, url)` matches `catalog_urls` whose
     entity is visible (verified or own household only) and resolves merges.
-  - Exposed as `GET /api/catalog/check-url`, and rerun inside both create
-    actions.
+  - Exposed as the Route Handler `GET /api/catalog/check-url` (TQ-03), and
+    rerun inside both create actions.
   - It returns the existing entry (name, parent, kind) or none.
 - **Done when:**
   - A regional variant matches (AC 2).
@@ -1875,16 +1904,16 @@ check (STORY-01-06-01 to 05) can ship before the capability stories
 #### STORY-01-06-06: Describe a machine I added in my own words
 
 ##### TASK-01-06-06-BE1 · Map the machine answers to capabilities
-`backend` · Parent: STORY-01-06-06 · 3 h · Depends on: TASK-01-02-01-BE1, TQ-06
+`backend` · Parent: STORY-01-06-06 · 3 h · Depends on: TASK-01-02-01-BE1
 - **Build:** `src/domain/capabilityQuestions.ts`:
   - `machineAnswersToCapabilities(answers)` and the reverse
     (`capabilitiesToMachineAnswers`, for answering later);
-  - every unanswered or "not sure" answer maps to the TQ-06 unknowns;
+  - every unanswered or "not sure" answer maps to S-08's unknown values;
   - "no" maps to `control: 'none'`;
   - lever, paddle or valve maps to `manual`, with the gauge as yes, no or
-    unknown;
-  - settings map to `steps` with count or unknown;
-  - exact maps to the unit (°C, °F or unknown) and an optional min and max.
+    unknown (null);
+  - settings map to `steps` with count or null;
+  - exact maps to the unit (°C, °F or null) and an optional min and max.
 
   `createHardwareEntry` stores the result.
 - **Done when:**
@@ -1923,7 +1952,8 @@ check (STORY-01-06-01 to 05) can ship before the capability stories
 ##### TASK-01-06-07-BE1 · Map the grinder answers to capabilities
 `backend` · Parent: STORY-01-06-07 · 2 h · Depends on: TASK-01-06-06-BE1
 - **Build:** `grinderAnswersToCapabilities` and the reverse:
-  - clicks, smooth or unknown maps to `type`;
+  - clicks, smooth or unknown maps to `type` (`stepped`, `stepless` or
+    `unknown`);
   - the lowest and highest numbers map to `min` and `max`, or null;
   - the step applies only for clicks, else null;
   - coarser maps to `higher`, `lower` or `unknown`.
@@ -2076,7 +2106,7 @@ Schema: TASK-02-01-01-BE1.
   - a pin-failed Notice that keeps the sheet open.
 
   Stories: new, replaces, failed, RTL.
-- **Done when:** The stories pass axe, and one primary button.
+- **Done when:** The stories pass axe, and there's one primary button.
 
 ##### TASK-02-01-01-FE2 · Wire pinning from the tasting and shot detail screens
 `frontend` · Parent: STORY-02-01-01 · 3 h · Depends on: TASK-02-01-01-FE1, TASK-02-01-01-BE3, TASK-01-05-01-FE3, TASK-02-06-03-FE2
@@ -2597,21 +2627,25 @@ Schema: TASK-02-01-01-BE1.
 #### STORY-02-06-01: See my recent shots
 
 ##### TASK-02-06-01-BE2 · Capture the device time zone for local-day calculations
-`backend` · Parent: STORY-02-06-01 (also 02-02-01, 03-02, 03-03) · 2 h · Depends on: TASK-01-01-01-FE2, TQ-07
-- **Build:**
+`backend` · Parent: STORY-02-06-01 (also 02-02-01, 03-02, 03-03) · 2 h · Depends on: TASK-01-01-01-FE2
+- **Build:** Implements the TQ-07 decision (device time zone in a cookie,
+  nothing stored):
   - The client writes `Intl.DateTimeFormat().resolvedOptions().timeZone`
     to a `tz` cookie at start and when it changes.
   - `src/server/time.ts` `getTimeZone()` validates the cookie, falling back
     to UTC.
   - `src/domain/localDay.ts`: `localDayKey(ms, tz)`, `startOfLocalDay` and
     `localNoon(dateString, tz)` for back-dated dates.
-- **Done when:** Unit tests pass across a DST change and an invalid cookie.
+- **Done when:**
+  - Unit tests pass across a DST change and an invalid cookie.
+  - No time zone is written to the database.
 
 ##### TASK-02-06-01-BE1 · Add the recent shots read
-`backend` · Parent: STORY-02-06-01 · 4 h · Depends on: TASK-02-06-01-BE2, TASK-01-03-03-BE1, TQ-04
+`backend` · Parent: STORY-02-06-01 · 4 h · Depends on: TASK-02-06-01-BE2, TASK-01-03-03-BE1
 - **Build:** DAL `listRecentShots({ before?, limit })`:
   - the household's shots newest first, the last 30 days (DQ-13), then
-    older pages by a cursor on `(created_at, id)`;
+    older pages by a cursor on `(created_at, id)`, using millisecond
+    timestamps;
   - each with drink, time, coffee (resolved bean), values, entry mode,
     reaction, defects (for warnings) and grinder ID (for dividers);
   - a `fromFrozen` flag added by TASK-03-03-03-BE1;
@@ -2788,7 +2822,7 @@ Schema: TASK-03-01-02-BE1.
   - the bean must be visible (resolved);
   - the weight is required and above zero, in grams;
   - only one of roast date or best-before may be set;
-  - dates are stored as local noon (TQ-07);
+  - dates are stored as local noon in the device's time zone (TQ-07);
   - `purchasedAt` defaults to today.
 
   In one transaction it inserts the batch and one portion with
@@ -3079,7 +3113,8 @@ Schema: TASK-03-01-02-BE1.
   - `{ kind: 'paused', days }` while frozen.
 
   It also returns `frozenDays`. It's calculated, never stored, and added to
-  the pantry, bag, home and log reads.
+  the pantry, bag, home and log reads. Days are counted in the device's time
+  zone (TQ-07).
 - **Done when:**
   - Unit tests cover all four kinds.
   - A day rollover adds one (AC 5).
@@ -3128,13 +3163,13 @@ Schema: TASK-03-01-02-BE1.
 #### STORY-03-03-03: See bean age when logging, and spot frozen-ground shots
 
 ##### TASK-03-03-03-BE1 · Add the "ground from frozen" flag to shot reads
-`backend` · Parent: STORY-03-03-03 · 2 h · Depends on: TASK-02-06-01-BE1, TASK-02-06-03-BE1, TQ-04
+`backend` · Parent: STORY-03-03-03 · 2 h · Depends on: TASK-02-06-01-BE1, TASK-02-06-03-BE1
 - **Build:** `src/domain/frozen.ts` `isFromFrozen(shotAt, portion)` is true
-  when `frozen_at ≤ shotAt` and (`thawed_at` is null or `shotAt < thawed_at`).
-  It's computed at read time in `listRecentShots` and `getShot`, so
-  corrected dates apply immediately.
+  when `frozen_at ≤ shotAt` and (`thawed_at` is null or `shotAt < thawed_at`),
+  compared in milliseconds. It's computed at read time in `listRecentShots`
+  and `getShot`, so corrected dates apply immediately.
 - **Done when:** Unit tests cover before freeze, while frozen, after thaw,
-  never frozen and the same-day thaw (which needs TQ-04 precision).
+  never frozen and a thaw on the same day as a shot.
 
 ##### TASK-03-03-03-FE1 · Show the bean age and frozen marker in the log, rows and detail
 `frontend` · Parent: STORY-03-03-03 · 2 h · Depends on: TASK-03-03-03-BE1, TASK-03-03-01-FE1, TASK-02-06-01-FE1
@@ -3302,10 +3337,11 @@ Schema: TASK-04-01-01-BE1.
 #### STORY-04-01-02: Mark a recalibration
 
 ##### TASK-04-01-02-BE1 · Store the recalibration flag with its defaults
-`backend` · Parent: STORY-04-01-02 · 2 h · Depends on: TASK-04-01-01-BE2, TQ-05
-- **Build:** `addMaintenance` stores `is_recalibration`. It defaults to true
-  for burrs and rezero on grinders, and false otherwise. It's always false,
-  and rejected if sent true, for non-grinder units (DQ-15).
+`backend` · Parent: STORY-04-01-02 · 2 h · Depends on: TASK-04-01-01-BE2
+- **Build:** `addMaintenance` writes S-08's `is_recalibration` (TQ-05). It
+  defaults to true for burrs and rezero on grinders, and false otherwise.
+  It's always false, and rejected if sent true, for non-grinder units
+  (DQ-15).
 - **Done when:**
   - Grinder events can be marked (AC 1).
   - Burrs and re-zero default on (AC 2).
@@ -3409,9 +3445,9 @@ Schema: TASK-04-01-01-BE1.
 
 ## 8. Build order
 
-Dependencies come first. Within that, the order follows the epics' MVP build
-order, with these changes at task level (stated here so the change isn't
-silent):
+**Confirmed by the Head of Product.** Dependencies come first. Within that,
+the order follows the epics' MVP build order, with these changes at task
+level:
 
 - **EPIC-01-05 (tasting) moves up, to just after EPIC-01-04.** Saving a shot
   lands on the tasting screen (STORY-01-03-03 AC 4), and pinning starts there
@@ -3427,12 +3463,13 @@ silent):
 
 **Wave 0: before any task.**
 - PR #3 is merged (`PR-3`).
-- The blocking questions TQ-01, TQ-02 and TQ-04 are answered.
-- TQ-06 is answered before TASK-01-02-01-BE1, and TQ-05 before
-  TASK-04-01-01-BE1.
 - The DES-* tasks named in each task are delivered. Several, such as
   DES-01-01-03, DES-01-03-02, DES-01-03-04 and DES-02-01-04, are likely
   covered by PR #3.
+- A Firebase project exists, with its service-account keys stored as
+  deployment secrets outside the repo (TQ-01, decided). This is needed before
+  TASK-01-01-01-BE4 can be tested against a real token.
+- No technical decision blocks wave 1 any more.
 
 **Wave 1: schema, migrations and test harness.** These are sequential.
 1. TASK-01-01-01-BE1
@@ -3546,7 +3583,7 @@ to 7.**
 3. Then the 5b fallbacks: TASK-01-06-08-FE1, TASK-01-06-08-FE2 and
    TASK-01-06-08-QA1.
 
-**Wave 7: EPIC-01-05 (tasting, moved up).**
+**Wave 7: EPIC-01-05 (tasting, moved up as confirmed).**
 1. Defect list first: TASK-01-05-03-BE1.
 2. Rating: TASK-01-05-01-FE1, TASK-01-05-01-FE2, TASK-01-05-01-BE1,
    TASK-01-05-01-FE3 and TASK-01-05-01-QA1.
@@ -3625,89 +3662,48 @@ on its own track from wave 5, the critical path runs through waves 1, 2, 3,
 
 ## 9. Questions
 
-### 9.1 Technical decisions the spec doesn't make (TQ)
+### 9.1 Technical decisions
 
-These are flagged rather than decided. **Blocking** means no task depending
-on it can start.
+**Resolved by the Head of Product (recorded in S-02 and, where they touch
+the schema, in S-08).** Each was accepted as proposed:
 
-- **TQ-01 (blocking) How Firebase anonymous auth reaches the server.**
-  - Proposal:
-    - The Firebase JS SDK signs the browser in anonymously.
-    - It posts the ID token to `POST /api/session`.
-    - The server verifies it with the Firebase Admin SDK (`verifyIdToken`)
-      and sets an httpOnly session cookie (`createSessionCookie`, at most 14
-      days).
-    - The DAL verifies the cookie per request.
-    - On expiry the client re-exchanges a fresh token silently.
-  - Alternatives:
-    - (a) Verify the ID token JWT ourselves with `jose` against Google's
-      public keys. This needs no service account, but we own key rotation
-      and expiry.
-    - (b) Send the token as a header on each request. This doesn't work for
-      Server Component page loads.
-  - Needs:
-    - a Firebase project and who owns it;
-    - service-account credentials as deployment secrets, never in the public
-      repo;
-    - the new dependencies `firebase` and `firebase-admin`.
-  - Blocks: TASK-01-01-01-BE3, TASK-01-01-01-BE4.
-- **TQ-02 (blocking) How the server talks to libSQL, and where the
-  prototype runs.**
-  - Proposal:
-    - One libSQL client and Drizzle instance in `src/db/client.ts`,
-      `server-only`, on the Node.js runtime.
-    - Server Components and Server Actions call a household-scoped DAL
-      directly, with no separate API.
-    - Migrations run at deploy, never per request.
-  - The question: a serverless host can't keep `./data/tare.db`, so it would
-    need hosted libSQL (Turso, with `DATABASE_URL` and
-    `DATABASE_AUTH_TOKEN`, already supported by `drizzle.config.ts`). A single
-    long-running Node server can keep the file. Where will it run?
-  - Blocks: TASK-01-01-01-BE1.
-- **TQ-03 Server Actions or Route Handlers.**
-  - Proposal:
-    - Server Actions for all mutations, each verifying the session and
-      household, as Next's data-security guide requires, since actions are
-      reachable by direct POST.
-    - Server Components for reads.
-    - Route Handlers only for the session exchange, typeahead catalog search
-      and the URL duplicate check. The client dispatches Server Actions one
-      at a time and can't abort them, which would make as-you-type search
-      queue.
-  - Sequential dispatch is a benefit for pull, then undo, then reaction.
-  - Affects: TASK-01-01-01-BE4, TASK-01-02-01-BE4, TASK-01-06-04-BE1.
-- **TQ-04 (blocking, X-1) Timestamp precision.**
-  - S-08 declares `integer(..., { mode: 'timestamp' })`, which Drizzle stores
-    as **seconds**. `CLAUDE.md` and the `schema.ts` conventions say integer
-    **milliseconds**.
-  - Proposal: `timestamp_ms` everywhere, which also gives same-day ordering
-    for the frozen marker, maintenance dividers and re-pins. The spec owner
-    updates S-08.
-  - Blocks: all schema tasks.
-- **TQ-05 Recalibration flag column.**
-  - S-08's `maintenance_events` has nowhere to store DQ-15's flag.
-  - Proposal: add `is_recalibration` (boolean, not null, default false).
-  - Affects: TASK-04-01-01-BE1, TASK-04-01-02-BE1.
-- **TQ-06 "Not sure" in the capabilities JSON.**
-  - S-08's capability shapes have no unknown values.
-  - Proposal: extend the JSON only, with no new columns:
-    - `temperature: { control: 'unknown' }`;
-    - `count: null`, `unit: null`, `min` and `max` null;
-    - `pressure: { control: 'manual', gauge: null }`;
-    - `grind: { type: 'unknown', min: null, max: null, step: null,
-      coarser: 'unknown' }`.
+- **TQ-01 How Firebase anonymous auth reaches the server: resolved.**
+  - Decision: the browser signs in anonymously and sends its Firebase ID
+    token once to `POST /api/session`.
+  - The server verifies it with the Firebase Admin SDK and sets an httpOnly
+    session cookie.
+  - Firebase keys live outside the public repo.
+  - Implemented by TASK-01-01-01-BE3, BE4 and BE5.
+- **TQ-02 How the server talks to libSQL: resolved.**
+  - Decision: one server-side libSQL client. Server code talks to the
+    database directly.
+  - A deployed prototype uses hosted Turso instead of the local file.
+  - Implemented by TASK-01-01-01-BE1.
+- **TQ-03 Server Actions or Route Handlers: resolved.**
+  - Decision: Server Actions for writes.
+  - Route Handlers only for the session exchange, catalog search and the
+    duplicate-URL check.
+  - Implemented by TASK-01-01-01-BE4, TASK-01-02-01-BE4 and
+    TASK-01-06-04-BE1.
+- **TQ-04 Timestamp precision: resolved, and X-1 closed.**
+  - Decision: integer milliseconds everywhere. S-08 now uses
+    `mode: 'timestamp_ms'` throughout.
+- **TQ-05 Recalibration flag: resolved.**
+  - Decision: S-08 now has `isRecalibration` on `maintenance_events`
+    (boolean, not null, default false).
+  - Implemented by TASK-04-01-01-BE1 and TASK-04-01-02-BE1.
+- **TQ-06 "Not sure" capabilities: resolved.**
+  - Decision: S-08's capabilities comment now documents the unknown values
+    as proposed.
+  - Implemented by TASK-01-02-01-BE1, TASK-01-06-06-BE1 and
+    TASK-01-06-07-BE1.
+- **TQ-07 Time zone for local days: resolved.**
+  - Decision: the device's time zone is sent in a cookie, and nothing is
+    stored.
+  - Implemented by TASK-02-06-01-BE2.
 
-    Seeded rows never use unknowns. The spec owner updates S-08.
-  - Affects: TASK-01-02-01-BE1, TASK-01-06-06-BE1, TASK-01-06-07-BE1.
-- **TQ-07 Time zone for local days.**
-  - Grouping by day, "today", the time-of-day drink (DQ-02), bean age in days
-    and back-dated dates all need the user's local day. Server Components
-    don't know the device's zone, and S-08 stores none.
-  - Proposal: a `tz` cookie set by the client, and back-dated dates stored as
-    local noon.
-  - Alternative: a `time_zone` column on `users`, which is a schema change.
-  - Also confirm that bean age counts local calendar days.
-  - Affects: TASK-02-06-01-BE2 and its dependents.
+**Still open.** None of these blocks wave 1.
+
 - **TQ-08 A second locale for testing.**
   - Several acceptance criteria need a language other than English:
     STORY-01-01-02 AC 2 and AC 3, STORY-01-01-03 AC 2, and STORY-01-03-05.
@@ -3750,6 +3746,8 @@ on it can start.
 
 ### 9.2 Product questions that block or shape MVP tasks (for the Head of Product)
 
+All still open; none was settled by the approval decisions.
+
 1. **DQ-08 defect list.** It blocks the content of TASK-01-05-03-BE1. Until
    it's answered, only `channelling` ships, plus DES-01-05-04's proposal if
    approved.
@@ -3773,11 +3771,11 @@ on it can start.
    behind a flag that's off. Confirm off or on.
 8. **SQ-16: who owns the first-run checklist.** It's planned under
    STORY-01-01-07 (EPIC-01-01). This doesn't affect the code.
-9. **Build order change.** Tasting (EPIC-01-05) is built right after
-   EPIC-01-04 rather than 12th, so that saving a shot lands on the tasting
-   screen from the start. Confirm.
-10. **TQ-08 and TQ-10** also need a product answer: a second language, and
-    who curates the seed list.
+9. **TQ-08 and TQ-10** also need a product answer: a second language, and
+   who curates the seed list.
+
+The build-order question (tasting moved up) is closed: confirmed at
+approval.
 
 ---
 
@@ -3796,10 +3794,9 @@ on it can start.
   periods of inactivity, which would create a new empty household. The risk
   is high on iOS. Needs a decision on whether to accept it or prioritise
   EPIC-05-03.
-- **R-03 S-08 deviations.** The timestamp mode (TQ-04), the recalibration
-  column (TQ-05) and the "not sure" JSON (TQ-06) change the agreed schema.
-  Each needs the spec updated, or the schema drifts from its source of
-  truth.
+- **R-03 S-08 deviations: closed.** S-08 now includes the timestamp mode, the
+  recalibration column and the "not sure" values, so the schema tasks follow
+  it exactly. The ID is kept so later references stay stable.
 - **R-04 JSON columns.** `toolkits.components`, `capabilities` and `defects`
   aren't enforced by the database. "Toolkits containing a unit" and
   "exactly one machine and one grinder" are application rules, so a bug can
@@ -3807,9 +3804,10 @@ on it can start.
   shape, used on every write, and tests. Tech debt: a join table for toolkit
   components would be safer, but S-08 chose JSON.
 - **R-05 Local-day maths.** Bean age, day groups, the time-of-day drink and
-  "opened today" all depend on the time zone (TQ-07). Off-by-one errors near
-  midnight and DST changes are likely without the shared `localDay` helpers
-  and their tests.
+  "opened today" all depend on the device's time zone (TQ-07). Off-by-one
+  errors near midnight and DST changes are likely without the shared
+  `localDay` helpers and their tests. A device that changes time zone also
+  shifts "today" for its history, since nothing is stored.
 - **R-06 Optimistic one-tap.** "Visible within 100 ms" means showing success
   before the server confirms. With a poor kitchen connection, the shot can
   fail after the user walks away. The design shows a retry Notice, but
@@ -3828,8 +3826,8 @@ on it can start.
   This is fine for a small seed list. A normalised search column or SQLite
   FTS5 would be a schema addition and isn't planned.
 - **R-10 Foreign keys.** Foreign-key enforcement depends on the libSQL
-  connection settings. If it's off, household and catalog references aren't
-  enforced at all. Checked in TASK-01-01-01-BE1.
+  connection settings, locally and on Turso. If it's off, household and
+  catalog references aren't enforced at all. Checked in TASK-01-01-01-BE1.
 - **R-11 Undo is a hard delete.** Undo deletes the extraction row (STORY-02-02-04
   AC 1, "as if it was never pulled"). That's the specified behaviour, but it's
   the only delete in the MVP. It's limited to the same user, one-tap shots and
@@ -3844,8 +3842,9 @@ on it can start.
 - **R-14 Test coverage of wiring.** Without an end-to-end suite (TQ-09), page
   and action wiring regressions are caught only by Node tests and manual
   checks.
-- **R-15 Secrets in a public repo.** Firebase service-account keys must live
-  only in deployment secrets. `.env.example` holds names, never values.
+- **R-15 Secrets in a public repo.** Firebase service-account keys and the
+  Turso token must live only in deployment secrets. `.env.example` holds
+  names, never values.
 - **Tech debt accepted for the MVP:**
   - no offline queue;
   - no admin tooling for verification;
@@ -3857,7 +3856,8 @@ on it can start.
 
 ## 11. Totals
 
-**By epic (MVP)**
+**By epic (MVP).** Unchanged at approval: the decisions match the proposals
+the estimates assumed.
 
 | Epic | Title | Stories | Tasks | Hours |
 |---|---|---|---|---|
