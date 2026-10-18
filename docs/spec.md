@@ -42,7 +42,16 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
-Still open: timestamp precision (seconds or milliseconds), and whether pinning a better recipe updates the bag's override or the bean's default.
+- **Technical decisions from the tech-lead review (TQ-01 to TQ-07).**
+  - *Sign-in reaches the server through a session cookie.* The browser signs in to Firebase anonymously, sends its Firebase ID token once to the server, which verifies it with the Firebase Admin SDK and sets an httpOnly session cookie. Firebase keys live outside the public repo.
+  - *One libSQL client on the server.* Server code talks to the database directly; a deployed prototype uses hosted libSQL (Turso) instead of the local file.
+  - *Timestamps are integer milliseconds* (`timestamp_ms`), like shot time.
+  - *Server Actions for writes;* Route Handlers only for the session exchange, catalog search and the duplicate-link check.
+  - *Recalibration is a flag* on a maintenance event (`is_recalibration`), not an event kind.
+  - *"Not sure" capabilities* are stored as unknown values in the capabilities JSON (see S-08).
+  - *Local days use the device's time zone,* sent in a cookie, for "today", grouping by day, the time-of-day drink and bean age. Nothing is stored for it.
+
+Still open: whether pinning a better recipe updates the bag's override or the bean's default.
 
 ## S-03 The North Star Vision & UVP
 
@@ -128,7 +137,7 @@ export const hardwareMakers = sqliteTable('hardware_makers', {
   status: text('status').notNull(), // 'verified', 'unverified'
   mergedIntoId: text('merged_into_id').references((): AnySQLiteColumn => hardwareMakers.id),
   createdByHouseholdId: text('created_by_household_id').references(() => households.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 export const roasters = sqliteTable('roasters', {
@@ -138,7 +147,7 @@ export const roasters = sqliteTable('roasters', {
   status: text('status').notNull(),
   mergedIntoId: text('merged_into_id').references((): AnySQLiteColumn => roasters.id),
   createdByHouseholdId: text('created_by_household_id').references(() => households.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 export const canonicalBeans = sqliteTable('canonical_beans', {
@@ -151,7 +160,7 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
   status: text('status').notNull(),
   mergedIntoId: text('merged_into_id').references((): AnySQLiteColumn => canonicalBeans.id),
   createdByHouseholdId: text('created_by_household_id').references(() => households.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Machines, grinders, baskets and accessories, with what each can control.
@@ -165,6 +174,9 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 // for grinders:
 //   grind: { type: 'stepped' | 'stepless', min, max, step, coarser: 'higher' | 'lower' }
 //   (`coarser` turns advice like "grind finer" into the right direction on the dial)
+// "Not sure" (household-added models only; seeded rows never use it):
+//   temperature/pressure: { control: 'unknown' }; a manual machine's gauge: null;
+//   counts, units, min, max and step: null; grind: { type: 'unknown', ..., coarser: 'unknown' }
 // A hardware model (the catalog row), not a unit someone owns; see ownedHardware.
 export const canonicalHardware = sqliteTable('canonical_hardware', {
   id: text('id').primaryKey(),
@@ -176,7 +188,7 @@ export const canonicalHardware = sqliteTable('canonical_hardware', {
   status: text('status').notNull(),
   mergedIntoId: text('merged_into_id').references((): AnySQLiteColumn => canonicalHardware.id),
   createdByHouseholdId: text('created_by_household_id').references(() => households.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Product pages, one row per market. A catalog row can have many (UK and US pages).
@@ -194,7 +206,7 @@ export const catalogUrls = sqliteTable('catalog_urls', {
   normalizedUrl: text('normalized_url').notNull(),
   market: text('market'), // e.g. 'GB', 'US'; null if global
   addedByHouseholdId: text('added_by_household_id').references(() => households.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Other names for the same catalog row, usually regional ("Sage" for "Breville" in the UK).
@@ -205,7 +217,7 @@ export const catalogAliases = sqliteTable('catalog_aliases', {
   entityId: text('entity_id').notNull(),
   name: text('name').notNull(),
   market: text('market'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Audit trail of merges: who or what suggested it and who confirmed it.
@@ -217,7 +229,7 @@ export const catalogMerges = sqliteTable('catalog_merges', {
   suggestedBy: text('suggested_by').notNull(), // 'url-match', 'llm', 'user', 'reviewer'
   confidence: real('confidence'), // 0-1, for automated suggestions
   reason: text('reason'),
-  decidedAt: integer('decided_at', { mode: 'timestamp' }).notNull(),
+  decidedAt: integer('decided_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // A login: one person. Consent is personal, so it lives here.
@@ -228,7 +240,7 @@ export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   firebaseUid: text('firebase_uid').notNull().unique(), // The Firebase account
   shareDataConsent: integer('share_data_consent', { mode: 'boolean' }).default(false),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // --- TENANT HIERARCHY ---
@@ -237,7 +249,7 @@ export const users = sqliteTable('users', {
 export const households = sqliteTable('households', {
   id: text('id').primaryKey(),
   name: text('name'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Which logins belong to which household. One row in the MVP; invites add rows later.
@@ -245,7 +257,7 @@ export const householdMembers = sqliteTable('household_members', {
   householdId: text('household_id').references(() => households.id).notNull(),
   userId: text('user_id').references(() => users.id).notNull(),
   role: text('role').notNull(), // 'owner', 'member'
-  joinedAt: integer('joined_at', { mode: 'timestamp' }).notNull(),
+  joinedAt: integer('joined_at', { mode: 'timestamp_ms' }).notNull(),
 }, (t) => [primaryKey({ columns: [t.householdId, t.userId] })]);
 
 // A taste profile. userId is null for a persona without its own login (phase 2);
@@ -279,8 +291,8 @@ export const ownedHardware = sqliteTable('owned_hardware', {
   householdId: text('household_id').references(() => households.id).notNull(),
   hardwareId: text('hardware_id').references(() => canonicalHardware.id).notNull(), // The model
   nickname: text('nickname'),
-  acquiredAt: integer('acquired_at', { mode: 'timestamp' }),
-  retiredAt: integer('retired_at', { mode: 'timestamp' }),
+  acquiredAt: integer('acquired_at', { mode: 'timestamp_ms' }),
+  retiredAt: integer('retired_at', { mode: 'timestamp_ms' }),
 });
 
 export const toolkits = sqliteTable('toolkits', {
@@ -299,8 +311,9 @@ export const maintenanceEvents = sqliteTable('maintenance_events', {
   id: text('id').primaryKey(),
   ownedHardwareId: text('owned_hardware_id').references(() => ownedHardware.id).notNull(),
   kind: text('kind').notNull(), // 'burrs', 'clean', 'rezero', 'repair', 'other'
+  isRecalibration: integer('is_recalibration', { mode: 'boolean' }).notNull().default(false), // The user marked a recalibration
   note: text('note'),
-  occurredAt: integer('occurred_at', { mode: 'timestamp' }).notNull(),
+  occurredAt: integer('occurred_at', { mode: 'timestamp_ms' }).notNull(),
   grindShift: real('grind_shift'), // Grinder units; set when a re-dial is confirmed
   grindScale: real('grind_scale'), // Stretch factor; 1 unless 2+ coffees were re-dialed
   offsetSourceRecipeId: text('offset_source_recipe_id').references(() => pinnedRecipes.id), // The re-dial it came from
@@ -313,11 +326,11 @@ export const batches = sqliteTable('batches', {
   householdId: text('household_id').references(() => households.id).notNull(),
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   lotCode: text('lot_code'), // Roaster's lot, if printed on the bag
-  roastDate: integer('roast_date', { mode: 'timestamp' }), // Null if only best-before is printed
-  bestBefore: integer('best_before', { mode: 'timestamp' }),
+  roastDate: integer('roast_date', { mode: 'timestamp_ms' }), // Null if only best-before is printed
+  bestBefore: integer('best_before', { mode: 'timestamp_ms' }),
   bagWeight: real('bag_weight').notNull(), // Grams, as bought
-  purchasedAt: integer('purchased_at', { mode: 'timestamp' }), // For reorder timing
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  purchasedAt: integer('purchased_at', { mode: 'timestamp_ms' }), // For reorder timing
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // What physically exists: a whole bag is one portion; splitting to freeze creates more.
@@ -325,11 +338,11 @@ export const batchPortions = sqliteTable('batch_portions', {
   id: text('id').primaryKey(),
   batchId: text('batch_id').references(() => batches.id).notNull(),
   weight: real('weight').notNull(), // Grams
-  frozenAt: integer('frozen_at', { mode: 'timestamp' }),
-  thawedAt: integer('thawed_at', { mode: 'timestamp' }),
-  openedAt: integer('opened_at', { mode: 'timestamp' }),
-  finishedAt: integer('finished_at', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  frozenAt: integer('frozen_at', { mode: 'timestamp_ms' }),
+  thawedAt: integer('thawed_at', { mode: 'timestamp_ms' }),
+  openedAt: integer('opened_at', { mode: 'timestamp_ms' }),
+  finishedAt: integer('finished_at', { mode: 'timestamp_ms' }),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Optional: the user weighs what's left, correcting the run-out estimate.
@@ -337,7 +350,7 @@ export const stockChecks = sqliteTable('stock_checks', {
   id: text('id').primaryKey(),
   portionId: text('portion_id').references(() => batchPortions.id).notNull(),
   remainingWeight: real('remaining_weight').notNull(), // Grams
-  checkedAt: integer('checked_at', { mode: 'timestamp' }).notNull(),
+  checkedAt: integer('checked_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // --- TELEMETRY & EXTRACTIONS ---
@@ -384,7 +397,7 @@ export const extractions = sqliteTable('extractions', {
   // who opted in. One-tap shots never reach the network.
   // A persona without its own login never reaches the network, whoever logged the shot.
   isNetworkEligible: integer('is_network_eligible', { mode: 'boolean' }).default(false),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // --- RECIPES ---
@@ -411,7 +424,7 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   pressureStep: integer('pressure_step'),
 
   sourceExtractionId: text('source_extraction_id').references(() => extractions.id), // The shot it came from, if any
-  pinnedAt: integer('pinned_at', { mode: 'timestamp' }).notNull(),
+  pinnedAt: integer('pinned_at', { mode: 'timestamp_ms' }).notNull(),
 });
 ```
 
