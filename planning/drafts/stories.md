@@ -1,4 +1,4 @@
-# Tare user stories (revision 2, after design approval)
+# Tare user stories (approved, revision 2)
 
 Source: `planning/drafts/epics.md` (final, revision 5, 30 epics),
 `planning/drafts/design.md` (approved by the Head of Product after design
@@ -6,7 +6,7 @@ review round 2) and `docs/spec.md`, sections S-01 to S-09. S-01 and S-02
 override older sections where they differ. `planning/drafts/initiatives.md`
 was read for context.
 
-**Status: revision 2, for the Head of Product's approval.** Revision 1 was
+**Status: revision 2, approved by the Head of Product, including the assumptions noted in each story.** Revision 1 was
 approved. This revision brings the stories in line with the approved design
 and with epics revisions 4 and 5. No GitHub issues have been created.
 
