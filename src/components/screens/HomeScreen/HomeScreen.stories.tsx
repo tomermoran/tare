@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
-import { exampleCoffee, exampleRecipe, exampleRemainingGrams, exampleToolkit } from "../fixtures";
+import { exampleCoffee, exampleRecipe, exampleRemainingGrams, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { HomeScreen } from "./HomeScreen";
 
@@ -13,7 +13,7 @@ const base = {
   drink: messages.drinks.latte,
   coffee: exampleCoffee,
   recipe: exampleRecipe,
-  toolkit: exampleToolkit,
+  setup: exampleSetup,
   remainingGrams: exampleRemainingGrams,
 };
 

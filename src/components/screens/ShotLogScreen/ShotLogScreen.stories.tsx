@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
-import { exampleCoffee, exampleRecipe, exampleToolkit } from "../fixtures";
+import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { ShotLogScreen } from "./ShotLogScreen";
 
@@ -13,7 +13,7 @@ const meta = {
   parameters: { layout: "centered" },
   args: {
     mode: "dialIn",
-    toolkit: exampleToolkit,
+    setup: exampleSetup,
     drink: messages.drinks.latte,
     coffee: exampleCoffee.bean,
     start: exampleRecipe,

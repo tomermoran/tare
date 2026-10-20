@@ -14,7 +14,7 @@ type Mode = "new" | "dialIn" | "fix" | "edit";
 
 type ShotLogScreenProps = {
   mode: Mode;
-  toolkit: string;
+  setup: string;
   drink: string;
   coffee: string;
   /** Starting values: the recipe, the last shot or the saved shot, per mode. */
@@ -23,7 +23,7 @@ type ShotLogScreenProps = {
   grind?: { min: number; max: number; step: number };
   onCancel?: () => void;
   onSave?: (values: ShotValuesData, sweetened: boolean) => void;
-  onPick?: (field: "toolkit" | "drink" | "coffee") => void;
+  onPick?: (field: "setup" | "drink" | "coffee") => void;
 };
 
 const titleKey = { new: "titleNew", dialIn: "titleDialIn", fix: "titleFix", edit: "titleEdit" } as const;
@@ -35,7 +35,7 @@ const noop = () => {};
  */
 export function ShotLogScreen({
   mode,
-  toolkit,
+  setup,
   drink,
   coffee,
   start,
@@ -72,7 +72,7 @@ export function ShotLogScreen({
         }
       />
       <div className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
-        <SelectField label={t("toolkit")} value={toolkit} onClick={() => onPick("toolkit")} />
+        <SelectField label={t("setup")} value={setup} onClick={() => onPick("setup")} />
         <SelectField label={t("drink")} value={drink} onClick={() => onPick("drink")} />
         <SelectField label={t("coffee")} value={coffee} onClick={() => onPick("coffee")} />
       </div>

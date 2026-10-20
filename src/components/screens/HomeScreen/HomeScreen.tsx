@@ -8,14 +8,14 @@ import { SelectField } from "@/components/ui/SelectField/SelectField";
 import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 
 type HomeScreenProps = {
-  /** recipe: the daily driver. noRecipe: kit and coffee, but nothing pinned. firstRun: nothing set up. */
+  /** recipe: the daily driver. noRecipe: setup and coffee, but nothing pinned. firstRun: nothing set up. */
   state: "recipe" | "noRecipe" | "firstRun";
   /** Shown persona name; null shows the translated role label. */
   personaName?: string | null;
   drink: string;
   coffee: { bean: string; roaster: string; ageDays: number };
   recipe?: ShotValuesData;
-  toolkit?: string;
+  setup?: string;
   remainingGrams?: number;
   /** After a one-tap pull: the result replaces the buttons in place. */
   pulled?: boolean;
@@ -27,7 +27,7 @@ type HomeScreenProps = {
   onChangeDrink?: () => void;
   onChangeCoffee?: () => void;
   onProfile?: () => void;
-  onAddKit?: () => void;
+  onAddMachine?: () => void;
 };
 
 const noop = () => {};
@@ -42,7 +42,7 @@ export function HomeScreen({
   drink,
   coffee,
   recipe,
-  toolkit,
+  setup,
   remainingGrams,
   pulled = false,
   reaction = null,
@@ -53,7 +53,7 @@ export function HomeScreen({
   onChangeDrink = noop,
   onChangeCoffee = noop,
   onProfile = noop,
-  onAddKit = noop,
+  onAddMachine = noop,
 }: HomeScreenProps) {
   const t = useTranslations("home");
   const tProfile = useTranslations("profile");
@@ -72,15 +72,15 @@ export function HomeScreen({
 
   if (state === "firstRun") {
     const steps = [
-      { title: t("setup.kit"), hint: t("setup.kitHint"), next: true },
-      { title: t("setup.bag"), hint: t("setup.bagHint") },
-      { title: t("setup.shot") },
+      { title: t("firstRun.parts"), hint: t("firstRun.partsHint"), next: true },
+      { title: t("firstRun.bag"), hint: t("firstRun.bagHint") },
+      { title: t("firstRun.shot") },
     ];
     return (
       <div className="flex flex-1 flex-col">
         {header}
-        <h1 className="mt-7 text-h1">{t("setup.title")}</h1>
-        <p className="text-body text-ink-secondary">{t("setup.body")}</p>
+        <h1 className="mt-7 text-h1">{t("firstRun.title")}</h1>
+        <p className="text-body text-ink-secondary">{t("firstRun.body")}</p>
         <ol className="mt-8">
           {steps.map((s, i) => (
             <li key={s.title} className="grid grid-cols-[28px_1fr] gap-3 border-t border-line py-4.5 last:border-b">
@@ -91,8 +91,8 @@ export function HomeScreen({
                 <p className="text-body">{s.title}</p>
                 {s.hint && <p className="text-label text-ink-secondary">{s.hint}</p>}
                 {s.next && (
-                  <Button variant="primary" fullWidth className="mt-3" onClick={onAddKit}>
-                    {t("setup.addKit")}
+                  <Button variant="primary" fullWidth className="mt-3" onClick={onAddMachine}>
+                    {t("firstRun.addMachine")}
                   </Button>
                 )}
               </div>
@@ -126,7 +126,7 @@ export function HomeScreen({
       {state === "recipe" && recipe ? (
         <>
           <ShotValues values={recipe} className="mt-9" />
-          {toolkit && <p className="mt-1 text-label text-ink-secondary">{toolkit}</p>}
+          {setup && <p className="mt-1 text-label text-ink-secondary">{setup}</p>}
         </>
       ) : (
         <p className="mt-9 max-w-[26ch] text-body text-ink-secondary">{t("noRecipe")}</p>

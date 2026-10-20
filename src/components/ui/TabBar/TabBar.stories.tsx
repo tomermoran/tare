@@ -9,7 +9,7 @@ const tabs = [
   { id: "brew", label: nav.brew },
   { id: "shots", label: nav.shots },
   { id: "pantry", label: nav.pantry },
-  { id: "kit", label: nav.kit },
+  { id: "setup", label: nav.setup },
 ];
 
 function Interactive() {

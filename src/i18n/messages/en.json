@@ -39,7 +39,7 @@
     "brew": "Brew",
     "shots": "Shots",
     "pantry": "Pantry",
-    "kit": "Kit"
+    "setup": "Setup"
   },
   "profile": {
     "defaultName": "Me"
@@ -69,31 +69,31 @@
     "usual": "usual",
     "changeDrink": "Change drink",
     "changeCoffee": "Change coffee",
-    "setup": {
+    "coffeeLine": "{bean} · {roaster} · {age}",
+    "firstRun": {
       "title": "Let's get your first shot",
       "body": "Three steps, about two minutes.",
-      "kit": "Add your machine and grinder",
-      "kitHint": "Pick them from the list, or add what's missing.",
+      "parts": "Add your machine and grinder",
+      "partsHint": "Pick them from the list, or add what's missing.",
       "bag": "Add a bag of coffee",
       "bagHint": "Roast date and weight are enough.",
       "shot": "Pull your first shot",
-      "addKit": "Add kit",
+      "addMachine": "Add machine",
       "done": "Done"
-    },
-    "coffeeLine": "{bean} · {roaster} · {age}"
+    }
   },
   "log": {
     "titleNew": "New shot",
     "titleDialIn": "Dial in",
     "titleFix": "Fix this shot",
     "titleEdit": "Edit shot",
-    "toolkit": "Toolkit",
     "drink": "Drink",
     "coffee": "Coffee",
     "sweetened": "Sweetened",
     "save": "Save shot",
     "values": "Shot values",
-    "was": "was {value}"
+    "was": "was {value}",
+    "setup": "Setup"
   },
   "shots": {
     "title": "Shots",

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { TabBar } from "@/components/ui/TabBar/TabBar";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import messages from "@/i18n/messages/en.json";
-import { exampleCoffee, exampleNow, exampleRecipe, exampleRemainingGrams, exampleShots, exampleToolkit } from "./fixtures";
+import { exampleCoffee, exampleNow, exampleRecipe, exampleRemainingGrams, exampleShots, exampleSetup } from "./fixtures";
 import { HomeScreen } from "./HomeScreen/HomeScreen";
 import { PhoneFrame } from "./PhoneFrame";
 import type { RecentItem } from "./RecentShotsScreen/RecentShotsScreen";
@@ -15,12 +15,12 @@ const tabs = [
   { id: "brew", label: nav.brew },
   { id: "shots", label: nav.shots },
   { id: "pantry", label: nav.pantry },
-  { id: "kit", label: nav.kit },
+  { id: "setup", label: nav.setup },
 ];
 
 /**
  * The daily flow, clickable: pull a shot, mark it off, dial in on the shot
- * log, save, and see it in recent shots. Pantry and Kit aren't built yet.
+ * log, save, and see it in recent shots. Pantry and Setup aren't built yet.
  */
 function DailyFlow() {
   const [tab, setTab] = useState("brew");
@@ -45,7 +45,7 @@ function DailyFlow() {
       <PhoneFrame>
         <ShotLogScreen
           mode={logMode}
-          toolkit={exampleToolkit}
+          setup={exampleSetup}
           drink={drink}
           coffee={exampleCoffee.bean}
           start={recipe}
@@ -80,7 +80,7 @@ function DailyFlow() {
           drink={drink}
           coffee={exampleCoffee}
           recipe={recipe}
-          toolkit={exampleToolkit}
+          setup={exampleSetup}
           remainingGrams={remaining}
           pulled={pulled}
           reaction={reaction}
@@ -105,7 +105,7 @@ function DailyFlow() {
         />
       )}
       {tab === "shots" && <RecentShotsScreen items={shots} now={exampleNow} onOpen={() => {}} />}
-      {(tab === "pantry" || tab === "kit") && (
+      {(tab === "pantry" || tab === "setup") && (
         <p className="m-auto text-center text-body text-ink-secondary">{messages.states.notBuilt}</p>
       )}
     </PhoneFrame>

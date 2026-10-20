@@ -3,7 +3,7 @@ import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import messages from "@/i18n/messages/en.json";
 
 /*
- * Fictional example data for screen stories. Coffee, roaster and toolkit
+ * Fictional example data for screen stories. Coffee, roaster and setup
  * names are user data (they'd come from the catalog and the household), so
  * they live here rather than in the i18n messages. No real people or
  * products' private details.
@@ -12,7 +12,7 @@ import messages from "@/i18n/messages/en.json";
 export const exampleRecipe: ShotValuesData = { grind: 15, dose: 18, yield: 38, timeMs: 27_600 };
 
 export const exampleCoffee = { bean: "Ethiopia Guji, washed", roaster: "Northfield Roasters", ageDays: 12 };
-export const exampleToolkit = "Daily espresso";
+export const exampleSetup = "Daily espresso";
 export const exampleRemainingGrams = 142;
 
 const at = (daysAgo: number, h: number, m: number) => {
