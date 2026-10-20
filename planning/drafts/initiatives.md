@@ -10,7 +10,7 @@ Revision note: open questions that S-02 has since settled are marked
 initiatives themselves are unchanged.
 
 MVP definition used (S-01 roadmap, Phase 1): a basic app for logging shots and
-managing recipes, toolkits and the pantry. No AI features: no LLM calls, bag
+managing recipes, setups and the pantry. No AI features: no LLM calls, bag
 scanning, Diagnostic Coach or Cold Start network. AI features come later, each
 with evals and observability.
 
@@ -18,7 +18,7 @@ with evals and observability.
 
 | ID | Title | Priority | Source sections |
 |---|---|---|---|
-| INIT-01 | Log a shot against your real kit in seconds | MVP | S-01, S-02, S-04, S-06, S-07, S-08 |
+| INIT-01 | Log a shot against your real setup in seconds | MVP | S-01, S-02, S-04, S-06, S-07, S-08 |
 | INIT-02 | Every new bag starts from what you already learned | MVP | S-01, S-02, S-04, S-06, S-08 |
 | INIT-03 | Always know what beans you have and how old they are | MVP | S-02, S-04, S-08 |
 | INIT-04 | Grind settings stay meaningful through maintenance and time | Next | S-01, S-02, S-04, S-08 |
@@ -27,7 +27,7 @@ with evals and observability.
 
 ---
 
-## INIT-01: Log a shot against your real kit in seconds
+## INIT-01: Log a shot against your real setup in seconds
 
 **Goal:** A home enthusiast can describe their own equipment once and then
 record any shot quickly and accurately, so every later feature has trustworthy
@@ -42,7 +42,7 @@ not given in the spec.
   one main persona per login (S-02, S-04).
 - Owned hardware units pointing to canonical models with declared capabilities
   (temperature, pressure, grind scale and coarser direction) (S-04, S-08).
-- Toolkits grouping owned units, e.g. machine, grinder, basket, accessories
+- Setups grouping owned units, e.g. machine, grinder, basket, accessories
   (S-04).
 - Logging an extraction: MVPayload, optional temperature and pressure shown
   only when the machine can set them (exact value or step, never one shared
@@ -96,7 +96,7 @@ exactly one tap (S-06 target). Share of daily shots recorded through
 shots"; no numeric target given).
 
 **In scope**
-- Pinned recipes scoped to bean, persona, toolkit and drink context, with the
+- Pinned recipes scoped to bean, persona, setup and drink context, with the
   grinder and machine units recorded directly (S-02, S-04, S-08).
 - Optional batch override for a bag that behaves differently (S-02, S-04).
 - Re-pinning adds a row; the latest pin wins; a recipe can point back to the
@@ -133,8 +133,8 @@ shots"; no numeric target given).
   shots): the persona selected on the home screen. S-02 "The default persona
   has no stored name": it shows a translated role label until renamed.
 - **Resolved.** What happens on "Pull This Shot" with no pinned recipe? S-02
-  (one-tap shots): the button becomes "Dial in". On a new kit, Dial in starts
-  pre-filled from the closest previous kit's recipe (S-02 "A kit is a fixed
+  (one-tap shots): the button becomes "Dial in". On a new setup, Dial in starts
+  pre-filled from the closest previous setup's recipe (S-02 "A setup is a fixed
   combination of parts").
 
 ---
@@ -211,7 +211,7 @@ maintenance events with a confirmed offset. Target not given in the spec.
   stored recipes are never rewritten, the mapping is applied when reading
   (S-02, S-08).
 - Recent shots weighted more heavily than older ones (S-01).
-- Drift adjustments (bean age, batch character, kit maintenance) calculated
+- Drift adjustments (bean age, batch character, setup maintenance) calculated
   from logged shots, never stored (S-02, S-04).
 
 **Out of scope**
@@ -288,7 +288,7 @@ at 4 or above (S-09).
 **In scope**
 - Vision Scanner: extract roaster, name, roast level and tasting notes from a
   bag photo as strict JSON, null when absent (S-09).
-- Diagnostic Coach: turn sensory scores, defects, toolkit and bean aging into
+- Diagnostic Coach: turn sensory scores, defects, setup and bean aging into
   a hardware adjustment, using the grinder's coarser direction (S-08, S-09).
 - RAG grounding the Coach in extraction guides and equipment manuals (S-01).
 - Eval harness (`npm run eval`, LLM-as-a-judge) and observability for every AI

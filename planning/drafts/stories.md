@@ -23,15 +23,15 @@ begin with "New", "Updated", "Lightly updated" or "Unchanged".
 | STORY-01-01-05 | Move around the app | App shell (PEC-01) |
 | STORY-01-01-06 | See the same loading, empty and error behaviour everywhere | App shell (PEC-01) |
 | STORY-01-01-07 | Get started with a short checklist | First-run state on Home (design 2.3) |
-| STORY-01-02-05 | Make my first toolkit in one tap | Toolkit shortcut (PEC-02) |
-| STORY-01-02-06 | Edit a toolkit | Toolkit editing (PEC-02) |
-| STORY-01-02-07 | Be warned before swapping a toolkit's machine or grinder | PEC-07 |
+| STORY-01-02-05 | Make my first setup in one tap | Setup shortcut (PEC-02) |
+| STORY-01-02-06 | Edit a setup | Setup editing (PEC-02) |
+| STORY-01-02-07 | Be warned before swapping a setup's machine or grinder | PEC-07 |
 | STORY-01-05-04 | See a warning when a shot channelled | Shot warnings (PEC-04) |
 | STORY-01-06-06 | Describe a machine I added in my own words | Capability questions (PEC-05) |
 | STORY-01-06-07 | Describe a grinder I added in my own words | Capability questions (PEC-05) |
-| STORY-01-06-08 | Log shots even when I'm not sure about my kit | "Not sure" fallbacks (DQ-11) |
+| STORY-01-06-08 | Log shots even when I'm not sure about my setup | "Not sure" fallbacks (DQ-11) |
 | STORY-01-06-09 | Answer capability questions later | PEC-08 |
-| STORY-02-01-05 | Re-dial a recipe whose kit left its toolkit | PEC-07 |
+| STORY-02-01-05 | Re-dial a recipe whose setup left its setup | PEC-07 |
 | STORY-02-02-06 | Change the drink or coffee before pulling | PEC-03 |
 | STORY-02-06-03 | See a shot's details | Shot detail screen (SCR-SHOT) |
 | STORY-04-01-04 | See maintenance in my recent shots | Grind period dividers (PEC-06) |
@@ -120,7 +120,7 @@ See "Open questions" at the end.
 | Epic | Title | Priority | Stories | Points |
 |---|---|---|---|---|
 | EPIC-01-01 | Start brewing without setting anything up | MVP | 7 | 18 |
-| EPIC-01-02 | Describe your kit once | MVP | 7 | 17 |
+| EPIC-01-02 | Describe your setup once | MVP | 7 | 17 |
 | EPIC-01-03 | Log a shot in seconds | MVP | 5 | 14 |
 | EPIC-01-04 | Record temperature and pressure when your machine has them | MVP | 2 | 6 |
 | EPIC-01-05 | Say how it tasted | MVP | 4 | 8 |
@@ -136,7 +136,7 @@ See "Open questions" at the end.
 | EPIC-03-03 | Know how fresh your beans really are | MVP | 3 | 7 |
 | EPIC-03-04 | See how much coffee is left | MVP | 3 | 7 |
 | EPIC-03-05 | Know when you'll run out | Next | 3 | 8 |
-| EPIC-04-01 | Record maintenance on your kit | MVP | 4 | 8 |
+| EPIC-04-01 | Record maintenance on your setup | MVP | 4 | 8 |
 | EPIC-04-02 | Suggested grind that follows bean age and recent shots | Next | 6 | 21 |
 | EPIC-04-03 | Re-dial once after maintenance and keep every recipe | Next | 3 | 11 |
 | EPIC-04-04 | Keep recipes right after new burrs of a different design | Next | 2 | 5 |
@@ -162,8 +162,8 @@ epics revisions 4 and 5:
 
 - EPIC-01-06, capability questions, fallbacks and "answer later": +10.
 - EPIC-01-01, app shell and first-run checklist: +9.
-- EPIC-01-02, toolkit shortcut, editing and swap warning: +7.
-- EPIC-02-01, re-dialing recipes whose kit left the toolkit: +3.
+- EPIC-01-02, setup shortcut, editing and swap warning: +7.
+- EPIC-02-01, re-dialing recipes whose setup left the setup: +3.
 - EPIC-02-02, changing drink and coffee on Home: +3.
 - EPIC-02-06, shot detail and day grouping: +3.
 - EPIC-01-05, the channelling warning: +2.
@@ -174,7 +174,7 @@ Later points are rough placeholders.
 
 ---
 
-## INIT-01: Log a shot against your real kit in seconds
+## INIT-01: Log a shot against your real setup in seconds
 
 ### EPIC-01-01: Start brewing without setting anything up
 
@@ -262,14 +262,14 @@ Later points are rough placeholders.
 #### STORY-01-01-04: Keep my kitchen private to my household
 
 - **Parent:** EPIC-01-01
-- **Story:** As a home enthusiast, I want my kit, coffee, recipes and shots to
+- **Story:** As a home enthusiast, I want my setup, coffee, recipes and shots to
   belong to my household only, so that no one else sees or changes them.
 - **Acceptance criteria**
-  1. Given I add anything (kit, toolkit, bag, recipe, shot), when it's saved,
+  1. Given I add anything (setup, setup, bag, recipe, shot), when it's saved,
      then it belongs to my household.
   2. Given another household exists, when its user browses Tare, then they
      can't see or change anything that belongs to my household.
-  3. Given I use Tare, when I browse my kit, pantry, recipes or shots, then I
+  3. Given I use Tare, when I browse my setup, pantry, recipes or shots, then I
      only see my household's records, plus shared catalog entries.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
@@ -281,15 +281,15 @@ Later points are rough placeholders.
 
 - **Parent:** EPIC-01-01
 - **Story:** As a home enthusiast, I want to reach brewing, my shots, my
-  pantry and my kit from anywhere, and to be brought back where I was after a
+  pantry and my setup from anywhere, and to be brought back where I was after a
   side task, so that I never get lost at the machine.
 - **Acceptance criteria**
-  1. Given I'm on any main screen, when I choose Brew, Shots, Pantry or Kit,
+  1. Given I'm on any main screen, when I choose Brew, Shots, Pantry or Setup,
      then I go straight there.
   2. Given a main screen whose feature isn't built yet, when I open it, then I
      see a short explanation, never a blank screen or an action that does
      nothing.
-  3. Given I'm in a task (logging a shot, adding a bag, adding kit), when I
+  3. Given I'm in a task (logging a shot, adding a bag, adding setup), when I
      leave it with unsaved changes, then I'm asked once whether to discard
      them; with no changes I leave at once.
   4. Given I start adding something from inside another task (for example a
@@ -340,8 +340,8 @@ Later points are rough placeholders.
      step is the one offered.
   3. Given I start a step from the checklist, when I finish it, then I come
      back to the checklist.
-  4. Given I've added a machine and a grinder but have no toolkit, when I see
-     the first step, then it offers to make them my toolkit
+  4. Given I've added a machine and a grinder but have no setup, when I see
+     the first step, then it offers to make them my setup
      (STORY-01-02-05).
   5. Given every step is done, when I open Brew, then the checklist is gone
      and my daily shot shows instead.
@@ -358,16 +358,16 @@ Later points are rough placeholders.
 items (Google sign-in, drink list editing, sub personas, consent) are in
 their own epics.
 
-### EPIC-01-02: Describe your kit once
+### EPIC-01-02: Describe your setup once
 
 #### STORY-01-02-01: Find my machine and grinder in the catalog
 
 - **Parent:** EPIC-01-02
 - **Story:** As a home enthusiast, I want to find the machine, grinder, basket
   and accessories I own by maker and model, so that Tare knows exactly what my
-  kit can do.
+  setup can do.
 - **Acceptance criteria**
-  1. Given I'm adding a kind of kit, when I search, then matching models of
+  1. Given I'm adding a kind of setup, when I search, then matching models of
      that kind are listed with their maker, so one search usually finds the
      model.
   2. Given I haven't searched, when I browse, then I see makers in
@@ -393,11 +393,11 @@ their own epics.
 #### STORY-01-02-02: Add the units I own
 
 - **Parent:** EPIC-01-02
-- **Story:** As a home enthusiast, I want to add each piece of kit I own, with
+- **Story:** As a home enthusiast, I want to add each piece of setup I own, with
   an optional nickname and date I got it, so that my shots and maintenance
   belong to my actual unit.
 - **Acceptance criteria**
-  1. Given I've picked a model, when I add it, then it appears in my kit as a
+  1. Given I've picked a model, when I add it, then it appears in my setup as a
      unit I own, showing its maker and model, grouped with my other units of
      that kind.
   2. Given I add a unit, when I give it a nickname or acquired date, then they
@@ -406,33 +406,33 @@ their own epics.
      what it can control (for example exact temperature and its range).
   4. Given I own two units of the same model, when I add both, then they are
      two separate units, each with its own history.
-  5. Given my kit is empty, when I open it, then I'm offered to add my machine.
+  5. Given my setup is empty, when I open it, then I'm offered to add my machine.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 2
 - **Notes:** Updated. Design SCR-UNIT-ADD, SCR-KIT and SCR-UNIT. From the
   first-run checklist the kind starts as machine, then grinder. After adding
-  the second required unit the flow ends on the toolkit offer
+  the second required unit the flow ends on the setup offer
   (STORY-01-02-05).
 
 #### STORY-01-02-03: Retire a unit and keep its history
 
 - **Parent:** EPIC-01-02
-- **Story:** As a home enthusiast, I want to retire kit I no longer use, so
+- **Story:** As a home enthusiast, I want to retire setup I no longer use, so
   that it stops cluttering my choices while my old shots still say what I
   used.
 - **Acceptance criteria**
   1. Given I own a unit, when I choose to retire it, then I'm told past shots
      will keep showing it, and asked to confirm.
-  2. Given I retired a unit, when I build or edit a toolkit, then it's no
+  2. Given I retired a unit, when I build or edit a setup, then it's no
      longer offered.
   3. Given I logged shots with a unit, when I retire it, then those shots still
      show that unit.
-  4. Given I retired a unit, when I look at my kit, then I can still find it
-     among retired kit.
-  5. Given a retired unit was in a toolkit, when I see that toolkit, then the
-     unit is shown as retired, and if it was the toolkit's only machine or
-     grinder I'm told the toolkit needs a new one.
+  4. Given I retired a unit, when I look at my setup, then I can still find it
+     among retired setup.
+  5. Given a retired unit was in a setup, when I see that setup, then the
+     unit is shown as retired, and if it was the setup's only machine or
+     grinder I'm told the setup needs a new one.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
@@ -441,98 +441,98 @@ their own epics.
   need a re-dial like a swapped one (STORY-02-01-05) is still open
   (EPIC-02-01 open question: retired units). Un-retiring isn't in the spec.
 
-#### STORY-01-02-04: Group my kit into a toolkit
+#### STORY-01-02-04: Group my setup into a setup
 
 - **Parent:** EPIC-01-02
 - **Story:** As a home enthusiast, I want to group my units into a named
-  toolkit such as "Daily Espresso", so that I pick one toolkit when brewing
-  instead of each piece of kit.
+  setup such as "Daily Espresso", so that I pick one setup when brewing
+  instead of each piece of setup.
 - **Acceptance criteria**
-  1. Given I own units, when I create a toolkit with a name, one machine, one
+  1. Given I own units, when I create a setup with a name, one machine, one
      grinder and any baskets or accessories, then it's saved and I can pick it
      when logging a shot.
-  2. Given a unit is already in one toolkit, when I create another toolkit,
+  2. Given a unit is already in one setup, when I create another setup,
      then I can add the same unit to it too.
-  3. Given I try to save a toolkit without a name, when I save, then I'm asked
+  3. Given I try to save a setup without a name, when I save, then I'm asked
      for a name and nothing is saved.
-  4. Given I try to save a toolkit without exactly one machine and one
+  4. Given I try to save a setup without exactly one machine and one
      grinder, when I save, then I'm told which part is missing, and nothing is
      saved.
-  5. Given I have toolkits, when I look at my kit, then I see each toolkit with
+  5. Given I have setups, when I look at my setup, then I see each setup with
      its machine, grinder and basket.
 - **Source sections:** S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
 - **Notes:** Updated. Design SCR-TOOLKIT. Criterion 4 is the design's rule,
   explained at save rather than by blocking the action; it still answers the
-  EPIC-01-02 open question (toolkit contents), so confirm.
+  EPIC-01-02 open question (setup contents), so confirm.
 
-#### STORY-01-02-05: Make my first toolkit in one tap
+#### STORY-01-02-05: Make my first setup in one tap
 
 - **Parent:** EPIC-01-02
 - **Story:** As a home enthusiast, I want Tare to offer to group my machine
-  and grinder into a toolkit as soon as I've added both, so that my first shot
+  and grinder into a setup as soon as I've added both, so that my first shot
   isn't held up by a form.
 - **Acceptance criteria**
   1. Given my household has exactly one machine and one grinder and no
-     toolkit, when I accept the offer, then a toolkit with both is created with
+     setup, when I accept the offer, then a setup with both is created with
      a default name in my language, without my typing anything, and I can
      rename it.
-  2. Given my household has more than one machine or grinder and no toolkit,
-     when I accept the offer, then I go to toolkit creation with the most
+  2. Given my household has more than one machine or grinder and no setup,
+     when I accept the offer, then I go to setup creation with the most
      recently added machine and grinder and the default name already filled
      in.
   3. Given I've just added my second required unit (a grinder after a machine,
-     or the reverse), when I save it, then I'm offered the toolkit straight
+     or the reverse), when I save it, then I'm offered the setup straight
      away.
   4. Given the offer, when I look at it, then it names the machine and grinder
      it will use.
-  5. Given any toolkit exists, when I look at my kit or the checklist, then the
+  5. Given any setup exists, when I look at my setup or the checklist, then the
      offer is gone.
 - **Source sections:** S-04, S-08, S-06
 - **Priority:** MVP
 - **Size:** 3
 - **Notes:** New (PEC-02). Design EPIC-01-02 step 6, SCR-KIT, checklist. DQ-01
   is the working assumption: the default name is stored in the user's
-  language when the toolkit is created, not kept as a translated label.
+  language when the setup is created, not kept as a translated label.
 
-#### STORY-01-02-06: Edit a toolkit
+#### STORY-01-02-06: Edit a setup
 
 - **Parent:** EPIC-01-02
-- **Story:** As a home enthusiast, I want to rename a toolkit or change its
-  kit after I've logged shots with it, so that it keeps matching what's on my
+- **Story:** As a home enthusiast, I want to rename a setup or change its
+  setup after I've logged shots with it, so that it keeps matching what's on my
   counter.
 - **Acceptance criteria**
-  1. Given a toolkit, when I rename it or change its baskets or accessories,
+  1. Given a setup, when I rename it or change its baskets or accessories,
      then the change is saved without any extra question.
-  2. Given a toolkit with shots, when I edit it, then I'm told past shots keep
-     the kit they were pulled with.
-  3. Given I edited a toolkit, when I look at an older shot, then it still
+  2. Given a setup with shots, when I edit it, then I'm told past shots keep
+     the setup they were pulled with.
+  3. Given I edited a setup, when I look at an older shot, then it still
      shows the grinder and machine it was pulled with.
-  4. Given an edit leaves the toolkit without exactly one machine and one
+  4. Given an edit leaves the setup without exactly one machine and one
      grinder, when I save, then I'm told what's missing and nothing changes.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** New (PEC-02, which closes the EPIC-01-02 toolkit-editing
+- **Notes:** New (PEC-02, which closes the EPIC-01-02 setup-editing
   question). Design SCR-TOOLKIT edit mode. Swapping the machine or grinder is
-  STORY-01-02-07. Deleting a toolkit isn't in the spec.
+  STORY-01-02-07. Deleting a setup isn't in the spec.
 
-#### STORY-01-02-07: Be warned before swapping a toolkit's machine or grinder
+#### STORY-01-02-07: Be warned before swapping a setup's machine or grinder
 
 - **Parent:** EPIC-01-02
 - **Story:** As a home enthusiast, I want to be told before I swap my
-  toolkit's grinder or machine that its recipes will need a new dial-in, so
+  setup's grinder or machine that its recipes will need a new dial-in, so
   that losing one tap never surprises me.
 - **Acceptance criteria**
-  1. Given a toolkit with recipes pinned on its current machine or grinder,
+  1. Given a setup with recipes pinned on its current machine or grinder,
      when I swap that unit and save, then I'm told how many recipes were
      pinned with the old unit and that they'll need a new dial-in, and asked
      to confirm.
   2. Given I confirm, when the swap is saved, then those recipes are kept and
      treated as needing a re-dial (STORY-02-01-05).
-  3. Given I cancel, when I return, then nothing about the toolkit has changed.
-  4. Given a toolkit with no recipes on the unit I swap, when I save, then no
+  3. Given I cancel, when I return, then nothing about the setup has changed.
+  4. Given a setup with no recipes on the unit I swap, when I save, then no
      warning is shown.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
@@ -542,7 +542,7 @@ their own epics.
   something on the unit they were set on (S-02).
 
 **Coverage:** all In items covered, including PEC-02 and PEC-07. Not covered:
-deleting a toolkit (not in the spec). INIT-01 Q5 (°F display-only) is in
+deleting a setup (not in the spec). INIT-01 Q5 (°F display-only) is in
 STORY-01-04-01.
 
 ### EPIC-01-03: Log a shot in seconds
@@ -550,18 +550,18 @@ STORY-01-04-01.
 #### STORY-01-03-01: Start a shot with what I'm brewing already chosen
 
 - **Parent:** EPIC-01-03
-- **Story:** As a home enthusiast, I want the shot log to open with my toolkit,
+- **Story:** As a home enthusiast, I want the shot log to open with my setup,
   drink and coffee already chosen, and to change them if I need to, so that
   most shots need no choices before the numbers.
 - **Acceptance criteria**
-  1. Given I open the shot log, when it opens, then the toolkit is the one I
+  1. Given I open the shot log, when it opens, then the setup is the one I
      last used, and the drink and coffee are the ones on my home screen.
-  2. Given I want a different toolkit, drink or coffee, when I change it, then
-     I can choose from my household's toolkits, its visible drinks, and my
+  2. Given I want a different setup, drink or coffee, when I change it, then
+     I can choose from my household's setups, its visible drinks, and my
      unfinished portions, each named by its bean with its bag and state.
   3. Given I have unopened portions, when I choose the coffee, then they're
      offered too.
-  4. Given I have no toolkit or no unfinished portion, when I open the shot
+  4. Given I have no setup or no unfinished portion, when I open the shot
      log, then I'm told what's missing and can add it, and I come back with it
      chosen and any values I'd set kept.
 - **Source sections:** S-02, S-08
@@ -585,7 +585,7 @@ STORY-01-04-01.
      once and can change any one of them by dragging, with no text keyboard
      unless I choose to type a number.
   2. Given a blank log, when it opens, then the values start from my last
-     measured shot on this toolkit, or from neutral defaults if there isn't
+     measured shot on this setup, or from neutral defaults if there isn't
      one.
   3. Given my grinder is stepped, when I set grind, then I can only choose
      values on its steps, within its range; given it's stepless, I can choose
@@ -608,15 +608,15 @@ STORY-01-04-01.
 
 - **Parent:** EPIC-01-03
 - **Story:** As a home enthusiast, I want to save a shot with its values and
-  kit, so that my history shows exactly what I pulled, even after my kit
+  setup, so that my history shows exactly what I pulled, even after my setup
   changes.
 - **Acceptance criteria**
   1. Given my context and values are set, when I save, then the shot is saved
      as measured, with my persona as whose taste it records and me as who
      logged it.
   2. Given I save a shot, when it's saved, then it records the grinder and
-     machine that were in the toolkit at that moment.
-  3. Given a toolkit's units later change, when I look at an older shot, then
+     machine that were in the setup at that moment.
+  3. Given a setup's units later change, when I look at an older shot, then
      it still shows the grinder and machine it was pulled with.
   4. Given I saved a shot, when it's saved, then I'm offered to say how it
      tasted, and the shot is already safe if I skip that.
@@ -676,7 +676,7 @@ STORY-01-04-01.
   my machine can set it, and in the form it uses, so that the log matches my
   machine and stays uncluttered.
 - **Acceptance criteria**
-  1. Given my toolkit's machine has fixed temperature, when I log a shot, then
+  1. Given my setup's machine has fixed temperature, when I log a shot, then
      no temperature is asked.
   2. Given my machine can set temperature, when I start a new shot, then the
      temperature starts unset, and I can set it or clear it again.
@@ -818,12 +818,12 @@ fast" warning, which the epic puts out of scope.
 
 ### EPIC-01-06: Add what's missing from the catalog
 
-#### STORY-01-06-01: Add a missing machine, grinder or other kit
+#### STORY-01-06-01: Add a missing machine, grinder or other setup
 
 - **Parent:** EPIC-01-06
 - **Story:** As a home enthusiast, I want to add my grinder or machine when
   it's not in the catalog, starting from a link to its product page, so that I
-  can still describe my real kit.
+  can still describe my real setup.
 - **Acceptance criteria**
   1. Given I can't find my model, when I choose to add it, then I start with
      its product page link, and my search text is already filled in as its
@@ -844,7 +844,7 @@ fast" warning, which the epic puts out of scope.
 - **Size:** 3
 - **Notes:** Updated. Design SCR-CATALOG-ADD. Capabilities moved to
   STORY-01-06-06 and 01-06-07, so this went from 5 to 3. The kind is already
-  chosen when coming from adding kit. A product with no web page can't be
+  chosen when coming from adding setup. A product with no web page can't be
   added (EPIC-01-06 open question: no web page).
 
 #### STORY-01-06-02: Add a missing roaster or coffee
@@ -884,7 +884,7 @@ fast" warning, which the epic puts out of scope.
      it and can use it, and apart from its "added by us" mark it looks like any
      other entry.
   3. Given an entry my household added has been verified, when any household
-     searches, then they see it in the shared catalog, and my existing kit,
+     searches, then they see it in the shared catalog, and my existing setup,
      bags and shots that use it are unchanged.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
@@ -992,10 +992,10 @@ fast" warning, which the epic puts out of scope.
 - **Size:** 3
 - **Notes:** New (PEC-05). Design SCR-CATALOG-ADD step 4 (grinder questions).
 
-#### STORY-01-06-08: Log shots even when I'm not sure about my kit
+#### STORY-01-06-08: Log shots even when I'm not sure about my setup
 
 - **Parent:** EPIC-01-06
-- **Story:** As a home enthusiast, I want the shot log to work for kit whose
+- **Story:** As a home enthusiast, I want the shot log to work for setup whose
   details I didn't know, without guessing anything that matters, so that "not
   sure" never stops me logging.
 - **Acceptance criteria**
@@ -1008,7 +1008,7 @@ fast" warning, which the epic puts out of scope.
      shot, then I can still set any grind in a wide default range.
   4. Given which way is coarser is "not sure", when I set grind, then no finer
      or coarser direction is shown, never a guessed one.
-  5. Given any part of my kit is "not sure", when I log a shot, then I'm
+  5. Given any part of my setup is "not sure", when I log a shot, then I'm
      offered, quietly and once, to tell Tare more about it (STORY-01-06-09).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
@@ -1023,7 +1023,7 @@ fast" warning, which the epic puts out of scope.
 
 - **Parent:** EPIC-01-06
 - **Story:** As a home enthusiast, I want to come back and answer what I
-  wasn't sure about for kit I added, so that the shot log gets better once I
+  wasn't sure about for setup I added, so that the shot log gets better once I
   know.
 - **Acceptance criteria**
   1. Given a model my household added and that's still unverified, when I look
@@ -1045,7 +1045,7 @@ fast" warning, which the epic puts out of scope.
   question.
 
 **Coverage:** all In items covered, including PEC-05 and PEC-08, for both
-catalogs, from the kit (STORY-01-02-01) and pantry (STORY-03-01-01) flows.
+catalogs, from the setup (STORY-01-02-01) and pantry (STORY-03-01-01) flows.
 The epic suggests a split if it runs long: coffee additions (01-06-02) are
 independent of the hardware capability stories (01-06-06 to 09).
 
@@ -1059,15 +1059,15 @@ independent of the hardware capability stories (01-06-06 to 09).
 
 - **Parent:** EPIC-02-01
 - **Story:** As a home enthusiast, I want to pin a good shot as my recipe for
-  that coffee, drink and toolkit, so that I can make it again without
+  that coffee, drink and setup, so that I can make it again without
   dialing in.
 - **Acceptance criteria**
   1. Given a measured shot, right after saving it or from its details, when I
      choose to pin it, then before confirming I see which drink, coffee and
-     toolkit it applies to, its values, and the current recipe it replaces, if
+     setup it applies to, its values, and the current recipe it replaces, if
      any.
   2. Given I confirm, when it's saved, then a recipe is saved for that shot's
-     bean, persona, toolkit and drink, with its grind, dose, yield, time and any
+     bean, persona, setup and drink, with its grind, dose, yield, time and any
      temperature or pressure in the same form, and I'm told it's pinned.
   3. Given I pinned a shot, when I look at the recipe, then it records the
      grinder and machine the shot used and which shot it came from.
@@ -1093,12 +1093,12 @@ independent of the hardware capability stories (01-06-06 to 09).
   such as one from the roaster.
 - **Acceptance criteria**
   1. Given a bag in my pantry, when I add a recipe for its coffee, then I choose
-     the drink and toolkit and set grind, dose, yield and time as on the shot
+     the drink and setup and set grind, dose, yield and time as on the shot
      log.
-  2. Given the toolkit's machine can set temperature or pressure, when I enter
+  2. Given the setup's machine can set temperature or pressure, when I enter
      the recipe, then I can set them in the machine's form.
   3. Given I confirm the pin, when it's saved, then a recipe is saved for that
-     bean, drink, toolkit and my persona, with no source shot, and no shot is
+     bean, drink, setup and my persona, with no source shot, and no shot is
      logged.
   4. Given I'm entering a recipe, when I look at the screen, then it's clear I'm
      pinning a recipe, not logging a shot.
@@ -1117,12 +1117,12 @@ independent of the hardware capability stories (01-06-06 to 09).
   recipe without deleting the old one, so that I always brew my latest best
   and nothing is lost.
 - **Acceptance criteria**
-  1. Given a bean, persona, toolkit and drink already have a recipe, when I pin
+  1. Given a bean, persona, setup and drink already have a recipe, when I pin
      another, then the new one becomes the current recipe.
   2. Given I re-pinned, when I look at the current recipe, then I see only the
      newest one.
   3. Given I re-pinned, when anything in the app needs a recipe for that bean,
-     persona, toolkit and drink, then it uses the newest one.
+     persona, setup and drink, then it uses the newest one.
   4. Given I re-pinned, when the older recipe is checked, then it still exists,
      unchanged.
 - **Source sections:** S-02, S-08
@@ -1136,10 +1136,10 @@ independent of the hardware capability stories (01-06-06 to 09).
 
 - **Parent:** EPIC-02-01
 - **Story:** As a home enthusiast, I want to see my recipes for a coffee, per
-  drink and toolkit, so that every new bag of it starts from what worked.
+  drink and setup, so that every new bag of it starts from what worked.
 - **Acceptance criteria**
   1. Given recipes are pinned for a bean, when I look at a bag of it, then I see
-     one recipe per drink and toolkit, with its values and the date it was
+     one recipe per drink and setup, with its values and the date it was
      pinned.
   2. Given I add a new bag of the same bean, when I look at it, then I see the
      recipes pinned for that bean, not blank ones.
@@ -1156,18 +1156,18 @@ independent of the hardware capability stories (01-06-06 to 09).
   now" (epic overlap flag); Home and pre-fill use it. "Change it" opens
   recipe mode (STORY-02-01-02). Drift and offsets are not applied (INIT-04).
 
-#### STORY-02-01-05: Re-dial a recipe whose kit left its toolkit
+#### STORY-02-01-05: Re-dial a recipe whose setup left its setup
 
 - **Parent:** EPIC-02-01
 - **Story:** As a home enthusiast, I want a recipe pinned on a grinder or
   machine I've since swapped out to ask for a quick re-dial instead of a
   one-tap pull, so that I never record a shot that didn't happen.
 - **Acceptance criteria**
-  1. Given a recipe whose grinder or machine is no longer in its toolkit, when
+  1. Given a recipe whose grinder or machine is no longer in its setup, when
      it would be shown on my home screen, then I see its values marked as
-     pinned on my previous kit, and one-tap pulling isn't offered.
+     pinned on my previous setup, and one-tap pulling isn't offered.
   2. Given that recipe, when I choose to dial in, then the shot log opens
-     filled with the recipe's values for the toolkit's current kit.
+     filled with the recipe's values for the setup's current setup.
   3. Given I pin the new shot, when I return, then one-tap pulling is offered
      again with the new recipe.
   4. Given that recipe, when I look at it, then it's still kept and shown with
@@ -1176,7 +1176,7 @@ independent of the hardware capability stories (01-06-06 to 09).
 - **Priority:** MVP
 - **Size:** 3
 - **Notes:** New (PEC-07). Design 2.3 state "recipe pinned on a unit no longer
-  in its toolkit". The swap warning is STORY-01-02-07. Whether a retired unit
+  in its setup". The swap warning is STORY-01-02-07. Whether a retired unit
   triggers the same rule is still an EPIC-02-01 open question. In Next,
   EPIC-04-03 offsets apply only to maintenance on the same unit, never to a
   different unit.
@@ -1194,7 +1194,7 @@ independent of the hardware capability stories (01-06-06 to 09).
 - **Acceptance criteria**
   1. Given my profile is selected, when I open the home screen, then it shows
      the drink I usually make at this time of day, the coffee I'm on, and my
-     recipe for them: values, toolkit, the coffee's age and how much is left.
+     recipe for them: values, setup, the coffee's age and how much is left.
   2. Given I usually make different drinks in the morning and the afternoon,
      when I open the home screen at each time, then it shows the matching
      drink.
@@ -1227,7 +1227,7 @@ independent of the hardware capability stories (01-06-06 to 09).
      shot is recorded at once with the recipe's values, marked one-tap, and I'm
      told it's logged; nothing else is asked.
   2. Given I pull a shot, when it's recorded, then it uses the recipe's
-     toolkit, grinder and machine, the drink and coffee shown, my profile as
+     setup, grinder and machine, the drink and coffee shown, my profile as
      whose taste, and me as who logged it.
   3. Given several portions of that coffee are open, when I pull a shot, then
      it's recorded against the one opened earliest.
@@ -1301,7 +1301,7 @@ independent of the hardware capability stories (01-06-06 to 09).
      when I open the home screen, then I'm told there's no recipe yet and the
      main action is "Dial in" instead of "Pull This Shot".
   2. Given that, when I choose "Dial in", then the shot log opens with that
-     drink, coffee and a toolkit already chosen, and the values start as in
+     drink, coffee and a setup already chosen, and the values start as in
      STORY-01-03-02.
   3. Given I then pin a recipe, when I return to the home screen, then "Pull
      This Shot" is offered.
@@ -1382,7 +1382,7 @@ afterwards is delivered by EPIC-02-06 (STORY-02-06-02), as the epic states.
   filled with my recipe, so that I only nudge one or two values.
 - **Acceptance criteria**
   1. Given I marked a one-tap shot "off", when the log opens, then it's filled
-     with the current recipe's values, toolkit, drink and the same portion, and
+     with the current recipe's values, setup, drink and the same portion, and
      I'm told it starts from my recipe.
   2. Given the pre-filled log, when I change a value, then I can see what it
      was in the recipe; unchanged values show nothing extra.
@@ -1408,7 +1408,7 @@ afterwards is delivered by EPIC-02-06 (STORY-02-06-02), as the epic states.
 - **Acceptance criteria**
   1. Given the home screen shows a recipe, when I choose "Dial in", then the
      log opens filled with the recipe's values, including any temperature and
-     pressure, its toolkit and drink.
+     pressure, its setup and drink.
   2. Given the pre-filled log, when I change a value, then I can see what it
      was in the recipe.
   3. Given I adjust and save, when it's saved, then a measured shot is saved,
@@ -1584,7 +1584,7 @@ need revisiting once it's answered.
 - **Acceptance criteria**
   1. Given a shot, when I edit it, then I see its saved values, sweetened mark
      and taste together, and can change any of them.
-  2. Given I'm editing, when I look at the coffee, drink, toolkit and persona,
+  2. Given I'm editing, when I look at the coffee, drink, setup and persona,
      then I can see them but not change them.
   3. Given I change values and save, when I look at the shot again, then it
      shows my changes, and whose taste it records and who logged it are
@@ -1611,7 +1611,7 @@ need revisiting once it's answered.
   about it, so that I understand what I pulled and what to do next.
 - **Acceptance criteria**
   1. Given a shot, when I open it, then I see its values, drink, coffee,
-     toolkit, the grinder and machine it was pulled with, its date and time,
+     setup, the grinder and machine it was pulled with, its date and time,
      whether it was sweetened, and its taste and defects if any.
   2. Given a measured shot, when I open it, then I can pin it as a recipe or
      edit it.
@@ -2033,9 +2033,9 @@ need revisiting once it's answered.
 
 ## INIT-04: Grind settings stay meaningful through maintenance and time
 
-### EPIC-04-01: Record maintenance on your kit
+### EPIC-04-01: Record maintenance on your setup
 
-#### STORY-04-01-01: Log maintenance on a piece of kit
+#### STORY-04-01-01: Log maintenance on a piece of setup
 
 - **Parent:** EPIC-04-01
 - **Story:** As a home enthusiast, I want to log dated maintenance on my
@@ -2254,7 +2254,7 @@ need revisiting once it's answered.
   INIT-04 Q4 (value, note or both) is still open. Criterion 3 is an
   assumption the spec doesn't settle.
 
-**Coverage:** all In items covered. Kit maintenance drift is EPIC-04-03 (epic
+**Coverage:** all In items covered. Setup maintenance drift is EPIC-04-03 (epic
 overlap flag).
 
 ### EPIC-04-03: Re-dial once after maintenance and keep every recipe
@@ -2529,7 +2529,7 @@ overlap flag).
   phone is.
 - **Acceptance criteria**
   1. Given I've been using Tare without signing in, when I link Google from my
-     profile, then all my kit, pantry, recipes and shots are still there,
+     profile, then all my setup, pantry, recipes and shots are still there,
      unchanged, and my profile says my account is linked.
   2. Given I linked Google, when I see my profile, then its name or label is
      unchanged; nothing is taken from my Google account.
@@ -2555,7 +2555,7 @@ overlap flag).
 - **Acceptance criteria**
   1. Given I linked Google on one device, when I sign in with the same Google
      account on another, then I reach the same account and household.
-  2. Given I'm signed in on a new device, when I look, then I see all my kit,
+  2. Given I'm signed in on a new device, when I look, then I see all my setup,
      pantry, recipes and shots.
   3. Given I open Tare on a new device for the first time, when it starts, then
      I'm offered, quietly, to sign in with Google before a new account is set
@@ -2650,11 +2650,11 @@ accept or ignore.
 
 - **Parent:** EPIC-06-02
 - **Story:** As a home enthusiast, I want to be told what to change after a bad
-  shot, on my own kit and in the right direction on my dial, so that the next
+  shot, on my own setup and in the right direction on my dial, so that the next
   shot is better.
 - **Acceptance criteria**
   1. Given a bad measured shot with scores or defects, when I ask for help in
-     the fix flow, then I get a short diagnosis and one action for my kit.
+     the fix flow, then I get a short diagnosis and one action for my setup.
   2. Given my grinder's coarser direction, when the action says finer or
      coarser, then it names the right way on my dial.
   3. Given one-tap shots in my history, when the Coach advises, then it uses
@@ -2670,11 +2670,11 @@ accept or ignore.
 
 - **Parent:** EPIC-06-02
 - **Story:** As a home enthusiast, I want the Coach's advice based on
-  extraction guides and the manuals for my kit, so that I can trust it.
+  extraction guides and the manuals for my setup, so that I can trust it.
 - **Acceptance criteria**
-  1. Given my toolkit, when the Coach advises, then its advice draws on the
+  1. Given my setup, when the Coach advises, then its advice draws on the
      guides and the manuals for my equipment.
-  2. Given no manual exists for my kit, when it advises, then it falls back to
+  2. Given no manual exists for my setup, when it advises, then it falls back to
      the guides.
 - **Priority:** Later
 - **Size:** 8
@@ -2920,7 +2920,7 @@ accept or ignore.
 ## Not covered
 
 - The "ran fast" shot warning: out of scope until a threshold exists (DQ-09).
-- Editing or deleting a maintenance event, deleting a toolkit or a shot,
+- Editing or deleting a maintenance event, deleting a setup or a shot,
   removing a recipe (SQ-05) or a bag override (SQ-11), un-retiring a unit, and
   reopening a finished portion (SQ-15): in neither the epic scope nor the
   design.
@@ -2939,7 +2939,7 @@ These block or shape MVP stories:
    drift, palate and the network later.
 3. **SQ-14 doses from an "off" shot and its fix.** Under DQ-12 (two records)
    both doses count toward coffee used. Is that right?
-4. **DQ-11 fallback ranges** for "not sure" kit (STORY-01-06-08).
+4. **DQ-11 fallback ranges** for "not sure" setup (STORY-01-06-08).
 5. **EPIC-02-01 retired units.** Do recipes on a retired unit need a re-dial
    like a swapped one (STORY-02-01-05, STORY-01-02-03)?
 6. **X-1 timestamp precision.** The frozen-ground marker (STORY-03-03-03) and
@@ -2955,7 +2955,7 @@ Closed in this revision:
 
 - **SQ-01** (first launch with no connection): closed by the design's
   SCR-START failure state (STORY-01-01-01).
-- **SQ-02** (retired unit in a toolkit): closed by the design's SCR-KIT state
+- **SQ-02** (retired unit in a setup): closed by the design's SCR-KIT state
   (STORY-01-02-03). Its follow-on, recipes on a retired unit, is the EPIC-02-01
   open question above.
 - **SQ-03** (unopened portions, and whether new portions start opened):
