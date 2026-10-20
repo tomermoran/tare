@@ -19,8 +19,12 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 
 - **Recipes belong to the bean.** A pinned recipe is scoped to bean, persona, toolkit and drink type, so a new bag of the same coffee starts from what was learned before. An optional batch override handles a bag that behaves differently.
 - **Batches hold portions.** The batch is the bag as bought (bean, roaster's lot code, roast date, best-before, bag weight, purchase date). Portions are what physically exists: their weight and when each was frozen, thawed, opened and finished. Shots are logged against a portion. Splitting a bag never duplicates roast date or lot.
-- **Freezing pauses aging.** Bean age runs from the roast date (best-before as a fallback when no roast date is printed), minus time in the freezer. A shot ground straight from frozen beans is identifiable from the dates alone.
-- **Grind is relative to one grinder and one maintenance period.** A grind value only means something together with the physical grinder (an owned unit, not the model) and the period since its last maintenance event (burrs, cleaning, re-zero). Shots and recipes record the grinder and machine units directly, so later toolkit changes can't rewrite history. After maintenance, the user re-dials one coffee; the difference becomes the period's offset and is applied, when reading, to every recipe pinned on that grinder before the event. Bean aging between the two dial-ins is subtracted first, so it isn't blamed on the maintenance.
+- **Two freshness clocks, both paused by freezing.**
+  - *Since roasting* (how old the coffee is): from the roast date; if the bag shows only a packing date, from that, labelled as packed; if it shows only best-before, Tare doesn't invent an age and shows the time left until best-before instead.
+  - *Since opening* (air exposure, which speeds up oxidation): per portion, from its opened date. At the machine this is usually the more telling number; the Diagnostic Coach's "days open" rule uses it.
+  - Time in the freezer counts toward neither clock. A shot ground straight from frozen beans is identifiable from the dates alone.
+- **"Open" means opened, not finished and not in the freezer.** A portion that was opened and then frozen isn't open until it's thawed. One-tap pulls never use frozen coffee on their own; frozen coffee is used only when the user picks it.
+- **Grind is relative to one grinder and one maintenance period.** A grind value only means something together with the physical grinder (an owned unit, not the model) and the period since its last maintenance event (burrs, cleaning, re-zero). Shots and recipes record their kit, and kits never change (see below), so history can't be rewritten. After maintenance, the user re-dials one coffee; the difference becomes the period's offset and is applied, when reading, to every recipe pinned on that grinder before the event. Bean aging between the two dial-ins is subtracted first, so it isn't blamed on the maintenance.
 - **Grind offsets are exact values, not percentages.** Dial numbers have an arbitrary zero, and a re-zero or worn burrs move the gap by the same amount at every setting, so a percentage would overcorrect coarse recipes and undercorrect fine ones. The offset is a shift in grinder units (e.g. -3), plus a stretch factor that stays 1 until two or more coffees are re-dialed after the same event (needed when new burrs of a different design change what each step means). Once the user confirms a re-dial, the offset is stored on the event: it's a user decision, kept stable and editable.
 - **Run-out prediction uses facts, not stored estimates.** Inputs: portion weights (including frozen stock), doses from logged shots, when portions were finished, optional stock checks (weighing what's left) and purchase dates. The one-tap "Pull This Shot" must record an extraction, or daily use is invisible. Finished portions give each household's real usage rate and how much of it logging captures.
 - **Calculated, never stored:** remaining weight, bag status (open, finished), bean age, usage rate, and drift adjustments.
@@ -38,7 +42,8 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **The default persona has no stored name.** Until renamed, it shows a translated role label (e.g. "Me"), so no personal data is needed to start.
 - **One-tap shots are recorded but marked as unmeasured.** "Pull This Shot" copies the pinned recipe's values into a shot marked one-tap. It uses the persona selected on the home screen and, in the MVP, the drink that persona last made at this time of day; the recipe's toolkit; and the earliest-opened open portion of that bean (asking if none is open). With no pinned recipe, the button becomes "Dial in". No rating is asked: silence counts as a weak "fine", and an optional quick reaction (good or off) turns an off shot into a normal pre-filled log. Undo is possible for a few seconds, and editing afterwards. One-tap shots count toward coffee used, but are never treated as measurements and never reach the network.
 - **Unverified catalog entries stay private until verified.** A maker, model, roaster or bean a household adds is visible only to that household. Until the Later merge tooling exists, verification and merges are a manual admin task.
-- **Google sign-in comes first after the MVP.** An anonymous account lives on one device, so a lost or reset device loses its data until it's linked to Google. Linking ships as the first Next item, ahead of invites. The MVP accepts this risk for a prototype.
+- **Google sign-in comes first after the MVP.** An anonymous account lives on one device, so a lost or reset device loses its data until it's linked to Google. Browsers can also clear it: Safari on iOS may delete a site's storage after a period without use, which would silently start a new, empty household. Linking ships as the first Next item, ahead of invites. The MVP explicitly accepts both risks for a prototype.
+- **A kit is a fixed combination of parts.** A kit is defined by its parts: everything that directly affects the output of the recipe (for espresso: machine, grinder, portafilter, basket, puck screen, tamper, distribution tool). Parts that don't change the output, such as a scale, are not part of a kit; water may be added later. Kits never change: replacing, adding or removing any part means a different kit. Using the same combination again reuses its existing kit, with its recipes. Recipes belong to exactly one kit; on a new kit, Dial in starts pre-filled from the recipe on the closest previous kit (most parts in common), never as a one-tap pull. There's no "retire" action in the MVP: a part the household stops using simply stops appearing in its current kit. Servicing a part (new burrs, cleaning) is a maintenance event on that part, not a new kit.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
@@ -71,7 +76,7 @@ The system is built on a highly structured, real-world physical hierarchy to all
   - **Sub persona:** a profile with no login of its own, e.g. a partner or a regular guest that a household member brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
 
   The type is not stored: a persona is a main persona when it's linked to a login. Who logs a shot and whose taste it records are separate: one person often pulls for both.
-- **Toolkits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., Daily Espresso Toolkit = Bambino Pro + Niche Zero + IMS 18g Basket + WDT). Each component is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser).
+- **Kits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso kit = machine + grinder + portafilter + basket + puck screen + tamper + distribution tool). A kit is a fixed combination: changing any part makes a different kit, and recipes belong to one kit. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that directly affect the output belong in a kit.
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Type:** The target output, from a starter list each household can edit (Espresso, Cortado, Flat white, Cappuccino, Latte and more). Additives like sugar are a "sweetened" mark on the shot.
 - **The Catalog:** Shared, canonical lists of hardware (maker, then model) and coffee (roaster, then bean). Households can add missing entries with a product link; duplicates are merged, never deleted.
@@ -118,7 +123,7 @@ The interface follows a modern, digital Japandi aesthetic (clean, minimalist, pr
 Instructions for the coding agent: Implement this relational schema to support the Stateful Hardware Ledger, Toolkits, Batches, and Pinned Recipes.
 
 ```ts
-import { sqliteTable, text, integer, real, primaryKey, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, primaryKey, uniqueIndex, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 // --- CANONICAL CATALOG ---
 // Two shared catalogs, each a parent and a product: hardware makers -> hardware models,
@@ -181,7 +186,8 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 export const canonicalHardware = sqliteTable('canonical_hardware', {
   id: text('id').primaryKey(),
   makerId: text('maker_id').references(() => hardwareMakers.id).notNull(),
-  kind: text('kind').notNull(), // 'machine', 'grinder', 'basket', 'accessory'
+  // Only kinds that directly affect a recipe's output; scales and the like aren't kit parts.
+  kind: text('kind').notNull(), // 'machine', 'grinder', 'portafilter', 'basket', 'puckScreen', 'tamper', 'distribution'
   name: text('name').notNull(), // Model name, e.g. "Bambino"
   capabilities: text('capabilities', { mode: 'json' }),
   source: text('source').notNull(),
@@ -292,15 +298,25 @@ export const ownedHardware = sqliteTable('owned_hardware', {
   hardwareId: text('hardware_id').references(() => canonicalHardware.id).notNull(), // The model
   nickname: text('nickname'),
   acquiredAt: integer('acquired_at', { mode: 'timestamp_ms' }),
-  retiredAt: integer('retired_at', { mode: 'timestamp_ms' }),
+  retiredAt: integer('retired_at', { mode: 'timestamp_ms' }), // Not used in the MVP (no retire action)
 });
 
+// A kit ("toolkit" in code): a fixed combination of owned parts. Kits never change;
+// any different combination is a different kit. partsKey is the sorted list of part
+// IDs, unique per household, so using the same combination again finds the same kit
+// (and its recipes) instead of creating a new one.
 export const toolkits = sqliteTable('toolkits', {
   id: text('id').primaryKey(),
   householdId: text('household_id').references(() => households.id).notNull(),
-  name: text('name').notNull(), // e.g., "Daily Espresso"
-  components: text('components', { mode: 'json' }).notNull(), // Array of ownedHardware IDs
-});
+  partsKey: text('parts_key').notNull(), // Sorted ownedHardware IDs, joined
+  name: text('name'), // Optional; otherwise shown by its parts or a translated default
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+}, (t) => [uniqueIndex('toolkits_household_parts').on(t.householdId, t.partsKey)]);
+
+export const toolkitParts = sqliteTable('toolkit_parts', {
+  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  ownedHardwareId: text('owned_hardware_id').references(() => ownedHardware.id).notNull(),
+}, (t) => [primaryKey({ columns: [t.toolkitId, t.ownedHardwareId] })]);
 
 // Maintenance on one owned unit. For a grinder, each event starts a new grind period:
 // shots either side aren't directly comparable. Once the user finalises a re-dial after
@@ -326,7 +342,8 @@ export const batches = sqliteTable('batches', {
   householdId: text('household_id').references(() => households.id).notNull(),
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   lotCode: text('lot_code'), // Roaster's lot, if printed on the bag
-  roastDate: integer('roast_date', { mode: 'timestamp_ms' }), // Null if only best-before is printed
+  roastDate: integer('roast_date', { mode: 'timestamp_ms' }), // Null if not printed
+  packedAt: integer('packed_at', { mode: 'timestamp_ms' }), // Packing date, when printed instead of a roast date
   bestBefore: integer('best_before', { mode: 'timestamp_ms' }),
   bagWeight: real('bag_weight').notNull(), // Grams, as bought
   purchasedAt: integer('purchased_at', { mode: 'timestamp_ms' }), // For reorder timing
@@ -360,8 +377,6 @@ export const extractions = sqliteTable('extractions', {
   personaId: text('persona_id').references(() => personas.id).notNull(), // Whose taste it records
   loggedByUserId: text('logged_by_user_id').references(() => users.id).notNull(), // Who tapped; often not the persona
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
-  grinderId: text('grinder_id').references(() => ownedHardware.id).notNull(), // Grind only means something for this unit
-  machineId: text('machine_id').references(() => ownedHardware.id).notNull(), // Temperature and pressure steps belong to it
   portionId: text('portion_id').references(() => batchPortions.id).notNull(), // Batch and bean follow from the portion
   drinkTypeId: text('drink_type_id').references(() => drinkTypes.id).notNull(),
   sweetened: integer('sweetened', { mode: 'boolean' }).default(false), // Sugar or syrup added
@@ -409,8 +424,6 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(),
   toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
-  grinderId: text('grinder_id').references(() => ownedHardware.id).notNull(),
-  machineId: text('machine_id').references(() => ownedHardware.id).notNull(),
   drinkTypeId: text('drink_type_id').references(() => drinkTypes.id).notNull(),
   batchId: text('batch_id').references(() => batches.id), // Null = the bean's default
 
