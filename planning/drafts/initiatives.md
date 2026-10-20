@@ -5,6 +5,10 @@ model decisions) override older sections where they differ.
 
 Draft for the Head of Product. No GitHub issues have been created.
 
+Revision note: open questions that S-02 has since settled are marked
+**Resolved** with a pointer to the decision (review finding m1). The
+initiatives themselves are unchanged.
+
 MVP definition used (S-01 roadmap, Phase 1): a basic app for logging shots and
 managing recipes, toolkits and the pantry. No AI features: no LLM calls, bag
 scanning, Diagnostic Coach or Cold Start network. AI features come later, each
@@ -62,17 +66,21 @@ not given in the spec.
 **Priority:** MVP
 
 **Open questions**
-- Where do canonical beans and canonical hardware come from in the MVP,
-  without bag scanning? A seeded catalog, free-text entry by the user, or
-  both? Who owns curating it?
-- Is Google sign-in (S-04) part of Phase 1, or does the prototype start
-  without auth?
+- **Resolved.** Where do canonical beans and hardware come from in the MVP?
+  S-02 "A shared catalog": a curated seed list, plus household additions with
+  a product link. Additions start unverified and stay private to the
+  household. Until the merge tooling exists, verification is a manual admin
+  task.
+- **Resolved.** Is Google sign-in part of Phase 1? No. S-02 "Accounts use
+  Firebase from day one": Firebase anonymous sign-in, no sign-in screen in the
+  MVP. S-02 "Google sign-in comes first after the MVP": linking is the first
+  Next item, ahead of invites.
 - Which sensory fields are required on a dial-in shot, and which are optional?
-- Drink context values differ: S-04 says Espresso, Milk Drink, Additives like
-  Sugar; S-08 says 'Espresso', 'Milk', 'Sweetened'. Which list is canonical,
-  and is it fixed or user-defined?
-- S-08 lists the F unit for exact-temperature machines but stores only °C.
-  Confirm that Fahrenheit is display-only.
+- **Resolved.** Which drink list is canonical? S-02 "Drink types are a starter
+  list each household can edit": an editable starter list per household.
+  Sugar or syrup is a "sweetened" mark on the shot, not a drink type.
+- **Resolved.** Is Fahrenheit display-only? Yes. S-02 "Temperature and
+  pressure are optional": exact values are stored in °C (and bar).
 
 ---
 
@@ -111,15 +119,23 @@ shots"; no numeric target given).
 
 **Open questions**
 - When a user pins a better recipe during a bag, does it update the bag's
-  override or the bean's default? (S-02 lists this as still open.)
-- How is the "time-of-day" drink context decided: fixed time windows,
-  learned from history, or user-set?
-- What does a one-tap shot record for sensory scores and rating: nothing,
-  or copied from the recipe? This affects later palate learning.
-- How is the "active persona" chosen in the MVP, given there is only one main
-  persona?
-- What happens on "Pull This Shot" when no recipe is pinned yet for the
-  current bean?
+  override or the bean's default? (S-02 still lists this as open.)
+- **Resolved.** How is the time-of-day drink decided? S-02 "One-tap shots are
+  recorded but marked as unmeasured": in the MVP, the drink that persona last
+  made at this time of day. S-02 TQ-07: local days use the device's time zone.
+- **Resolved.** What does a one-tap shot record? S-02 "One-tap shots are
+  recorded but marked as unmeasured": the pinned recipe's values, marked
+  one-tap. No rating is asked; silence is a weak "fine", and an optional good
+  or off reaction turns an off shot into a normal pre-filled log. One-tap shots
+  count toward coffee used but are never measurements and never reach the
+  network.
+- **Resolved.** How is the active persona chosen in the MVP? S-02 (one-tap
+  shots): the persona selected on the home screen. S-02 "The default persona
+  has no stored name": it shows a translated role label until renamed.
+- **Resolved.** What happens on "Pull This Shot" with no pinned recipe? S-02
+  (one-tap shots): the button becomes "Dial in". On a new kit, Dial in starts
+  pre-filled from the closest previous kit's recipe (S-02 "A kit is a fixed
+  combination of parts").
 
 ---
 
@@ -160,8 +176,13 @@ spec.
 - Is run-out prediction (and any reorder prompt) part of Phase 1, or only the
   inputs it needs? The MVP definition says "managing the pantry" but doesn't
   say how far.
-- How is bean age computed when neither roast date nor best-before is given,
-  and how far before best-before is the assumed roast date?
+- **Resolved.** How is bean age computed without a roast date? S-02 "Two
+  freshness clocks, both paused by freezing". Time since roasting runs from
+  the roast date, or from a packing date (labelled as packed). With only a
+  best-before date, Tare invents no age and shows the time left until
+  best-before. Time since opening runs per portion. Freezer time counts toward
+  neither clock. (Note: this supersedes the "best-before as fallback" wording
+  in this initiative's scope.)
 - What should the app do with a shot whose portion is already finished, or a
   portion that runs negative against logged doses?
 
@@ -202,9 +223,10 @@ maintenance events with a confirmed offset. Target not given in the spec.
 **Priority:** Next
 
 **Open questions**
-- Should recording maintenance events ship in the MVP (so history from day one
-  is split correctly into grind periods), with offset calculation following
-  in Next? The MVP definition covers toolkits but doesn't mention maintenance.
+- **Resolved.** Should recording maintenance events ship in the MVP? Yes.
+  S-02 "Maintenance events are recorded from Phase 1": logging them ships in
+  Phase 1; using them for grind offsets comes later. Recalibration is a flag
+  on the event (S-02 TQ-05).
 - How strongly should recent shots be weighted, and over what window?
 - How is bean-aging drift estimated well enough to subtract it from a
   maintenance offset, and from how many shots?
@@ -244,7 +266,8 @@ sub personas later claimed by a login. Target not given in the spec.
 orders the phases but does not say when phase 2 ships relative to other work.
 
 **Open questions**
-- Are phases 2 and 3 in the Next bucket together, or is phase 3 Later?
+- Are phases 2 and 3 in the Next bucket together, or is phase 3 Later? (S-02
+  only says Google linking is the first Next item, ahead of invites.)
 - What can a member do versus an owner?
 - What happens to a claimed persona's history and shared pantry if the person
   leaves the household?
@@ -323,11 +346,11 @@ None. Every section S-01 to S-09 maps to at least one initiative.
 
 ## Cross-cutting open questions
 
-- **Timestamp precision:** S-02 lists seconds vs milliseconds as still open.
-  S-08 uses Drizzle `mode: 'timestamp'` columns, which store seconds, while the
-  project rules say timestamps are integer milliseconds. Which wins?
+- **Resolved.** Timestamp precision: integer milliseconds (`timestamp_ms`),
+  like shot time. S-02 TQ-04.
 - **Success targets:** the spec gives the goal "fewer shots" but no baseline or
   target. What number should the MVP and later phases aim for?
 - **Network eligibility in Phase 1:** should `is_network_eligible` be computed
   and stored from day one (so history is ready when the network ships), or
-  left false until then?
+  left false until then? (S-02 settles only that one-tap shots never reach the
+  network.)
