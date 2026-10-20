@@ -46,6 +46,16 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Google sign-in comes first after the MVP.** An anonymous account lives on one device, so a lost or reset device loses its data until it's linked to Google. Browsers can also clear it: Safari on iOS may delete a site's storage after a period without use, which would silently start a new, empty household. Linking ships as the first Next item, ahead of invites. The MVP explicitly accepts both risks for a prototype.
 - **A setup is a fixed combination of the parts that change the recipe.** For espresso that's the machine, the grinder and the basket: swap any of them and the old recipe no longer applies. Each is a specific product from the catalog (maker and model), not a category: a Normcore 18 g basket and a Crema Coffee 18 g basket are different baskets and make different setups. Setups never change: replacing, adding or removing one of these parts means a different setup, and using the same combination again reuses its existing setup, with its recipes. Recipes belong to exactly one setup; on a new setup, Dial in starts pre-filled from the recipe on the closest previous setup (most parts in common), never as a one-tap pull. There's no "retire" action in the MVP. Servicing a part (new burrs, cleaning) is a maintenance event on that part, not a new setup. Things that don't change the recipe aren't setup parts: a scale, the portafilter (spouted or bottomless doesn't change what happens in the puck) and the tamper aren't tracked. Water may be added later.
 - **Puck prep is recorded as checkboxes, not parts.** A WDT (distribution) tool and a puck screen mostly reduce channelling and make shots more repeatable; whether they were used matters, their brand very likely doesn't. Shots and recipes record `usedWdt` and `usedPuckScreen`; a one-tap pull copies them from the recipe. If data later shows a prep tool's brand matters, it can be promoted to a setup part.
+- **Taste is recorded relative to the person, not as absolute scores.** Following the SCA's split between describing a coffee and liking it, Tare asks "just right" questions: each characteristic is rated against the persona's own ideal, so one answer gives both the direction to fix and, over time, that person's target. When a shot is off (optional, seconds to answer), four questions on a five-point scale (much too little, a bit, just right, a bit, much too much):
+  - *Balance:* too sour ↔ just right ↔ too bitter (the extraction axis).
+  - *Strength:* too weak ↔ just right ↔ too strong; for milk drinks, lost in the milk ↔ just right ↔ overpowering (the strength axis).
+  - *Body:* too thin ↔ just right ↔ too heavy.
+  - *Sweetness:* not sweet enough ↔ just right (one-sided).
+  - Plus six observation tags, which describe rather than judge: sour and bitter at once, dry or astringent finish, flat or dull, burnt or ashy, little or no crema, channelling seen. The overall 1-5 rating and the one-tap good/off reaction stay. Crema is an observation (mostly a freshness hint), never a target. Flavour notes aren't asked: flavour preferences are inferred later from ratings and the beans' catalog tasting notes.
+- **Dial-in suggestions are rules, not AI, and ship in the MVP.** After an off shot, Tare suggests one change for the next shot, shows why, and pre-fills it. Levers are considered in this order: puck prep first when there are channelling signs (sour and bitter at once, dry finish, channelling seen), since grind won't fix uneven extraction; then grind for balance (in the grinder's own direction and steps); then yield for strength; then dose for body (within the basket's dose range), or for strength in milk drinks; then temperature, only on machines that can set it. Freshness is an explanation, not a lever: coffee can be past its peak or too fresh (gassy, prone to channelling), read from the two clocks. Shot time is a diagnostic (fast and sour means under-extracted), never a lever. Step size follows "a bit" or "much". The rules are heuristics from established practice and are tested with evals like any advice feature; the later AI Coach builds on them.
+- **Palate learning is per persona, per drink style and milk, and comes later.** A persona's "just right" answers and ratings define their target; their ideal straight espresso and ideal oat flat white are different targets. Recommending recipes and beans that match it is Later work (palate learning, community matching); the data is captured from the MVP on.
+- **Learn only from similar palates.** Another person's shots count as evidence for someone only to the degree that their palate resembles that person's, never just because they used the same bean. Someone who loves bright, acidic shots of a coffee isn't evidence about what a chocolate-and-body drinker would like.
+- **Milk is part of the drink, not the recipe's identity.** The amount of milk sets how strong the shot needs to be (a cortado is about 1:1 milk to espresso, a latte 1:3 or more), and the type changes the taste (dairy fat and lactose add body and sweetness; oat is mild and creamy; almond and coconut are flavour-forward and thinner). Households keep their own milk list, starting from whole, semi-skimmed, skimmed, oat, soy, almond and lactose-free, renamable and extendable (e.g. "Oat (barista)"); no brand catalog. Each drink type has a typical milk amount. Shots and recipes record milk type and amount, pre-filled from the recipe or drink, and a one-tap pull copies them. A recipe stays scoped to coffee, setup and drink type; someone who alternates milks can add a drink such as "Oat flat white" for separate recipes. Milk amount is also a lever ("try less milk" when the coffee is lost in a large drink). Steamed-milk temperature isn't recorded in the MVP.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
@@ -104,6 +114,8 @@ To protect the global network from incomplete or novice data, telemetry is tiere
 Technical perfection does not equal subjective preference. When displaying a Cold Start recipe from a Verified Pro, the system cross-references the Pro's target flavor profile with the user's historical preferences.
 
 **Output:** If the Pro optimizes for bright acidity but the user prefers chocolate/heavy body, the UI surfaces a Match Score Warning and the AI Coach suggests an automatic variable translation to push the Pro's recipe toward the user's palate.
+
+(Refined in S-02: community shots count as evidence for a user only to the degree that the contributor's palate resembles theirs.)
 
 ## S-06 UX/UI Philosophy: The Frictionless Ritual
 
@@ -180,6 +192,8 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 //              | { control: 'exact', min, max, step }               // bar
 // for grinders:
 //   grind: { type: 'stepped' | 'stepless', min, max, step, coarser: 'higher' | 'lower' }
+// for baskets:
+//   dose: { min, max }   // grams the basket is made for; bounds dose suggestions
 //   (`coarser` turns advice like "grind finer" into the right direction on the dial)
 // "Not sure" (household-added models only; seeded rows never use it):
 //   temperature/pressure: { control: 'unknown' }; a manual machine's gauge: null;
@@ -289,6 +303,19 @@ export const drinkTypes = sqliteTable('drink_types', {
   nameKey: text('name_key'), // i18n key for starter drinks, e.g. 'drinks.latte'
   name: text('name'), // Set when renamed or custom; overrides nameKey
   hasMilk: integer('has_milk', { mode: 'boolean' }).notNull(),
+  typicalMilkMl: real('typical_milk_ml'), // Pre-fills milk amount; null for drinks without milk
+  hidden: integer('hidden', { mode: 'boolean' }).default(false),
+  sortOrder: integer('sort_order').notNull(),
+});
+
+// Milks a household uses. New households get a starter list (whole, semi-skimmed,
+// skimmed, oat, soy, almond, lactose-free) as their own rows, renamable and extendable.
+export const milkTypes = sqliteTable('milk_types', {
+  id: text('id').primaryKey(),
+  householdId: text('household_id').references(() => households.id).notNull(),
+  nameKey: text('name_key'), // i18n key for starter milks, e.g. 'milks.oat'
+  name: text('name'), // Set when renamed or custom, e.g. "Oat (barista)"
+  kind: text('kind').notNull(), // 'dairy', 'plant'
   hidden: integer('hidden', { mode: 'boolean' }).default(false),
   sortOrder: integer('sort_order').notNull(),
 });
@@ -406,14 +433,19 @@ export const extractions = sqliteTable('extractions', {
   usedWdt: integer('used_wdt', { mode: 'boolean' }).notNull().default(false),
   usedPuckScreen: integer('used_puck_screen', { mode: 'boolean' }).notNull().default(false),
 
-  // Sensory outputs (1-5) & Diagnostics
+  // Milk, for milk drinks; pre-filled from the recipe or the drink's typical amount.
+  milkTypeId: text('milk_type_id').references(() => milkTypes.id),
+  milkMl: real('milk_ml'),
+
+  // Taste, relative to this persona ("just right" scales, -2..2; 0 = just right). All optional.
   reaction: text('reaction'), // Optional quick reaction after a one-tap shot: 'good', 'off'
   userRating: integer('user_rating'), // 1-5 overall
-  scoreSweetness: integer('score_sweetness'),
-  scoreAcidity: integer('score_acidity'),
-  scoreBitterness: integer('score_bitterness'),
-  scoreBody: integer('score_body'),
-  defects: text('defects', { mode: 'json' }),
+  tasteBalance: integer('taste_balance'), // -2 much too sour ... +2 much too bitter
+  tasteStrength: integer('taste_strength'), // -2 much too weak / lost in milk ... +2 much too strong
+  tasteBody: integer('taste_body'), // -2 much too thin ... +2 much too heavy
+  tasteSweetness: integer('taste_sweetness'), // -2 not at all sweet enough ... 0 just right
+  // Observation tags: 'sourAndBitter', 'dryFinish', 'flat', 'burnt', 'littleCrema', 'channelling'
+  tasteTags: text('taste_tags', { mode: 'json' }),
 
   // True only for a measured shot with the full MVPayload and a persona claimed by a user
   // who opted in. One-tap shots never reach the network.
@@ -444,6 +476,8 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   pressureStep: integer('pressure_step'),
   usedWdt: integer('used_wdt', { mode: 'boolean' }).notNull().default(false), // Same puck prep checkboxes as shots
   usedPuckScreen: integer('used_puck_screen', { mode: 'boolean' }).notNull().default(false),
+  milkTypeId: text('milk_type_id').references(() => milkTypes.id), // The recipe's usual milk, if any
+  milkMl: real('milk_ml'),
 
   sourceExtractionId: text('source_extraction_id').references(() => extractions.id), // The shot it came from, if any
   pinnedAt: integer('pinned_at', { mode: 'timestamp_ms' }).notNull(),
