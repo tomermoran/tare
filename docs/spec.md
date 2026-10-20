@@ -10,7 +10,7 @@ Master Product & Engineering Specification
 - Target user: everyday home enthusiasts, not semi-pros. Goal: great coffee from every new bag, in fewer shots, tuned to your palate.
 - Core differentiators: palate learning and drift-aware dial-in.
 - Grind size doesn't transfer between grinders or over time. Treat it as a personal offset per grinder, give more weight to recent shots, and let users mark a recalibration.
-- Roadmap: Phase 1 is a basic app for logging shots and managing recipes, setups and the pantry. AI features come later, each with evals and observability. RAG will ground the Diagnostic Coach in extraction guides and equipment manuals.
+- Roadmap: Phase 1 is a basic app for logging shots and managing recipes, setups and beans. AI features come later, each with evals and observability. RAG will ground the Diagnostic Coach in extraction guides and equipment manuals.
 - Design: Inter, thin weights at large sizes, regular weight for small labels. Monochrome warm grey palette with one muted colour for shot warnings.
 
 ## S-02 Data model decisions (October 2026)
@@ -32,7 +32,7 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
 - **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns pantry, hardware, setups and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. Only the UI changes between phases.
+- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns beans, hardware, setups and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. Only the UI changes between phases.
 - **Shots record whose taste and who logged them.** One person often pulls for both, so the persona (whose taste) and the logging user (who tapped) are separate fields.
 - **The network needs the person's own consent.** A persona's shots reach the Cold Start network only when the persona is claimed by a user who opted in. Logging for someone without their own login never shares their data.
 
@@ -57,6 +57,7 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Learn only from similar palates.** Another person's shots count as evidence for someone only to the degree that their palate resembles that person's, never just because they used the same bean. Someone who loves bright, acidic shots of a coffee isn't evidence about what a chocolate-and-body drinker would like.
 - **Milk is part of the drink, not the recipe's identity.** The amount of milk sets how strong the shot needs to be (a cortado is about 1:1 milk to espresso, a latte 1:3 or more), and the type changes the taste (dairy fat and lactose add body and sweetness; oat is mild and creamy; almond and coconut are flavour-forward and thinner). Households keep their own milk list, starting from whole, semi-skimmed, skimmed, oat, soy, almond and lactose-free, renamable and extendable (e.g. "Oat (barista)"); no brand catalog. Each drink type has a typical milk amount. Shots and recipes record milk type and amount, pre-filled from the recipe or drink, and a one-tap pull copies them. A recipe stays scoped to coffee, setup and drink type; someone who alternates milks can add a drink such as "Oat flat white" for separate recipes. Milk amount is also a lever ("try less milk" when the coffee is lost in a large drink). Steamed-milk temperature isn't recorded in the MVP.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
+- **App sections are named for what people ask.** Four tabs: **Brew** (what am I making?), **Journal** (what did I make? Method-neutral, since Tare may serve more than espresso; individual espresso entries are still "shots"), **Beans** (what do I have?) and **Setup** (what am I making it with?). The Journal is filterable by drink, coffee and setup, and opens pre-filtered to the drink and coffee selected on Brew. Beans has two sections: **On hand** (open, unopened and frozen bags, grouped by state) and **Tried** (every coffee ever used, one row per coffee, with when it was last had, how many bags, and how its shots went; calculated, not stored). Tried ships in the MVP without filters; Beans filters (roaster, roast level, origin, rating) come in Next.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
 - **Technical decisions from the tech-lead review (TQ-01 to TQ-07).**
@@ -82,14 +83,14 @@ The system is built on a highly structured, real-world physical hierarchy to all
 
 ### The Entity Hierarchy
 
-- **Household (The Tenant):** Owns everything shared in the kitchen: pantry, hardware, setups, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
+- **Household (The Tenant):** Owns everything shared in the kitchen: beans, hardware, setups, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
 - **Personas:** Taste profiles for the different people a household brews for, each with its own taste graph. Two types:
   - **Main persona:** a person's own profile, linked to their login. Every login has exactly one.
   - **Sub persona:** a profile with no login of its own, e.g. a partner or a regular guest that a household member brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
 
   The type is not stored: a persona is a main persona when it's linked to a login. Who logs a shot and whose taste it records are separate: one person often pulls for both.
 - **Setups (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso setup = machine + grinder + basket.) A setup is a fixed combination: changing any of its parts makes a different setup, and recipes belong to one setup. Puck prep (WDT, puck screen) is recorded per shot as checkboxes. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that change the recipe belong in a setup.
-- **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
+- **Beans (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Type:** The target output, from a starter list each household can edit (Espresso, Cortado, Flat white, Cappuccino, Latte and more). Additives like sugar are a "sweetened" mark on the shot.
 - **The Catalog:** Shared, canonical lists of hardware (maker, then model) and coffee (roaster, then bean). Households can add missing entries with a product link; duplicates are merged, never deleted.
 - **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Setup, Drink Type, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, setup maintenance) is calculated from logged shots on top of the pinned recipe, not stored.
@@ -267,7 +268,7 @@ export const users = sqliteTable('users', {
 });
 
 // --- TENANT HIERARCHY ---
-// The household owns everything shared in the kitchen: pantry, hardware, setups,
+// The household owns everything shared in the kitchen: beans, hardware, setups,
 // personas and their recipes. The MVP creates one household per user at sign-up.
 export const households = sqliteTable('households', {
   id: text('id').primaryKey(),
@@ -365,7 +366,7 @@ export const maintenanceEvents = sqliteTable('maintenance_events', {
   offsetSourceRecipeId: text('offset_source_recipe_id').references(() => pinnedRecipes.id), // The re-dial it came from
 });
 
-// --- PANTRY ---
+// --- BEANS (batches and portions) ---
 // The bag as bought. Status, remaining weight and bean age are calculated, not stored.
 export const batches = sqliteTable('batches', {
   id: text('id').primaryKey(),
