@@ -61,7 +61,7 @@ export function ShotLogScreen({
   ];
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col [&>*]:shrink-0">
       <PageHeader
         variant="task"
         title={t(titleKey[mode])}
@@ -71,7 +71,7 @@ export function ShotLogScreen({
           </Button>
         }
       />
-      <div className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
+      <div data-testid="log-context" className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
         <SelectField label={t("setup")} value={setup} onClick={() => onPick("setup")} />
         <SelectField label={t("drink")} value={drink} onClick={() => onPick("drink")} />
         <SelectField label={t("coffee")} value={coffee} onClick={() => onPick("coffee")} />

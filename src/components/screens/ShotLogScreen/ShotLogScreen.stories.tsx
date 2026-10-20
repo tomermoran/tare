@@ -46,3 +46,20 @@ export const DialIn: Story = {
 
 export const FixAnOffShot: Story = { args: { mode: "fix" } };
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
+
+/** On a short screen the log scrolls; nothing gets squashed or clipped. */
+export const ShortScreen: Story = {
+  decorators: [
+    (Story) => (
+      <div className="flex h-[480px] w-[390px] flex-col overflow-hidden rounded-[28px] border border-line bg-paper">
+        <div className="flex flex-1 flex-col overflow-y-auto px-6 pt-5 pb-6">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const context = within(canvasElement).getByTestId("log-context");
+    await expect(context.clientHeight).toBe(context.scrollHeight);
+  },
+};

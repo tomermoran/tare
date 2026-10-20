@@ -57,7 +57,7 @@ export function RecentShotsScreen({ items, now, onOpen }: RecentShotsScreenProps
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col [&>*]:shrink-0">
       <PageHeader title={t("title")} />
       {items.length === 0 && <p className="mt-6 text-body text-ink-secondary">{t("empty")}</p>}
       {groups.map((g) => (

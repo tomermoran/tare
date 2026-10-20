@@ -77,7 +77,7 @@ export function HomeScreen({
       { title: t("firstRun.shot") },
     ];
     return (
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col [&>*]:shrink-0">
         {header}
         <h1 className="mt-7 text-h1">{t("firstRun.title")}</h1>
         <p className="text-body text-ink-secondary">{t("firstRun.body")}</p>
@@ -104,7 +104,7 @@ export function HomeScreen({
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col [&>*]:shrink-0">
       {header}
       <SelectField
         look="quiet"
