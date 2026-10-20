@@ -9,8 +9,8 @@ sections), and the Phase 0 design system: `src/styles/tokens.css`,
 version) was read for context only; this design is per epic, and stories will
 be revised against it.
 
-**Status: design approved by the Head of Product after review round 2;
-round 3 (after the plan review) is for the Head of Product's confirmation.**
+**Status: design approved by the Head of Product after review round 3**
+(PEC-09 accepted, applied in epics revision 7; Home shows both clocks).
 Round 3 applies epics revision 6 (fixed kits, two freshness clocks, "open"
 excludes frozen) and the review findings the designer owns (M2, M4, M7, m3,
 m4). Only the affected flows changed; everything else stands as approved.
@@ -199,12 +199,21 @@ run) and EPIC-03-03 and 03-04 (age and remaining coffee).
    visible drinks. Default: the persona's last drink at this time of day
    (DQ-02).
 3. **Coffee line**, `text-body` `ink-secondary`, also a quiet select: bean
-   name, roaster, and the since-opening clock of the portion in use
-   (`portion.daysOpen` ["5 days open"], or `portion.notOpened` for a portion
-   the next pull will open; EPIC-03-03, round 3). This replaces the ambiguous
-   "Day 12": at the machine, time since opening is the more telling number
-   (S-02). Tap opens SH-SELECT with beans that have an unfinished portion.
-   Default: see DQ-03.
+   name, roaster, and both freshness clocks on one line (EPIC-03-03; Head of
+   Product decision at round-3 approval). This replaces the ambiguous
+   "Day 12".
+   - Opened portion: `home.coffeeClocks` with the pattern
+     ["{roastClock} · {openClock}"], for example "18 days since roast · 1 day
+     open". The separator lives in the message pattern, so each locale
+     orders and joins the clocks itself; nothing is hand-joined.
+   - The roasting clock uses its fallback wording when there's no roast date:
+     `bag.daysSincePacked` ["packed 10 days ago"], else `bag.bestBeforeIn`
+     ["best before in 140 days"], else nothing.
+   - Unopened portion (the next pull will open it): the roasting clock alone,
+     with no opened clock, until the portion is opened.
+   - A frozen portion shows `portion.agePaused` in place of the opened clock.
+   Tap opens SH-SELECT with beans that have an unfinished portion. Default:
+   see DQ-03.
 4. **Recipe values (NC-08, large).** Grind, dose, yield and time in
    `text-display` weight 200 on a 2 x 2 grid, each with an overline label
    (`shot.grind`, `shot.dose`, `shot.yield`, `shot.time`) and its unit in
@@ -1325,8 +1334,8 @@ never invents an age (this resolves review B1).
 
 | Clock | What it counts | Phrases | Where |
 |---|---|---|---|
-| Since roasting (per bag) | From the roast date; else from the packing date, labelled as packed; minus freezer time | `bag.daysSinceRoast` [12 days since roast], `bag.daysSincePacked` [12 days since packing] | SCR-BAG facts, bag Cards on SCR-PANTRY |
-| Best-before only (no age) | Time left until best-before, not an age | `bag.bestBeforeIn` [best before in 40 days], `bag.bestBeforePassed` [best before passed 3 days ago] | Same places as since roasting |
+| Since roasting (per bag) | From the roast date; else from the packing date, labelled as packed; minus freezer time | `bag.daysSinceRoast` [18 days since roast], `bag.daysSincePacked` [packed 10 days ago] | SCR-HOME coffee line, SCR-BAG facts, bag Cards on SCR-PANTRY |
+| Best-before only (no age) | Time left until best-before, not an age | `bag.bestBeforeIn` [best before in 140 days], `bag.bestBeforePassed` [best before passed 3 days ago] | Same places as since roasting |
 | No date at all | Nothing to count | `bag.ageUnknown`, with ghost `bag.addDate` on SCR-BAG | Same places |
 | Since opening (per portion) | From the portion's opened date, minus freezer time | `portion.daysOpen` [5 days open], `portion.openedToday`, `portion.notOpened` | SCR-HOME coffee line, portion rows, SH-PORTION, SCR-LOG coffee field |
 
@@ -1334,8 +1343,10 @@ never invents an age (this resolves review B1).
   [paused in the freezer] in place of its clock. SCR-BAG adds one line per
   portion that has been frozen, `portion.frozenDays` [N days in the freezer
   not counted].
-- **Home** shows only the since-opening clock (section 2.3): at the machine
-  it's the more telling number (S-02).
+- **Home** shows both clocks on one line through the `home.coffeeClocks`
+  pattern, for example "18 days since roast · 1 day open". While the portion
+  is unopened it shows the roasting clock alone (section 2.3; Head of Product
+  decision at round-3 approval).
 - **SCR-BAG** shows both: the since-roasting line (or best-before, or
   unknown) in the bag's facts at the top, and each portion's since-opening
   clock on its row.
@@ -1660,7 +1671,10 @@ the Head of Product at approval and are applied in `epics.md` revision 5.**
   "dial in from the closest kit" (EPIC-02-01) replaces them.
 - **PEC-08:** stands, as designed.
 
-### New in round 3 (proposed, pending the Head of Product)
+### New in round 3 (accepted, applied in epics revision 7)
+
+**PEC-09 was accepted by the Head of Product at round-3 approval** and is
+applied in `epics.md` revision 7.
 
 - **PEC-09 EPIC-02-02 (with EPIC-01-02): switch kit on the home screen and in
   the shot log.** Revision 6 leaves open which kit is current and how the user
@@ -1717,10 +1731,12 @@ the Head of Product at approval and are applied in `epics.md` revision 5.**
   Grind does carry over when the grinder is the same (DQ-20), so it's one
   quick dial-in, but users may feel it as friction for a small change. Worth
   watching in use. If it bites, the fix is in the rule (which parts define a
-  kit), not the design.
-- **Two clocks, one line (round 3).** Home shows only the since-opening
-  clock. A freshly opened bag of old coffee reads "1 day open". That's
-  correct, but the roast age is a tap away on SCR-BAG, not on Home.
+  kit), not the design. *Accepted at round-3 approval:* the Head of Product
+  confirmed that any part change makes a new kit. This concern is accepted
+  and will be revisited if users find it fussy.
+- **Two clocks, one line (round 3).** *Resolved at round-3 approval:* Home
+  shows both clocks on one line, so an old coffee opened yesterday reads "N
+  days since roast · 1 day open".
 
 ## 8. Design questions for the Head of Product
 
@@ -1967,3 +1983,17 @@ re-planned.
 - **Sent to the epic-planner:** PEC-09 (switch kit on the home screen and in
   the shot log; the current kit is the kit of the last shot), pending the
   Head of Product. The M4 decision goes to the story-writer.
+
+### Approval after round 3 (2026-10-20)
+
+- **Outcome:** the Head of Product approved design round 3.
+  - PEC-09 accepted (applied in epics revision 7).
+  - Home's coffee line shows both clocks on one line through the
+    `home.coffeeClocks` pattern ("18 days since roast · 1 day open"), with the
+    roasting clock's fallback wording ("packed 10 days ago", "best before in
+    140 days"), and the roasting clock alone until the portion is opened.
+    Section 2.3, EPIC-03-03 and the UX concerns were updated to match.
+  - The rule that any part change makes a new kit is confirmed. The "small
+    parts reset recipes" concern is accepted, to be revisited if users find
+    it fussy.
+- **Sent to the epic-planner:** nothing new.

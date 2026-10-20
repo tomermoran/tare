@@ -1,4 +1,4 @@
-# Tare epics (final, revision 6)
+# Tare epics (final, revision 7)
 
 Source: `planning/drafts/initiatives.md` (approved by the Head of Product) and
 `docs/spec.md`, sections S-01 to S-09. S-01 and S-02 override older sections
@@ -6,24 +6,54 @@ where they differ. Revision 2 applied the Head of Product's answers; revision 3
 applied the three changes made at approval, also recorded in S-02; revision 4
 applied the epic changes from design review round 1 (PEC-01 to PEC-06 in
 `planning/drafts/design.md`); revision 5 applied PEC-07 and PEC-08 from design
-review round 2; revision 6 applies the Head of Product's decisions on the plan
-review (`planning/drafts/review.md`), recorded in S-02, S-04 and S-08.
+review round 2; revision 6 applied the Head of Product's decisions on the plan
+review (`planning/drafts/review.md`), recorded in S-02, S-04 and S-08;
+revision 7 applies PEC-09 from design round 3 and records the design's working
+assumptions DQ-18 to DQ-21.
 
-**Status: final, approved by the Head of Product** (revision 6, with the
-review fixes below as approved amendments). The size of the MVP is to be
-confirmed, or cuts picked, by the Head of Product at final sign-off (review
-m9); nothing has been cut. No GitHub issues have been created.
+**Status: final, approved by the Head of Product** (revision 7, with the
+review fixes and design round 3 changes below as approved amendments). The
+size of the MVP is to be confirmed, or cuts picked, by the Head of Product at
+final sign-off (review m9); nothing has been cut. No GitHub issues have been
+created.
 
 Initiative open questions are referenced as `INIT-NN Q#`, numbered in the order
 they appear in `initiatives.md`. Cross-cutting questions are `X-1` (timestamp
 precision, now resolved), `X-2` (success targets) and `X-3` (network
 eligibility in Phase 1). Answered questions are listed under "Resolved
-questions".
+questions". A "working assumption" is a design assumption (`DQ-NN` in
+`design.md`) that the plan builds on until the Head of Product reverses it.
 
 **Terminology.** Users see "kit"; the code and schema call it `toolkit`
 (S-08). A kit's components are its "parts".
 
 ## Changes in this revision
+
+Revision 7 (design round 3, approved amendment PEC-09 and working
+assumptions):
+
+- **PEC-09, EPIC-02-02 with EPIC-01-02, sizes unchanged (M, M):** the kit line
+  on Home and the kit field in the shot log become selects, with a "change a
+  part" option; the kit chosen becomes the current kit.
+- **Current kit (DQ-18), EPIC-01-02:** the kit of the persona's last shot
+  (measured or one-tap); before any shot, the newest kit. Choosing a kit makes
+  it current at once. Closes the "which kit is current" questions in EPIC-01-02
+  and EPIC-02-02.
+- **Closest-kit ties (DQ-19) and grind pre-fill (DQ-20), EPIC-02-01:** ties go
+  to the most recently used kit. Grind pre-fills only when the closest kit has
+  the same grinder; dose, yield and time always do; temperature and pressure
+  only with the same machine. Closes EPIC-02-01's two closest-kit questions.
+- **One part per kind (DQ-21), EPIC-01-02:** a kit has one part of each kind,
+  with machine and grinder required; its name is a label and can be set or
+  changed at any time without changing the kit. Closes "must a kit contain
+  exactly one machine and one grinder".
+- **Both freshness clocks on Home, one line, EPIC-03-03 (size stays S):** Home
+  now shows since roasting and since opening together on one line (Head of
+  Product decision; design round 3 had only the opened clock on Home).
+- **"Any part change makes a new kit" confirmed** by the Head of Product,
+  including for small parts such as a tamper or puck screen. Recorded in
+  EPIC-01-02.
+- No sizes, priorities or build-order positions changed.
 
 Revision 6 (plan review fixes, decided by the Head of Product):
 
@@ -48,8 +78,8 @@ Revision 6 (plan review fixes, decided by the Head of Product):
 - **Bean age is two clocks, both paused by freezing** (S-02). EPIC-03-03
   (size stays S): since roasting (roast date, else packing date, else time
   left to best-before, with no invented age) and since opening (per portion).
-  Home shows the opened clock; the bag screen shows both. EPIC-03-01 gains the
-  optional packing date. Resolves INIT-03 Q2 (review blocker B1).
+  EPIC-03-01 gains the optional packing date. Resolves INIT-03 Q2 (review
+  blocker B1). (Where the clocks show on Home is updated in revision 7.)
 - **"Open" excludes frozen portions** (S-02, review M5). EPIC-02-02 and
   EPIC-03-02: a portion that was opened and then frozen isn't open until
   thawed; one-tap never uses frozen coffee on its own.
@@ -195,8 +225,9 @@ scope, so they don't count as overlap:
 - Catalog merges (S-02, S-08): any code that reads a catalog reference follows
   the merge pointer to the surviving entry. Merges only happen from EPIC-06-07,
   but readers built earlier must respect the pointer.
-- Kits never change (S-02): no epic edits a kit's parts; a different
-  combination is a different kit.
+- Kits never change (S-02, confirmed by the Head of Product in revision 7): no
+  epic edits a kit's parts; any different combination, even of a small part,
+  is a different kit.
 
 ---
 
@@ -269,8 +300,18 @@ scope, so they don't count as overlap:
     replacing, adding or removing any part means a different kit, and choosing
     a combination the household already has reuses that kit, with its
     recipes. One part can be in several kits.
+  - In (working assumption DQ-21): one part of each kind per kit; machine and
+    grinder are required, the other kinds are optional.
   - In: a kit's name is optional; without one it's shown by its parts or a
-    translated default (S-08).
+    translated default (S-08). The name is a label, not a part, so it can be
+    set or changed at any time without making a new kit (DQ-21).
+  - In (DQ-18): the current kit is the kit of the persona's last shot
+    (measured or one-tap); before any shot, the newest kit. Choosing a kit
+    makes it current at once, without waiting for a shot.
+  - In (PEC-09): "change a part" builds the new combination from the current
+    kit with one part swapped, added or removed, and finds or creates the
+    matching kit, which becomes current. The selects that offer it on Home and
+    in the shot log are EPIC-02-02.
   - In (PEC-02, kept): once the household has a machine and a grinder, offer
     "make these your kit", with both preselected.
   - Out: editing a kit's parts. Kits never change (S-02); this reverses the
@@ -288,15 +329,21 @@ scope, so they don't count as overlap:
 - **Risks and open questions**
   - Who curates the seed list, and which makers, models and markets does it
     cover at launch? S-02 says "curated" but not by whom.
-  - Must a kit contain exactly one machine and one grinder? Shots and recipes
-    take their grinder and machine from the kit, so a kit used for shots needs
-    one of each, but the spec doesn't state the rule.
-  - Which kit is "current" when a household has several, and how does the
-    user switch? S-02 refers to a "current kit" but doesn't define it.
+  - Accepted friction (confirmed by the Head of Product, revision 7): swapping
+    even a small part, such as a tamper or puck screen, makes a new kit, so
+    the next shot is a dial-in rather than one tap. Grind carries over when
+    the grinder is the same (DQ-20). Worth watching in use; if it bites, the
+    fix is in which parts define a kit, not the design.
+  - Kits can multiply as households try parts. How the kit list stays calm
+    (recent first, collapsing unused kits) is a design detail.
   - Closed (S-02): kits are not edited; a different combination is a
     different kit.
-  - Closed (S-08): the default kit name is optional and shown from its parts
-    or a translated default (answers DQ-01).
+  - Closed (S-08, DQ-21): the default kit name is optional and shown from its
+    parts or a translated default; it can be changed at any time.
+  - Closed (DQ-21, working assumption): one part per kind, machine and grinder
+    required.
+  - Closed (DQ-18, PEC-09, working assumption): which kit is current, and how
+    the user switches.
 
 ### EPIC-01-03: Log a shot in seconds
 
@@ -309,12 +356,14 @@ scope, so they don't count as overlap:
 - **Scope**
   - In: the extraction UI for the MVPayload (grind, dose, yield, time) with
     tactile number wheels, no text keyboards.
-  - In: pick kit, drink type (the household's visible list) and portion;
-    optional "sweetened" mark. The shot stores kit, portion, persona, logging
-    user and entry mode "measured"; grinder and machine follow from the kit.
+  - In: kit (pre-chosen as the current kit), drink type (the household's
+    visible list) and portion; optional "sweetened" mark. The shot stores kit,
+    portion, persona, logging user and entry mode "measured"; grinder and
+    machine follow from the kit.
   - In: grind wheel follows the kit grinder's declared scale; time stored in
     ms and shown in seconds with one decimal.
   - In: locale-aware display and entry of decimals, canonical floats stored.
+  - Out: the kit field's select with "change a part" (EPIC-02-02, PEC-09).
   - Out: temperature and pressure (EPIC-01-04).
   - Out: sensory scores, rating and defects (EPIC-01-05).
   - Out: pre-fill from a recipe, one-tap shots and reactions (INIT-02).
@@ -427,8 +476,8 @@ scope, so they don't count as overlap:
     this decision.
   - Capability entry is the riskiest part of this epic. How the shot log
     behaves for a "not sure" answer is a design assumption (DQ-11: no
-    temperature or pressure field, a generic grind scale); confirm. Can the
-    admin correct capabilities on verification?
+    temperature or pressure field, a generic grind scale); confirm the exact
+    fallback ranges. Can the admin correct capabilities on verification?
   - At L, this is the biggest lever on the MVP's size (review m9): coffee
     additions are simpler than hardware additions with capabilities, and could
     ship first.
@@ -467,6 +516,14 @@ scope, so they don't count as overlap:
     recipe on the closest previous kit (most parts in common), never as a
     one-tap pull. Pinning on the new kit gives it its own recipe. Replaces
     PEC-07.
+  - In (working assumption DQ-19): ties between equally close kits go to the
+    most recently used kit (latest shot on it).
+  - In (working assumption DQ-20): dose, yield and time pre-fill from the
+    closest kit's recipe. Grind pre-fills only when that kit has the same
+    grinder; otherwise it starts at this grinder's last measured value (else
+    the middle of its range), and the log says grind wasn't carried over,
+    because grind doesn't transfer between grinders (S-01). Temperature and
+    pressure carry over only with the same machine.
   - Out: batch overrides (EPIC-02-04).
   - Out: drift or offset adjustments when reading (INIT-04).
 - **Dependencies:** EPIC-01-03 (pin from a shot), EPIC-01-04 (recipes carry the
@@ -482,10 +539,8 @@ scope, so they don't count as overlap:
     is nullable, so the schema allows it, but no flow is described.
   - Can a one-tap shot be pinned? It only copies a recipe, so pinning it would
     add nothing; confirm it's excluded.
-  - "Closest previous kit": how are ties broken when two kits share as many
-    parts? And grind doesn't transfer between grinders (S-01): if the closest
-    kit has a different grinder, should its grind still pre-fill, or only
-    dose, yield and time? Not in the spec.
+  - Closed (DQ-19, DQ-20, working assumptions): closest-kit ties, and whether
+    grind pre-fills from a kit with a different grinder.
 
 ### EPIC-02-02: Pull your daily shot in one tap
 
@@ -494,14 +549,19 @@ scope, so they don't count as overlap:
   persona, the current kit and the drink they usually make at this time of
   day. One tap on "Pull This Shot" records a one-tap shot copied from the
   recipe, so daily use is counted. With no recipe on this kit, the button
-  reads "Dial in".
+  reads "Dial in". The user can switch kit, or change a part, right there.
 - **Source sections:** S-06, S-02, S-08
 - **Scope**
   - In: home screen uses the persona selected there (in the MVP, the one main
-    persona) and that persona's last drink type at this time of day.
+    persona), the current kit (DQ-18, EPIC-01-02) and that persona's last
+    drink type at this time of day. Home always shows the recipe on the
+    current kit, so a one-tap pull always uses that recipe's kit.
   - In (PEC-03): before a pull, the user can change the drink and the coffee
     on the home screen; the recipe shown updates in place, and the pull uses
     the chosen drink and coffee.
+  - In (PEC-09): the kit line on Home and the kit field in the shot log are
+    selects offering the household's kits and "change a part". The kit chosen
+    becomes the current kit, and the recipe shown updates in place.
   - In: "Pull This Shot" copies the pinned recipe's values into a shot marked
     one-tap, with the recipe's kit and the earliest-opened open portion of
     that bean. "Open" means opened, not finished and not in the freezer
@@ -514,27 +574,31 @@ scope, so they don't count as overlap:
   - In: with no recipe on the current kit, the button becomes "Dial in" and
     opens the shot log (pre-filled from the closest previous kit's recipe when
     there is one, per EPIC-02-01).
+  - Out: what "change a part" does to find or create a kit (EPIC-01-02).
   - Out: the good/off reaction and the pre-filled log (EPIC-02-03).
   - Out: switching between several personas (EPIC-05-01).
   - Out: palate learning from these shots (EPIC-06-04).
 - **Dependencies:** EPIC-02-01 (needs a pinned recipe), EPIC-01-03 (the shot
-  log for "Dial in"), EPIC-03-01 (needs a portion), EPIC-02-06 (editing a
+  log for "Dial in", and the kit field PEC-09 extends), EPIC-01-02 (kits and
+  the current-kit rule), EPIC-03-01 (needs a portion), EPIC-02-06 (editing a
   one-tap shot after the fact).
 - **Priority:** MVP
-- **Rough size:** M
+- **Rough size:** M (unchanged; PEC-09 is small, the same pattern as PEC-03)
 - **Risks and open questions**
   - What counts as "this time of day" (window size), and which drink is shown
     for a persona with no history at this time? Not in the spec (design
     assumption DQ-02).
   - PEC-03 answers the "can the user change it" part of SQ-06. Which coffee
-    the home screen shows by default is still open (DQ-03).
-  - Does a drink changed on the home screen stick for the next pull, or reset
-    to the time-of-day default? Not in the spec.
+    the home screen shows by default is a design assumption (DQ-03); confirm.
+  - Does a drink or coffee changed on the home screen stick for the next pull?
+    Design assumes no saved setting; the change applies to the next pull, and
+    history then carries it (DQ-17); confirm.
   - Opening a portion when none is open: does answering the prompt mark a
     portion opened? Links to the EPIC-03-02 question on who sets "opened".
-  - Which kit is current (see EPIC-01-02) decides which recipe the home screen
-    shows.
-  - Undo window length ("a few seconds") to be set at story level.
+  - Closed (DQ-18, PEC-09, working assumption): which kit is current, and how
+    the user switches.
+  - Undo window length ("a few seconds") to be set at story level (design
+    assumes 8 seconds, DQ-04).
   - X-2: success metric targets.
 
 ### EPIC-02-03: Fix a bad shot from your recipe
@@ -714,9 +778,9 @@ scope, so they don't count as overlap:
 - **Parent:** INIT-03
 - **Description:** Tare keeps two freshness clocks, both paused while coffee is
   in the freezer: how long since the coffee was roasted, and how long each
-  portion has been open to the air. The home screen shows how long the
-  coffee in use has been open; the bag screen shows both. Shots ground
-  straight from frozen beans are marked as such from the dates alone.
+  portion has been open to the air. The home screen shows both for the coffee
+  in use, on one line; the bag screen shows both. Shots ground straight from
+  frozen beans are marked as such from the dates alone.
 - **Source sections:** S-02 (S-09 "days open")
 - **Scope**
   - In: since roasting, per batch: from the roast date; if the bag shows only
@@ -726,8 +790,9 @@ scope, so they don't count as overlap:
   - In: since opening, per portion: from its opened date (air exposure).
   - In: time in the freezer counts toward neither clock. Both are calculated,
     never stored.
-  - In: the home screen shows the since-opening clock for the portion in use;
-    the bag screen shows both clocks.
+  - In: the home screen shows both clocks for the coffee in use on one line
+    (Head of Product decision, revision 7); the bag screen shows both, the
+    roasting clock in the bag's facts and the opened clock on each portion.
   - In: identify shots ground from frozen and mark them where shots and
     portions are shown.
   - Out: using age to adjust grind (EPIC-04-02).
@@ -740,8 +805,11 @@ scope, so they don't count as overlap:
     bags (review blocker B1).
   - Closed (S-02): the S-09 "days since batch opened" input is the
     since-opening clock.
-  - Before a portion is opened, the home screen has no opened clock to show;
-    what it shows instead is a design detail.
+  - Closed (Head of Product, revision 7): Home shows both clocks on one line,
+    so an old coffee in a freshly opened bag reads as both.
+  - Before a portion is opened, or when only best-before is known, the home
+    line has one clock or a best-before phrase instead; the exact wording is a
+    design detail. The two clocks must never be confusable.
 
 ### EPIC-03-04: See how much coffee is left
 
@@ -933,6 +1001,8 @@ scope, so they don't count as overlap:
     spec.
   - Does a sub persona have a default label like "Me", or must it be named?
     S-02 covers only the default persona.
+  - The current kit follows the persona's last shot (DQ-18), so switching
+    persona can switch kit too; confirm that's wanted.
 
 ### EPIC-05-02: Invite them to take over their own profile
 
@@ -1179,8 +1249,8 @@ become its own epic again.
 
 | Initiative | Source sections | Covered by |
 |---|---|---|
-| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01, 01-02 (fixed kits), 01-03, 01-04, 01-06; S-04: 01-01, 01-02 (kits), 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
-| INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01; S-02: 02-01 to 02-06 (recipes per kit in 02-01, "open" excludes frozen in 02-02); S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
+| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01, 01-02 (fixed kits, current kit), 01-03, 01-04, 01-06; S-04: 01-01, 01-02 (kits), 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
+| INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01 (grind doesn't transfer, DQ-20); S-02: 02-01 to 02-06 (recipes per kit in 02-01, kit switching and "open" excludes frozen in 02-02); S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
 | INIT-03 | S-02, S-04, S-08 | S-02: all (two freshness clocks in 03-03, packing date in 03-01, open-vs-frozen in 03-02); S-04: 03-01, 03-02; S-08: 03-01, 03-02, 03-04, 03-05 |
 | INIT-04 | S-01, S-02, S-04, S-08 | S-01: 04-01, 04-02; S-02: all; S-04: 04-01, 04-02; S-08: 04-01, 04-03, 04-04 |
 | INIT-05 | S-02, S-04, S-07, S-08 | S-02, S-04, S-08: 05-01, 05-02, 05-03 (accepted storage risks); S-07: 05-02 |
@@ -1197,6 +1267,8 @@ maintenance from Phase 1 (EPIC-04-01), fixed kits (EPIC-01-02, EPIC-02-01,
 EPIC-02-02, EPIC-04-01), two freshness clocks (EPIC-03-01, EPIC-03-03,
 EPIC-06-02), "open" excludes frozen (EPIC-02-02, EPIC-03-02), technical
 decisions TQ-04 to TQ-07 (cross-cutting constraints, EPIC-01-06, EPIC-04-01).
+Design round 3: PEC-09 (EPIC-02-02, EPIC-01-02), DQ-18 and DQ-21
+(EPIC-01-02), DQ-19 and DQ-20 (EPIC-02-01).
 
 ## Overlap and ambiguity flags
 
@@ -1208,8 +1280,9 @@ decisions TQ-04 to TQ-07 (cross-cutting constraints, EPIC-01-06, EPIC-04-01).
   personas follow their user's consent is in EPIC-05-02; the opt-in and
   eligibility computation are in EPIC-06-05.
 - Recipe resolution ("which recipe applies now", including the closest
-  previous kit's recipe for a dial-in on a new kit) lives in EPIC-02-01; the
-  home screen (EPIC-02-02) and pre-fill (EPIC-02-03) only use it.
+  previous kit's recipe for a dial-in on a new kit, its ties and what carries
+  over) lives in EPIC-02-01; the home screen (EPIC-02-02) and pre-fill
+  (EPIC-02-03) only use it.
 - Catalog: picking from the seed list is split by catalog (hardware in
   EPIC-01-02, coffee in EPIC-03-01); adding entries for both is EPIC-01-06;
   merging for both is EPIC-06-07. The catalog serves INIT-01, INIT-03 and
@@ -1231,13 +1304,17 @@ decisions TQ-04 to TQ-07 (cross-cutting constraints, EPIC-01-06, EPIC-04-01).
 - Catalog capabilities (revision 4): seeded models' capabilities come with the
   seed list (EPIC-01-02); user-added models' capabilities are entered, and
   edited while unverified (revision 5), in EPIC-01-06.
-- Kits (revision 6, replaces the revision 5 PEC-07 flag): kit identity (fixed
-  combinations, reusing a matching kit) is EPIC-01-02; recipes per kit and the
-  closest-kit pre-fill are EPIC-02-01; servicing a part is EPIC-04-01.
-- Freshness (revision 6): both clocks and where they show (home and bag
-  screen) are owned by EPIC-03-03; the home screen (EPIC-02-02) and bag screen
-  (EPIC-03-01) host them. The "open" rule for portions is stated in EPIC-03-02
-  and applied by EPIC-02-02.
+- Kits (revision 6): kit identity (fixed combinations, reusing a matching kit,
+  one part per kind) is EPIC-01-02; recipes per kit and the closest-kit
+  pre-fill are EPIC-02-01; servicing a part is EPIC-04-01.
+- Kit switching (revision 7, PEC-09): the current-kit rule and what "change a
+  part" does (find or create the matching kit) are EPIC-01-02; the selects on
+  Home and in the shot log that offer it are EPIC-02-02, even though the shot
+  log is EPIC-01-03's screen. EPIC-01-03 only pre-chooses the current kit.
+- Freshness (revisions 6 and 7): both clocks and where they show (one line on
+  Home, both on the bag screen) are owned by EPIC-03-03; the home screen
+  (EPIC-02-02) and bag screen (EPIC-03-01) host them. The "open" rule for
+  portions is stated in EPIC-03-02 and applied by EPIC-02-02.
 
 ## Resolved questions
 
@@ -1309,18 +1386,40 @@ Closed by the plan review decisions (revision 6):
   the event (S-02, TQ-05).
 - INIT-01 Q5, Fahrenheit (EPIC-01-04): display only; stored in °C (S-08).
 
+Closed in revision 7 (PEC-09, design working assumptions and Head of Product
+decisions):
+
+- Which kit is current, and how the user switches (EPIC-01-02, EPIC-02-02):
+  the kit of the persona's last shot, else the newest kit; choosing a kit, or
+  "change a part", on Home or in the shot log makes it current at once (DQ-18,
+  PEC-09).
+- Closest-kit ties (EPIC-02-01): the most recently used kit wins (DQ-19).
+- Grind pre-fill from a kit with a different grinder (EPIC-02-01): grind
+  doesn't carry over; dose, yield and time do; temperature and pressure only
+  with the same machine (DQ-20).
+- Must a kit contain exactly one machine and one grinder (EPIC-01-02): one
+  part per kind, machine and grinder required; the name can change at any time
+  (DQ-21).
+- Which freshness clock Home shows (EPIC-03-03): both, on one line (Head of
+  Product).
+- Whether small parts should make a new kit (EPIC-01-02): yes; "any part change
+  makes a new kit" is confirmed by the Head of Product.
+
+DQ-18 to DQ-21 are working assumptions: the plan builds on them, and the Head
+of Product can reverse any of them without changing the epic structure.
+
 ## MVP size (review m9)
 
 The MVP is 15 epics. The reviewer counts 177 story points and about 851 hours
-of MVP tasks, large for a "basic app" (S-01). Nothing has been cut in this
-revision. The Head of Product will confirm the size or pick cuts at final
-sign-off. The levers the reviewer names: splitting EPIC-01-06 so coffee
-additions ship first, and the cut candidates already listed in the stories.
+of MVP tasks, large for a "basic app" (S-01). Nothing has been cut. The Head
+of Product will confirm the size or pick cuts at final sign-off. The levers the
+reviewer names: splitting EPIC-01-06 so coffee additions ship first, and the
+cut candidates already listed in the stories.
 
 ## Suggested build order
 
 Dependencies first; within a priority, earlier delivers daily value sooner.
-Unchanged in revision 6.
+Unchanged in revisions 6 and 7.
 
 **MVP**
 1. EPIC-01-01 Start brewing without setting anything up (none)
@@ -1334,7 +1433,7 @@ Unchanged in revision 6.
 8. EPIC-04-01 Record maintenance on your kit (after 01-02, 02-06; early so
    grind periods are right from the first shots)
 9. EPIC-02-01 Pin the recipe that worked (after 01-02, 01-03, 01-04, 03-01)
-10. EPIC-02-02 Pull your daily shot in one tap (after 02-01, 02-06)
+10. EPIC-02-02 Pull your daily shot in one tap (after 01-02, 02-01, 02-06)
 11. EPIC-02-03 Fix a bad shot from your recipe (after 02-02)
 12. EPIC-01-05 Say how it tasted (after 01-03)
 13. EPIC-03-02 Split and freeze a bag (after 03-01)
