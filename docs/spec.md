@@ -44,7 +44,8 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **One-tap shots are recorded but marked as unmeasured.** "Pull This Shot" copies the pinned recipe's values into a shot marked one-tap. It uses the persona selected on the home screen and, in the MVP, the drink that persona last made at this time of day; the recipe's setup; and the earliest-opened open portion of that bean (asking if none is open). With no pinned recipe, the button becomes "Dial in". No rating is asked: silence counts as a weak "fine", and an optional quick reaction (good or off) turns an off shot into a normal pre-filled log. Undo is possible for a few seconds, and editing afterwards. One-tap shots count toward coffee used, but are never treated as measurements and never reach the network.
 - **Unverified catalog entries stay private until verified.** A maker, model, roaster or bean a household adds is visible only to that household. Until the Later merge tooling exists, verification and merges are a manual admin task.
 - **Google sign-in comes first after the MVP.** An anonymous account lives on one device, so a lost or reset device loses its data until it's linked to Google. Browsers can also clear it: Safari on iOS may delete a site's storage after a period without use, which would silently start a new, empty household. Linking ships as the first Next item, ahead of invites. The MVP explicitly accepts both risks for a prototype.
-- **A setup is a fixed combination of parts.** A setup is defined by its parts: everything that directly affects the output of the recipe (for espresso: machine, grinder, portafilter, basket, puck screen, tamper, distribution tool). Parts that don't change the output, such as a scale, are not part of a setup; water may be added later. Setups never change: replacing, adding or removing any part means a different setup. Using the same combination again reuses its existing setup, with its recipes. Each part is a specific product from the catalog (maker and model), not a category: a Normcore 18 g basket and a Crema Coffee 18 g basket are different parts, so swapping one for the other makes a different setup. Recipes belong to exactly one setup; on a new setup, Dial in starts pre-filled from the recipe on the closest previous setup (most parts in common), never as a one-tap pull. There's no "retire" action in the MVP: a part the household stops using simply stops appearing in its current setup. Servicing a part (new burrs, cleaning) is a maintenance event on that part, not a new setup.
+- **A setup is a fixed combination of the parts that change the recipe.** For espresso that's the machine, the grinder and the basket: swap any of them and the old recipe no longer applies. Each is a specific product from the catalog (maker and model), not a category: a Normcore 18 g basket and a Crema Coffee 18 g basket are different baskets and make different setups. Setups never change: replacing, adding or removing one of these parts means a different setup, and using the same combination again reuses its existing setup, with its recipes. Recipes belong to exactly one setup; on a new setup, Dial in starts pre-filled from the recipe on the closest previous setup (most parts in common), never as a one-tap pull. There's no "retire" action in the MVP. Servicing a part (new burrs, cleaning) is a maintenance event on that part, not a new setup. Things that don't change the recipe aren't setup parts: a scale, the portafilter (spouted or bottomless doesn't change what happens in the puck) and the tamper aren't tracked. Water may be added later.
+- **Puck prep is recorded as checkboxes, not parts.** A WDT (distribution) tool and a puck screen mostly reduce channelling and make shots more repeatable; whether they were used matters, their brand very likely doesn't. Shots and recipes record `usedWdt` and `usedPuckScreen`; a one-tap pull copies them from the recipe. If data later shows a prep tool's brand matters, it can be promoted to a setup part.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
@@ -77,7 +78,7 @@ The system is built on a highly structured, real-world physical hierarchy to all
   - **Sub persona:** a profile with no login of its own, e.g. a partner or a regular guest that a household member brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
 
   The type is not stored: a persona is a main persona when it's linked to a login. Who logs a shot and whose taste it records are separate: one person often pulls for both.
-- **Setups (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso setup = machine + grinder + portafilter + basket + puck screen + tamper + distribution tool). A setup is a fixed combination: changing any part makes a different setup, and recipes belong to one setup. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that directly affect the output belong in a setup.
+- **Setups (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso setup = machine + grinder + basket.) A setup is a fixed combination: changing any of its parts makes a different setup, and recipes belong to one setup. Puck prep (WDT, puck screen) is recorded per shot as checkboxes. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that change the recipe belong in a setup.
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Type:** The target output, from a starter list each household can edit (Espresso, Cortado, Flat white, Cappuccino, Latte and more). Additives like sugar are a "sweetened" mark on the shot.
 - **The Catalog:** Shared, canonical lists of hardware (maker, then model) and coffee (roaster, then bean). Households can add missing entries with a product link; duplicates are merged, never deleted.
@@ -187,8 +188,9 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 export const canonicalHardware = sqliteTable('canonical_hardware', {
   id: text('id').primaryKey(),
   makerId: text('maker_id').references(() => hardwareMakers.id).notNull(),
-  // Only kinds that directly affect a recipe's output; scales and the like aren't setup parts.
-  kind: text('kind').notNull(), // 'machine', 'grinder', 'portafilter', 'basket', 'puckScreen', 'tamper', 'distribution'
+  // Only the kinds that define a setup. Portafilters, tampers, scales and prep tools aren't
+  // tracked as hardware; WDT and puck screen use are checkboxes on shots and recipes.
+  kind: text('kind').notNull(), // 'machine', 'grinder', 'basket'
   name: text('name').notNull(), // Model name, e.g. "Bambino"
   capabilities: text('capabilities', { mode: 'json' }),
   source: text('source').notNull(),
@@ -400,6 +402,10 @@ export const extractions = sqliteTable('extractions', {
   pressureBar: real('pressure_bar'), // Exact setting, or peak gauge reading on manual machines
   pressureStep: integer('pressure_step'), // Stepped setting
 
+  // Puck prep, as checkboxes (brand isn't recorded); a one-tap pull copies them from the recipe.
+  usedWdt: integer('used_wdt', { mode: 'boolean' }).notNull().default(false),
+  usedPuckScreen: integer('used_puck_screen', { mode: 'boolean' }).notNull().default(false),
+
   // Sensory outputs (1-5) & Diagnostics
   reaction: text('reaction'), // Optional quick reaction after a one-tap shot: 'good', 'off'
   userRating: integer('user_rating'), // 1-5 overall
@@ -436,6 +442,8 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   brewTempStep: integer('brew_temp_step'),
   pressureBar: real('pressure_bar'),
   pressureStep: integer('pressure_step'),
+  usedWdt: integer('used_wdt', { mode: 'boolean' }).notNull().default(false), // Same puck prep checkboxes as shots
+  usedPuckScreen: integer('used_puck_screen', { mode: 'boolean' }).notNull().default(false),
 
   sourceExtractionId: text('source_extraction_id').references(() => extractions.id), // The shot it came from, if any
   pinnedAt: integer('pinned_at', { mode: 'timestamp_ms' }).notNull(),
@@ -476,14 +484,14 @@ You are a master barista diagnostic engine. Analyze the extraction data, Setup c
 
 Inputs Provided:
 1. MVPayload Variables (Dose, Yield, Time, Grind).
-2. Setup Components (e.g., Bambino Pro, Niche Zero, WDT).
+2. Setup parts and puck prep (e.g., Bambino Pro, Niche Zero, 18 g basket; WDT and puck screen used or not).
 3. Sensory Scores & Tagged Defects.
 4. Days since batch opened (Bean Aging context).
 
 Rules:
 - High Acidity + Fast Time = Under-extracted. Action: Grind finer.
 - High Bitterness + Slow Time = Over-extracted. Action: Grind coarser.
-- If Channelling is tagged and Setup lacks a WDT, suggest adding WDT.
+- If Channelling is tagged and no WDT was used, suggest using a WDT.
 - If days_open > 14 and shot is fast, attribute to degassing (pressure loss).
 
 Schema:
