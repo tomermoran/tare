@@ -11,7 +11,10 @@ be revised against it.
 
 **Status: design approved by the Head of Product after review round 3**
 (PEC-09 accepted, applied in epics revision 7; Home shows both clocks).
-Round 3 applies epics revision 6 (fixed setups, two freshness clocks, "open"
+**Round 4 applies decisions the Head of Product has already made** (not a
+proposal): "kit" is now "setup"; a setup is machine, grinder and basket only,
+each an exact catalog model; WDT and puck screen are puck-prep checkboxes on
+shots and recipes (S-02, S-08). Round 3 applies epics revision 6 (fixed setups, two freshness clocks, "open"
 excludes frozen) and the review findings the designer owns (M2, M4, M7, m3,
 m4). Only the affected flows changed; everything else stands as approved.
 PEC-07 (accepted in round 2) is superseded by the fixed-setup rule. No GitHub
@@ -37,11 +40,16 @@ issues have been created. Nothing here is production code.
   don't mirror.
 - **People.** Roles only: household member, main persona, sub persona, Head of
   Product.
-- **Setup words (round 3).** Users see "setup" and "part"; code and schema say
-  `setup` and `ownedHardware` (S-08). Screen IDs keep their stable names:
-  SCR-TOOLKIT is the setup builder, SCR-UNIT is a part's screen, SCR-UNIT-ADD
-  adds a part. Message keys use `setup.*` for setups and the builder; the existing
-  `unit.*` keys hold copy about parts (key names aren't shown to users).
+- **Setup words (round 3, renamed in round 4).** Users see "setup" and
+  "part"; the schema says `setups` and `ownedHardware` (S-08). The tab is
+  labelled "Setup" (`nav.setup`). Screen IDs keep their stable names: SCR-KIT
+  is the Setup tab, SCR-TOOLKIT is the setup builder, SCR-UNIT is a part's
+  screen, SCR-UNIT-ADD adds a part. Message keys use `setup.*` for setups and
+  the builder; the existing `unit.*` keys hold copy about parts (key names
+  aren't shown to users).
+- **Parts are named by maker and model** in every example and in the UI, for
+  example a "Normcore 18 g" basket versus a "Crema Coffee 18 g" basket, never
+  a bare "18 g basket" (S-02: each part is a specific catalog product).
 
 ---
 
@@ -116,7 +124,7 @@ SCR-START  Launch (first run: create anonymous account)
    |
    v
 +-------------------------- tab bar (NC-01) --------------------------+
-| Brew              Shots              Pantry             Setup         |
+| Brew              Shots              Pantry             Setup       |
 | SCR-HOME          SCR-SHOTS          SCR-PANTRY         SCR-KIT     |
 |   |                 |                  |                  |         |
 |   |-> SCR-LOG       |-> SCR-SHOT       |-> SCR-BAG        |-> SCR-UNIT
@@ -139,8 +147,7 @@ SCR-START  Launch (first run: create anonymous account)
   inset at the bottom.
 - **Tasks are full screen, without the tab bar.** The shot log, tasting,
   add-a-bag, add-a-part, setup builder, catalog picker and catalog add flows
-  open over the tabs
-  with a page header (NC-02) that has a ghost `actions.cancel` at the start
+  open over the tabs with a page header (NC-02) that has a ghost `actions.cancel` at the start
   and the screen title. Leaving with changes asks once (SH-CONFIRM).
 - **Profile and settings** (SCR-PROFILE) open from the persona label at the
   top of SCR-HOME, not from a tab: the MVP has almost nothing to set, and the
@@ -148,7 +155,7 @@ SCR-START  Launch (first run: create anonymous account)
 - **Sheets (NC-05)** for short choices and confirmations: pick a portion, pin
   a recipe, portion actions, add maintenance, generic select.
 - **Return-to.** Any flow started from inside another (add a bag from the shot
-  log, add setup from the first-run checklist) returns to where it started with
+  log, add a part from the first-run checklist) returns to where it started with
   the new item selected.
 
 ### 2.2 MVP screens and sheets
@@ -164,10 +171,10 @@ SCR-START  Launch (first run: create anonymous account)
 | SCR-PANTRY | Pantry: bags and their portions | 03-01 to 03-04 |
 | SCR-BAG | Bag detail: facts, portions, recipes for this coffee | 03-01 to 03-04, 02-01 |
 | SCR-BAG-ADD | Add a bag: pick coffee, then bag details | 03-01 |
-| SCR-KIT | Setup: your setups (current first) and your parts | 01-02 |
+| SCR-KIT | Setup tab: your setups (current first) and your parts | 01-02 |
 | SCR-UNIT | Part detail: capabilities, setups it's in, maintenance | 01-02, 04-01 |
 | SCR-UNIT-ADD | Add a part: kind, pick model, details | 01-02 |
-| SCR-TOOLKIT | Setup builder: pick a combination of parts; Tare finds the existing setup or makes a new one | 01-02 |
+| SCR-TOOLKIT | Setup builder: pick a machine, grinder and basket; Tare finds the existing setup or makes a new one | 01-02 |
 | SCR-CATALOG-PICK | Catalog picker (hardware or coffee), shared | 01-02, 03-01, 01-06 |
 | SCR-CATALOG-ADD | Add a missing maker, model, roaster or bean | 01-06 |
 | SCR-PROFILE | Profile name and about this device | 01-01 |
@@ -219,10 +226,16 @@ run) and EPIC-03-03 and 03-04 (age and remaining coffee).
    (`shot.grind`, `shot.dose`, `shot.yield`, `shot.time`) and its unit in
    `ink-tertiary` (large, so allowed). Ratio under dose and yield in
    `text-label` (`shot.ratio`). Temperature and pressure, if the recipe has
-   them, in one `text-body` line below.
+   them, in one `text-body` line below. **Puck prep (round 4):** when the
+   recipe uses WDT or a puck screen, one quiet `text-label` `ink-secondary`
+   line names it (`home.prep`, a pattern over `log.prepWdt` and
+   `log.prepPuckScreen`), so the user knows the one-tap pull records it.
+   Nothing shows when the recipe uses neither.
 5. **Setup line**, `text-label` `ink-secondary`, a quiet select (round 3): the
-   current setup's name, or its parts name (`setup.partsName`, composed from the
-   grinder and machine models) when it has none. The recipe shown is always
+   current setup's name, or its parts name when it has none
+   (`setup.partsName`, a pattern over the machine and grinder models, adding
+   the basket's maker and model when another setup shares that machine and
+   grinder, so two setups never look alike). The recipe shown is always
    on this setup. Tap opens SH-SELECT with the household's setups (current first,
    marked `setup.current`) and a last row `setup.changePart` that opens the setup
    builder (SCR-TOOLKIT) with return-to. Choosing a setup makes it current
@@ -284,7 +297,7 @@ replaced by the pulled state (NC-07), in the same space so nothing jumps:
 | State | What shows |
 |---|---|
 | Loading | Skeleton (NC-11): a drink-title bar, a coffee line, four value blocks, a button-height block. |
-| First run, nothing set up | Checklist (NC-12) `home.firstRun.*`: 1 add your machine and grinder (to SCR-UNIT-ADD), 2 add a bag of coffee (to SCR-BAG-ADD), 3 pull your first shot. Done steps show a check and `ink-secondary`; the next step is the only primary button. No drink title yet. |
+| First run, nothing set up | Checklist (NC-12) `home.firstRun.*`: 1 add your machine, grinder and basket (to SCR-UNIT-ADD), 2 add a bag of coffee (to SCR-BAG-ADD), 3 pull your first shot. Done steps show a check and `ink-secondary`; the next step is the only primary button. No drink title yet. |
 | Setup and coffee, no recipe for this drink on any setup | Drink, coffee and setup lines as normal; the values grid is replaced by one sentence `home.noRecipe` [no recipe yet for this drink and coffee]; the primary button is `home.dialIn`, opening SCR-LOG with drink, coffee and setup chosen and starting values per DQ-07. This is the spec's "Dial in" in place of "Pull This Shot". |
 | No recipe on this setup, but one on another setup (round 3) | The values grid is replaced by `home.noRecipeOnSetup` [no recipe on this setup yet] and one `text-label` line `home.startsFrom` naming the closest setup the dial-in starts from (DQ-19). Primary `home.dialIn` opens SCR-LOG pre-filled from that recipe (grind per DQ-20). Never a one-tap pull. |
 | Recipe, but no portion of that coffee open | Normal layout. Pull opens SH-PORTION (EPIC-02-02). This includes a bean whose only opened portion is in the freezer: frozen isn't open (S-02). |
@@ -305,16 +318,16 @@ story with text from `en.json`, axe checks and a right-to-left story.
 | NC-01 | **TabBar** | Bottom navigation, four text tabs, active bar, safe-area aware | No navigation exists | App shell (EPIC-01-01) |
 | NC-02 | **PageHeader** | Screen title (`text-h1` or `text-h2`), optional back or cancel at the start, optional action at the end | No header exists | All screens |
 | NC-03 | **ListRow** | Hairline-separated row: primary text, secondary line, end slot (value, label, chevron that mirrors), whole row tappable | Card is too heavy for lists | Shots, pantry, setup, pickers |
-| NC-04 | **ChipGroup** | Single choice (radio group) or multiple choice (checkbox group) chips, `border-line-strong`, selected = `ink` fill with `on-action` text; keyboard arrows; optional numbered scale variant (1 to 5) | No choice control exists | Reaction, scores, rating, defects, kind, temperature and pressure steps, bag size presets |
+| NC-04 | **ChipGroup** | Single choice (radio group) or multiple choice (checkbox group) chips, `border-line-strong`, selected = `ink` fill with `on-action` text; keyboard arrows; optional numbered scale variant (1 to 5) | No choice control exists | Reaction, scores, rating, defects, part kind, temperature and pressure steps, bag size presets |
 | NC-05 | **Sheet** | Bottom sheet on phones, centred dialog on wide screens; `paper` with a `border-line` top edge and a `surface` grabber, no shadow; scrim in `ink` at low opacity; focus trap; Escape and swipe down close | No overlay exists | SH-* |
 | NC-06 | **SelectField** | Shows the current choice and opens SH-SELECT. Two looks: field (like Input, on `surface-sunken`) and quiet (text only, with a chevron, for the home screen) | Input is for typing | Log context, home drink, coffee and setup, setup builder rows |
 | NC-07 | **PulledState** | The in-place result of a one-tap pull: confirmation, undo for the window, good and off chips, live-region announcement | New behaviour | SCR-HOME |
-| NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, shots, bag recipes, pin sheet |
+| NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure, and a puck-prep line when WDT or a puck screen was used) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, shots, bag recipes, pin sheet |
 | NC-09 | **ShotDial** | The shot log's editor: a row of compact value tabs (grind, dose, yield, time, plus temperature and pressure when the machine has them) above one full NumberWheel for the selected value. Shows the starting value under any changed value ("was 18.0"). Optional values have an unset state | Four stacked 96 px wheels don't fit a phone screen; optional values need "unset" | SCR-LOG |
 | NC-10 | **Notice** | Inline message: neutral (ink on `surface`, for errors, info, empty results) or warning (`signal` on `signal-subtle`, shot warnings only, enforced by the API: the warning tone only takes a shot-warning kind). Two sizes: block (detail and tasting screens) and inline (one line of `signal` text with no fill, for list rows) | Nothing exists; keeps signal use auditable | Errors everywhere; shot warnings |
 | NC-11 | **Skeleton** | `surface-sunken` blocks with `radius-sm`, a slow opacity pulse that stops under reduced motion; `aria-busy` on the region | Loading states | All data screens |
 | NC-12 | **EmptyState** and **Checklist** | Empty state: `text-h2` line, one `text-body` sentence, one action. Checklist: numbered steps with done, next and later states | Empty and first-run states | All lists; first run |
-| NC-13 | **Toggle** | On or off switch with a visible label, `role="switch"` | No boolean control exists | Sweetened, recalibration, freeze the new portion |
+| NC-13 | **Toggle** | On or off switch with a visible label, `role="switch"` | No boolean control exists | Sweetened, puck prep (WDT, puck screen), recalibration, freeze the new portion |
 | NC-14 | **Icon** (minimal) | Four strokes drawn like the Logo (round caps, `currentColor`): chevron, check, plus, close. Chevron mirrors in right-to-left | No icons exist; text alone doesn't work for a row chevron or a sheet close | ListRow, Sheet, Checklist |
 | NC-15 | **Meter** | A 2 px hairline track (`line`) with an `ink` fill, for remaining coffee; `role="meter"` with a text value | New display | Pantry, bag |
 
@@ -412,22 +425,25 @@ epic fills it, so no tab is ever blank or broken in between builds.
 
 #### EPIC-01-02: Describe your setup once
 
-**Round 3: fixed setups (epics revision 6, S-02).** A setup is a fixed
-combination of parts that directly affect the output: machine, grinder,
-portafilter, basket, puck screen, tamper, distribution tool. No scale. Any
-change of parts is a different setup, and the same combination brings back its
-existing setup and recipes. Setups are never edited and nothing is retired. The
-round-2 setup editing, swap confirmation and needs-re-dial state are
-removed (PEC-07 is superseded). "Changing a part" now means picking a
-combination in the setup builder, and Tare finds or makes the setup.
+**Fixed setups (round 3; parts narrowed in round 4, S-02 and S-08).** A setup
+is a fixed combination of the three parts that change the recipe: machine,
+grinder and basket. Each is an exact catalog product (maker and model), so a
+setup with a Normcore 18 g basket and one with a Crema Coffee 18 g basket are
+different setups. Portafilter, tamper, scale and prep tools are not parts and
+aren't tracked as hardware; WDT and puck screen use are puck-prep checkboxes on
+the shot (EPIC-01-03). Any change of parts is a different setup, and the same
+combination brings back its existing setup and recipes. Setups are never
+edited and nothing is retired. The round-2 editing, swap confirmation and
+needs-re-dial state stay removed (PEC-07 superseded). "Changing a part" means
+picking a combination in the setup builder, and Tare finds or makes the setup.
 
 **UX flow: add a part (SCR-UNIT-ADD)**
 
 1. From SCR-KIT `setup.addPart`, from the setup builder's `setup.addPart` row
    (kind preset), or from the first-run checklist.
-2. **Kind**: ChipGroup `setup.kind.*` (machine, grinder, portafilter, basket,
-   puck screen, tamper, distribution tool). From the checklist the kind is
-   preset to machine, then grinder.
+2. **Kind**: ChipGroup `setup.kind.*` with three kinds: machine, grinder,
+   basket. From the checklist the kind is preset to machine, then grinder,
+   then basket.
 3. **Pick the model** in SCR-CATALOG-PICK (hardware): one search field
    (Input, `catalog.search`) that matches makers, models and aliases.
    - With no query: makers as ListRows, alphabetical; tap a maker to see its
@@ -436,12 +452,18 @@ combination in the setup builder, and Tare finds or makes the setup.
      secondary line, so one search usually finds the model.
    - The household's own unverified entries appear with `catalog.addedByYou`.
    - A merged entry shows only its surviving entry.
+   - **Baskets (round 4):** results always show maker and model, for example
+     "Normcore 18 g" and "Crema Coffee 18 g", never a bare size. With no
+     query, the baskets made by the household's machine maker come first
+     under `setup.stockBaskets` [made for your machine], because many people
+     use the basket that came with the machine and may not know its model
+     (DQ-22).
    - Last row always: `catalog.cantFind` [Can't find it? Add it], to
      SCR-CATALOG-ADD (EPIC-01-06).
 4. **Details**: `unit.nickname` (Input, optional) and `unit.acquired`
    (Input, date, optional). For machines and grinders, a capabilities summary
    in `text-label`, read-only (for example "temperature: exact, 85 to 100 °C"
-   composed from keys). Other kinds have no capabilities.
+   composed from keys). Baskets have no capabilities.
 5. Save. Back to where the user came from (return-to).
 6. **Use the new part?** When a household that already has a setup adds a part
    from SCR-KIT, the flow ends on one quiet offer, `setup.useNewPart` [use it in
@@ -449,18 +471,21 @@ combination in the setup builder, and Tare finds or makes the setup.
    plus the new part (replacing the part of the same kind); ghost
    `setup.notNow` returns to SCR-KIT. Adding a part never changes a setup by
    itself.
-7. **First setup shortcut** (PEC-02, kept). When the household has at least one
-   machine and one grinder and no setup, a Card on SCR-KIT (and the
-   checklist's first step on SCR-HOME) offers `setup.suggest` [make these your
-   setup], naming the machine and grinder it will use.
-   - With exactly one machine and one grinder: one primary tap makes the setup
-     from those two parts, with no name (shown by its parts name, S-08), and
-     lands back where the user was with a short confirmation. No form.
-   - With more than one of either: the tap opens the setup builder with the
-     most recently added machine and grinder preselected.
-   - Right after the user adds their second required part (a grinder after a
-     machine, or the reverse), the add-a-part flow ends on this offer instead
-     of SCR-KIT, so the first setup is never a separate errand.
+7. **First setup shortcut** (PEC-02, kept; three parts from round 4). When
+   the household has at least one machine, one grinder and one basket and no
+   setup, a Card on SCR-KIT (and the checklist's first step on SCR-HOME)
+   offers `setup.suggest` [make these your setup], naming the three parts it
+   will use by maker and model.
+   - With exactly one of each: one primary tap makes the setup from those
+     three parts, with no name (shown by its parts name, S-08), and lands back
+     where the user was with a short confirmation. No form.
+   - With more than one of any kind: the tap opens the setup builder with the
+     most recently added part of each kind preselected.
+   - Right after the user adds their third required part (whichever comes
+     last), the add-a-part flow ends on this offer instead of SCR-KIT, so the
+     first setup is never a separate errand. The checklist walks machine,
+     grinder, basket in one pass, so this is usually straight after the
+     basket.
    - The offer disappears once any setup exists. The new setup becomes current.
 
 **UX flow: setup builder (SCR-TOOLKIT, round 3)**
@@ -472,13 +497,11 @@ when there's a choice. It is "which parts are you using now?", never "edit
 this setup".
 
 1. Header `setup.builderTitle` [which parts are you using?].
-2. **One row per kind**, in a fixed order: machine, grinder, portafilter,
-   basket, puck screen, tamper, distribution tool. Each row is a SelectField
-   (field look) listing the household's parts of that kind; optional kinds
-   also offer `setup.noPart` [none]; every list ends with `setup.addPart`, which
-   opens SCR-UNIT-ADD with that kind preset and returns here with the new part
-   chosen. Machine and grinder are required, one each. One part per kind is
-   assumed (DQ-21).
+2. **Three rows** (round 4), in a fixed order: machine, grinder, basket. Each
+   row is a SelectField (field look) listing the household's parts of that
+   kind by maker and model; every list ends with `setup.addPart`, which opens
+   SCR-UNIT-ADD with that kind preset and returns here with the new part
+   chosen. All three are required, one each (S-02); there is no "none".
 3. **Starting point.** From a setup's `setup.changePart`: that setup's parts, so
    the user changes only the row that changed. From `setup.new`: the current
    setup's parts. From "use the new part?": the current setup with the new part
@@ -496,22 +519,24 @@ this setup".
 6. **Primary**: `setup.useThis` when it matches, `setup.makeThis` when it's new.
    Either way the result becomes the current setup (DQ-18) and the user returns
    where they came from, with that setup chosen.
-7. If machine or grinder is missing on save, the row is named in a neutral
+7. If any of the three is missing on save, the row is named in a neutral
    Notice; the button stays enabled, so the rule is explained, not hidden.
 
 **UX flow: setups and parts (SCR-KIT, SCR-UNIT)**
 
 - SCR-KIT, section `setup.setups`: one Card per setup. The current setup comes first,
   marked `setup.current` (overline); the rest follow by last used. Card: setup
-  name or parts name (`text-h3`), its parts in kind order (`text-label`),
+  name or parts name (`text-h3`), its three parts in kind order, each by maker
+  and model (`text-label`; for example machine, grinder, then "Normcore 18 g"),
   `setup.recipeCount` and `setup.lastUsed`. Actions: on the current setup,
   `setup.changePart` (secondary); on the others, `setup.useThis` (secondary,
   makes it current) and `setup.changePart` (ghost). A ghost `setup.rename` opens a
   sheet with `setup.name` (the name is a label, not a part, so naming doesn't
   change the setup; DQ-21). Setups not used for 90 days collapse under
   `setup.older`.
-- Section `setup.parts`: the household's parts grouped by kind (ListRows:
-  nickname or model, maker and model as secondary), each opening SCR-UNIT.
+- Section `setup.parts`: the household's parts grouped by the three kinds
+  (ListRows: nickname or model, maker and model as secondary), each opening
+  SCR-UNIT.
   Header action `setup.addPart` (secondary).
 - SCR-UNIT (a part): model and maker, nickname, acquired date, capabilities
   (machines and grinders), the setups it's in (`unit.inSetups`), and maintenance
@@ -539,15 +564,18 @@ match line.
 **Design acceptance criteria**
 
 - A first-time user can go from SCR-HOME to a first setup (machine, grinder,
-  setup) in at most 12 taps, without typing more than search terms.
+  basket, setup) in at most 16 taps, without typing more than search terms.
+- Only three part kinds exist anywhere (machine, grinder, basket); no screen
+  offers portafilter, tamper, puck screen or distribution tool as parts.
+- Every part is shown by maker and model, never by a bare size or category.
 - Search finds a model by alias in one query; results show maker and model
   together.
 - Unverified entries are marked by text only (`catalog.addedByYou`), not by
   colour.
 - Setup rules are explained before or at save, never by silently disabling the
   button.
-- With one machine and one grinder, the first setup takes exactly one tap after
-  adding the second part, with no typing.
+- With one machine, one grinder and one basket, the first setup takes exactly
+  one tap after adding the third part, with no typing.
 - Nowhere offers to edit a setup's parts; every change of parts goes through
   the builder and lands on an existing or a new setup.
 - The builder says before saving whether the combination is an existing setup
@@ -567,8 +595,8 @@ match line.
   search, two-level browse and no-match states.
 - DES-01-02-03 Design SCR-KIT (setups with the current marker, parts) and
   SCR-UNIT (a part) (updated round 3).
-- DES-01-02-04 Design SCR-TOOLKIT as the setup builder: kind rows, starting
-  points, the live match line (updated round 3).
+- DES-01-02-04 Design SCR-TOOLKIT as the setup builder: the three part rows,
+  starting points, the live match line (updated rounds 3 and 4).
 - DES-01-02-05 Add Storybook stories for ListRow (NC-03), ChipGroup (NC-04),
   Icon (NC-14) and Sheet (NC-05).
 - DES-01-02-06 Design the one-tap first-setup shortcut and the setup select on
@@ -608,7 +636,20 @@ The shot log is one full-screen task, laid out so a shot is saved in seconds:
      updated live.
    - Starting values for a blank log: the last measured shot on this setup,
      or neutral defaults (DQ-07).
-4. **Sweetened**: Toggle (NC-13) `log.sweetened`.
+4. **Puck prep and sweetened (round 4).** One compact block of three Toggles
+   (NC-13) under the dial, in this order: `log.prepWdt` [WDT],
+   `log.prepPuckScreen` [Puck screen], then `log.sweetened`. The first two
+   sit under a `text-overline` `ink-secondary` label `log.prep` [puck prep],
+   so they read as one group and stay separate from sweetened, which is about
+   the drink, not the puck. They record whether the prep was used, not which
+   tool (S-02).
+   - **Starting values:** the recipe's prep in the modes that start from a
+     recipe (dial in, fix, enter a recipe, and the closest-setup dial-in); the
+     saved shot's prep in edit mode; otherwise the last shot on this setup;
+     with no shot on this setup, both off.
+   - Changing the setup in the context block re-applies that rule to any prep
+     Toggle the user hasn't touched; a touched Toggle keeps its value.
+   - Sweetened always starts off (it's per drink, not per recipe).
 5. **Save**: primary `log.save`, full width, pinned to the bottom of the
    screen above the safe area so it's reachable with a thumb.
 6. Saved: go to SCR-TASTE (EPIC-01-05). Shot is already saved; tasting is
@@ -652,17 +693,23 @@ aren't lost while adding.
 - Grind captions point the correct way for both `coarser: higher` and
   `coarser: lower`, and in right-to-left.
 - Save is always visible and is the only primary button.
+- Puck prep is two labelled switches, each operable in one tap and announced
+  with its label and state; they start from the recipe (or the last shot on
+  this setup) so the usual case needs no tap.
+- The prep, sweetened and Save controls fit on 375 x 667 with the dial; the
+  toggle block may scroll under the pinned Save, but never hides it.
 
 **Design tasks** (`design`)
 
 - DES-01-03-01 Wireframe the shot log flow (new shot) on a 375 x 667 and a
-  430 x 932 viewport.
+  430 x 932 viewport, including the puck-prep and sweetened block (updated
+  round 4).
 - DES-01-03-02 Design ShotDial (NC-09): compact tabs, selected state, "was"
   value, unset state; add its Storybook story.
 - DES-01-03-03 Add NumberWheel end captions (finer and coarser) and a
   Fahrenheit story.
 - DES-01-03-04 Add Storybook stories for SelectField (NC-06) and Toggle
-  (NC-13).
+  (NC-13), including the puck-prep group (updated round 4).
 - DES-01-03-05 Design the missing-context and return-to paths, and the setup
   select with grind handling when the grinder changes (updated round 3).
 
@@ -817,8 +864,9 @@ carried over as the name.
    returns to the picker flow with it selected.
 3. **Names.** For hardware: maker (SelectField from the catalog, or
    `catalog.newMaker` to type one, which also needs a link), model name, kind
-   (preset from the add-a-part flow; one of the seven part kinds). For coffee: roaster (same pattern), bean
-   name, and optional roast level (ChipGroup of the fixed list, S-09) and
+   (preset from the add-a-part flow; machine, grinder or basket). A basket's
+   model name includes what tells it apart, for example "18 g" in "Normcore
+   18 g". For coffee: roaster (same pattern), bean name, and optional roast level (ChipGroup of the fixed list, S-09) and
    tasting notes (Input).
 4. **Capabilities (machines and grinders only; in scope, PEC-05).** The user
    answers; the admin doesn't fill them in. A section `catalog.cap.title`
@@ -926,9 +974,11 @@ Button, PageHeader, ListRow.
 1. From SCR-TASTE (`recipe.pin`) or SCR-SHOT (`recipe.pin`, measured shots
    only; one-tap shots don't show it).
 2. SH-PIN opens: `recipe.pinTitle` naming drink, coffee and setup; the new
-   values (ShotValues compact); and, if a recipe exists, the current one
-   above it in `ink-secondary` with `recipe.replaces`. Primary
-   `recipe.confirmPin`.
+   values (ShotValues compact, with the puck-prep line when WDT or a puck
+   screen was used, round 4); and, if a recipe exists, the current one above
+   it in `ink-secondary` with `recipe.replaces`. A prep difference between
+   the two shows like any other changed value. Primary `recipe.confirmPin`.
+   The recipe stores the shot's prep, and one-tap pulls copy it (S-02).
 3. Confirmed: sheet closes; a short confirmation in place (`recipe.pinned`,
    live region). The home screen now shows this recipe.
 
@@ -967,7 +1017,10 @@ for this bean, persona and drink:
    of its range, and the grind tab shows `log.grindNotCarried` [grind starts
    fresh on this grinder], because grind doesn't transfer between grinders
    (S-01). Temperature and pressure carry over only when the machine is the
-   same; otherwise they start unset.
+   same; otherwise they start unset. Puck prep carries over from that recipe
+   (it isn't tied to a part). With only three parts, "most in common" is
+   two of three; a setup that differs only in its basket is the usual closest
+   one, and its grind does carry (same grinder).
 4. Each pre-filled value shows its source as "was" when changed, as in fix
    mode.
 5. Save, then SCR-TASTE with pin as the primary action. Pinning gives this
@@ -997,11 +1050,12 @@ for this bean, persona and drink:
 
 **Design tasks** (`design`)
 
-- DES-02-01-01 Design SH-PIN, with and without an existing recipe.
+- DES-02-01-01 Design SH-PIN, with and without an existing recipe, including
+  the puck-prep line (updated round 4).
 - DES-02-01-02 Design the recipe section of SCR-BAG.
 - DES-02-01-03 Design recipe mode of SCR-LOG.
 - DES-02-01-04 Add Storybook story for ShotValues (NC-08), large and compact,
-  with and without temperature and pressure.
+  with and without temperature, pressure and puck prep (updated round 4).
 - DES-02-01-05 Design the dial-in from the closest setup: the home state, the
   `log.fromOtherSetup` note and the grind-not-carried state (round 3).
 
@@ -1020,8 +1074,8 @@ for this bean, persona and drink:
    showing; that ends PulledState (the reaction stays available on the shot
    in SCR-SHOTS) and shows the new recipe ready to pull.
 3. Tap `home.pull`. The shot is recorded at once (optimistic, then confirmed),
-   with the recipe's values, its setup, and the earliest-opened open portion of
-   the coffee. "Open" means opened, not finished and not in the freezer
+   with the recipe's values and puck prep (WDT, puck screen; round 4), its
+   setup, and the earliest-opened open portion of the coffee. "Open" means opened, not finished and not in the freezer
    (S-02): one-tap never uses frozen coffee on its own. No rating is asked.
 4. PulledState (NC-07) appears in place: confirmation, undo for the window,
    good and off (EPIC-02-03).
@@ -1144,9 +1198,12 @@ SCR-TASTE.
 
 **UX flow: SCR-SHOT (shot detail)**
 
-- ShotValues large, context (drink, coffee, and the setup with its parts; setups
-  never change, so this is always what was used), date and time, whose taste and who logged (shown once sub
-  personas exist), sweetened, taste scores and defects if any.
+- ShotValues large, context (drink, coffee, and the setup with its machine,
+  grinder and basket by maker and model; setups never change, so this is
+  always what was used), date and time, whose taste and who logged (shown
+  once sub personas exist), puck prep (`log.prepWdt`, `log.prepPuckScreen`,
+  shown only when used; round 4), sweetened, taste scores and defects if any.
+  Rows in SCR-SHOTS don't show prep, to keep them to one glance.
 - Actions: `actions.edit` (secondary) opens SCR-LOG in edit mode; for
   measured shots, `recipe.pin` (primary). For one-tap shots, edit is the only
   action and is primary; a line `shot.copiedFromRecipe` explains where the
@@ -1157,8 +1214,8 @@ SCR-TASTE.
 
 - SCR-LOG edit mode with the saved values, then the taste controls below the
   dial (in edit mode taste is on the same screen, since the user came to fix
-  something specific). Only values, sweetened and taste change; context is
-  read-only (SQ-08). Save `log.saveChanges`. Leave with changes: SH-CONFIRM.
+  something specific). Only values, puck prep, sweetened and taste change;
+  context is read-only (SQ-08). Save `log.saveChanges`. Leave with changes: SH-CONFIRM.
 
 **States**
 
@@ -1185,7 +1242,8 @@ EmptyState, Skeleton, Notice, Button, ChipGroup.
 **Design tasks** (`design`)
 
 - DES-02-06-01 Design SCR-SHOTS, including grouping, markers and dividers.
-- DES-02-06-02 Design SCR-SHOT for measured and one-tap shots.
+- DES-02-06-02 Design SCR-SHOT for measured and one-tap shots, with puck prep
+  and parts by maker and model (updated round 4).
 - DES-02-06-03 Design SCR-LOG edit mode with taste on the same screen.
 
 ### INIT-03: Always know what beans you have and how old they are
@@ -1689,13 +1747,12 @@ applied in `epics.md` revision 7.
 ## 7a. UX concerns
 
 - **Time to the first shot.** Before the first shot, a new user has to add a
-  machine, a grinder, a setup and a bag, with two catalog searches. That's
-  the opposite of "start brewing without setting anything up". The checklist,
-  the first-setup shortcut (PEC-02) and return-to flows keep it to about two
-  minutes, but it is still the weakest moment in the product. Seven part
-  kinds make it tempting to describe everything up front; the design asks
-  only for machine and grinder first, and the rest are optional rows in the
-  builder.
+  machine, a grinder, a basket, a setup and a bag, with three catalog
+  searches. That's the opposite of "start brewing without setting anything
+  up". The checklist, the first-setup shortcut (PEC-02), stock baskets listed
+  first and return-to flows keep it to about two minutes, but it is still the
+  weakest moment in the product. *Round 4:* with only three part kinds there
+  is no temptation to describe every tool up front.
 - **Connectivity at the machine.** There is no offline mode: a pull or a log
   fails without a connection. The design handles failure (nothing is
   recorded, retry offered), but a kitchen with poor signal will feel it.
@@ -1722,12 +1779,20 @@ applied in `epics.md` revision 7.
   recipes, so each coffee and drink needs one dial-in on it before one tap
   returns. The home screen says so and starts from the closest setup.
 - **Setups multiply (round 3).** Every combination is a setup, so a household
-  that tries a new puck screen for a week gains a setup with no recipes, and
+  that tries a new basket for a week gains a setup with no recipes, and
   going back brings the old one back. That's correct, but the setup list can
   grow. Recently used first, plus collapsing setups unused for 90 days, keeps it
-  calm. Setups shown only by parts can look alike; naming is one tap away.
-- **Small parts reset recipes (round 3).** Swapping only a tamper or a puck
-  screen makes a new setup, so the next shot is a dial-in rather than one tap.
+  calm. Setups shown only by parts can look alike; the parts name adds the
+  basket when needed, and naming is one tap away. *Round 4:* with three parts
+  this grows far more slowly.
+- **Small parts reset recipes (round 3).** *Largely resolved in round 4:*
+  tamper, portafilter and prep tools are no longer setup parts, and WDT and
+  puck screen are checkboxes on the shot, so changing them never makes a new
+  setup or costs the one-tap pull. Only a basket swap (which does change the
+  recipe) still makes a new setup, and its grind carries over because the
+  grinder is the same. Original concern, for the record: swapping only a
+  tamper or a puck screen made a new setup, so the next shot was a dial-in
+  rather than one tap.
   Grind does carry over when the grinder is the same (DQ-20), so it's one
   quick dial-in, but users may feel it as friction for a small change. Worth
   watching in use. If it bites, the fix is in the rule (which parts define a
@@ -1737,6 +1802,15 @@ applied in `epics.md` revision 7.
 - **Two clocks, one line (round 3).** *Resolved at round-3 approval:* Home
   shows both clocks on one line, so an old coffee opened yesterday reads "N
   days since roast · 1 day open".
+- **Which basket is mine? (round 4).** Many people use the basket that came
+  with the machine and don't know its maker and model. Because the basket is
+  now a required part, that's a new question at the first setup. Listing the
+  machine maker's baskets first helps only if the seed catalog has them
+  (DQ-22).
+- **One-tap copies prep (round 4).** A user who sometimes skips the WDT will
+  have one-tap shots recorded with the recipe's prep. That's the intended rule
+  (S-02), and the home screen's quiet prep line makes it visible, but such
+  shots need an edit to be accurate.
 
 ## 8. Design questions for the Head of Product
 
@@ -1816,10 +1890,16 @@ reversed without changing the structure.
   and the grind tab says so (`log.grindNotCarried`), because grind doesn't
   transfer between grinders (S-01). With the same grinder, grind pre-fills
   too. Temperature and pressure carry over only with the same machine.
-- **DQ-21** (round 3, EPIC-01-02) Setup builder details: one part per kind is
-  assumed (one basket, one tamper and so on; machine and grinder required).
-  A setup's name can be set or changed at any time, because the name is a label
-  and not a part, so it doesn't change the setup. Confirm both.
+- **DQ-21** (round 3, EPIC-01-02) Setup builder details. *Updated round 4:*
+  one part per kind is now given by S-02 (one machine, one grinder, one
+  basket, all required). Still assumed: a setup's name can be set or changed
+  at any time, because the name is a label and not a part, so it doesn't
+  change the setup.
+- **DQ-22** (round 4, EPIC-01-02) The basket people don't know: assumed the
+  seed catalog includes each machine maker's stock baskets by model, and the
+  basket picker lists the household machine's maker's baskets first. Someone
+  who still can't tell adds it through "Can't find it?" (EPIC-01-06). Confirm
+  the seed covers stock baskets.
 
 ---
 
@@ -1839,21 +1919,21 @@ Phase 0 work (PR #3) already delivers as done.
 | Epic | Task: hours | Epic total |
 |---|---|---|
 | EPIC-01-01 | DES-01-01-01: 4 · 02: 8 · 03: 4 · 04: 4 · 05: 8 · 06: 2 | 30 h |
-| EPIC-01-02 | DES-01-02-01: 6 · 02: 8 · 03: 6 · 04: 8 · 05: 8 · 06: 6 | 42 h |
-| EPIC-01-03 | DES-01-03-01: 8 · 02: 12 · 03: 4 · 04: 4 · 05: 4 | 32 h |
+| EPIC-01-02 | DES-01-02-01: 6 · 02: 8 · 03: 5 · 04: 6 · 05: 8 · 06: 6 | 39 h |
+| EPIC-01-03 | DES-01-03-01: 10 · 02: 12 · 03: 4 · 04: 5 · 05: 4 | 35 h |
 | EPIC-01-04 | DES-01-04-01: 6 · 02: 4 | 10 h |
 | EPIC-01-05 | DES-01-05-01: 6 · 02: 4 · 03: 4 · 04: 2 · 05: 3 | 19 h |
 | EPIC-01-06 | DES-01-06-01: 8 · 02: 4 · 03: 6 · 04: 3 · 05: 6 | 27 h |
-| EPIC-02-01 | DES-02-01-01: 4 · 02: 4 · 03: 3 · 04: 4 · 05: 4 | 19 h |
+| EPIC-02-01 | DES-02-01-01: 5 · 02: 4 · 03: 3 · 04: 5 · 05: 4 | 21 h |
 | EPIC-02-02 | DES-02-02-01: 10 · 02: 6 · 03: 3 · 04: 4 · 05: 4 | 27 h |
 | EPIC-02-03 | DES-02-03-01: 4 · 02: 3 | 7 h |
-| EPIC-02-06 | DES-02-06-01: 6 · 02: 4 · 03: 4 | 14 h |
+| EPIC-02-06 | DES-02-06-01: 6 · 02: 5 · 03: 4 | 15 h |
 | EPIC-03-01 | DES-03-01-01: 4 · 02: 6 · 03: 6 | 16 h |
 | EPIC-03-02 | DES-03-02-01: 4 · 02: 3 · 03: 2 | 9 h |
 | EPIC-03-03 | DES-03-03-01: 4 | 4 h |
 | EPIC-03-04 | DES-03-04-01: 3 · 02: 3 · 03: 2 | 8 h |
 | EPIC-04-01 | DES-04-01-01: 4 · 02: 4 | 8 h |
-| **MVP** | **56 tasks** | **272 h** |
+| **MVP** | **56 tasks** | **275 h** |
 | EPIC-05-03 | DES-05-03-01: 4 | 4 h |
 | EPIC-02-05 | DES-02-05-01: 4 | 4 h |
 | EPIC-02-04 | DES-02-04-01: 2 | 2 h |
@@ -1864,10 +1944,13 @@ Phase 0 work (PR #3) already delivers as done.
 | EPIC-04-04 | DES-04-04-01: 2 | 2 h |
 | **Next** | **9 tasks** | **32 h** |
 
-MVP: 56 design tasks, 272 h (round 3 added DES-02-01-05 and redefined or
+MVP: 56 design tasks, 275 h (round 3 added DES-02-01-05 and redefined or
 updated DES-01-02-01, 03, 04, 06, DES-01-03-05, DES-01-05-01, DES-02-02-03,
-DES-03-01-01 to 03 and DES-03-03-01). Next: 9 tasks, 32 h. Later: none until
-re-planned.
+DES-03-01-01 to 03 and DES-03-03-01). Round 4 resized seven tasks, a net +3 h:
+DES-01-02-03 (6 to 5 h) and DES-01-02-04 (8 to 6 h) shrink with three part
+kinds, while DES-01-03-01 (8 to 10 h), DES-01-03-04 (4 to 5 h), DES-02-01-01,
+DES-02-01-04 and DES-02-06-02 (each +1 h) grow with puck prep. No new tasks.
+Next: 9 tasks, 32 h. Later: none until re-planned.
 
 ---
 
@@ -1956,7 +2039,8 @@ re-planned.
       EPIC-02-01 (DES-02-01-05).
     - The shot log's setup field, and grind handling when the grinder changes
       (DES-01-03-05).
-    - The word "setup" was replaced by "setup" in user-facing places.
+    - The word "toolkit" was replaced by "kit" in user-facing places (now
+      "setup", round 4).
   - New DQ-18 (current setup), DQ-19 (ties), DQ-20 (grind pre-fill) and DQ-21
     (one part per kind, renaming). DQ-01 is closed by S-08.
   - Two clocks, EPIC-03-03: rewritten as a table of the two clocks and their
@@ -1997,3 +2081,47 @@ re-planned.
     parts reset recipes" concern is accepted, to be revisited if users find
     it fussy.
 - **Sent to the epic-planner:** nothing new.
+
+### Round 4 (2026-10-20, applied decisions)
+
+- **Feedback received:** decisions the Head of Product had already made,
+  recorded in S-02 and S-08, to apply rather than review:
+  - "kit" and "toolkit" become "setup" everywhere, with the tab labelled
+    "Setup" and first-run keys under `home.firstRun.*`;
+  - a setup is machine, grinder and basket only, each an exact catalog model;
+  - WDT and puck screen are puck-prep checkboxes on shots and recipes,
+    copied by one-tap pulls;
+  - parts are named by maker and model in every example.
+- **What changed** (all IDs kept; SCR-KIT and SCR-TOOLKIT keep their names):
+  - Terminology: checked the mechanical rename for natural reading. I fixed
+    the screen map, the task-frame list, the return-to example and a
+    self-referencing line in the round-3 log, and added the "Setup" tab and
+    maker-and-model notes to "How to read this file".
+  - EPIC-01-02:
+    - Three part kinds everywhere (add a part, the builder, setup cards, the
+      parts list), all required. Portafilter, puck screen, tamper and
+      distribution tool are removed as kinds.
+    - The builder has three rows with no "none".
+    - The first-setup shortcut needs one of each of the three parts.
+    - The basket picker lists the machine maker's baskets first (new DQ-22).
+    - Parts names add the basket when two setups share a machine and
+      grinder.
+    - The first-setup tap budget goes from 12 to 16.
+  - EPIC-01-03: a puck-prep group of two Toggles (NC-13), WDT and Puck
+    screen, next to Sweetened. They start from the recipe, else the saved
+    shot (edit), else the last shot on this setup, else off. Changing the
+    setup re-applies that rule to untouched prep Toggles. New acceptance
+    criteria.
+  - Prep is shown in ShotValues (NC-08), SH-PIN, SCR-SHOT and edit mode. It
+    is copied by one-tap pulls and by the closest-setup dial-in. Home shows
+    one quiet prep line only when the recipe uses prep. Rows in SCR-SHOTS
+    don't show prep.
+  - DQ-21 updated. UX concerns:
+    - "small parts reset recipes" is largely resolved and recorded;
+    - "time to first shot" and "setups multiply" are updated;
+    - new: "which basket is mine?" and "one-tap copies prep".
+  - Hours: seven tasks resized, a net +3 h. The MVP is now 56 tasks, 275 h
+    (was 272 h); Next is unchanged at 32 h.
+  - No new components.
+- **Sent to the epic-planner:** nothing new. DQ-22 (does the seed catalog
+  cover stock baskets?) is for the Head of Product.

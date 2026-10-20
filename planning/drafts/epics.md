@@ -1,4 +1,4 @@
-# Tare epics (final, revision 7)
+# Tare epics (final, revision 8)
 
 Source: `planning/drafts/initiatives.md` (approved by the Head of Product) and
 `docs/spec.md`, sections S-01 to S-09. S-01 and S-02 override older sections
@@ -8,14 +8,16 @@ applied the epic changes from design review round 1 (PEC-01 to PEC-06 in
 `planning/drafts/design.md`); revision 5 applied PEC-07 and PEC-08 from design
 review round 2; revision 6 applied the Head of Product's decisions on the plan
 review (`planning/drafts/review.md`), recorded in S-02, S-04 and S-08;
-revision 7 applies PEC-09 from design round 3 and records the design's working
-assumptions DQ-18 to DQ-21.
+revision 7 applied PEC-09 from design round 3 and recorded the design's
+working assumptions DQ-18 to DQ-21; revision 8 renames "kit" to "setup" and
+narrows a setup to machine, grinder and basket, with puck prep recorded as
+checkboxes (S-02, S-08).
 
-**Status: final, approved by the Head of Product** (revision 7, with the
-review fixes and design round 3 changes below as approved amendments). The
-size of the MVP is to be confirmed, or cuts picked, by the Head of Product at
-final sign-off (review m9); nothing has been cut. No GitHub issues have been
-created.
+**Status: final, approved by the Head of Product** (revision 8, with the
+review fixes, design round 3 changes and the setup change below as approved
+amendments). The size of the MVP is to be confirmed, or cuts picked, by the
+Head of Product at final sign-off (review m9); nothing has been cut. No GitHub
+issues have been created.
 
 Initiative open questions are referenced as `INIT-NN Q#`, numbered in the order
 they appear in `initiatives.md`. Cross-cutting questions are `X-1` (timestamp
@@ -24,35 +26,66 @@ eligibility in Phase 1). Answered questions are listed under "Resolved
 questions". A "working assumption" is a design assumption (`DQ-NN` in
 `design.md`) that the plan builds on until the Head of Product reverses it.
 
-**Terminology.** Users see "setup"; the code and schema call it `setup`
-(S-08). A setup's components are its "parts".
+**Terminology.** A "setup" is the fixed combination of machine, grinder and
+basket a shot is pulled with; the schema calls it `setups` (S-08). Its
+components are its "parts". Earlier revisions said "toolkit" and then "kit";
+the change log below uses "setup" throughout.
 
 ## Changes in this revision
+
+Revision 8 (terminology and the narrower setup, S-02 and S-08):
+
+- **Terminology:** "kit" and "toolkit" are now "setup" everywhere. EPIC-01-02
+  is "Describe your setup once". EPIC-04-01 is renamed "Record maintenance on
+  your equipment", because maintenance is on one part, not on a setup.
+- **A setup is machine + grinder + basket only** (S-02, S-08), each an exact
+  catalog model. Portafilter, tamper and scale aren't tracked. Swapping any of
+  the three makes a different setup; the same three again reuse the setup and
+  its recipes.
+  - EPIC-01-02 (size stays M): three part kinds to add and pick instead of
+    seven. Closes "which parts define a setup". Size kept at M because most of
+    the work (catalog picker, setup identity and reuse, current setup, "change
+    a part") is unchanged; it sits at the small end of M.
+  - EPIC-01-06 (size stays L): user-added models are machines, grinders or
+    baskets.
+  - EPIC-04-01 (size stays S): maintenance is on a machine, grinder or basket.
+- **Puck prep checkboxes** (S-02, S-08): WDT and puck screen are checkboxes
+  (`usedWdt`, `usedPuckScreen`) on shots and recipes, not parts.
+  - EPIC-01-03 (size stays M): the shot log records both.
+  - EPIC-02-01 (size stays M): recipes record both; pinning from a shot copies
+    them.
+  - EPIC-02-02 (size stays M): a one-tap pull copies them from the recipe.
+  - EPIC-02-03 and EPIC-02-06 (sizes stay S): the pre-filled log and the edit
+    flow carry them.
+  - EPIC-06-02 (size stays L): the Coach's "suggest a WDT" rule reads
+    `usedWdt` on the shot instead of the setup's parts.
+- **"Small parts reset recipes" concern largely resolved:** a tamper or puck
+  screen no longer makes a new setup. Only a different machine, grinder or
+  basket does, and each of those really changes the recipe.
+- No sizes, priorities or build-order positions changed. Counts: 15 MVP,
+  8 Next, 7 Later.
 
 Revision 7 (design round 3, approved amendment PEC-09 and working
 assumptions):
 
-- **PEC-09, EPIC-02-02 with EPIC-01-02, sizes unchanged (M, M):** the setup line
-  on Home and the setup field in the shot log become selects, with a "change a
-  part" option; the setup chosen becomes the current setup.
+- **PEC-09, EPIC-02-02 with EPIC-01-02, sizes unchanged (M, M):** the setup
+  line on Home and the setup field in the shot log become selects, with a
+  "change a part" option; the setup chosen becomes the current setup.
 - **Current setup (DQ-18), EPIC-01-02:** the setup of the persona's last shot
-  (measured or one-tap); before any shot, the newest setup. Choosing a setup makes
-  it current at once. Closes the "which setup is current" questions in EPIC-01-02
-  and EPIC-02-02.
-- **Closest-setup ties (DQ-19) and grind pre-fill (DQ-20), EPIC-02-01:** ties go
-  to the most recently used setup. Grind pre-fills only when the closest setup has
-  the same grinder; dose, yield and time always do; temperature and pressure
-  only with the same machine. Closes EPIC-02-01's two closest-setup questions.
-- **One part per kind (DQ-21), EPIC-01-02:** a setup has one part of each kind,
-  with machine and grinder required; its name is a label and can be set or
-  changed at any time without changing the setup. Closes "must a setup contain
-  exactly one machine and one grinder".
-- **Both freshness clocks on Home, one line, EPIC-03-03 (size stays S):** Home
-  now shows since roasting and since opening together on one line (Head of
-  Product decision; design round 3 had only the opened clock on Home).
-- **"Any part change makes a new setup" confirmed** by the Head of Product,
-  including for small parts such as a tamper or puck screen. Recorded in
-  EPIC-01-02.
+  (measured or one-tap); before any shot, the newest setup. Choosing a setup
+  makes it current at once. Closes the "which setup is current" questions in
+  EPIC-01-02 and EPIC-02-02.
+- **Closest-setup ties (DQ-19) and grind pre-fill (DQ-20), EPIC-02-01:** ties
+  go to the most recently used setup. Grind pre-fills only when the closest
+  setup has the same grinder; dose, yield and time always do; temperature and
+  pressure only with the same machine.
+- **One part per kind (DQ-21), EPIC-01-02:** one part of each kind, with
+  machine and grinder required; a setup's name is a label and can be changed
+  at any time without making a new setup.
+- **Both freshness clocks on Home, one line, EPIC-03-03 (size stays S):** Head
+  of Product decision; design round 3 had only the opened clock on Home.
+- **"Any part change makes a new setup" confirmed** by the Head of Product.
+  (Revision 8 narrows which parts count.)
 - No sizes, priorities or build-order positions changed.
 
 Revision 6 (plan review fixes, decided by the Head of Product):
@@ -61,37 +94,35 @@ Revision 6 (plan review fixes, decided by the Head of Product):
   setup editing (the editing part of PEC-02) and PEC-07 (re-dial after a
   swap).
   - EPIC-01-02 (size stays M): a setup is defined by the parts that directly
-    affect the output (machine, grinder, portafilter, basket, puck screen,
-    tamper, distribution tool); no scale, water may come later. Replacing,
-    adding or removing any part means a different setup, and the same
-    combination reuses its existing setup and recipes. Setups are not edited.
-    No "retire" action in the MVP. The "make these your setup" shortcut stays.
-    User-facing text says "setup".
+    affect the output (at the time: machine, grinder, portafilter, basket,
+    puck screen, tamper, distribution tool; narrowed in revision 8).
+    Replacing, adding or removing any part means a different setup, and the
+    same combination reuses its existing setup and recipes. Setups are not
+    edited. No "retire" action in the MVP. The "make these your setup"
+    shortcut stays.
   - EPIC-02-01 (size stays M): recipes belong to exactly one setup. On a setup
     with no recipe, Dial in starts pre-filled from the recipe on the closest
     previous setup (most parts in common), never a one-tap pull.
-  - EPIC-02-02 (size stays M): uses the setup's recipe; no recipe on this setup
-    means Dial in, not one tap.
+  - EPIC-02-02 (size stays M): uses the setup's recipe; no recipe on this
+    setup means Dial in, not one tap.
   - EPIC-01-03, 01-04, 04-01, 04-03 and 06-02: shots and recipes record their
-    setup only; grinder and machine follow from the setup. Servicing a part is a
-    maintenance event, not a new setup (EPIC-04-01).
+    setup only; grinder and machine follow from the setup. Servicing a part is
+    a maintenance event, not a new setup (EPIC-04-01).
 - **Bean age is two clocks, both paused by freezing** (S-02). EPIC-03-03
   (size stays S): since roasting (roast date, else packing date, else time
   left to best-before, with no invented age) and since opening (per portion).
   EPIC-03-01 gains the optional packing date. Resolves INIT-03 Q2 (review
-  blocker B1). (Where the clocks show on Home is updated in revision 7.)
+  blocker B1).
 - **"Open" excludes frozen portions** (S-02, review M5). EPIC-02-02 and
   EPIC-03-02: a portion that was opened and then frozen isn't open until
   thawed; one-tap never uses frozen coffee on its own.
 - **iOS storage eviction accepted** (S-02, review M6). The MVP explicitly
   accepts both the lost-device and the Safari storage-eviction risks for a
-  prototype. EPIC-05-03 stays the first Next epic. Recorded in EPIC-01-01 and
-  EPIC-05-03.
+  prototype. EPIC-05-03 stays the first Next epic.
 - **Resolved questions cleaned up** (review m1): X-1 (timestamps are integer
   milliseconds, TQ-04), INIT-03 Q2 (two clocks), the EPIC-04-01 recalibration
   question (a flag, TQ-05), INIT-01 Q5 (°C stored, S-08), and the S-09 "days
-  open" mismatch (the since-opening clock). Removed from the epics' open
-  questions and listed under "Resolved questions".
+  open" mismatch (the since-opening clock).
 - **MVP size** (review m9): nothing cut. The Head of Product confirms the size
   or picks cuts at final sign-off.
 - No sizes, priorities or build-order positions changed.
@@ -115,9 +146,8 @@ Revision 4 (design review round 1, approved amendments PEC-01 to PEC-06):
   profile screen's frame.
 - **PEC-02, EPIC-01-02, size stays M:** adds a "make these your setup"
   shortcut once a machine and a grinder exist, with a translated default name.
-  Setups can be edited after shots are logged (past shots keep their own
-  grinder and machine), which closes the setup-editing question. **The
-  editing part is reversed in revision 6**; the shortcut stays.
+  Setups can be edited after shots are logged. **The editing part is reversed
+  in revision 6**; the shortcut stays.
 - **PEC-03, EPIC-02-02, size stays M:** the home screen lets the user change
   the drink and the coffee before a one-tap pull. This answers the "can the
   user change it" part of SQ-06; the default coffee (DQ-03) stays open.
@@ -128,7 +158,7 @@ Revision 4 (design review round 1, approved amendments PEC-01 to PEC-06):
   model's capabilities as simple questions, each with a "not sure" option.
 - **PEC-06, EPIC-04-01, size stays S:** owns where grind periods show:
   maintenance dividers in the recent shots list and the current period's start
-  on the unit screen. New dependency on EPIC-02-06; the build order doesn't
+  on the part's screen. New dependency on EPIC-02-06; the build order doesn't
   change, since EPIC-04-01 already followed EPIC-02-06.
 
 Revision 3 (approval changes):
@@ -157,8 +187,8 @@ Revision 2:
 - **Removed** EPIC-06-03 (RAG grounding): folded into EPIC-06-02 so INIT-06
   stays within six epics after adding EPIC-06-07. The ID is retired, not
   reused.
-- **Moved** EPIC-04-01 "Record maintenance on your setup" from Next to MVP
-  (S-02). Parent stays INIT-04, see the epic for why.
+- **Moved** EPIC-04-01 (maintenance) from Next to MVP (S-02). Parent stays
+  INIT-04, see the epic for why.
 - **Resized** EPIC-01-01 stays S, now scoped to Firebase anonymous accounts with
   no sign-in screen (was "S, or M with Google sign-in"). EPIC-06-02 stays L
   but now includes RAG.
@@ -190,7 +220,7 @@ Revision 2:
 | EPIC-03-03 | Know how fresh your beans really are | INIT-03 | MVP | S |
 | EPIC-03-04 | See how much coffee is left | INIT-03 | MVP | S |
 | EPIC-03-05 | Know when you'll run out | INIT-03 | Next | M |
-| EPIC-04-01 | Record maintenance on your setup | INIT-04 | MVP | S |
+| EPIC-04-01 | Record maintenance on your equipment | INIT-04 | MVP | S |
 | EPIC-04-02 | Suggested grind that follows bean age and recent shots | INIT-04 | Next | L |
 | EPIC-04-03 | Re-dial once after maintenance and keep every recipe | INIT-04 | Next | M |
 | EPIC-04-04 | Keep recipes right after new burrs of a different design | INIT-04 | Next | S |
@@ -225,13 +255,17 @@ scope, so they don't count as overlap:
 - Catalog merges (S-02, S-08): any code that reads a catalog reference follows
   the merge pointer to the surviving entry. Merges only happen from EPIC-06-07,
   but readers built earlier must respect the pointer.
-- Setups never change (S-02, confirmed by the Head of Product in revision 7): no
-  epic edits a setup's parts; any different combination, even of a small part,
-  is a different setup.
+- Setups never change (S-02, confirmed by the Head of Product): no epic edits a
+  setup's parts. A setup is machine, grinder and basket; a different
+  combination of those is a different setup. Puck prep (WDT, puck screen) is a
+  checkbox on shots and recipes, never part of a setup.
 
 ---
 
-## INIT-01: Log a shot against your real setup in seconds
+## INIT-01: Log a shot against your real kit in seconds
+
+(The initiative's title in `initiatives.md` predates the rename to "setup" and
+is kept as approved.)
 
 ### EPIC-01-01: Start brewing without setting anything up
 
@@ -282,26 +316,24 @@ scope, so they don't count as overlap:
 ### EPIC-01-02: Describe your setup once
 
 - **Parent:** INIT-01
-- **Description:** The user finds the parts they brew with in the catalog, by
-  maker and model: machine, grinder, portafilter, basket, puck screen, tamper
-  and distribution tool. They put them together as a setup, so they never pick
-  equipment shot by shot. A setup is a fixed combination: using different parts
-  means a different setup, and going back to the same parts brings back that
-  setup and its recipes.
+- **Description:** The user finds their machine, grinder and basket in the
+  catalog, by maker and model, and puts them together as a setup, so they
+  never pick equipment shot by shot. A setup is a fixed combination: a
+  different machine, grinder or basket means a different setup, and going back
+  to the same three brings back that setup and its recipes.
 - **Source sections:** S-02, S-04, S-08
 - **Scope**
-  - In: pick parts from the seeded catalog: maker, then model, of a kind that
-    directly affects the output (machine, grinder, portafilter, basket, puck
-    screen, tamper, distribution tool), with declared capabilities (machine
-    temperature and pressure control, grinder scale and coarser direction).
-    Search matches names and aliases.
+  - In: pick parts from the seeded catalog: maker, then the exact model, of
+    the three kinds that define a setup (machine, grinder, basket), with
+    declared capabilities (machine temperature and pressure control, grinder
+    scale and coarser direction). Two baskets of the same size from different
+    makers are different parts. Search matches names and aliases.
   - In: add owned parts (optional nickname, acquired date).
-  - In: put owned parts together as a setup. A setup is defined by its parts;
-    replacing, adding or removing any part means a different setup, and choosing
-    a combination the household already has reuses that setup, with its
-    recipes. One part can be in several setups.
-  - In (working assumption DQ-21): one part of each kind per setup; machine and
-    grinder are required, the other kinds are optional.
+  - In: put a machine, a grinder and a basket together as a setup. A setup is
+    defined by its parts; replacing any of them means a different setup, and
+    choosing a combination the household already has reuses that setup, with
+    its recipes. One part can be in several setups.
+  - In (working assumption DQ-21): one part of each kind per setup.
   - In: a setup's name is optional; without one it's shown by its parts or a
     translated default (S-08). The name is a label, not a part, so it can be
     set or changed at any time without making a new setup (DQ-21).
@@ -309,39 +341,49 @@ scope, so they don't count as overlap:
     (measured or one-tap); before any shot, the newest setup. Choosing a setup
     makes it current at once, without waiting for a shot.
   - In (PEC-09): "change a part" builds the new combination from the current
-    setup with one part swapped, added or removed, and finds or creates the
-    matching setup, which becomes current. The selects that offer it on Home and
-    in the shot log are EPIC-02-02.
+    setup with one part swapped, and finds or creates the matching setup,
+    which becomes current. The selects that offer it on Home and in the shot
+    log are EPIC-02-02.
   - In (PEC-02, kept): once the household has a machine and a grinder, offer
-    "make these your setup", with both preselected.
-  - Out: editing a setup's parts. Setups never change (S-02); this reverses the
-    editing part of PEC-02 and replaces PEC-07's swap warning.
+    "make these your setup", with them preselected.
+  - Out: editing a setup's parts. Setups never change (S-02).
   - Out: a "retire" action (not in the MVP, S-02). A part the household stops
     using simply stops appearing in its current setup.
-  - Out: parts that don't change the output, such as a scale; water may be
-    added later (S-02).
+  - Out: portafilter, tamper and scale, which don't change the recipe and
+    aren't tracked; WDT and puck screen, which are prep checkboxes on shots
+    and recipes (EPIC-01-03, EPIC-02-01); water, which may come later (S-02).
   - Out: servicing a part, which is a maintenance event (EPIC-04-01), not a
     new setup.
   - Out: adding missing makers or models (EPIC-01-06).
 - **Dependencies:** EPIC-01-01 (parts and setups belong to a household).
 - **Priority:** MVP
-- **Rough size:** M
+- **Rough size:** M. Revision 8 cut the part kinds from seven to three, which
+  shrinks the seed data and the builder, but the catalog picker, setup
+  identity and reuse, the current-setup rule and "change a part" are
+  unchanged, so it stays M, at the small end.
 - **Risks and open questions**
   - Who curates the seed list, and which makers, models and markets does it
-    cover at launch? S-02 says "curated" but not by whom.
-  - Accepted friction (confirmed by the Head of Product, revision 7): swapping
-    even a small part, such as a tamper or puck screen, makes a new setup, so
-    the next shot is a dial-in rather than one tap. Grind carries over when
-    the grinder is the same (DQ-20). Worth watching in use; if it bites, the
-    fix is in which parts define a setup, not the design.
+    cover at launch? Baskets now matter as exact models, so the seed list
+    needs common baskets as well as machines and grinders. S-02 says
+    "curated" but not by whom.
+  - Is a basket required to make a setup? S-02 names the basket as a defining
+    part, but many users won't know their basket's exact model, and the
+    first-setup shortcut starts from machine and grinder. If a basket is
+    optional, "no basket recorded" is its own combination. Confirm (updates
+    DQ-21).
   - Setups can multiply as households try parts. How the setup list stays calm
     (recent first, collapsing unused setups) is a design detail.
+  - Largely resolved (revision 8): the friction of small parts resetting
+    recipes. A tamper or puck screen no longer makes a new setup; only a
+    different machine, grinder or basket does, and each of those really
+    changes the recipe. Grind still carries over when the grinder is the same
+    (DQ-20).
+  - Closed (S-02, revision 8): which parts define a setup: machine, grinder
+    and basket.
   - Closed (S-02): setups are not edited; a different combination is a
     different setup.
-  - Closed (S-08, DQ-21): the default setup name is optional and shown from its
-    parts or a translated default; it can be changed at any time.
-  - Closed (DQ-21, working assumption): one part per kind, machine and grinder
-    required.
+  - Closed (S-08, DQ-21): a setup's name is optional, shown from its parts or a
+    translated default, and can be changed at any time.
   - Closed (DQ-18, PEC-09, working assumption): which setup is current, and how
     the user switches.
 
@@ -350,16 +392,19 @@ scope, so they don't count as overlap:
 - **Parent:** INIT-01
 - **Description:** The user records a shot with grind, dose, yield and time on
   large number wheels, against a setup, a drink type and the coffee they're
-  using, and can mark it sweetened. The shot is saved as measured, with whose
-  taste it records and who logged it.
+  using. They can tick whether they used a WDT tool and a puck screen, and mark
+  it sweetened. The shot is saved as measured, with whose taste it records and
+  who logged it.
 - **Source sections:** S-02, S-06, S-08 (S-01 roadmap, S-07 number formatting)
 - **Scope**
   - In: the extraction UI for the MVPayload (grind, dose, yield, time) with
     tactile number wheels, no text keyboards.
   - In: setup (pre-chosen as the current setup), drink type (the household's
-    visible list) and portion; optional "sweetened" mark. The shot stores setup,
-    portion, persona, logging user and entry mode "measured"; grinder and
-    machine follow from the setup.
+    visible list) and portion; optional "sweetened" mark. The shot stores
+    setup, portion, persona, logging user and entry mode "measured"; grinder,
+    machine and basket follow from the setup.
+  - In: puck prep checkboxes, "used WDT" and "used puck screen" (`usedWdt`,
+    `usedPuckScreen`, S-02), stored on the shot.
   - In: grind wheel follows the setup grinder's declared scale; time stored in
     ms and shown in seconds with one decimal.
   - In: locale-aware display and entry of decimals, canonical floats stored.
@@ -371,11 +416,13 @@ scope, so they don't count as overlap:
 - **Dependencies:** EPIC-01-02 (needs a setup), EPIC-03-01 (every shot needs a
   portion; `portion_id` is required), EPIC-01-01 (drink types).
 - **Priority:** MVP
-- **Rough size:** M
+- **Rough size:** M (the two checkboxes are small)
 - **Risks and open questions**
   - Overlap flag: "shots logged against a portion" is listed in both INIT-01
     and INIT-03. Assigned here, since the portion is picked while logging.
   - Finding and editing saved shots is EPIC-02-06 (recent shots list).
+  - Do the prep checkboxes on a blank log start from the last shot on this
+    setup, or unticked? Not in the spec.
   - Does logging a shot against an unopened portion mark it opened? Not in the
     spec (see EPIC-03-02).
   - INIT-03 Q3: what to do when the chosen portion is already finished.
@@ -435,15 +482,15 @@ scope, so they don't count as overlap:
 ### EPIC-01-06: Add what's missing from the catalog
 
 - **Parent:** INIT-01
-- **Description:** If the user's grinder, machine, roaster or coffee isn't in
-  the catalog, they add it with a link to its product page, and can use it
-  straight away. If the link matches an entry that already exists, Tare points
-  them to it instead of creating a duplicate.
+- **Description:** If the user's machine, grinder, basket, roaster or coffee
+  isn't in the catalog, they add it with a link to its product page, and can
+  use it straight away. If the link matches an entry that already exists, Tare
+  points them to it instead of creating a duplicate.
 - **Source sections:** S-02, S-04, S-08
 - **Scope**
-  - In: a household adds a maker, model (any setup part kind), roaster or bean,
-    with a required product URL; additions are marked user-sourced and
-    unverified and are usable at once.
+  - In: a household adds a maker, model (machine, grinder or basket), roaster
+    or bean, with a required product URL; additions are marked user-sourced
+    and unverified and are usable at once.
   - In: unverified entries are visible only to the household that added them
     (S-02); once verified they join the shared catalog.
   - In: an entry can hold several URLs (one per market) and several aliases.
@@ -455,7 +502,8 @@ scope, so they don't count as overlap:
   - In (PEC-05): for a user-added machine or grinder, enter its capabilities
     by answering simple questions in the user's words (temperature and
     pressure control, dial numbers, step, which way is coarser), each with a
-    "not sure" option, stored as unknown values (S-08, TQ-06).
+    "not sure" option, stored as unknown values (S-08, TQ-06). Baskets have no
+    capabilities to enter.
   - In (PEC-08): while a model the household added is still unverified, the
     household can edit its capabilities, for example to answer a "not sure"
     later. Changes apply to the shot log from then on; old shots keep their
@@ -481,6 +529,8 @@ scope, so they don't count as overlap:
   - At L, this is the biggest lever on the MVP's size (review m9): coffee
     additions are simpler than hardware additions with capabilities, and could
     ship first.
+  - Exact basket models (S-02) mean more user additions for baskets the seed
+    list misses, and baskets often have no product page of their own.
   - Does the URL flag check other households' private entries? Matching
     against them would reveal they exist; checking only verified entries and
     the household's own seems implied by the privacy rule, but confirm.
@@ -500,22 +550,22 @@ scope, so they don't count as overlap:
 - **Parent:** INIT-02
 - **Description:** From a good shot, or by entering values, the user pins a
   recipe for this bean, persona, setup and drink type. Every bag of that bean
-  then starts from it on that setup, and pinning again replaces it while keeping
-  the old ones. On a new setup, the closest previous setup's recipe gives the
-  dial-in a head start.
+  then starts from it on that setup, and pinning again replaces it while
+  keeping the old ones. On a new setup, the closest previous setup's recipe
+  gives the dial-in a head start.
 - **Source sections:** S-02, S-04, S-08 (S-01 roadmap)
 - **Scope**
   - In: pin from a logged shot (recipe points back to it) or enter values
-    directly; the recipe records its setup and the same optional temperature and
-    pressure pairs as shots.
+    directly; the recipe records its setup, the same optional temperature and
+    pressure pairs as shots, and the puck prep checkboxes (`usedWdt`,
+    `usedPuckScreen`), copied from the shot when pinned from one.
   - In: re-pinning adds a row; the latest pin wins.
   - In: see the current recipe for a bean, persona, setup and drink type; it
     applies to every batch of that bean.
-  - In: recipes belong to exactly one setup (S-02). When the current setup has no
-    recipe for this bean, persona and drink, Dial in starts pre-filled from the
-    recipe on the closest previous setup (most parts in common), never as a
-    one-tap pull. Pinning on the new setup gives it its own recipe. Replaces
-    PEC-07.
+  - In: recipes belong to exactly one setup (S-02). When the current setup has
+    no recipe for this bean, persona and drink, Dial in starts pre-filled from
+    the recipe on the closest previous setup (most parts in common), never as
+    a one-tap pull. Pinning on the new setup gives it its own recipe.
   - In (working assumption DQ-19): ties between equally close setups go to the
     most recently used setup (latest shot on it).
   - In (working assumption DQ-20): dose, yield and time pre-fill from the
@@ -539,8 +589,11 @@ scope, so they don't count as overlap:
     is nullable, so the schema allows it, but no flow is described.
   - Can a one-tap shot be pinned? It only copies a recipe, so pinning it would
     add nothing; confirm it's excluded.
-  - Closed (DQ-19, DQ-20, working assumptions): closest-setup ties, and whether
-    grind pre-fills from a setup with a different grinder.
+  - Do the prep checkboxes carry over in a closest-setup pre-fill? They don't
+    depend on the setup, so carrying them over seems natural; confirm with
+    DQ-20.
+  - Closed (DQ-19, DQ-20, working assumptions): closest-setup ties, and
+    whether grind pre-fills from a setup with a different grinder.
 
 ### EPIC-02-02: Pull your daily shot in one tap
 
@@ -548,8 +601,9 @@ scope, so they don't count as overlap:
 - **Description:** The home screen shows the pinned recipe for the selected
   persona, the current setup and the drink they usually make at this time of
   day. One tap on "Pull This Shot" records a one-tap shot copied from the
-  recipe, so daily use is counted. With no recipe on this setup, the button
-  reads "Dial in". The user can switch setup, or change a part, right there.
+  recipe, prep checkboxes included, so daily use is counted. With no recipe on
+  this setup, the button reads "Dial in". The user can switch setup, or change
+  a part, right there.
 - **Source sections:** S-06, S-02, S-08
 - **Scope**
   - In: home screen uses the persona selected there (in the MVP, the one main
@@ -560,28 +614,29 @@ scope, so they don't count as overlap:
     on the home screen; the recipe shown updates in place, and the pull uses
     the chosen drink and coffee.
   - In (PEC-09): the setup line on Home and the setup field in the shot log are
-    selects offering the household's setups and "change a part". The setup chosen
-    becomes the current setup, and the recipe shown updates in place.
-  - In: "Pull This Shot" copies the pinned recipe's values into a shot marked
-    one-tap, with the recipe's setup and the earliest-opened open portion of
-    that bean. "Open" means opened, not finished and not in the freezer
-    (S-02): an opened-then-frozen portion isn't open until thawed, and one-tap
-    never uses frozen coffee on its own. If no portion of the bean is open, it
-    asks; frozen coffee is used only when the user picks it.
+    selects offering the household's setups and "change a part". The setup
+    chosen becomes the current setup, and the recipe shown updates in place.
+  - In: "Pull This Shot" copies the pinned recipe's values, including the
+    puck prep checkboxes (S-02), into a shot marked one-tap, with the recipe's
+    setup and the earliest-opened open portion of that bean. "Open" means
+    opened, not finished and not in the freezer (S-02): an opened-then-frozen
+    portion isn't open until thawed, and one-tap never uses frozen coffee on
+    its own. If no portion of the bean is open, it asks; frozen coffee is used
+    only when the user picks it.
   - In: no rating is asked. Undo for a few seconds.
   - In: edit a one-tap shot afterwards, found through the recent shots list
     and its edit flow (EPIC-02-06).
   - In: with no recipe on the current setup, the button becomes "Dial in" and
-    opens the shot log (pre-filled from the closest previous setup's recipe when
-    there is one, per EPIC-02-01).
+    opens the shot log (pre-filled from the closest previous setup's recipe
+    when there is one, per EPIC-02-01).
   - Out: what "change a part" does to find or create a setup (EPIC-01-02).
   - Out: the good/off reaction and the pre-filled log (EPIC-02-03).
   - Out: switching between several personas (EPIC-05-01).
   - Out: palate learning from these shots (EPIC-06-04).
 - **Dependencies:** EPIC-02-01 (needs a pinned recipe), EPIC-01-03 (the shot
-  log for "Dial in", and the setup field PEC-09 extends), EPIC-01-02 (setups and
-  the current-setup rule), EPIC-03-01 (needs a portion), EPIC-02-06 (editing a
-  one-tap shot after the fact).
+  log for "Dial in", and the setup field PEC-09 extends), EPIC-01-02 (setups
+  and the current-setup rule), EPIC-03-01 (needs a portion), EPIC-02-06
+  (editing a one-tap shot after the fact).
 - **Priority:** MVP
 - **Rough size:** M (unchanged; PEC-09 is small, the same pattern as PEC-03)
 - **Risks and open questions**
@@ -593,6 +648,9 @@ scope, so they don't count as overlap:
   - Does a drink or coffee changed on the home screen stick for the next pull?
     Design assumes no saved setting; the change applies to the next pull, and
     history then carries it (DQ-17); confirm.
+  - A one-tap shot copies the recipe's prep checkboxes, so a day without the
+    WDT tool records "used WDT" unless the shot is edited. That's the price of
+    zero inputs; editing in EPIC-02-06 fixes it.
   - Opening a portion when none is open: does answering the prompt mark a
     portion opened? Links to the EPIC-03-02 question on who sets "opened".
   - Closed (DQ-18, PEC-09, working assumption): which setup is current, and how
@@ -614,8 +672,8 @@ scope, so they don't count as overlap:
     allowed.
   - In: "off", or a dial-in from the home screen, opens the extraction UI
     pre-filled from the current pinned recipe (or, on a setup without one, the
-    closest previous setup's recipe, EPIC-02-01) for a micro-adjustment; it
-    saves as a normal measured shot.
+    closest previous setup's recipe, EPIC-02-01), prep checkboxes included,
+    for a micro-adjustment; it saves as a normal measured shot.
   - Out: suggesting what to change (EPIC-06-02, INIT-04).
   - Out: rating and sensory scores (EPIC-01-05).
 - **Dependencies:** EPIC-02-02 (one-tap shots and the home screen), EPIC-02-01
@@ -689,7 +747,8 @@ scope, so they don't count as overlap:
 - **Scope**
   - In: a list of recent shots (measured and one-tap, marked as such) for the
     household.
-  - In: open a shot and edit its values in the shot log UI.
+  - In: open a shot and edit its values, including the prep checkboxes, in the
+    shot log UI.
   - Out: filtering, search, charts or analysis (not in the spec).
   - Out: undo right after a one-tap shot (EPIC-02-02).
   - Out: grind period dividers in the list (EPIC-04-01) and the shot warning
@@ -729,9 +788,9 @@ scope, so they don't count as overlap:
 - **Scope**
   - In: pick roaster, then bean, from the seeded catalog; search matches names
     and aliases.
-  - In: create a batch with bean, lot code, roast date, packing date (new,
-    optional, for bags that print it instead of a roast date), best-before,
-    bag weight, purchase date. No date is required.
+  - In: create a batch with bean, lot code, roast date, packing date (optional,
+    for bags that print it instead of a roast date), best-before, bag weight,
+    purchase date. No date is required.
   - In: the batch starts with one portion for the whole bag.
   - In: a pantry list of batches and their portions.
   - Out: adding missing roasters or beans (EPIC-01-06).
@@ -860,13 +919,14 @@ scope, so they don't count as overlap:
 
 ## INIT-04: Grind settings stay meaningful through maintenance and time
 
-### EPIC-04-01: Record maintenance on your setup
+### EPIC-04-01: Record maintenance on your equipment
 
 - **Parent:** INIT-04
-- **Description:** The user logs dated work on one part, such as new burrs, a
-  clean, a re-zero or a repair, and can mark it as a recalibration. Servicing
-  a part keeps the same setup. For a grinder, each event starts a new grind
-  period, so history is split correctly from day one.
+- **Description:** The user logs dated work on one part (machine, grinder or
+  basket), such as new burrs, a clean, a re-zero or a repair, and can mark it
+  as a recalibration. Servicing a part keeps the same setup. For a grinder,
+  each event starts a new grind period, so history is split correctly from
+  day one.
 - **Source sections:** S-01, S-02, S-04, S-08
 - **Scope**
   - In: add a maintenance event (kind, date, note) to an owned part, and see a
@@ -911,7 +971,7 @@ scope, so they don't count as overlap:
     "the recipe was fine" (S-08 entry mode).
   - In: recent shots weighted more than older ones.
   - In: show the adjustment on the home screen and pre-filled log.
-  - Out: setup maintenance offsets (EPIC-04-03).
+  - Out: maintenance offsets (EPIC-04-03).
   - Out: AI explanations (EPIC-06-02).
 - **Dependencies:** EPIC-03-03 (bean age), EPIC-02-02 and EPIC-02-03 (where it
   is shown), EPIC-04-01 (only shots in the current grind period are
@@ -919,13 +979,15 @@ scope, so they don't count as overlap:
 - **Priority:** Next
 - **Rough size:** L
 - **Risks and open questions**
-  - Overlap flag: S-02 and S-04 list "setup maintenance" as a drift adjustment.
+  - Overlap flag: S-02 and S-04 list "kit maintenance" as a drift adjustment.
     It is assigned to EPIC-04-03 (offsets); this epic covers bean age and
     batch character only.
   - INIT-04 Q2: recency weighting strength and window.
   - INIT-04 Q3: how bean-aging drift is estimated, and from how many shots.
     Which of the two freshness clocks (S-02) drives it, or both?
   - INIT-04 Q4: shown as a changed grind, a note, or both.
+  - Should shots with and without WDT or puck screen be compared as equals?
+    Prep changes how a shot runs; not in the spec.
   - Is this an algorithm, not AI? Confirm it fits the "no AI" rule when it
     ships, or whether it needs evals like the AI features.
 
@@ -941,8 +1003,8 @@ scope, so they don't count as overlap:
     units, with bean aging between the two dial-ins subtracted first.
   - In: user confirms or edits; the shift is stored on the event with the
     re-dial it came from, and stays editable.
-  - In: apply the shift when reading recipes pinned before the event on setups
-    that include that grinder; stored recipes are never rewritten.
+  - In: apply the shift when reading recipes pinned before the event on
+    setups that include that grinder; stored recipes are never rewritten.
   - Out: stretch factor from two or more coffees (EPIC-04-04).
 - **Dependencies:** EPIC-04-01 (events), EPIC-04-02 (bean-aging estimate to
   subtract), EPIC-02-01 (recipes to map).
@@ -1106,14 +1168,17 @@ become its own epic again.
 
 - **Parent:** INIT-06
 - **Description:** After a bad shot the Diagnostic Coach reads the numbers,
-  scores, defects, setup and freshness, and tells the user what to change on
-  their own hardware, in the right direction on their dial. Its advice draws
-  on extraction guides and the manuals for their equipment.
+  scores, defects, setup, puck prep and freshness, and tells the user what to
+  change on their own equipment, in the right direction on their dial. Its
+  advice draws on extraction guides and the manuals for their equipment.
 - **Source sections:** S-09, S-08, S-01, S-03
 - **Scope**
   - In: Diagnostic Coach: diagnosis, action and suggested variables as JSON,
     using the grinder's coarser direction and the setup's parts, from measured
     shots only. Its "days open" input is the since-opening clock (S-02).
+  - In: S-09's rule "if channelling is tagged and the toolkit lacks a WDT,
+    suggest WDT" reads the shot's `usedWdt` checkbox, since WDT is no longer a
+    setup part (S-02).
   - In: RAG over extraction guides and equipment manuals (folded in from the
     retired EPIC-06-03).
   - In: shown in the fix-a-bad-shot flow.
@@ -1122,7 +1187,7 @@ become its own epic again.
     observability.
   - Out: palate inputs (EPIC-06-04).
 - **Dependencies:** EPIC-02-03, EPIC-01-05 (scores and defects), EPIC-03-03
-  (freshness clocks).
+  (freshness clocks), EPIC-01-03 (prep checkboxes).
 - **Priority:** Later
 - **Rough size:** L
 - **Risks and open questions**
@@ -1130,6 +1195,8 @@ become its own epic again.
     should become its own epic again, shipping after the Coach.
   - INIT-06 Q6: source and owner of the Golden Dataset.
   - INIT-06 Q5: model choices.
+  - S-09's prompt still says "Toolkit Components"; it should be updated to the
+    setup and prep checkboxes when this epic is re-planned.
   - The eval scores palate alignment, but the Coach has no taste graph until
     EPIC-06-04. Either the metric waits or EPIC-06-04 ships first.
   - Which guides and manuals, their licensing, and who maintains them. Not in
@@ -1212,10 +1279,11 @@ become its own epic again.
 ### EPIC-06-07: Merge duplicate catalog entries, with AI suggestions
 
 - **Parent:** INIT-06
-- **Description:** When the same grinder or coffee has been added twice, for
-  example under its UK and US names, the entries are merged into one so every
-  household's history and the community data line up. An AI suggests likely
-  duplicates with a confidence and a reason, and a person always confirms.
+- **Description:** When the same grinder, basket or coffee has been added
+  twice, for example under its UK and US names, the entries are merged into one
+  so every household's history and the community data line up. An AI suggests
+  likely duplicates with a confidence and a reason, and a person always
+  confirms.
 - **Source sections:** S-02, S-08
 - **Scope**
   - In: merge a duplicate into a surviving entry; the duplicate stays as a
@@ -1239,8 +1307,8 @@ become its own epic again.
   - Who is the "person" who confirms an LLM-suggested merge here: the admin,
     or the households involved? Not in the spec.
   - What happens when two merged entries carry conflicting data (different
-    capabilities or roast level)? Merging two parts that sit in setups could
-    also make two setups identical; not in the spec.
+    capabilities or roast level)? Merging two models used in setups could also
+    make two setups identical; not in the spec.
   - INIT-06 Q5: model choice for the matcher.
 
 ---
@@ -1249,8 +1317,8 @@ become its own epic again.
 
 | Initiative | Source sections | Covered by |
 |---|---|---|
-| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01, 01-02 (fixed setups, current setup), 01-03, 01-04, 01-06; S-04: 01-01, 01-02 (setups), 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
-| INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01 (grind doesn't transfer, DQ-20); S-02: 02-01 to 02-06 (recipes per setup in 02-01, setup switching and "open" excludes frozen in 02-02); S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
+| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01, 01-02 (fixed setups, current setup), 01-03 (prep checkboxes), 01-04, 01-06; S-04: 01-01, 01-02 (setups), 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
+| INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01 (grind doesn't transfer, DQ-20); S-02: 02-01 to 02-06 (recipes per setup and prep in 02-01, setup switching, prep copy and "open" excludes frozen in 02-02); S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
 | INIT-03 | S-02, S-04, S-08 | S-02: all (two freshness clocks in 03-03, packing date in 03-01, open-vs-frozen in 03-02); S-04: 03-01, 03-02; S-08: 03-01, 03-02, 03-04, 03-05 |
 | INIT-04 | S-01, S-02, S-04, S-08 | S-01: 04-01, 04-02; S-02: all; S-04: 04-01, 04-02; S-08: 04-01, 04-03, 04-04 |
 | INIT-05 | S-02, S-04, S-07, S-08 | S-02, S-04, S-08: 05-01, 05-02, 05-03 (accepted storage risks); S-07: 05-02 |
@@ -1263,25 +1331,27 @@ unverified entries and manual admin review (EPIC-01-06, EPIC-06-07), catalog
 (EPIC-01-02, EPIC-03-01, EPIC-01-06, EPIC-06-07), drink types (EPIC-01-01,
 EPIC-01-03, EPIC-02-05), default persona label (EPIC-01-01), one-tap shots
 (EPIC-02-02, EPIC-02-03, EPIC-03-04, EPIC-04-02, EPIC-06-04, EPIC-06-05),
-maintenance from Phase 1 (EPIC-04-01), fixed setups (EPIC-01-02, EPIC-02-01,
-EPIC-02-02, EPIC-04-01), two freshness clocks (EPIC-03-01, EPIC-03-03,
-EPIC-06-02), "open" excludes frozen (EPIC-02-02, EPIC-03-02), technical
-decisions TQ-04 to TQ-07 (cross-cutting constraints, EPIC-01-06, EPIC-04-01).
-Design round 3: PEC-09 (EPIC-02-02, EPIC-01-02), DQ-18 and DQ-21
-(EPIC-01-02), DQ-19 and DQ-20 (EPIC-02-01).
+maintenance from Phase 1 (EPIC-04-01), setups as machine, grinder and basket
+(EPIC-01-02, EPIC-01-06, EPIC-02-01, EPIC-02-02, EPIC-04-01), puck prep
+checkboxes (EPIC-01-03, EPIC-02-01, EPIC-02-02, EPIC-02-03, EPIC-02-06,
+EPIC-06-02), two freshness clocks (EPIC-03-01, EPIC-03-03, EPIC-06-02), "open"
+excludes frozen (EPIC-02-02, EPIC-03-02), technical decisions TQ-04 to TQ-07
+(cross-cutting constraints, EPIC-01-06, EPIC-04-01). Design round 3: PEC-09
+(EPIC-02-02, EPIC-01-02), DQ-18 and DQ-21 (EPIC-01-02), DQ-19 and DQ-20
+(EPIC-02-01).
 
 ## Overlap and ambiguity flags
 
 - Shots logged against a portion: in INIT-01 and INIT-03; assigned to
   EPIC-01-03.
-- Setup maintenance drift: S-02 and S-04 call it a drift adjustment; assigned to
+- Maintenance drift: S-02 and S-04 call it a drift adjustment; assigned to
   EPIC-04-03 (offsets), not EPIC-04-02.
 - Personal consent: INIT-05 and INIT-06 both cite S-07. The rule that claimed
   personas follow their user's consent is in EPIC-05-02; the opt-in and
   eligibility computation are in EPIC-06-05.
 - Recipe resolution ("which recipe applies now", including the closest
-  previous setup's recipe for a dial-in on a new setup, its ties and what carries
-  over) lives in EPIC-02-01; the home screen (EPIC-02-02) and pre-fill
+  previous setup's recipe for a dial-in on a new setup, its ties and what
+  carries over) lives in EPIC-02-01; the home screen (EPIC-02-02) and pre-fill
   (EPIC-02-03) only use it.
 - Catalog: picking from the seed list is split by catalog (hardware in
   EPIC-01-02, coffee in EPIC-03-01); adding entries for both is EPIC-01-06;
@@ -1304,13 +1374,18 @@ Design round 3: PEC-09 (EPIC-02-02, EPIC-01-02), DQ-18 and DQ-21
 - Catalog capabilities (revision 4): seeded models' capabilities come with the
   seed list (EPIC-01-02); user-added models' capabilities are entered, and
   edited while unverified (revision 5), in EPIC-01-06.
-- Setups (revision 6): setup identity (fixed combinations, reusing a matching setup,
-  one part per kind) is EPIC-01-02; recipes per setup and the closest-setup
-  pre-fill are EPIC-02-01; servicing a part is EPIC-04-01.
-- Setup switching (revision 7, PEC-09): the current-setup rule and what "change a
-  part" does (find or create the matching setup) are EPIC-01-02; the selects on
-  Home and in the shot log that offer it are EPIC-02-02, even though the shot
-  log is EPIC-01-03's screen. EPIC-01-03 only pre-chooses the current setup.
+- Setups (revisions 6 and 8): setup identity (machine, grinder and basket as a
+  fixed combination, reusing a matching setup, one part per kind) is
+  EPIC-01-02; recipes per setup and the closest-setup pre-fill are EPIC-02-01;
+  servicing a part is EPIC-04-01.
+- Setup switching (revision 7, PEC-09): the current-setup rule and what
+  "change a part" does (find or create the matching setup) are EPIC-01-02; the
+  selects on Home and in the shot log that offer it are EPIC-02-02, even
+  though the shot log is EPIC-01-03's screen. EPIC-01-03 only pre-chooses the
+  current setup.
+- Puck prep (revision 8): the checkboxes on a measured shot are EPIC-01-03;
+  on recipes and pinning, EPIC-02-01; the one-tap copy, EPIC-02-02; the
+  pre-filled log and editing reuse them (EPIC-02-03, EPIC-02-06).
 - Freshness (revisions 6 and 7): both clocks and where they show (one line on
   Home, both on the bag screen) are owned by EPIC-03-03; the home screen
   (EPIC-02-02) and bag screen (EPIC-03-01) host them. The "open" rule for
@@ -1334,8 +1409,8 @@ Answered by the Head of Product and recorded in S-02:
 - INIT-02 Q5 (no pinned recipe): the button becomes "Dial in".
 - INIT-04 Q1 (maintenance in MVP): yes, recording only; offsets stay Next.
 - Gap: default persona name: none stored; translated role label.
-- Gaps: which portion and which setup a one-tap shot uses: earliest-opened open
-  portion of the bean (asking if none), and the recipe's setup.
+- Gaps: which portion and which setup a one-tap shot uses: earliest-opened
+  open portion of the bean (asking if none), and the recipe's setup.
 - Anonymous-account data loss (EPIC-01-01): accepted for the MVP; Google
   linking is the first Next epic (EPIC-05-03).
 - Shot history screen (EPIC-01-03, EPIC-02-02): a recent shots list in the MVP
@@ -1362,10 +1437,10 @@ Closed by the design review round 1 amendments (revision 4):
 Closed by the plan review decisions (revision 6):
 
 - Setup editing (EPIC-01-02): setups are never edited; a different
-  combination of parts is a different setup, and the same combination reuses its
-  setup and recipes (S-02). Replaces PEC-02's editing part and PEC-07.
-- Retired units in setups and shot paths (EPIC-01-02, EPIC-02-01; review M3): no
-  retire action in the MVP; shots take their parts from the setup.
+  combination of parts is a different setup, and the same combination reuses
+  its setup and recipes (S-02). Replaces PEC-02's editing part and PEC-07.
+- Retired units in setups and shot paths (EPIC-01-02, EPIC-02-01; review M3):
+  no retire action in the MVP; shots take their parts from the setup.
 - Default setup name (EPIC-01-02, DQ-01): optional; shown by its parts or a
   translated default (S-08).
 - INIT-03 Q2, bean age without a roast date (EPIC-03-03; review blocker B1):
@@ -1390,20 +1465,28 @@ Closed in revision 7 (PEC-09, design working assumptions and Head of Product
 decisions):
 
 - Which setup is current, and how the user switches (EPIC-01-02, EPIC-02-02):
-  the setup of the persona's last shot, else the newest setup; choosing a setup, or
-  "change a part", on Home or in the shot log makes it current at once (DQ-18,
-  PEC-09).
+  the setup of the persona's last shot, else the newest setup; choosing a
+  setup, or "change a part", on Home or in the shot log makes it current at
+  once (DQ-18, PEC-09).
 - Closest-setup ties (EPIC-02-01): the most recently used setup wins (DQ-19).
 - Grind pre-fill from a setup with a different grinder (EPIC-02-01): grind
   doesn't carry over; dose, yield and time do; temperature and pressure only
   with the same machine (DQ-20).
-- Must a setup contain exactly one machine and one grinder (EPIC-01-02): one
-  part per kind, machine and grinder required; the name can change at any time
-  (DQ-21).
+- One part per kind (EPIC-01-02): one part of each kind; the name can change
+  at any time (DQ-21). Whether a basket is required is reopened in revision 8.
 - Which freshness clock Home shows (EPIC-03-03): both, on one line (Head of
   Product).
-- Whether small parts should make a new setup (EPIC-01-02): yes; "any part change
-  makes a new setup" is confirmed by the Head of Product.
+- Whether any part change should make a new setup (EPIC-01-02): yes, confirmed
+  by the Head of Product.
+
+Closed in revision 8 (S-02, S-08):
+
+- Which parts define a setup (EPIC-01-02): machine, grinder and basket, each
+  an exact catalog model. Portafilter, tamper and scale aren't tracked.
+- How WDT and puck screen are recorded (EPIC-01-03, EPIC-02-01, EPIC-02-02):
+  as checkboxes on shots and recipes, copied on a one-tap pull.
+- Small parts resetting recipes (EPIC-01-02): largely resolved; a tamper or
+  puck screen no longer makes a new setup.
 
 DQ-18 to DQ-21 are working assumptions: the plan builds on them, and the Head
 of Product can reverse any of them without changing the epic structure.
@@ -1411,15 +1494,17 @@ of Product can reverse any of them without changing the epic structure.
 ## MVP size (review m9)
 
 The MVP is 15 epics. The reviewer counts 177 story points and about 851 hours
-of MVP tasks, large for a "basic app" (S-01). Nothing has been cut. The Head
-of Product will confirm the size or pick cuts at final sign-off. The levers the
-reviewer names: splitting EPIC-01-06 so coffee additions ship first, and the
-cut candidates already listed in the stories.
+of MVP tasks, large for a "basic app" (S-01). Nothing has been cut. Revision 8
+trims EPIC-01-02 a little (three part kinds instead of seven) and adds two
+small checkboxes, so the total is about the same. The Head of Product will
+confirm the size or pick cuts at final sign-off. The levers the reviewer
+names: splitting EPIC-01-06 so coffee additions ship first, and the cut
+candidates already listed in the stories.
 
 ## Suggested build order
 
 Dependencies first; within a priority, earlier delivers daily value sooner.
-Unchanged in revisions 6 and 7.
+Unchanged in revisions 6 to 8.
 
 **MVP**
 1. EPIC-01-01 Start brewing without setting anything up (none)
@@ -1430,8 +1515,8 @@ Unchanged in revisions 6 and 7.
 5. EPIC-01-03 Log a shot in seconds (after 01-02, 03-01)
 6. EPIC-01-04 Record temperature and pressure (after 01-03)
 7. EPIC-02-06 See your recent shots (after 01-03, 01-04)
-8. EPIC-04-01 Record maintenance on your setup (after 01-02, 02-06; early so
-   grind periods are right from the first shots)
+8. EPIC-04-01 Record maintenance on your equipment (after 01-02, 02-06; early
+   so grind periods are right from the first shots)
 9. EPIC-02-01 Pin the recipe that worked (after 01-02, 01-03, 01-04, 03-01)
 10. EPIC-02-02 Pull your daily shot in one tap (after 01-02, 02-01, 02-06)
 11. EPIC-02-03 Fix a bad shot from your recipe (after 02-02)
@@ -1458,7 +1543,8 @@ Unchanged in revisions 6 and 7.
 25. EPIC-06-01 Scan a bag instead of typing it (after 03-01, 01-06)
 26. EPIC-06-04 Tare learns your palate as you log (after 01-05, 02-03)
 27. EPIC-06-02 Get a grounded fix when a shot goes wrong (after 02-03, 01-05,
-    03-03; placed after 06-04 so the palate-alignment eval has a taste graph)
+    01-03, 03-03; placed after 06-04 so the palate-alignment eval has a taste
+    graph)
 28. EPIC-06-07 Merge duplicate catalog entries, with AI suggestions (after
     01-06)
 29. EPIC-06-05 Share your shots, with your consent (after 01-03; 05-02 for
