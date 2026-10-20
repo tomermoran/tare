@@ -11,8 +11,11 @@ be revised against it.
 
 **Status: design approved by the Head of Product after review round 3**
 (PEC-09 accepted, applied in epics revision 7; Home shows both clocks).
-**Round 4 applies decisions the Head of Product has already made** (not a
-proposal): "kit" is now "setup"; a setup is machine, grinder and basket only,
+**Round 5 applies further decisions already made** (S-02, S-05 C, S-08):
+"just right" tasting with six observation tags, rules-based dial-in
+suggestions in the MVP, and milk type and amount on milk drinks. Its epic
+placement is proposed as PEC-10 to PEC-13. **Round 4 applies decisions the
+Head of Product has already made** (not a proposal): "kit" is now "setup"; a setup is machine, grinder and basket only,
 each an exact catalog model; WDT and puck screen are puck-prep checkboxes on
 shots and recipes (S-02, S-08). Round 3 applies epics revision 6 (fixed setups, two freshness clocks, "open"
 excludes frozen) and the review findings the designer owns (M2, M4, M7, m3,
@@ -105,8 +108,10 @@ These apply to every flow below and are not repeated per epic.
   `taste.*`, `shots.*`, `shot.*` (existing field labels), `recipe.*`,
   `pantry.*`, `bag.*`, `portion.*`, `setup.*`, `unit.*`,
   `maintenance.*`, `catalog.*`, `profile.*`, `drinks.*` (starter drink names,
-  already planned as `drinks.latte` and so on), `defects.*`, `states.*`
-  (shared loading, empty and error copy).
+  already planned as `drinks.latte` and so on), `milks.*` (starter milk
+  names, round 5), `suggest.*` and `off.*` (round 5), `states.*` (shared
+  loading, empty and error copy). The round-1 `defects.*` group is replaced
+  by `taste.tags.*` (round 5).
 - Numbers and units through `Intl` / `useFormatter` or `src/lib/units.ts`;
   never a hand-joined number and unit. Shot time in seconds, one decimal.
   Dates through `useFormatter().dateTime` and relative time where it reads
@@ -133,6 +138,7 @@ SCR-START  Launch (first run: create anonymous account)
 |   |   |-> SCR-TASTE |-> SH-PIN         |-> SCR-BAG-ADD    |-> SCR-UNIT-ADD
 |   |   |-> SH-PIN    |                  |     |-> SCR-CATALOG-PICK
 |   |-> SH-PORTION    |                  |           |-> SCR-CATALOG-ADD
+|   |-> SH-OFF        |                  |                  |
 |   |-> SH-SELECT     |                  |                  |-> SCR-TOOLKIT
 |   |-> SCR-PROFILE   |                  |                  |-> SH-MAINTENANCE
 +---------------------------------------------------------------------+
@@ -165,8 +171,8 @@ SCR-START  Launch (first run: create anonymous account)
 | SCR-START | Launch: logo while the account is created; error and retry | 01-01 |
 | SCR-HOME | Brew: today's recipe, Pull this shot, Dial in; first-run checklist | 02-02, 02-03, 01-01, 03-03, 03-04 |
 | SCR-LOG | Shot log, five modes: new, dial-in from recipe, fix an off shot, edit, enter a recipe | 01-03, 01-04, 02-03, 02-06, 02-01 |
-| SCR-TASTE | Shot saved: rate, score, defects, pin | 01-05, 02-01 |
-| SCR-SHOTS | Recent shots | 02-06, 04-01 |
+| SCR-TASTE | Shot saved: rating, just-right questions, tags, suggestion, pin | 01-05, 02-03, 02-01 |
+| SCR-SHOTS | Recent shots, filtered by drink, coffee and setup (round 5) | 02-06, 04-01 |
 | SCR-SHOT | Shot detail | 02-06, 02-01, 01-05 |
 | SCR-PANTRY | Pantry: bags and their portions | 03-01 to 03-04 |
 | SCR-BAG | Bag detail: facts, portions, recipes for this coffee | 03-01 to 03-04, 02-01 |
@@ -181,6 +187,7 @@ SCR-START  Launch (first run: create anonymous account)
 | SH-SELECT | Generic single choice (setup, drink, portion, coffee) | many |
 | SH-PORTION | Which bag to use, when none of this coffee is open | 02-02 |
 | SH-PIN | Confirm a pin, showing what it replaces | 02-01 |
+| SH-OFF | What was off? Just-right questions and tags after an off one-tap shot, with the suggestion (round 5) | 02-03, 01-05 |
 | SH-PORTION-ACTIONS | Open, freeze, thaw, finish, weigh, split | 03-02, 03-04 |
 | SH-SPLIT | Split off a portion by weight | 03-02 |
 | SH-STOCK | Weigh what's left | 03-04 |
@@ -230,7 +237,9 @@ run) and EPIC-03-03 and 03-04 (age and remaining coffee).
    recipe uses WDT or a puck screen, one quiet `text-label` `ink-secondary`
    line names it (`home.prep`, a pattern over `log.prepWdt` and
    `log.prepPuckScreen`), so the user knows the one-tap pull records it.
-   Nothing shows when the recipe uses neither.
+   Nothing shows when the recipe uses neither. **Milk (round 5):** for a milk
+   drink, the same quiet line leads with the recipe's milk,
+   `shot.milkLine` ["Oat, 150 ml"], since the one-tap pull copies it too.
 5. **Setup line**, `text-label` `ink-secondary`, a quiet select (round 3): the
    current setup's name, or its parts name when it has none
    (`setup.partsName`, a pattern over the machine and grinder models, adding
@@ -318,17 +327,18 @@ story with text from `en.json`, axe checks and a right-to-left story.
 | NC-01 | **TabBar** | Bottom navigation, four text tabs, active bar, safe-area aware | No navigation exists | App shell (EPIC-01-01) |
 | NC-02 | **PageHeader** | Screen title (`text-h1` or `text-h2`), optional back or cancel at the start, optional action at the end | No header exists | All screens |
 | NC-03 | **ListRow** | Hairline-separated row: primary text, secondary line, end slot (value, label, chevron that mirrors), whole row tappable | Card is too heavy for lists | Shots, pantry, setup, pickers |
-| NC-04 | **ChipGroup** | Single choice (radio group) or multiple choice (checkbox group) chips, `border-line-strong`, selected = `ink` fill with `on-action` text; keyboard arrows; optional numbered scale variant (1 to 5) | No choice control exists | Reaction, scores, rating, defects, part kind, temperature and pressure steps, bag size presets |
+| NC-04 | **ChipGroup** | Single choice (radio group) or multiple choice (checkbox group) chips, `border-line-strong`, selected = `ink` fill with `on-action` text; keyboard arrows; optional numbered scale variant (1 to 5); **just-right scale variant (round 5):** five (or three, one-sided) compact chips with a stronger centre "just right" chip, end words under the outer chips, "a bit" and "much" in the accessible names; **filter variant (round 5):** a chip that shows its current value, opens a select, and when active is filled with a close Icon to remove it | No choice control exists | Reaction, rating, just-right questions, observation tags, part kind, temperature and pressure steps, bag size presets |
 | NC-05 | **Sheet** | Bottom sheet on phones, centred dialog on wide screens; `paper` with a `border-line` top edge and a `surface` grabber, no shadow; scrim in `ink` at low opacity; focus trap; Escape and swipe down close | No overlay exists | SH-* |
 | NC-06 | **SelectField** | Shows the current choice and opens SH-SELECT. Two looks: field (like Input, on `surface-sunken`) and quiet (text only, with a chevron, for the home screen) | Input is for typing | Log context, home drink, coffee and setup, setup builder rows |
 | NC-07 | **PulledState** | The in-place result of a one-tap pull: confirmation, undo for the window, good and off chips, live-region announcement | New behaviour | SCR-HOME |
-| NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure, and a puck-prep line when WDT or a puck screen was used) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, shots, bag recipes, pin sheet |
+| NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure, a milk line for milk drinks, and a puck-prep line when WDT or a puck screen was used) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, shots, bag recipes, pin sheet |
 | NC-09 | **ShotDial** | The shot log's editor: a row of compact value tabs (grind, dose, yield, time, plus temperature and pressure when the machine has them) above one full NumberWheel for the selected value. Shows the starting value under any changed value ("was 18.0"). Optional values have an unset state | Four stacked 96 px wheels don't fit a phone screen; optional values need "unset" | SCR-LOG |
 | NC-10 | **Notice** | Inline message: neutral (ink on `surface`, for errors, info, empty results) or warning (`signal` on `signal-subtle`, shot warnings only, enforced by the API: the warning tone only takes a shot-warning kind). Two sizes: block (detail and tasting screens) and inline (one line of `signal` text with no fill, for list rows) | Nothing exists; keeps signal use auditable | Errors everywhere; shot warnings |
 | NC-11 | **Skeleton** | `surface-sunken` blocks with `radius-sm`, a slow opacity pulse that stops under reduced motion; `aria-busy` on the region | Loading states | All data screens |
 | NC-12 | **EmptyState** and **Checklist** | Empty state: `text-h2` line, one `text-body` sentence, one action. Checklist: numbered steps with done, next and later states | Empty and first-run states | All lists; first run |
 | NC-13 | **Toggle** | On or off switch with a visible label, `role="switch"` | No boolean control exists | Sweetened, puck prep (WDT, puck screen), recalibration, freeze the new portion |
 | NC-14 | **Icon** (minimal) | Four strokes drawn like the Logo (round caps, `currentColor`): chevron, check, plus, close. Chevron mirrors in right-to-left | No icons exist; text alone doesn't work for a row chevron or a sheet close | ListRow, Sheet, Checklist |
+| NC-16 | **SuggestionCard** (round 5) | One suggested change for the next shot: overline, the change as a short sentence with the dial values, a one-line reason, an optional freshness line, and dismiss. Outline Card, ink only, never `signal`; polite live region so updates are announced | A suggestion combines rule output, values and actions in one recurring unit on two screens; a plain Card would be rebuilt twice | SCR-TASTE, SH-OFF |
 | NC-15 | **Meter** | A 2 px hairline track (`line`) with an `ink` fill, for remaining coffee; `role="meter"` with a text value | New display | Pantry, bag |
 
 **Extensions to existing components** (flagged, not new):
@@ -337,7 +347,8 @@ story with text from `en.json`, axe checks and a right-to-left story.
   `unit.coarser` under the ruler's ends, placed by the grinder's declared
   `coarser` direction), so "which way is finer" is never a guess. Also a
   `fahrenheit` unit (add to `CanonicalUnit` in `src/lib/units.ts`) for
-  machines that display °F (INIT-01 Q5, display only).
+  machines that display °F (INIT-01 Q5, display only). Round 5: a
+  `milliliter` unit (also added to `CanonicalUnit`) for the milk amount.
 - **Input**: used with `type="date"` and `type="url"` and
   `inputMode="decimal"`; add stories for these. No new component.
 - **Card**: no change. Used for home recipe, setups and bags.
@@ -366,8 +377,8 @@ epic fills it, so no tab is ever blank or broken in between builds.
 **UX flow**
 
 1. First open: SCR-START. `LogoWordmark` centred on `paper`, name from
-   `app.wordmark`. The account, household, default persona and starter drinks
-   are created behind it. No sign-in, no survey, no welcome carousel.
+   `app.wordmark`. The account, household, default persona, starter drinks
+   and (round 5) starter milks are created behind it. No sign-in, no survey, no welcome carousel.
 2. On success (target under 1 second on a normal connection) the app goes
    straight to SCR-HOME in its first-run state (checklist, section 2.3).
 3. Later opens skip SCR-START and land on SCR-HOME, or on the tab the user was
@@ -650,6 +661,24 @@ The shot log is one full-screen task, laid out so a shot is saved in seconds:
    - Changing the setup in the context block re-applies that rule to any prep
      Toggle the user hasn't touched; a touched Toggle keeps its value.
    - Sweetened always starts off (it's per drink, not per recipe).
+   - **Milk (round 5, milk drinks only).** For a drink type with milk, the
+     context block gains a fourth SelectField, `log.milk`, under the drink:
+     the household's milk list in SH-SELECT (starter list: whole,
+     semi-skimmed, skimmed, oat, soy, almond, lactose-free, as `milks.*`).
+     The amount is a ShotDial tab, `log.milkAmount`, after the shot values
+     and any temperature and pressure tabs: a NumberWheel in millilitres,
+     step 10, range 0 to 500 (DQ-26). A wheel, not an Input, keeps the log
+     free of text keyboards and reuses the dial; it's the "small NumberWheel"
+     option, sized like the other tabs.
+     - Starting values: the recipe's milk type and amount in recipe-based
+       modes; the saved shot's in edit mode; otherwise the type from the last
+       shot of this drink, else the first visible milk, and the amount from
+       the drink's typical amount (`typicalMilkMl`).
+     - Changing the drink to one without milk hides the field and the tab;
+       changing to another milk drink re-applies the starting rule to
+       untouched milk values.
+     - Not in the MVP: milk temperature, and editing the milk list (Next,
+       PEC-13).
 5. **Save**: primary `log.save`, full width, pinned to the bottom of the
    screen above the safe area so it's reachable with a thumb.
 6. Saved: go to SCR-TASTE (EPIC-01-05). Shot is already saved; tasting is
@@ -693,6 +722,8 @@ aren't lost while adding.
 - Grind captions point the correct way for both `coarser: higher` and
   `coarser: lower`, and in right-to-left.
 - Save is always visible and is the only primary button.
+- Milk appears only for drinks with milk, starts from the recipe or the
+  drink's typical amount, and never needs a keyboard.
 - Puck prep is two labelled switches, each operable in one tap and announced
   with its label and state; they start from the recipe (or the last shot on
   this setup) so the usual case needs no tap.
@@ -712,6 +743,9 @@ aren't lost while adding.
   (NC-13), including the puck-prep group (updated round 4).
 - DES-01-03-05 Design the missing-context and return-to paths, and the setup
   select with grind handling when the grinder changes (updated round 3).
+- DES-01-03-06 Design milk in the shot log (milk field, amount tab, starting
+  rules) and the milk line in ShotValues, SCR-SHOT, SCR-SHOTS rows, SH-PIN
+  and Home; write copy direction for the starter milk list (round 5).
 
 #### EPIC-01-04: Record temperature and pressure when your machine has them
 
@@ -761,38 +795,92 @@ capabilities" under EPIC-01-06).
 
 #### EPIC-01-05: Say how it tasted
 
+**Round 5: "just right" tasting (S-02, applied decision).** Taste is recorded
+against the persona's own ideal, not as absolute scores. The round-1 four
+1-to-5 scores (sweetness, acidity, bitterness, body) and the defect list are
+replaced by four "just right" questions and six observation tags. The overall
+rating stays. Channelling stays the only signal-coloured warning. DQ-08
+(defect list) is closed by the spec.
+
 **UX flow: SCR-TASTE (after saving a measured shot)**
+
+The design goal is seconds, not a form: one or two taps for most shots, and
+nothing is ever required.
 
 1. Header `taste.title` [shot saved] in `text-h2`, with the compact
    ShotValues (NC-08) of the saved shot underneath, so the user sees what
    they're rating.
 2. **Overall**: ChipGroup numbered scale 1 to 5, `taste.rating`.
-3. **Sweetness, acidity, bitterness, body**: four numbered-scale ChipGroups,
-   each with its label at the start, low and high end words in `text-label`
-   (`taste.low`, `taste.high`).
-4. **Defects**: multi-choice ChipGroup with the defect list (`defects.*`,
-   list not yet defined, DQ-08).
-5. **Shot warning** (in scope, PEC-04): as soon as channelling is tagged, a
-   block Notice in the warning tone, `shot.warnings.channelling`, appears
-   directly under the defects group (no layout jump above the user's thumb);
-   untagging removes it. "Ran fast" is out until a threshold exists (DQ-09).
+3. **"Just right" questions**: four rows, each a just-right scale (the
+   ChipGroup just-right variant, NC-04, round 5). A row is a label at the
+   start, then five compact chips in one line, with the end words in
+   `text-label` `ink-secondary` under the outer chips. The centre chip reads
+   `taste.justRight` [just right] and is drawn a step stronger
+   (`line-strong` outline) as the resting point, so the eye lands there.
+   Nothing is selected until tapped: an untouched row saves nothing, which is
+   not the same as "just right".
+
+   | Row | Key | Start end | Centre | End end | Points |
+   |---|---|---|---|---|---|
+   | Balance | `taste.balance` | `taste.balance.sour` [too sour] | just right | `taste.balance.bitter` [too bitter] | 5 (-2 to +2) |
+   | Strength | `taste.strength` | `taste.strength.weak` [too weak] | just right | `taste.strength.strong` [too strong] | 5 |
+   | Strength, milk drinks | `taste.strength` | `taste.strength.lost` [lost in the milk] | just right | `taste.strength.overpowering` [overpowering] | 5 |
+   | Body | `taste.body` | `taste.body.thin` [too thin] | just right | `taste.body.heavy` [too heavy] | 5 |
+   | Sweetness | `taste.sweetness` | `taste.sweetness.not` [not sweet enough] | just right | none | 3 (-2 to 0), one-sided |
+
+   The two chips either side of the centre are "a bit" and "much"; their
+   accessible names say so (`taste.aBit`, `taste.much` with the end word),
+   while the chips themselves are unlabelled dots of increasing size, so a
+   row stays one line on 375 px.
+   - **`taste.allJustRight`** [all just right]: a ghost chip above the four
+     rows that sets all four to just right in one tap (each can still be
+     changed). The easy path for a good shot.
+4. **Observations**: a multi-choice ChipGroup of six tags, `taste.tags.*`:
+   `sourAndBitter` [sour and bitter at once], `dryFinish` [dry finish],
+   `flat` [flat], `burnt` [burnt], `littleCrema` [little crema],
+   `channelling` [channelling seen]. They describe, they don't judge, so
+   they sit under a quieter overline `taste.observed` [noticed anything?].
+5. **Shot warning** (PEC-04): when `channelling` is tagged, a block Notice in
+   the warning tone, `shot.warnings.channelling`, appears directly under the
+   tags (no layout jump above the user's thumb); untagging removes it. No
+   other tag or answer uses `signal`. "Ran fast" is never a warning; it is
+   only part of a suggestion's reason (DQ-09).
+6. **Suggestion** (round 5, EPIC-02-03): as soon as an answer or tag gives
+   Tare a lever, a SuggestionCard (NC-16) appears above the actions with one
+   change and a one-line reason, and updates live as answers change. With no
+   lever but a freshness explanation, the card shows only the explanation.
+   With nothing to say, there's no card. Full rules under EPIC-02-03.
+7. **Actions** (one primary, chosen by what the user said):
+   - A suggestion is showing: primary `suggest.tryIt` [dial in with this
+     change], which saves the tasting and opens SCR-LOG in dial-in mode
+     pre-filled with this shot plus the change. Secondary `taste.done`;
+     ghost `recipe.pin` is still available.
+   - No suggestion, in fix and dial-in modes: primary `recipe.pin`, secondary
+     `taste.done` (pinning is why the user came).
+   - No suggestion, otherwise: primary `taste.done`, secondary `recipe.pin`.
+   - The SuggestionCard's own ghost `suggest.dismiss` hides it; the primary
+     falls back as if there were no suggestion.
+8. Everything is optional. Done with nothing chosen saves nothing more.
+
+**The seconds budget.** A good shot: rating, all just right, Done (three
+taps), or just Done. A sour shot: one tap on Balance, then "dial in with this
+change" (two taps). The primary is pinned to the bottom, so it's never more
+than one scroll away. The tags are the only part that may need a scroll on
+375 x 667, and they are the least-needed part.
 
 **Where the warning appears.** This epic owns the warning; other screens reuse
 it, never restyle it:
 
 | Place | Form |
 |---|---|
-| SCR-TASTE | Block Notice under the defects, on tagging |
+| SCR-TASTE | Block Notice under the tags, on tagging |
+| SH-OFF (round 5) | Block Notice under the tags, on tagging |
 | SCR-SHOT | Block Notice under the values |
 | SCR-SHOTS rows | Inline Notice: one line of `signal` text, after the markers |
-| SCR-LOG edit mode | Block Notice under the defects, as on SCR-TASTE |
+| SCR-LOG edit mode | Block Notice under the tags, as on SCR-TASTE |
 
-Nowhere else uses `signal`. The defect chip itself stays monochrome when
+Nowhere else uses `signal`. The tag chip itself stays monochrome when
 selected, like every other chip: the warning is the Notice, not the chip.
-6. Actions: primary `taste.done`, and secondary `recipe.pin` [pin as recipe]
-   (EPIC-02-01). In fix and dial-in modes, pin is the primary action and done
-   is secondary, because pinning is why the user came.
-7. Everything is optional. Done with nothing chosen saves nothing more.
 
 **Leaving saves (round 3, review M2).** One rule: whatever the user has
 chosen on SCR-TASTE is saved however they leave it. That means Done, pin (which
@@ -814,12 +902,22 @@ is stated in the edit mode's header (`log.titleEdit`).
 | Save failed (on any way out) | The screen stays, choices kept, Notice `taste.saveFailed` with `actions.retry`, and a ghost `taste.leaveWithout` [leave without saving tasting]. The shot itself was already saved. |
 | Leave by Done, back or system back | Choices saved, then navigate; no prompt. |
 
-**Components:** ChipGroup (NC-04, numbered scale and multi), ShotValues
-(NC-08), Notice (warning tone, NC-10), Button.
+**Components:** ChipGroup (NC-04: numbered scale, just-right scale, multi),
+ShotValues (NC-08), Notice (warning tone, NC-10), SuggestionCard (NC-16,
+new in round 5), Button.
 
 **Design acceptance criteria**
 
 - Tasting never blocks saving a shot, and never appears before Save.
+- A good shot can be recorded in at most three taps (rating, all just right,
+  Done); a single off answer reaches a suggested next shot in two taps.
+- No question is required, and an untouched scale saves nothing (never a
+  silent "just right").
+- Each just-right row fits on one line at 375 px wide, with end words that
+  mirror in right-to-left (the sour end is at the inline start in both
+  directions).
+- For milk drinks, Strength uses the milk wording; nothing else changes.
+- No flavour-note question is asked (S-02).
 - Leaving SCR-TASTE in any way saves what was chosen; no path discards it
   silently, and no path asks first. Only a failed save keeps the user on the
   screen.
@@ -832,17 +930,22 @@ is stated in the edit mode's header (`log.titleEdit`).
   SCR-SHOTS, edit), using the shared Notice in block or inline size.
 - The warning is text plus colour, never colour alone, so it passes without
   colour vision.
-- The screen fits without scrolling on 430 x 932; on 375 x 667, defects may
-  scroll but Done stays visible.
+- The screen fits without scrolling on 430 x 932; on 375 x 667, the tags may
+  scroll but the primary action stays visible.
 
 **Design tasks** (`design`)
 
 - DES-01-05-01 Wireframe SCR-TASTE in normal, fix and dial-in modes, with
-  the leaving-saves rule and its failure state (updated round 3).
-- DES-01-05-02 Design the numbered-scale ChipGroup variant and its stories.
+  the leaving-saves rule and its failure state, the just-right rows, tags,
+  "all just right" and the adaptive primary (updated rounds 3 and 5).
+- DES-01-05-02 Design the numbered-scale and just-right ChipGroup variants
+  and their stories, including the one-sided sweetness row and right-to-left
+  (updated round 5).
 - DES-01-05-03 Design Notice (NC-10) warning tone and the rule that limits it
   to shot warnings; add stories.
-- DES-01-05-04 Propose a starter defect list for the Head of Product (DQ-08).
+- DES-01-05-04 Write copy direction for the four just-right questions (both
+  strength wordings) and the six observation tags (redefined round 5; was the
+  defect list, now given by S-02).
 - DES-01-05-05 Design the channelling warning in each place it appears
   (block and inline Notice) and add stories for both sizes (round 2).
 
@@ -974,11 +1077,12 @@ Button, PageHeader, ListRow.
 1. From SCR-TASTE (`recipe.pin`) or SCR-SHOT (`recipe.pin`, measured shots
    only; one-tap shots don't show it).
 2. SH-PIN opens: `recipe.pinTitle` naming drink, coffee and setup; the new
-   values (ShotValues compact, with the puck-prep line when WDT or a puck
-   screen was used, round 4); and, if a recipe exists, the current one above
+   values (ShotValues compact, with the milk line for milk drinks, round 5,
+   and the puck-prep line when WDT or a puck screen was used, round 4); and, if a recipe exists, the current one above
    it in `ink-secondary` with `recipe.replaces`. A prep difference between
    the two shows like any other changed value. Primary `recipe.confirmPin`.
-   The recipe stores the shot's prep, and one-tap pulls copy it (S-02).
+   The recipe stores the shot's prep and milk, and one-tap pulls copy them
+   (S-02).
 3. Confirmed: sheet closes; a short confirmation in place (`recipe.pinned`,
    live region). The home screen now shows this recipe.
 
@@ -1074,8 +1178,9 @@ for this bean, persona and drink:
    showing; that ends PulledState (the reaction stays available on the shot
    in SCR-SHOTS) and shows the new recipe ready to pull.
 3. Tap `home.pull`. The shot is recorded at once (optimistic, then confirmed),
-   with the recipe's values and puck prep (WDT, puck screen; round 4), its
-   setup, and the earliest-opened open portion of the coffee. "Open" means opened, not finished and not in the freezer
+   with the recipe's values, puck prep (WDT, puck screen; round 4) and milk
+   type and amount (round 5), its setup, and the earliest-opened open portion
+   of the coffee. "Open" means opened, not finished and not in the freezer
    (S-02): one-tap never uses frozen coffee on its own. No rating is asked.
 4. PulledState (NC-07) appears in place: confirmation, undo for the window,
    good and off (EPIC-02-03).
@@ -1142,92 +1247,213 @@ Checklist, Notice.
 **UX flow**
 
 1. **Off after a one-tap shot:** tap `home.reactionOff` in PulledState. The
-   reaction is saved on the one-tap shot. SCR-LOG opens in fix mode: title
-   `log.titleFix`, starting values from the current recipe, the same portion,
-   drink and setup, and a one-line note `log.fromRecipe` [starting from
-   your recipe].
-2. The user nudges one or two wheels. Each changed tab shows the recipe value
-   under it (`log.was`), so the adjustment is clear.
-3. Save: a new measured shot (DQ-12, two records). SCR-TASTE opens with pin as
-   the primary action.
+   reaction is saved on the one-tap shot, and **SH-OFF** opens over the home
+   screen (round 5, DQ-23): `off.title` [what was off?], the same four
+   just-right rows and six tags as SCR-TASTE (no rating, the user just said
+   "off"), and the SuggestionCard below them, live.
+   - Primary `suggest.tryIt` (or `off.fix` [fix it] when there's no
+     suggestion yet) opens SCR-LOG in fix mode with the recipe's values plus
+     the suggested change. Ghost `off.skip` [skip] opens the same fix mode
+     with the recipe's values only, as before round 5.
+   - Answers are saved on the one-tap shot as its taste (they're judgements,
+     not measurements), whichever way the sheet is left, like SCR-TASTE.
+   SCR-LOG fix mode: title `log.titleFix`, the same portion, drink and setup,
+   and a one-line note: `log.fromSuggestion` [suggested: grind 2 steps finer]
+   when a change was applied, else `log.fromRecipe` [starting from your
+   recipe].
+2. The user nudges one or two wheels, or none if the suggestion is enough.
+   Each changed tab shows the recipe value under it (`log.was`), so the
+   adjustment is clear, including a change the suggestion made.
+3. Save: a new measured shot (DQ-12, two records). SCR-TASTE opens for the
+   new shot, with its adaptive primary (a new suggestion if it's still off,
+   else pin).
 4. **Dial in from the home screen:** `home.dialIn` with a recipe opens SCR-LOG
    in dial-in mode; same as above without a reaction or a one-tap shot. On a
    setup with no recipe, it starts from the closest setup's recipe (EPIC-02-01).
    The portion follows the one-tap rule; with no open portion, SH-PORTION
-   opens first, as for a pull.
+   opens first, as for a pull. When a suggestion is pending for this recipe
+   (from the last tasting or SH-OFF, not dismissed), the ghost button reads
+   `home.dialInSuggested` [dial in with the suggested change] and the log
+   starts with the change applied.
 5. **Good:** saved on the one-tap shot; chip shows selected; nothing else
    happens.
-6. Leaving fix mode without saving keeps the "off" reaction and saves nothing
-   else.
+6. Leaving fix mode without saving keeps the "off" reaction and the SH-OFF
+   answers, and saves nothing else.
+
+**UX flow: the suggestion (round 5, S-02 "dial-in suggestions are rules")**
+
+One suggested change for the next shot, with a one-line reason, pre-filled
+into the next dial-in. Rules, not AI; tested with evals. Shown in two places:
+SCR-TASTE (after tasting a measured shot) and SH-OFF (the off path from a
+one-tap shot). Home only changes the Dial in label (step 4).
+
+- **SuggestionCard (NC-16)**, `Card tone="outline"`, no colour:
+  - overline `suggest.title` [next shot];
+  - the change in `text-h3`, as a pattern per lever, for example
+    `suggest.grindFiner` ["grind {steps} steps finer"] with the dial values
+    under it in `text-label` ("15 → 13", tabular, arrow mirrors);
+  - the reason, one line in `text-label` `ink-secondary`, a pattern over the
+    answers that drove it, for example `suggest.reason` ["too sour and ran
+    fast"];
+  - optional freshness line (below);
+  - ghost `suggest.dismiss` [not now] at the end.
+- **Lever order** (S-02), first match wins, one change only:
+
+  | Signs | Lever | Example copy |
+  |---|---|---|
+  | Channelling seen, sour and bitter at once, or dry finish | Puck prep first: WDT, then puck screen, if not used; if both used, grind (uneven extraction) is not suggested and the card shows `suggest.prepAlready` [prep was used; check distribution and tamping] | "Use WDT next time" |
+  | Balance off | Grind, in the grinder's own direction and steps; time is a diagnostic in the reason (fast and sour, slow and bitter) | "Grind 2 steps finer" (sour, much) |
+  | Strength off | Yield (shorter for weak, longer for strong); for milk drinks, dose, then milk amount | "Stop at 34 g instead of 36 g"; "Try about 30 ml less milk" |
+  | Body off | Dose, within the basket's dose range | "Dose 0.5 g more" |
+  | Balance still off and grind at its limit | Temperature, only on machines that can set it | "Brew 1 °C hotter" |
+
+  Step size follows "a bit" (one step) or "much" (two). Grind direction uses
+  the grinder's declared `coarser`; with "not sure" direction the card says
+  "grind finer" without dial numbers and adds `suggest.directionUnknown`
+  linking to the grinder's capabilities (EPIC-01-06). Milk amounts use the
+  NumberWheel's `milliliter` formatting.
+- **Freshness, an explanation, never a lever** (from the two clocks): a
+  `text-label` line under the reason, for example `suggest.fresh.pastPeak`
+  ["36 days since roast: likely past its peak"] or `suggest.fresh.tooFresh`
+  ["3 days since roast: very fresh, may channel"]. It can appear with a
+  lever or alone (then the card has no change and no "try it"). Thresholds
+  are rule parameters (DQ-24).
+- **Pre-fill.** "Dial in with this change" opens SCR-LOG with the shot's (or
+  recipe's) values plus the change, the changed tab showing "was", and the
+  `log.fromSuggestion` note. The change is never saved on its own; it only
+  becomes real when the user saves the next shot.
+- **Dismiss.** `suggest.dismiss` hides the card; the next dial-in starts
+  without the change, and Home's label returns to `home.dialIn`
+  (DQ-25 for how long a dismissal lasts).
+- **No colour.** A suggestion is advice, not a warning: ink only. Channelling
+  keeps its own Notice above it.
 
 **States:** as SCR-LOG. Reaction save failure: the chip returns to unselected
-with a Notice in PulledState; the fix flow still opens.
+with a Notice in PulledState; the fix flow still opens. SH-OFF answers that
+fail to save: Notice in the sheet with retry; "skip" still opens the fix
+mode. The suggestion is calculated on the device from the answers and the
+shot, so it has no loading state.
 
-**Components:** PulledState, ChipGroup, ShotDial ("was" values), SCR-LOG,
-SCR-TASTE.
+**Components:** PulledState, ChipGroup, ShotDial ("was" values), Sheet
+(SH-OFF), SuggestionCard (NC-16), SCR-LOG, SCR-TASTE.
 
 **Design acceptance criteria**
 
-- From "off" to a saved, adjusted shot is: off, one drag, save.
-- Every changed value shows what it was changed from; unchanged values show
-  nothing extra.
+- From "off" to a saved, adjusted shot is: off, one answer, "try it", save.
+  Skip keeps the round-1 path: off, skip, one drag, save.
+- A suggestion is always one change, with a reason the user can check
+  against what they answered.
+- Grind suggestions name the direction and, when known, the dial values on
+  the user's own grinder; they never guess a direction.
+- Puck prep is suggested before grind whenever there are channelling signs.
+- Freshness never appears as a change to make, only as an explanation.
+- Dismissing is one tap and leaves no trace on Home.
 - Good and off are optional, equal in weight (two secondary chips, neither
   primary), and never reappear as a prompt.
 
 **Design tasks** (`design`)
 
-- DES-02-03-01 Wireframe the off-to-fix flow from PulledState to SCR-TASTE.
+- DES-02-03-01 Wireframe the off-to-fix flow from PulledState through SH-OFF
+  to SCR-TASTE (updated round 5).
 - DES-02-03-02 Design the "was" value treatment in ShotDial.
+- DES-02-03-03 Design SH-OFF: just-right rows and tags without a rating, the
+  live suggestion, fix and skip (round 5).
+- DES-02-03-04 Design SuggestionCard (NC-16) with each lever, the
+  direction-unknown and freshness-only states, and dismiss; add its
+  Storybook story (round 5).
+- DES-02-03-05 Write the suggestion copy patterns (change, reason,
+  freshness), so every lever reads as one short sentence in every locale
+  (round 5).
 
 #### EPIC-02-06: See your recent shots
 
 **UX flow: SCR-SHOTS**
 
-1. Tab `nav.shots`. Title `shots.title`.
-2. ListRows grouped by day (`shots.today`, `shots.yesterday`, then a formatted
+1. Tab `nav.shots`. Title `shots.title`. (The tab may be renamed to a
+   method-neutral name, likely "Journal"; the Head of Product is deciding, so
+   this design keeps "Shots" for now.)
+2. **Filters (round 5, Head of Product decision; PEC-14).** A single row of
+   filter chips under the title, scrolling sideways if it overflows:
+   - `shots.filterDrink` and `shots.filterCoffee`, and `shots.filterSetup`
+     only when the household has more than one setup.
+   - Each chip shows its current value ("Flat white", a coffee name) or
+     `shots.filterAnyDrink` / `shots.filterAnyCoffee` / `shots.filterAnySetup`
+     when off. Tapping opens SH-SELECT with the household's drinks, coffees
+     with shots, or setups.
+   - An active chip is filled (`ink` with `on-action` text) and carries a
+     close Icon (NC-14) with its own accessible name
+     (`shots.removeFilter`); one tap removes that filter.
+   - When any filter is active, a ghost chip `shots.filterAll` [All] leads the
+     row and clears every filter in one tap.
+   - **Default:** each time the tab is opened from the tab bar, drink and
+     coffee are pre-set to what's currently selected on SCR-HOME (including a
+     change made there; DQ-17). Setup is not pre-set. With nothing selected on
+     Home (first run), no filter is set. Coming back from SCR-SHOT keeps the
+     filters the user left.
+   - The filters always show as chips, so a short list is never a mystery:
+     what's filtered is on screen, and "All" is one tap.
+   - Filters apply to "show older" too. Grind period dividers still follow
+     their EPIC-04-01 rule, for the grinders of the shots listed.
+3. ListRows grouped by day (`shots.today`, `shots.yesterday`, then a formatted
    date as a `text-overline` group heading). Each row:
    - primary: drink and time of day (formatted);
-   - secondary: coffee name;
+   - secondary: coffee name, and for milk drinks the milk type and amount
+     (`shots.coffeeAndMilk` pattern, round 5);
    - end: compact ShotValues (dose to yield, time; grind on a second line);
    - markers in `text-overline` `ink-secondary`: `shots.oneTap` for one-tap
      shots, the reaction (`shots.good`, `shots.off`), `bag.fromFrozen`;
    - the channelling warning as an inline Notice (EPIC-01-05 owns it).
    - Grind period dividers: owned by EPIC-04-01 and specified there.
-3. The list shows the last 30 days, then `shots.showOlder` (DQ-13).
-4. Tap a row: SCR-SHOT.
+4. The list shows the last 30 days, then `shots.showOlder` (DQ-13).
+5. Tap a row: SCR-SHOT.
 
 **UX flow: SCR-SHOT (shot detail)**
 
 - ShotValues large, context (drink, coffee, and the setup with its machine,
   grinder and basket by maker and model; setups never change, so this is
   always what was used), date and time, whose taste and who logged (shown
-  once sub personas exist), puck prep (`log.prepWdt`, `log.prepPuckScreen`,
-  shown only when used; round 4), sweetened, taste scores and defects if any.
+  once sub personas exist), milk (`shot.milkLine`, milk drinks only; round
+  5), puck prep (`log.prepWdt`, `log.prepPuckScreen`, shown only when used;
+  round 4), sweetened, and taste if any: the rating, each just-right answer
+  as a short phrase (for example "a bit sour"; untouched questions aren't
+  shown) and the observation tags (round 5).
   Rows in SCR-SHOTS don't show prep, to keep them to one glance.
-- Actions: `actions.edit` (secondary) opens SCR-LOG in edit mode; for
-  measured shots, `recipe.pin` (primary). For one-tap shots, edit is the only
-  action and is primary; a line `shot.copiedFromRecipe` explains where the
-  values came from, and the reaction chips are shown so a reaction can be
-  given or changed later (DQ-05).
+- Actions (updated round 5):
+  - Measured shots: `recipe.pin` (primary), next to it `shot.dialInFromThis`
+    [dial in from this] (secondary), and `actions.edit` (ghost).
+  - One-tap shots: `actions.edit` (primary) and `shot.dialInFromThis`
+    (secondary). There's no pin. A line `shot.copiedFromRecipe` explains where
+    the values came from, and the reaction chips are shown so a reaction can
+    be given or changed later (DQ-05).
+  - **Dial in from this** opens SCR-LOG in dial-in mode pre-filled with that
+    shot's values, milk and puck prep, on that shot's setup, drink and
+    coffee. The portion follows the one-tap rule for that coffee (SH-PORTION
+    if none is open, as for a pull), and the note `log.fromShot` [starting
+    from your shot on <date>] names the source. If that setup isn't current,
+    the setup field shows it and saving makes it current (DQ-18). If the
+    coffee is finished, the coffee field opens on its missing-coffee state.
 
 **UX flow: edit**
 
 - SCR-LOG edit mode with the saved values, then the taste controls below the
   dial (in edit mode taste is on the same screen, since the user came to fix
-  something specific). Only values, puck prep, sweetened and taste change;
-  context is read-only (SQ-08). Save `log.saveChanges`. Leave with changes: SH-CONFIRM.
+  something specific). Only values, milk, puck prep, sweetened and taste
+  change; context is read-only (SQ-08). For one-tap shots the taste controls
+  are the just-right rows and tags (no rating), matching SH-OFF (DQ-23). Save `log.saveChanges`. Leave with changes: SH-CONFIRM.
 
 **States**
 
 | State | Design |
 |---|---|
 | Loading | Skeleton rows (five). |
-| Empty | EmptyState `shots.empty` with primary `home.dialIn` (opens SCR-LOG). |
+| Empty | EmptyState `shots.empty` with primary `home.dialIn` (opens SCR-LOG). No filter row. |
+| Empty with filters (round 5) | EmptyState `shots.emptyFiltered` ["No shots of this drink and coffee yet"; the pattern names whichever filters are set], with primary `shots.clearFilters` that does the same as "All". The filter chips stay visible above it. |
 | Load failed | Notice with retry in place of the list. |
 | Older loading | Skeleton rows under the list; button disabled. |
 
 **Components:** ListRow, ShotValues (compact and large), PageHeader,
-EmptyState, Skeleton, Notice, Button, ChipGroup.
+EmptyState, Skeleton, Notice, Button, ChipGroup (with the filter variant,
+round 5), Sheet (SH-SELECT), Icon (close).
 
 **Design acceptance criteria**
 
@@ -1238,12 +1464,25 @@ EmptyState, Skeleton, Notice, Button, ChipGroup.
 - Values in rows align across rows (tabular numbers, end-aligned in
   left-to-right, start-aligned mirror in right-to-left).
 - Editing a one-tap shot is at most two taps from the Shots tab.
+- Every active filter is visible as a chip with its own remove control, and
+  "All" clears them in one tap; the list is never filtered by something the
+  user can't see.
+- Opening the tab shows the shots for the drink and coffee on Brew by
+  default; a filtered empty list says so and offers to clear.
+- The setup filter appears only for households with more than one setup.
+- Filter chips are operable by keyboard and announced with their value and
+  "remove" action; the row mirrors in right-to-left.
+- "Dial in from this" is two taps from the list (row, then the button) and
+  never saves anything by itself.
 
 **Design tasks** (`design`)
 
-- DES-02-06-01 Design SCR-SHOTS, including grouping, markers and dividers.
-- DES-02-06-02 Design SCR-SHOT for measured and one-tap shots, with puck prep
-  and parts by maker and model (updated round 4).
+- DES-02-06-01 Design SCR-SHOTS, including grouping, markers, dividers, the
+  filter row with its default from Brew, "All" and the filtered empty state
+  (updated round 5).
+- DES-02-06-02 Design SCR-SHOT for measured and one-tap shots, with puck
+  prep, milk, parts by maker and model, and "Dial in from this" (updated
+  rounds 4 and 5).
 - DES-02-06-03 Design SCR-LOG edit mode with taste on the same screen.
 
 ### INIT-03: Always know what beans you have and how old they are
@@ -1553,6 +1792,8 @@ with the row.
 
 ### EPIC-02-05: Make the drink list yours
 
+- **Round 5 (PEC-13, proposed):** the same screen pattern also edits the
+  household's milk list (rename, hide, add, order), from `profile.milks`.
 - **Flow:** SCR-PROFILE gains `profile.drinks`, opening a drinks screen:
   ListRows with a visibility Toggle per drink, move up and move down buttons
   (accessible reordering, no drag-only), tap to rename (Input sheet), and
@@ -1630,7 +1871,9 @@ a fact, in ink, with signal reserved for shot warnings.
 - **EPIC-06-02 Get a grounded fix when a shot goes wrong:** the coach's
   advice appears on SCR-TASTE and in fix mode as one sentence of diagnosis and
   one action, with the suggested values applied as "was" changes in ShotDial
-  that the user can accept. Sources available on request.
+  that the user can accept. Sources available on request. *Round 5:* it
+  should reuse the MVP's rules-based SuggestionCard (NC-16) and only change
+  where the advice comes from, so users see one familiar card.
 - **EPIC-06-04 Tare learns your palate as you log:** no survey; a quiet "your
   taste" summary in Profile, in words, not charts.
 - **EPIC-06-05 Share your shots, with your consent:** a plain-language consent
@@ -1742,6 +1985,43 @@ applied in `epics.md` revision 7.
   current. Same pattern and cost as PEC-03. Small; no size change expected.
   It answers EPIC-01-02's and EPIC-02-02's "current setup" questions.
 
+### New in round 5 (proposed, pending the Head of Product and the epic-planner)
+
+The round-5 decisions are already made in S-02 and S-08, but epics revision
+8 doesn't place them yet. These say where the design assumes they live.
+
+- **PEC-10 EPIC-02-03: own the dial-in suggestion.** The rules-based
+  suggestion (S-02) ships in the MVP, but no MVP epic has it in scope;
+  EPIC-06-02 is the Later AI Coach. EPIC-02-03 already owns the off path and
+  the pre-filled log, so the suggestion, SH-OFF and the pre-fill belong
+  there. The rules need evals (S-02), so this likely moves EPIC-02-03 from S
+  to M. The alternative is a new MVP epic under INIT-04 (drift-aware
+  dial-in), which would also be the natural home for the freshness
+  explanations.
+- **PEC-11 EPIC-01-05: rescope to "just right" tasting.** Replace the four
+  absolute scores and defect tags with the four just-right questions and six
+  observation tags (S-02). Asking them on the off path (SH-OFF) and on
+  one-tap shots in edit mode is included (DQ-23). Size probably stays S.
+- **PEC-12 EPIC-01-03 (with EPIC-01-01, 02-01, 02-02): milk.** The starter
+  milk list is created with the household (EPIC-01-01). Milk type and amount
+  are logged for milk drinks (EPIC-01-03), stored on recipes (EPIC-02-01)
+  and copied by one-tap pulls (EPIC-02-02). Each piece is small; EPIC-01-03
+  may sit at the top of M.
+- **PEC-13 EPIC-02-05 (Next): edit the milk list too.** Milk-list editing is
+  not in the MVP: the starter list covers most households, and a household
+  that alternates milks can add a drink such as "Oat flat white" (S-02),
+  which is Next work anyway. Proposal: EPIC-02-05 becomes "Make the drink and
+  milk lists yours", with the same rename, hide, add and order flow for
+  milks. Small; stays S.
+- **PEC-14 EPIC-02-06: filters and "dial in from this" (an applied Head of
+  Product decision, for the epic-planner to record).** EPIC-02-06's scope
+  has "filtering, search, charts or analysis" out. The Head of Product has
+  now put filters by drink, coffee and setup in, with Brew's drink and coffee
+  as the default, plus "Dial in from this" on shot detail. Search, charts and
+  analysis stay out. EPIC-02-06 probably moves from S to the small end of M.
+  The tab may later be renamed (likely "Journal"); that's the Head of
+  Product's call and would be a mechanical rename.
+
 ---
 
 ## 7a. UX concerns
@@ -1759,10 +2039,33 @@ applied in `epics.md` revision 7.
 - **Data-loss risk is invisible.** The MVP accepts that a lost device loses
   everything. The design adds one calm sentence in Profile and nothing else;
   confirm that's the right level, neither silent nor alarming.
-- **Signal colour has almost nothing to show.** With no "ran fast" threshold
-  and an undefined defect list, the only shot warning in the MVP is a tagged
-  channelling defect, which the user just told us about. The warning system
-  is built but barely visible until DQ-08 and DQ-09 are answered.
+- **Signal colour has almost nothing to show.** With no "ran fast" threshold,
+  the only shot warning in the MVP is the "channelling seen" tag, which the
+  user just told us about. *Round 5:* that's now by design. "Ran fast" lives
+  on as part of a suggestion's reason, in ink, so it informs without alarm.
+- **Is tasting still "seconds"? (round 5).** Yes, if the defaults hold: a
+  good shot is three taps at most, and an off shot is two taps to a
+  suggestion. But the screen now holds eleven controls (rating, four rows,
+  six tags), so it can *look* like a form even when it isn't one. The
+  mitigations: nothing is required; "all just right" in one tap; dot chips
+  instead of labelled chips; tags behind a quieter overline; the primary
+  always pinned. The risk to watch is the four rows reading as a survey. If
+  usability tests show hesitation, show Balance and Strength first and fold
+  Body and Sweetness under "more", without changing the data.
+- **Suggestions must earn trust (round 5).** One wrong grind suggestion early
+  on, especially in the wrong direction, could teach users to ignore them.
+  That's why the direction is never guessed, the reason is always shown, and
+  dismissing is one tap. The evals the spec requires matter more than the
+  card.
+- **A pre-filtered list can hide the shot you want (round 5).** Opening Shots
+  on Brew's drink and coffee is right most of the time. But someone looking
+  for yesterday's shot of a different drink lands on a shorter list. The
+  filled chips and the one-tap "All" make that visible and cheap to undo.
+  Watch whether people expect the tab to remember their last filters instead.
+- **Two places to taste a one-tap shot (round 5).** SH-OFF asks about the
+  one-tap shot, and then SCR-TASTE asks about the fix shot. That's correct
+  (two shots), but a user may feel asked twice. The design keeps SCR-TASTE
+  for the fix shot because that's where the next suggestion comes from.
 - **Phase 0 contrast issue.** `Input` styles placeholders in `ink-tertiary`
   at 16 px, which breaks the large-text-only rule (DES-01-01-04).
 - **Six value tabs in ShotDial.** Machines with exact temperature and
@@ -1842,11 +2145,11 @@ reversed without changing the structure.
 - **DQ-07** Starting values for a blank shot log: assumed the last measured
   shot on this setup; with none, dose 18 g, yield 36 g, time 28 s, grind at
   the middle of the grinder's range.
-- **DQ-08** Defect list: not defined. A starter list is needed before
-  EPIC-01-05 can be designed in full; the designer can propose one
-  (DES-01-05-04).
+- **DQ-08** Defect list. *Closed in round 5 by S-02:* six observation tags
+  replace defects.
 - **DQ-09** "Ran fast" threshold: not defined; the warning is left out until
-  it is.
+  it is. *Round 5:* "ran fast" appears only inside a suggestion's reason
+  (time is a diagnostic, S-02), never as a `signal` warning.
 - **DQ-10** Duplicate link found: may the user still add their own entry?
   Design supports both; the ghost "add anyway" is hidden if not.
 - **DQ-11** "Not sure" capabilities. *Updated round 2:* the Head of Product
@@ -1900,6 +2203,25 @@ reversed without changing the structure.
   basket picker lists the household machine's maker's baskets first. Someone
   who still can't tell adds it through "Can't find it?" (EPIC-01-06). Confirm
   the seed covers stock baskets.
+- **DQ-23** (round 5, answers SQ-17) Where does the one-tap off path ask the
+  taste questions? Assumed: in SH-OFF, a sheet over Home straight after
+  "off", before the fix log, so the suggestion can pre-fill the fix. No
+  rating there. Answers are saved on the one-tap shot as its taste (this
+  also settles review M1 for the off path: one-tap shots can carry just-right
+  answers and tags, never a rating). "Skip" goes straight to the fix log, as
+  before.
+- **DQ-24** (round 5) Freshness thresholds for the explanations: assumed
+  "very fresh, may channel" under 5 days since roast (or packing), and
+  "likely past its peak" over 35 days since roast or over 21 days open, with
+  freezer time excluded as usual. These are rule parameters, to be tuned by
+  the rule evals; the design only needs the two phrases.
+- **DQ-25** (round 5) How long a dismissal lasts: assumed until the next shot
+  on that coffee, setup and drink. A new shot gives a fresh suggestion. On
+  the device only; nothing new is stored.
+- **DQ-26** (round 5) Milk amount control: a NumberWheel tab in millilitres,
+  step 10, range 0 to 500, pre-filled from the recipe or the drink's typical
+  amount. The milk type starts from the last shot of this drink, else the
+  first visible milk.
 
 ---
 
@@ -1920,29 +2242,29 @@ Phase 0 work (PR #3) already delivers as done.
 |---|---|---|
 | EPIC-01-01 | DES-01-01-01: 4 · 02: 8 · 03: 4 · 04: 4 · 05: 8 · 06: 2 | 30 h |
 | EPIC-01-02 | DES-01-02-01: 6 · 02: 8 · 03: 5 · 04: 6 · 05: 8 · 06: 6 | 39 h |
-| EPIC-01-03 | DES-01-03-01: 10 · 02: 12 · 03: 4 · 04: 5 · 05: 4 | 35 h |
+| EPIC-01-03 | DES-01-03-01: 10 · 02: 12 · 03: 4 · 04: 5 · 05: 4 · 06: 8 | 43 h |
 | EPIC-01-04 | DES-01-04-01: 6 · 02: 4 | 10 h |
-| EPIC-01-05 | DES-01-05-01: 6 · 02: 4 · 03: 4 · 04: 2 · 05: 3 | 19 h |
+| EPIC-01-05 | DES-01-05-01: 10 · 02: 6 · 03: 4 · 04: 3 · 05: 3 | 26 h |
 | EPIC-01-06 | DES-01-06-01: 8 · 02: 4 · 03: 6 · 04: 3 · 05: 6 | 27 h |
 | EPIC-02-01 | DES-02-01-01: 5 · 02: 4 · 03: 3 · 04: 5 · 05: 4 | 21 h |
-| EPIC-02-02 | DES-02-02-01: 10 · 02: 6 · 03: 3 · 04: 4 · 05: 4 | 27 h |
-| EPIC-02-03 | DES-02-03-01: 4 · 02: 3 | 7 h |
-| EPIC-02-06 | DES-02-06-01: 6 · 02: 5 · 03: 4 | 15 h |
+| EPIC-02-02 | DES-02-02-01: 11 · 02: 6 · 03: 3 · 04: 4 · 05: 4 | 28 h |
+| EPIC-02-03 | DES-02-03-01: 5 · 02: 3 · 03: 6 · 04: 8 · 05: 5 | 27 h |
+| EPIC-02-06 | DES-02-06-01: 9 · 02: 7 · 03: 4 | 20 h |
 | EPIC-03-01 | DES-03-01-01: 4 · 02: 6 · 03: 6 | 16 h |
 | EPIC-03-02 | DES-03-02-01: 4 · 02: 3 · 03: 2 | 9 h |
 | EPIC-03-03 | DES-03-03-01: 4 | 4 h |
 | EPIC-03-04 | DES-03-04-01: 3 · 02: 3 · 03: 2 | 8 h |
 | EPIC-04-01 | DES-04-01-01: 4 · 02: 4 | 8 h |
-| **MVP** | **56 tasks** | **275 h** |
+| **MVP** | **60 tasks** | **316 h** |
 | EPIC-05-03 | DES-05-03-01: 4 | 4 h |
-| EPIC-02-05 | DES-02-05-01: 4 | 4 h |
+| EPIC-02-05 | DES-02-05-01: 5 | 5 h |
 | EPIC-02-04 | DES-02-04-01: 2 | 2 h |
 | EPIC-03-05 | DES-03-05-01: 3 | 3 h |
 | EPIC-05-01 | DES-05-01-01: 4 · 02: 3 | 7 h |
 | EPIC-04-02 | DES-04-02-01: 4 | 4 h |
 | EPIC-04-03 | DES-04-03-01: 6 | 6 h |
 | EPIC-04-04 | DES-04-04-01: 2 | 2 h |
-| **Next** | **9 tasks** | **32 h** |
+| **Next** | **9 tasks** | **33 h** |
 
 MVP: 56 design tasks, 275 h (round 3 added DES-02-01-05 and redefined or
 updated DES-01-02-01, 03, 04, 06, DES-01-03-05, DES-01-05-01, DES-02-02-03,
@@ -1950,7 +2272,28 @@ DES-03-01-01 to 03 and DES-03-03-01). Round 4 resized seven tasks, a net +3 h:
 DES-01-02-03 (6 to 5 h) and DES-01-02-04 (8 to 6 h) shrink with three part
 kinds, while DES-01-03-01 (8 to 10 h), DES-01-03-04 (4 to 5 h), DES-02-01-01,
 DES-02-01-04 and DES-02-06-02 (each +1 h) grow with puck prep. No new tasks.
-Next: 9 tasks, 32 h. Later: none until re-planned.
+
+Round 5 adds four tasks and 37 h, taking the MVP from 275 h to 312 h:
+- **New tasks:** DES-01-03-06 milk (8 h), DES-02-03-03 SH-OFF (6 h),
+  DES-02-03-04 SuggestionCard (8 h) and DES-02-03-05 suggestion copy (5 h).
+- **Grown tasks:**
+  - DES-01-05-01 tasting screen: 6 to 10 h;
+  - DES-01-05-02 just-right scale: 4 to 6 h;
+  - DES-01-05-04, redefined as copy for the questions and tags: 2 to 3 h;
+  - DES-02-02-01 home: 10 to 11 h, for the "dial in with the suggested
+    change" label and the milk line;
+  - DES-02-03-01 off-to-fix flow: 4 to 5 h;
+  - DES-02-06-02 shot detail: 5 to 6 h, for taste phrases.
+
+The EPIC-02-03 tasks assume PEC-10.
+
+The round-5 addition for recent-shot filters (PEC-14) adds 4 h with no new
+tasks: DES-02-06-01 grows from 6 to 9 h for the filter row, default and
+filtered empty state, and DES-02-06-02 from 6 to 7 h for "Dial in from
+this". That makes the MVP 60 tasks and 316 h.
+
+Next: 9 tasks, 33 h (DES-02-05-01 grows from 4 to 5 h for the milk list,
+assuming PEC-13). Later: none until re-planned.
 
 ---
 
@@ -2125,3 +2468,72 @@ Next: 9 tasks, 32 h. Later: none until re-planned.
   - No new components.
 - **Sent to the epic-planner:** nothing new. DQ-22 (does the seed catalog
   cover stock baskets?) is for the Head of Product.
+
+### Round 5 (2026-10-20, applied decisions)
+
+- **Feedback received:** decisions the Head of Product had already made,
+  recorded in S-02, S-05 C and S-08:
+  - "just right" tasting: four questions on five-point scales, plus six
+    observation tags replacing scores and defects, with the rating kept;
+  - rules-based dial-in suggestions in the MVP, with freshness as an
+    explanation only;
+  - milk type and amount on milk drinks, with a household milk list.
+
+  The coordinator asked me to decide where the one-tap off path asks the
+  taste questions (SQ-17), and to check that tasting still takes seconds.
+- **What changed** (all IDs kept):
+  - EPIC-01-05, SCR-TASTE:
+    - Rebuilt around the rating, four just-right rows, a one-tap "all just
+      right" and six tags.
+    - Strength gets milk wording for milk drinks.
+    - Channelling stays the only `signal` warning, now from the "channelling
+      seen" tag.
+    - The primary action adapts: "dial in with this change" when there's a
+      suggestion, else pin or Done.
+    - Leaving saves, as before.
+    - A seconds budget and new acceptance criteria were added.
+    - DES-01-05-01, 02 and 04 were updated or redefined.
+  - EPIC-02-03:
+    - The off path now goes through the new SH-OFF sheet (DQ-23, answering
+      SQ-17).
+    - The new suggestion flow covers lever order, step size, the grinder's
+      own direction (never guessed), freshness explanations, pre-fill and
+      dismiss.
+    - Home's Dial in label shows a pending suggestion.
+    - New tasks DES-02-03-03 to 05.
+  - EPIC-01-03:
+    - A milk field and a milk-amount tab (millilitres) for milk drinks, with
+      starting rules and a starter milk list created with the household.
+    - Milk is shown in ShotValues, SCR-SHOT, SCR-SHOTS rows, SH-PIN and
+      Home's quiet line, and one-tap pulls copy it.
+    - New task DES-01-03-06.
+  - Components:
+    - New NC-16 SuggestionCard.
+    - ChipGroup (NC-04) gains a just-right variant.
+    - NumberWheel gains a `milliliter` unit.
+    - ShotValues (NC-08) gains a milk line.
+  - Questions: DQ-08 closed (tags); DQ-09 noted ("ran fast" only in reasons);
+    new DQ-23 to DQ-26.
+  - UX concerns: tasting as "seconds", suggestion trust, and tasting twice on
+    the off path.
+  - Recent shots (an addition in the same pass, a Head of Product decision):
+    - SCR-SHOTS gets filter chips for drink and coffee, and setup when there
+      are several. Opening the tab pre-sets the filters to Brew's drink and
+      coffee.
+    - Active filters are filled chips that can be removed, and "All" clears
+      them in one tap.
+    - There's a filtered empty state with "clear filters".
+    - SCR-SHOT gains "Dial in from this".
+    - ChipGroup gains a filter variant; there's a new UX concern about the
+      pre-filtered list.
+    - The tab stays "Shots" pending the Head of Product's naming decision.
+  - Hours: four new tasks and +41 h in total, so the MVP is 60 tasks and
+    316 h (was 56 tasks and 275 h; 312 h before the filters). Next is 33 h
+    (was 32 h).
+- **Sent to the epic-planner:**
+  - Proposed, pending the Head of Product: PEC-10 (suggestions in EPIC-02-03,
+    S to M), PEC-11 (EPIC-01-05 rescoped to just-right tasting), PEC-12 (milk
+    across EPIC-01-01, 01-03, 02-01 and 02-02) and PEC-13 (milk-list editing
+    in Next, with EPIC-02-05).
+  - To record, as the Head of Product has already decided it: PEC-14 (filters
+    and "dial in from this" in EPIC-02-06).
