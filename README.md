@@ -4,7 +4,7 @@ An espresso journal for everyday home enthusiasts that learns your palate and
 gives drift-aware dial-in advice. A portfolio prototype.
 
 The foundations (project setup and design system) are done. Now in phase 1:
-a basic app for logging shots and managing recipes, toolkits and the pantry.
+a basic app for logging shots and managing recipes, setups and the pantry.
 AI features come later.
 
 ## Run it

@@ -25,7 +25,7 @@ For each initiative, write:
 ## Rules
 - Every spec section must map to at least one initiative, or be listed under "Unmapped sections" with a reason.
 - Never invent requirements. If something is missing, put it under Open questions.
-- Keep the MVP scope tight: logging shots, recipes, toolkit and pantry. AI features belong in Later unless the spec says otherwise.
+- Keep the MVP scope tight: logging shots, recipes, setup and pantry. AI features belong in Later unless the spec says otherwise.
 - Do not create GitHub issues. Write a draft only.
 
 ## Output

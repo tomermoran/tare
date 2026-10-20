@@ -10,28 +10,29 @@ Master Product & Engineering Specification
 - Target user: everyday home enthusiasts, not semi-pros. Goal: great coffee from every new bag, in fewer shots, tuned to your palate.
 - Core differentiators: palate learning and drift-aware dial-in.
 - Grind size doesn't transfer between grinders or over time. Treat it as a personal offset per grinder, give more weight to recent shots, and let users mark a recalibration.
-- Roadmap: Phase 1 is a basic app for logging shots and managing recipes, toolkits and the pantry. AI features come later, each with evals and observability. RAG will ground the Diagnostic Coach in extraction guides and equipment manuals.
+- Roadmap: Phase 1 is a basic app for logging shots and managing recipes, setups and the pantry. AI features come later, each with evals and observability. RAG will ground the Diagnostic Coach in extraction guides and equipment manuals.
 - Design: Inter, thin weights at large sizes, regular weight for small labels. Monochrome warm grey palette with one muted colour for shot warnings.
 
 ## S-02 Data model decisions (October 2026)
 
 Agreed while reviewing the schema in S-08, which already reflects them.
 
-- **Recipes belong to the bean.** A pinned recipe is scoped to bean, persona, toolkit and drink type, so a new bag of the same coffee starts from what was learned before. An optional batch override handles a bag that behaves differently.
+- **Recipes belong to the bean.** A pinned recipe is scoped to bean, persona, setup and drink type, so a new bag of the same coffee starts from what was learned before. An optional batch override handles a bag that behaves differently.
 - **Batches hold portions.** The batch is the bag as bought (bean, roaster's lot code, roast date, best-before, bag weight, purchase date). Portions are what physically exists: their weight and when each was frozen, thawed, opened and finished. Shots are logged against a portion. Splitting a bag never duplicates roast date or lot.
 - **Two freshness clocks, both paused by freezing.**
   - *Since roasting* (how old the coffee is): from the roast date; if the bag shows only a packing date, from that, labelled as packed; if it shows only best-before, Tare doesn't invent an age and shows the time left until best-before instead.
   - *Since opening* (air exposure, which speeds up oxidation): per portion, from its opened date. At the machine this is usually the more telling number; the Diagnostic Coach's "days open" rule uses it.
   - Time in the freezer counts toward neither clock. A shot ground straight from frozen beans is identifiable from the dates alone.
+  - Home shows both clocks on one line. A single combined freshness score is deliberately deferred: its weighting depends on roast level, storage and the coffee itself, so it belongs with drift-aware dial-in (INIT-04), where it can be learned from the household's own shots rather than guessed.
 - **"Open" means opened, not finished and not in the freezer.** A portion that was opened and then frozen isn't open until it's thawed. One-tap pulls never use frozen coffee on their own; frozen coffee is used only when the user picks it.
-- **Grind is relative to one grinder and one maintenance period.** A grind value only means something together with the physical grinder (an owned unit, not the model) and the period since its last maintenance event (burrs, cleaning, re-zero). Shots and recipes record their kit, and kits never change (see below), so history can't be rewritten. After maintenance, the user re-dials one coffee; the difference becomes the period's offset and is applied, when reading, to every recipe pinned on that grinder before the event. Bean aging between the two dial-ins is subtracted first, so it isn't blamed on the maintenance.
+- **Grind is relative to one grinder and one maintenance period.** A grind value only means something together with the physical grinder (an owned unit, not the model) and the period since its last maintenance event (burrs, cleaning, re-zero). Shots and recipes record their setup, and setups never change (see below), so history can't be rewritten. After maintenance, the user re-dials one coffee; the difference becomes the period's offset and is applied, when reading, to every recipe pinned on that grinder before the event. Bean aging between the two dial-ins is subtracted first, so it isn't blamed on the maintenance.
 - **Grind offsets are exact values, not percentages.** Dial numbers have an arbitrary zero, and a re-zero or worn burrs move the gap by the same amount at every setting, so a percentage would overcorrect coarse recipes and undercorrect fine ones. The offset is a shift in grinder units (e.g. -3), plus a stretch factor that stays 1 until two or more coffees are re-dialed after the same event (needed when new burrs of a different design change what each step means). Once the user confirms a re-dial, the offset is stored on the event: it's a user decision, kept stable and editable.
 - **Run-out prediction uses facts, not stored estimates.** Inputs: portion weights (including frozen stock), doses from logged shots, when portions were finished, optional stock checks (weighing what's left) and purchase dates. The one-tap "Pull This Shot" must record an extraction, or daily use is invisible. Finished portions give each household's real usage rate and how much of it logging captures.
 - **Calculated, never stored:** remaining weight, bag status (open, finished), bean age, usage rate, and drift adjustments.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
 - **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns pantry, hardware, toolkits and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. Only the UI changes between phases.
+- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns pantry, hardware, setups and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. Only the UI changes between phases.
 - **Shots record whose taste and who logged them.** One person often pulls for both, so the persona (whose taste) and the logging user (who tapped) are separate fields.
 - **The network needs the person's own consent.** A persona's shots reach the Cold Start network only when the persona is claimed by a user who opted in. Logging for someone without their own login never shares their data.
 
@@ -40,10 +41,10 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **URLs and names are evidence, not identity.** The same product is often sold under regional names and pages (Sage in the UK, Breville in the US), so each catalog entry can have many URLs (one per market) and many aliases. The MVP flags exact matches on a normalised URL. Later, an LLM suggests likely duplicates with a confidence and a reason, and a person or a reviewed rule always confirms the merge. That matcher ships with evals: known duplicates, and look-alikes that must not merge.
 - **Drink types are a starter list each household can edit.** New households get Espresso, Ristretto, Lungo, Americano, Cortado, Flat white, Cappuccino, Latte and Macchiato, and can rename, hide or add. Sugar or syrup is a "sweetened" mark on the shot, not a drink type.
 - **The default persona has no stored name.** Until renamed, it shows a translated role label (e.g. "Me"), so no personal data is needed to start.
-- **One-tap shots are recorded but marked as unmeasured.** "Pull This Shot" copies the pinned recipe's values into a shot marked one-tap. It uses the persona selected on the home screen and, in the MVP, the drink that persona last made at this time of day; the recipe's toolkit; and the earliest-opened open portion of that bean (asking if none is open). With no pinned recipe, the button becomes "Dial in". No rating is asked: silence counts as a weak "fine", and an optional quick reaction (good or off) turns an off shot into a normal pre-filled log. Undo is possible for a few seconds, and editing afterwards. One-tap shots count toward coffee used, but are never treated as measurements and never reach the network.
+- **One-tap shots are recorded but marked as unmeasured.** "Pull This Shot" copies the pinned recipe's values into a shot marked one-tap. It uses the persona selected on the home screen and, in the MVP, the drink that persona last made at this time of day; the recipe's setup; and the earliest-opened open portion of that bean (asking if none is open). With no pinned recipe, the button becomes "Dial in". No rating is asked: silence counts as a weak "fine", and an optional quick reaction (good or off) turns an off shot into a normal pre-filled log. Undo is possible for a few seconds, and editing afterwards. One-tap shots count toward coffee used, but are never treated as measurements and never reach the network.
 - **Unverified catalog entries stay private until verified.** A maker, model, roaster or bean a household adds is visible only to that household. Until the Later merge tooling exists, verification and merges are a manual admin task.
 - **Google sign-in comes first after the MVP.** An anonymous account lives on one device, so a lost or reset device loses its data until it's linked to Google. Browsers can also clear it: Safari on iOS may delete a site's storage after a period without use, which would silently start a new, empty household. Linking ships as the first Next item, ahead of invites. The MVP explicitly accepts both risks for a prototype.
-- **A kit is a fixed combination of parts.** A kit is defined by its parts: everything that directly affects the output of the recipe (for espresso: machine, grinder, portafilter, basket, puck screen, tamper, distribution tool). Parts that don't change the output, such as a scale, are not part of a kit; water may be added later. Kits never change: replacing, adding or removing any part means a different kit. Using the same combination again reuses its existing kit, with its recipes. Recipes belong to exactly one kit; on a new kit, Dial in starts pre-filled from the recipe on the closest previous kit (most parts in common), never as a one-tap pull. There's no "retire" action in the MVP: a part the household stops using simply stops appearing in its current kit. Servicing a part (new burrs, cleaning) is a maintenance event on that part, not a new kit.
+- **A setup is a fixed combination of parts.** A setup is defined by its parts: everything that directly affects the output of the recipe (for espresso: machine, grinder, portafilter, basket, puck screen, tamper, distribution tool). Parts that don't change the output, such as a scale, are not part of a setup; water may be added later. Setups never change: replacing, adding or removing any part means a different setup. Using the same combination again reuses its existing setup, with its recipes. Recipes belong to exactly one setup; on a new setup, Dial in starts pre-filled from the recipe on the closest previous setup (most parts in common), never as a one-tap pull. There's no "retire" action in the MVP: a part the household stops using simply stops appearing in its current setup. Servicing a part (new burrs, cleaning) is a maintenance event on that part, not a new setup.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
@@ -70,17 +71,17 @@ The system is built on a highly structured, real-world physical hierarchy to all
 
 ### The Entity Hierarchy
 
-- **Household (The Tenant):** Owns everything shared in the kitchen: pantry, hardware, toolkits, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
+- **Household (The Tenant):** Owns everything shared in the kitchen: pantry, hardware, setups, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
 - **Personas:** Taste profiles for the different people a household brews for, each with its own taste graph. Two types:
   - **Main persona:** a person's own profile, linked to their login. Every login has exactly one.
   - **Sub persona:** a profile with no login of its own, e.g. a partner or a regular guest that a household member brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
 
   The type is not stored: a persona is a main persona when it's linked to a login. Who logs a shot and whose taste it records are separate: one person often pulls for both.
-- **Kits (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso kit = machine + grinder + portafilter + basket + puck screen + tamper + distribution tool). A kit is a fixed combination: changing any part makes a different kit, and recipes belong to one kit. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that directly affect the output belong in a kit.
+- **Setups (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso setup = machine + grinder + portafilter + basket + puck screen + tamper + distribution tool). A setup is a fixed combination: changing any part makes a different setup, and recipes belong to one setup. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that directly affect the output belong in a setup.
 - **The Pantry (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
 - **Drink Type:** The target output, from a starter list each household can edit (Espresso, Cortado, Flat white, Cappuccino, Latte and more). Additives like sugar are a "sweetened" mark on the shot.
 - **The Catalog:** Shared, canonical lists of hardware (maker, then model) and coffee (roaster, then bean). Households can add missing entries with a product link; duplicates are merged, never deleted.
-- **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Toolkit, Drink Type, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, kit maintenance) is calculated from logged shots on top of the pinned recipe, not stored.
+- **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Setup, Drink Type, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, setup maintenance) is calculated from logged shots on top of the pinned recipe, not stored.
 - **Maintenance Events:** Dated work on one owned unit (new burrs, cleaning, re-zero, repair). For a grinder, each event starts a new grind period; shots on either side are not directly comparable.
 
 ## S-05 Algorithmic Intelligence & Data Trust
@@ -120,7 +121,7 @@ The interface follows a modern, digital Japandi aesthetic (clean, minimalist, pr
 
 ## S-08 The Database Schema (Drizzle ORM / SQLite)
 
-Instructions for the coding agent: Implement this relational schema to support the Stateful Hardware Ledger, Toolkits, Batches, and Pinned Recipes.
+Instructions for the coding agent: Implement this relational schema to support the Stateful Hardware Ledger, Setups, Batches, and Pinned Recipes.
 
 ```ts
 import { sqliteTable, text, integer, real, primaryKey, uniqueIndex, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
@@ -186,7 +187,7 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
 export const canonicalHardware = sqliteTable('canonical_hardware', {
   id: text('id').primaryKey(),
   makerId: text('maker_id').references(() => hardwareMakers.id).notNull(),
-  // Only kinds that directly affect a recipe's output; scales and the like aren't kit parts.
+  // Only kinds that directly affect a recipe's output; scales and the like aren't setup parts.
   kind: text('kind').notNull(), // 'machine', 'grinder', 'portafilter', 'basket', 'puckScreen', 'tamper', 'distribution'
   name: text('name').notNull(), // Model name, e.g. "Bambino"
   capabilities: text('capabilities', { mode: 'json' }),
@@ -250,7 +251,7 @@ export const users = sqliteTable('users', {
 });
 
 // --- TENANT HIERARCHY ---
-// The household owns everything shared in the kitchen: pantry, hardware, toolkits,
+// The household owns everything shared in the kitchen: pantry, hardware, setups,
 // personas and their recipes. The MVP creates one household per user at sign-up.
 export const households = sqliteTable('households', {
   id: text('id').primaryKey(),
@@ -291,7 +292,7 @@ export const drinkTypes = sqliteTable('drink_types', {
 });
 
 // The physical units a household owns. Maintenance and grind history belong to a unit,
-// not to the model (every Niche Zero) or to a toolkit (one grinder can be in several).
+// not to the model (every Niche Zero) or to a setup (one grinder can be in several).
 export const ownedHardware = sqliteTable('owned_hardware', {
   id: text('id').primaryKey(),
   householdId: text('household_id').references(() => households.id).notNull(),
@@ -301,22 +302,22 @@ export const ownedHardware = sqliteTable('owned_hardware', {
   retiredAt: integer('retired_at', { mode: 'timestamp_ms' }), // Not used in the MVP (no retire action)
 });
 
-// A kit ("toolkit" in code): a fixed combination of owned parts. Kits never change;
-// any different combination is a different kit. partsKey is the sorted list of part
-// IDs, unique per household, so using the same combination again finds the same kit
+// A setup: a fixed combination of owned parts. Setups never change;
+// any different combination is a different setup. partsKey is the sorted list of part
+// IDs, unique per household, so using the same combination again finds the same setup
 // (and its recipes) instead of creating a new one.
-export const toolkits = sqliteTable('toolkits', {
+export const setups = sqliteTable('setups', {
   id: text('id').primaryKey(),
   householdId: text('household_id').references(() => households.id).notNull(),
   partsKey: text('parts_key').notNull(), // Sorted ownedHardware IDs, joined
   name: text('name'), // Optional; otherwise shown by its parts or a translated default
   createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-}, (t) => [uniqueIndex('toolkits_household_parts').on(t.householdId, t.partsKey)]);
+}, (t) => [uniqueIndex('setups_household_parts').on(t.householdId, t.partsKey)]);
 
-export const toolkitParts = sqliteTable('toolkit_parts', {
-  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+export const setupParts = sqliteTable('setup_parts', {
+  setupId: text('setup_id').references(() => setups.id).notNull(),
   ownedHardwareId: text('owned_hardware_id').references(() => ownedHardware.id).notNull(),
-}, (t) => [primaryKey({ columns: [t.toolkitId, t.ownedHardwareId] })]);
+}, (t) => [primaryKey({ columns: [t.setupId, t.ownedHardwareId] })]);
 
 // Maintenance on one owned unit. For a grinder, each event starts a new grind period:
 // shots either side aren't directly comparable. Once the user finalises a re-dial after
@@ -376,7 +377,7 @@ export const extractions = sqliteTable('extractions', {
   householdId: text('household_id').references(() => households.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(), // Whose taste it records
   loggedByUserId: text('logged_by_user_id').references(() => users.id).notNull(), // Who tapped; often not the persona
-  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  setupId: text('setup_id').references(() => setups.id).notNull(),
   portionId: text('portion_id').references(() => batchPortions.id).notNull(), // Batch and bean follow from the portion
   drinkTypeId: text('drink_type_id').references(() => drinkTypes.id).notNull(),
   sweetened: integer('sweetened', { mode: 'boolean' }).default(false), // Sugar or syrup added
@@ -416,14 +417,14 @@ export const extractions = sqliteTable('extractions', {
 });
 
 // --- RECIPES ---
-// Pinned per bean, persona, toolkit and drink type. A set batchId overrides the
+// Pinned per bean, persona, setup and drink type. A set batchId overrides the
 // bean's default for that one bag. Re-pinning adds a row; the latest pinnedAt wins.
 export const pinnedRecipes = sqliteTable('pinned_recipes', {
   id: text('id').primaryKey(),
   householdId: text('household_id').references(() => households.id).notNull(),
   beanId: text('bean_id').references(() => canonicalBeans.id).notNull(),
   personaId: text('persona_id').references(() => personas.id).notNull(),
-  toolkitId: text('toolkit_id').references(() => toolkits.id).notNull(),
+  setupId: text('setup_id').references(() => setups.id).notNull(),
   drinkTypeId: text('drink_type_id').references(() => drinkTypes.id).notNull(),
   batchId: text('batch_id').references(() => batches.id), // Null = the bean's default
 
@@ -468,21 +469,21 @@ Schema:
 
 ### Prompt 2: The Diagnostic Coach (Gemini Pro)
 
-**Objective:** Translate sensory defects into precise physical hardware adjustments based on the user's active Toolkit.
+**Objective:** Translate sensory defects into precise physical hardware adjustments based on the user's active Setup.
 
 ```text
-You are a master barista diagnostic engine. Analyze the extraction data, Toolkit components, and sensory ratings to provide a concise hardware adjustment. Output ONLY JSON.
+You are a master barista diagnostic engine. Analyze the extraction data, Setup components, and sensory ratings to provide a concise hardware adjustment. Output ONLY JSON.
 
 Inputs Provided:
 1. MVPayload Variables (Dose, Yield, Time, Grind).
-2. Toolkit Components (e.g., Bambino Pro, Niche Zero, WDT).
+2. Setup Components (e.g., Bambino Pro, Niche Zero, WDT).
 3. Sensory Scores & Tagged Defects.
 4. Days since batch opened (Bean Aging context).
 
 Rules:
 - High Acidity + Fast Time = Under-extracted. Action: Grind finer.
 - High Bitterness + Slow Time = Over-extracted. Action: Grind coarser.
-- If Channelling is tagged and Toolkit lacks a WDT, suggest adding WDT.
+- If Channelling is tagged and Setup lacks a WDT, suggest adding WDT.
 - If days_open > 14 and shot is fast, attribute to degassing (pressure loss).
 
 Schema:
