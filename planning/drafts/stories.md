@@ -1,4 +1,4 @@
-# Tare user stories (revision 4)
+# Tare user stories (approved, revision 4)
 
 Source: `planning/drafts/epics.md` (final, revision 10, 31 epics),
 `planning/drafts/design.md` (approved after round 3, with rounds 4 to 6
@@ -6,7 +6,16 @@ applied), `planning/drafts/review.md` (the plan review) and `docs/spec.md`,
 sections S-01 to S-09. S-01 and S-02 override older sections where they
 differ. `planning/drafts/initiatives.md` was read for context.
 
-**Status: revision 4, for the Head of Product's approval.** Revision 2 was
+**Status: revision 4, approved by the Head of Product, with the full 228-point MVP and these answers to the open questions:**
+
+1. **Suggestion step sizes (SQ-19):** grind 1 step for "a bit", 2 for "much"; yield 2 g; dose 0.5 g; temperature 1 °C; milk about 30 ml. These are tuneable constants. The tech-lead writes the rule scenario tests; a scenario passes when it gets the expected lever and direction.
+2. **Temperature lever (SQ-21):** suggested only when grind can't fix the balance (grinder at its limit, or a grind change didn't help), as in the design.
+3. **Typical milk amounts:** cortado 60 ml, flat white 120 ml, cappuccino 120 ml, latte 200 ml, macchiato 15 ml; espresso, ristretto, lungo and americano have none.
+4. **Basket dose range (SQ-20, DQ-22):** a small designed question when a household adds a basket (about how many grams it's made for, with "not sure"). The seed catalog includes every basket's dose range, curated by the Head of Product as admin.
+5. **Tried summary and personas (DQ-28):** ignoring personas is fine until sub personas exist (Next).
+6. **Coffee used (SQ-14):** an off shot and its fix both count toward coffee used, because both used beans.
+
+Previous status line: revision 4, for the Head of Product's approval. Revision 2 was
 the last approved version. Revision 3 was a draft that was never approved, so
 this revision folds it in, and the changes below are listed against revision
 2. Where the documents differed, the design was the tiebreaker. No GitHub
