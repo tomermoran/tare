@@ -1,226 +1,240 @@
-# Tare user stories (revision 3, after the plan review)
+# Tare user stories (revision 4)
 
-Source: `planning/drafts/epics.md` (final, revision 8, 30 epics),
-`planning/drafts/design.md` (approved after review round 3, with round 4's
-applied decisions), `planning/drafts/review.md` (the plan review) and
-`docs/spec.md`, sections S-01 to S-09. S-01 and S-02 override older sections
-where they differ. `planning/drafts/initiatives.md` was read for context.
+Source: `planning/drafts/epics.md` (final, revision 10, 31 epics),
+`planning/drafts/design.md` (approved after round 3, with rounds 4 to 6
+applied), `planning/drafts/review.md` (the plan review) and `docs/spec.md`,
+sections S-01 to S-09. S-01 and S-02 override older sections where they
+differ. `planning/drafts/initiatives.md` was read for context.
 
-**Status: revision 3, for the Head of Product's approval.** Revision 2 was
-approved. This revision applies the Head of Product's decisions on the plan
-review (recorded in S-02, S-04 and S-08), epics revisions 6 to 8, design
-rounds 3 and 4, and the review findings the story-writer owns. Where the
-documents differed, the design was the tiebreaker. No GitHub issues have been
-created.
+**Status: revision 4, for the Head of Product's approval.** Revision 2 was
+the last approved version. Revision 3 was a draft that was never approved, so
+this revision folds it in, and the changes below are listed against revision
+2. Where the documents differed, the design was the tiebreaker. No GitHub
+issues have been created.
 
-## Changes in this revision
+## Changes since revision 2
 
-Revision 2 had 119 stories. Revision 3 has 121: 6 added, 4 retired, 59
-updated (41 substantive, 18 light) and 56 unchanged. Retired IDs are listed
-below and are never reused. Each story's Notes begin with "New", "Updated",
-"Lightly updated", "Unchanged in substance" or "Unchanged" (relative to
-revision 2).
+Revision 2 had 119 stories. Revision 4 has 138:
+
+- 23 added;
+- 4 retired;
+- 75 updated;
+- 40 unchanged.
+
+Retired IDs are never reused. Each story's Notes begin with "New", "Updated",
+"Lightly updated" or "Unchanged", relative to revision 2.
 
 ### What drove the changes
 
-1. **"Setup" replaces "kit" and "toolkit".** The mechanical rename was checked
-   by hand, and awkward phrases were fixed ("piece of kit" became "part",
-   "add a part", "my equipment").
-2. **A setup is a fixed combination of machine, grinder and basket** (S-02,
-   S-04, S-08). Each part is an exact catalog model, so a Normcore 18 g
-   basket and a Crema Coffee 18 g basket are different parts. Any change
-   means a different setup, and the same combination reuses its setup and
-   recipes. Recipes belong to one setup. There is no setup editing and no
-   retire. The current setup is the one from the persona's last shot (DQ-18),
-   and it can be switched on Home and in the shot log (PEC-09). Shots record
-   their setup, not a separate grinder and machine.
-3. **Puck prep:** WDT and puck screen are checkboxes on shots and recipes,
-   copied by one-tap pulls. They start from the recipe, else the last shot on
-   this setup, else off. Portafilter, tamper and scale aren't tracked.
-4. **Two freshness clocks, both paused by freezing** (S-02). Since roasting:
-   roast date, else packing date, else "best before in N days", never an
-   invented age. Since opening: per portion. Home shows both on one line, and
-   the roasting clock alone while the portion is unopened. This resolves
-   review blocker B1.
-5. **"Open" excludes frozen portions** (S-02, review M5). One-tap never uses
-   frozen coffee on its own.
-6. **The iOS storage-eviction risk is accepted** for the MVP (S-02, review M6).
-7. **Review findings owned here:** M1, M4, m1, m2, m6, m7, m8, m10. See below.
+From revision 3 (the plan review and the Head of Product's decisions on it):
 
-### Added (6)
+1. **"Setup" replaces "kit" and "toolkit".** A setup is a fixed combination of
+   machine, grinder and basket, each part an exact catalog model (S-02, S-04,
+   S-08).
+   - Any change of parts means a different setup, and the same combination
+     reuses its setup and recipes.
+   - Recipes belong to one setup. There is no setup editing and no retire.
+   - The current setup is the one from the persona's last shot (DQ-18), and
+     it can be switched on Brew and in the shot log (PEC-09).
+2. **Puck prep:** WDT and puck screen are checkboxes on shots and recipes,
+   copied by one-tap pulls.
+3. **Two freshness clocks, both paused by freezing** (since roasting, since
+   opening). This resolves review blocker B1.
+4. **"Open" excludes frozen portions** (review M5). The iOS storage-eviction
+   risk is accepted (review M6).
+5. **Review findings owned here:** M1, M2, M4, m1, m2, m6, m7, m8 and m10.
+
+New in revision 4 (epics revisions 9 and 10, design rounds 5 and 6):
+
+6. **Taste relative to the persona** (EPIC-01-05, S-02).
+   - Four "just right" questions on a -2..2 scale: balance, strength ("lost in
+     the milk" for milk drinks), body, and one-sided sweetness.
+   - Six observation tags.
+   - These replace the 1-5 scores and the defect list. The overall rating and
+     the good/off reaction stay, and "all just right" is one tap.
+   - On a one-tap shot, "off" opens the SH-OFF sheet, and its answers are
+     stored on the one-tap shot (DQ-23). This settles SQ-17 and review M1.
+7. **Rule-based dial-in suggestions** (EPIC-02-03, now M).
+   - One change per shot, with its reason, pre-filled into the next dial-in,
+     and dismissable.
+   - Levers in order: puck prep, grind, yield, dose (within the basket's dose
+     range), temperature, milk amount.
+   - Freshness and shot time are explanations, not levers. The rules are
+     tested with scenario tests, not an LLM.
+8. **Milk.**
+   - A household starter milk list and a typical milk amount per drink.
+   - Milk type and amount on shots and recipes, copied by one-tap pulls.
+   - Milk isn't part of a recipe's identity. Editing the milk list is Next
+     (EPIC-02-05).
+9. **Basket dose range** in the catalog and for baskets a household adds.
+10. **Journal** (EPIC-02-06, "Look back in your journal", now M).
+    - The tab is renamed; entries are still "shots".
+    - Drink, coffee and setup filters (setup only when there are several),
+      pre-filtered from Brew, with "All" to clear and a filtered empty state.
+    - "Dial in from this" on shot detail.
+11. **Beans** replaces "pantry" in all wording. On hand groups bags as open,
+    unopened and frozen.
+12. **New MVP epic EPIC-03-06 "See every coffee you've tried"** (the Tried
+    list and the coffee screen). Beans filters are Next (EPIC-03-05).
+13. **Later:** palate learning is per persona, drink style and milk, and the
+    community learns only from similar palates (EPIC-06-04, 06-05, 06-06).
+
+### Added (23)
 
 | ID | Title | Why |
 |---|---|---|
-| STORY-01-02-08 | Change a part and get the right setup | Fixed setups: the builder finds or makes a setup (S-02, design SCR-TOOLKIT) |
-| STORY-01-02-09 | See my setups and know which one is current | Current setup (DQ-18), naming (DQ-21), setup list (SCR-KIT) |
-| STORY-01-03-06 | Record whether I used WDT or a puck screen | Puck prep checkboxes (S-02, S-08) |
-| STORY-02-01-06 | Dial in on a new setup from my closest setup's recipe | Recipes belong to one setup; closest-setup head start (S-02, DQ-19, DQ-20) |
-| STORY-02-02-07 | Switch setup on the home screen and in the shot log | PEC-09 |
+| STORY-01-01-08 | Get a starter milk list | Starter milks (S-02, S-08) |
+| STORY-01-02-08 | Change a part and get the right setup | Fixed setups (S-02) |
+| STORY-01-02-09 | See my setups and know which one is current | DQ-18, DQ-21 |
+| STORY-01-03-06 | Record whether I used WDT or a puck screen | Puck prep (S-02) |
+| STORY-01-03-07 | Record the milk in a milk drink | Milk (S-02, DQ-26) |
+| STORY-02-01-06 | Dial in on a new setup from my closest setup's recipe | DQ-19, DQ-20 |
+| STORY-02-02-07 | Switch setup on Brew and in the shot log | PEC-09 |
+| STORY-02-03-04 | Say what was off about a one-tap shot | SH-OFF (DQ-23) |
+| STORY-02-03-05 | See one suggested change, with its reason | Suggestions (S-02) |
+| STORY-02-03-06 | Get the right change for what was off | Suggestion rules (S-02) |
+| STORY-02-03-07 | Try the suggested change, or dismiss it | Pre-fill, dismiss (DQ-25) |
+| STORY-02-05-05 | Make the milk list mine (Next) | EPIC-02-05 milk list |
+| STORY-02-05-06 | Set how much milk a drink usually gets (Next) | EPIC-02-05 typical amount |
+| STORY-02-06-04 | Filter my journal by drink, coffee and setup | Journal filters (S-02) |
+| STORY-02-06-05 | Open the journal on what I'm brewing | Default pre-filter (S-02) |
+| STORY-02-06-06 | Dial in from a past shot | "Dial in from this" |
+| STORY-03-02-05 | See what's on hand grouped by state | On hand groups (S-02) |
 | STORY-03-03-04 | See how long each portion has been open | Since-opening clock (S-02) |
+| STORY-03-05-04 | Narrow Beans by roaster, roast level, origin or rating (Next) | Beans filters (S-02) |
+| STORY-03-06-01 | See every coffee I've tried | Tried (S-02, DQ-27) |
+| STORY-03-06-02 | See how a coffee's shots went, in words | Tried summary (DQ-28) |
+| STORY-03-06-03 | Open a coffee's own screen | SCR-COFFEE |
+| STORY-03-06-04 | Add a bag of a coffee I've tried | "Add a bag of this" |
 
 ### Retired (4)
 
 | ID | Title | Why |
 |---|---|---|
-| STORY-01-02-03 | Retire a unit and keep its history | No retire action in the MVP (S-02). Past shots keep their setup because setups never change. |
-| STORY-01-02-06 | Edit a setup | Setups are never edited (S-02); changing a part is STORY-01-02-08. |
+| STORY-01-02-03 | Retire a unit and keep its history | No retire in the MVP (S-02); setups never change, so past shots keep their parts. |
+| STORY-01-02-06 | Edit a setup | Setups are never edited (S-02); see STORY-01-02-08. |
 | STORY-01-02-07 | Be warned before swapping a setup's machine or grinder | No swaps exist; PEC-07 is superseded. |
-| STORY-02-01-05 | Re-dial a recipe whose kit left its toolkit | "Needs re-dial" is gone; replaced by STORY-02-01-06. Review M3 (retired units) no longer applies. |
+| STORY-02-01-05 | Re-dial a recipe whose kit left its toolkit | Replaced by STORY-02-01-06. Review M3 no longer applies. |
 
-### Updated (59)
+### Updated (75)
 
-Substantive updates (41):
+Story numbers only; each story's Notes say what changed.
 
-- EPIC-01-01:
-  - 01-01-01: X-1 is closed.
-  - 01-01-03: the eviction risk is noted.
-  - 01-01-05: criterion 5 (reopen on the last screen) is cut, review m8.
-  - 01-01-07: the checklist step includes the basket.
-- EPIC-01-02:
-  - 01-02-01: exact models; stock baskets listed first, DQ-22.
-  - 01-02-02: three part kinds; the setups a part is in.
-  - 01-02-04: rewritten around the setup builder; a basket is required.
-  - 01-02-05: three parts; no default name.
-- EPIC-01-03:
-  - 01-03-01: the current setup; frozen portions last.
-  - 01-03-02: grind follows the setup's grinder.
-  - 01-03-03: the shot records its setup.
-- EPIC-01-04: 01-04-01 (°F is display-only, closed by S-08).
-- EPIC-01-05: 01-05-01 (leaving saves, and the failed-save path, review M2).
-- EPIC-01-06: 01-06-01 (baskets can be added; no capability questions for
-  baskets).
-- EPIC-02-01:
-  - 02-01-01: pins record the setup and prep; this story now owns recipe
-    resolution, review m10.
-  - 02-01-02: prep in recipe mode.
-  - 02-01-04: recipes per drink and setup; the resolution note moved to
-    02-01-01.
-- EPIC-02-02:
-  - 02-02-01: the current setup, both clocks, the prep line, updated DQ-03.
-  - 02-02-02: prep is copied; frozen isn't open, review M5.
-  - 02-02-03: frozen portions are listed last and picked only by hand; 2
-    points became 3.
-  - 02-02-05: the two no-recipe states; 1 point became 2.
-  - 02-02-06: the frozen-only coffee case; the reset time is made exact,
-    review m7.
-- EPIC-02-03:
-  - 02-03-02: prep is pre-filled.
-  - 02-03-03: dial-in with no open portion, review m6; 2 points became 3.
-- EPIC-02-06:
-  - 02-06-02: one-tap shots carry a reaction, not taste, review M1.
-  - 02-06-03: setup parts by maker and model; prep.
-- EPIC-03-01:
-  - 03-01-02: packing date and other dates; the best-before toggle is gone.
-  - 03-01-04: clocks; "open" excludes frozen.
-- EPIC-03-02:
-  - 03-02-02: dates are set once and can be backdated, review M4.
-  - 03-02-03: same as 03-02-02; frozen picks don't open a portion.
-  - 03-02-04: opened-then-frozen portions; review M4 wording.
-- EPIC-03-03:
-  - 03-03-01: rewritten as the since-roasting clock, review B1.
-  - 03-03-02: freezing pauses both clocks.
-  - 03-03-03: the since-opening clock in the log; review M4 wording.
-- EPIC-03-04: 03-04-03 (frozen isn't open; review M4 wording).
-- EPIC-04-01:
-  - 04-01-01: maintenance is on a part, and the setup stays the same.
-  - 04-01-02: the recalibration flag is closed by TQ-05.
-- Next:
-  - 02-04-01: an explicit choice; the default is a placeholder, review m7.
-  - 04-02-03: open question on prep comparability.
-  - 04-03-03: recipes on setups with that grinder.
-  - 05-01-02: explicit placeholder, review m7.
+- **EPIC-01-01:** 01, 02, 03, 04, 05, 06, 07.
+- **EPIC-01-02:** 01, 02, 04, 05.
+- **EPIC-01-03:** 01, 02, 03, 04.
+- **EPIC-01-04:** 01, 02.
+- **EPIC-01-05:** 01, 02, 03, 04. Rewritten for "just right" tasting.
+- **EPIC-01-06:** 01, 03, 06, 08, 09. Includes the basket dose range.
+- **EPIC-02-01:** 01, 02, 04. Includes milk on recipes.
+- **EPIC-02-02:** 01, 02, 03, 05, 06.
+- **EPIC-02-03:** 01, 02, 03. The off path and suggestions.
+- **EPIC-02-04:** 01. **EPIC-02-05:** 03.
+- **EPIC-02-06:** 01, 02, 03.
+- **EPIC-03-01:** 02, 04. **EPIC-03-02:** 02, 03, 04.
+- **EPIC-03-03:** 01, 02, 03. **EPIC-03-04:** 03. **EPIC-03-05:** 01, 02.
+- **EPIC-04-01:** 01, 02, 03, 04. **EPIC-04-02:** 01, 03, 05, 06.
+- **EPIC-04-03:** 01, 03. **EPIC-05-01:** 02, 03, 04. **EPIC-05-03:** 01, 02.
+- **Later:** 05-02-02, 06-02-01, 06-04-01, 06-04-02, 06-05-02, 06-06-01 and
+  06-06-02.
 
-Light updates (18): wording for setups, parts or the two clocks in 01-01-04,
-01-01-06, 01-03-04, 01-04-02, 01-06-03, 01-06-06, 01-06-08, 02-03-01,
-02-06-01, 04-01-03, 04-01-04, 04-02-01, 04-02-05, 04-03-01, 05-01-03,
-05-03-01, 05-03-02 and 06-02-01.
-
-All 23 Later stories gain source sections (review m2). The 5 Later eval
-stories are marked as enabler placeholders (review m7, SQ-13). These count as
-light-format changes, not as updates.
+Every Later story also gains source sections (review m2), and the 5 eval
+stories are marked as enabler placeholders. These are format changes and
+aren't counted as updates.
 
 ### Review findings handled here
 
 | Finding | How |
 |---|---|
-| B1 | STORY-03-03-01: no estimated age; best-before shows time left, per S-02. |
-| M1 | STORY-02-06-02 and 02-06-03: one-tap shots carry a reaction only, never rating, scores or defects (design SCR-SHOT and S-02 as tiebreakers). Confirm (SQ-17). |
-| M2 | STORY-01-05-01 matches the design: leaving saves; a failed save offers retry or leave without saving. |
-| M3 | No longer applies: there is no retire (STORY-01-02-03 retired). |
-| M4 | STORY-03-02-02, 03-02-03, 03-02-04, 03-03-03 and 03-04-03 say "when a portion's dates are set"; correcting a date isn't in the MVP. |
-| M5 | STORY-02-02-01, 02-02-02, 02-02-03, 03-01-04, 03-02-04, 03-04-03: "open" excludes frozen. |
+| B1 | STORY-03-03-01: no estimated age; best-before shows time left (S-02). |
+| M1 | One-tap shots carry a reaction and, when off, "just right" answers and tags, never a rating (DQ-23): STORY-02-03-04, 02-06-02, 02-06-03. |
+| M2 | STORY-01-05-01: leaving saves; a failed save offers retry or leave without saving. |
+| M3 | No longer applies (no retire). |
+| M4 | Portion-date criteria say "when a portion's dates are set" (STORY-03-02-02 to 04, 03-03-03, 03-04-03). |
+| M5 | "Open" excludes frozen throughout (STORY-02-02-01 to 03, 03-02-04, 03-02-05, 03-04-03). |
 | M6 | STORY-01-01-01 and 01-01-03 note the accepted eviction risk. |
-| m1 | X-1, INIT-01 Q5, INIT-03 Q2 and the recalibration question are marked closed. |
+| m1 | X-1, INIT-01 Q3, INIT-01 Q5, INIT-03 Q2, DQ-08 and the recalibration question are marked closed. |
 | m2 | Every Later story has source sections. |
 | m6 | STORY-02-03-03 criteria 4 and 5. |
-| m7 | STORY-02-04-01 and 02-02-06 are made testable. STORY-05-01-02 and 05-02-02 carry explicit placeholders. Eval stories are marked as enabler placeholders. |
-| m8 | STORY-01-01-05 criterion 5 is cut: it came from the design, not the spec. Listed under "Not covered" for the Head of Product to restore if wanted. |
+| m7 | STORY-02-04-01 and 02-02-06 made testable; STORY-05-01-02 and 05-02-02 explicit placeholders; eval stories marked as enabler placeholders. |
+| m8 | STORY-01-01-05's "reopen on the last tab" criterion is cut; see "Not covered". |
 | m10 | Recipe resolution is owned by STORY-02-01-01 everywhere. |
 
 ### Questions
 
-- **Closed:** SQ-02 (no retire, S-02). X-1 is closed by TQ-04 and TQ-07.
-- **New:** SQ-17 (one-tap taste, M1) and SQ-18 (prep and drift, for
-  EPIC-04-02).
-- **Still open:** SQ-04, SQ-05, SQ-09 (narrowed), SQ-11, SQ-12, SQ-13, SQ-14,
-  SQ-15 and SQ-16.
-
-See "Open questions" at the end.
+- **Closed:** SQ-02 (no retire), SQ-17 (DQ-23 and epics revision 9), and X-1
+  (TQ-04).
+- **New:**
+  - SQ-18: prep and drift, for EPIC-04-02.
+  - SQ-19: suggestion step sizes.
+  - SQ-20: no designed flow for a basket's dose range.
+  - SQ-21: the temperature lever's trigger.
+- **Still open:** SQ-04, 05, 09, 11, 12, 13, 14, 15 and 16.
 
 ## How to read this file
 
 - **IDs:** `STORY-II-EE-SS` (initiative, epic, story). Parent is the epic ID.
-  IDs stay stable across revisions, and a retired ID is never reused. Gaps in
-  numbering are retired stories.
+  IDs stay stable; a retired ID is never reused, so gaps in numbering are
+  retired stories.
 - **Grouping:** by initiative, then by epic in ID order, whatever the
   priority. The priority is on every story and in the summary.
 - **Personas:** stories are written for the spec's user type, the everyday
   home enthusiast (S-01), shortened to "home enthusiast". Where the household
   matters, they use the S-04 roles: household member, main persona, sub
   persona. No real people are named.
-- **Words:** a "setup" is the machine, grinder and basket a shot is pulled
-  with; each is a "part", always named by maker and model. "Open" means
-  opened, not finished and not in the freezer (S-02).
+- **Words** (S-02):
+  - **The four sections:** Brew (what am I making?), Journal (what did I
+    make?), Beans (what do I have?) and Setup (what am I making it with?).
+    Entries in the Journal are "shots".
+  - **Setup and parts:** a "setup" is the machine, grinder and basket; each is
+    a "part", named by maker and model.
+  - **Open:** opened, not finished and not in the freezer.
+  - **"Just right" answers:** taste rated against the persona's own ideal.
 - **Sizes:** rough points (1, 2, 3, 5, 8). Anything at 8 is flagged.
-- **Design references:** acceptance criteria describe behaviour. Notes cite
-  the design's screens (`SCR-*`), sheets (`SH-*`) and assumptions (`DQ-*`).
-  Where a story depends on a design assumption, that assumption is its working
-  assumption until the Head of Product says otherwise.
+- **Design references:** criteria describe behaviour. Notes cite the design's
+  screens (`SCR-*`), sheets (`SH-*`) and assumptions (`DQ-*`), which are the
+  working assumptions until the Head of Product says otherwise.
 - **Open questions:** questions carried in `epics.md` and `initiatives.md` are
-  referenced by their IDs (`INIT-NN Q#`, `X-2`, `X-3`) or as "EPIC-NN-NN open
+  referenced by ID (`INIT-NN Q#`, `X-2`, `X-3`) or as "EPIC-NN-NN open
   question: topic". Story questions are `SQ-NN`, listed at the end.
-- **Cross-cutting constraints** from `epics.md` (localization, Japandi design,
-  calculated-never-stored values, timestamps in milliseconds with local days
-  in the device's time zone, no AI in Phase 1, following catalog merge
-  pointers, setups never change) and the design's foundations (section 1)
-  apply to every story and aren't repeated in each one.
+- **Cross-cutting constraints** from `epics.md` apply to every story and
+  aren't repeated in each one:
+  - localization and Japandi design;
+  - values calculated, never stored (clocks, remaining coffee, suggestions,
+    Tried);
+  - timestamps in milliseconds, local days in the device's time zone;
+  - no AI in Phase 1 (suggestions are rules);
+  - catalog merge pointers;
+  - setups never change, and milk is never part of a recipe's identity.
+
+  The design's foundations (section 1) apply too.
 - **Detail level:** MVP and Next epics have full stories with Given/When/Then
-  acceptance criteria. **Later epics have lighter stories**: ID, statement,
-  source sections, priority, size and two or three brief acceptance criteria.
-  Those epics will be re-planned before they're built, so their stories are
-  placeholders for scope and size, not ready for build.
+  criteria. **Later epics have lighter stories** (statement, source sections,
+  priority, size and two or three brief criteria). They'll be re-planned
+  before they're built.
 
 ## Summary
 
 | Epic | Title | Priority | Stories | Points |
 |---|---|---|---|---|
-| EPIC-01-01 | Start brewing without setting anything up | MVP | 7 | 18 |
+| EPIC-01-01 | Start brewing without setting anything up | MVP | 8 | 20 |
 | EPIC-01-02 | Describe your setup once | MVP | 6 | 17 |
-| EPIC-01-03 | Log a shot in seconds | MVP | 6 | 16 |
+| EPIC-01-03 | Log a shot in seconds | MVP | 7 | 19 |
 | EPIC-01-04 | Record temperature and pressure when your machine has them | MVP | 2 | 6 |
-| EPIC-01-05 | Say how it tasted | MVP | 4 | 8 |
+| EPIC-01-05 | Say how it tasted | MVP | 4 | 9 |
 | EPIC-01-06 | Add what's missing from the catalog | MVP | 9 | 26 |
 | EPIC-02-01 | Pin the recipe that worked | MVP | 5 | 16 |
 | EPIC-02-02 | Pull your daily shot in one tap | MVP | 7 | 21 |
-| EPIC-02-03 | Fix a bad shot from your recipe | MVP | 3 | 8 |
+| EPIC-02-03 | Fix a bad shot from your recipe | MVP | 7 | 21 |
 | EPIC-02-04 | Give one bag its own recipe | Next | 2 | 5 |
-| EPIC-02-05 | Make the drink list yours | Next | 4 | 7 |
-| EPIC-02-06 | See your recent shots | MVP | 3 | 8 |
-| EPIC-03-01 | Add a bag to your pantry | MVP | 4 | 10 |
-| EPIC-03-02 | Split and freeze a bag | MVP | 4 | 11 |
+| EPIC-02-05 | Make the drink and milk lists yours | Next | 6 | 11 |
+| EPIC-02-06 | Look back in your journal | MVP | 6 | 16 |
+| EPIC-03-01 | Add a bag of beans | MVP | 4 | 10 |
+| EPIC-03-02 | Split and freeze a bag | MVP | 5 | 13 |
 | EPIC-03-03 | Know how fresh your beans really are | MVP | 4 | 10 |
 | EPIC-03-04 | See how much coffee is left | MVP | 3 | 7 |
-| EPIC-03-05 | Know when you'll run out | Next | 3 | 8 |
+| EPIC-03-05 | Know when you'll run out, and find any coffee | Next | 4 | 11 |
+| EPIC-03-06 | See every coffee you've tried | MVP | 4 | 9 |
 | EPIC-04-01 | Record maintenance on your equipment | MVP | 4 | 8 |
 | EPIC-04-02 | Suggested grind that follows bean age and recent shots | Next | 6 | 21 |
 | EPIC-04-03 | Re-dial once after maintenance and keep every recipe | Next | 3 | 11 |
@@ -237,23 +251,30 @@ See "Open questions" at the end.
 
 | Priority | Epics | Stories | Points | Revision 2 |
 |---|---|---|---|---|
-| MVP | 15 | 71 | 190 | 69 stories, 177 points |
-| Next | 8 | 27 | 74 | unchanged |
+| MVP | 16 | 85 | 228 | 69 stories, 177 points |
+| Next | 8 | 30 | 81 | 27 stories, 74 points |
 | Later | 7 | 23 | 92 | unchanged |
-| **Total** | **30** | **121** | **356** | 119 stories, 343 points |
+| **Total** | **31** | **138** | **401** | 119 stories, 343 points |
 
-The MVP grew by 13 points:
+**Where the MVP's 51 extra points come from:**
 
-- **Retired, −9:** setup editing (2), the swap warning (2), retire (2) and
-  "needs re-dial" (3).
-- **Added, +19:** change a part (3), current setup and the setup list (3),
-  puck prep (2), the closest-setup dial-in (5), switching setup on Home and
-  in the log (3), and the since-opening clock (3).
-- **Resized, +3:** frozen portions in the bag chooser, the two no-recipe
-  states on Home, and dial-in with no open portion (+1 each).
+- Revision 3 setups, prep, clocks and frozen-portion work: net +13.
+  - Retired: −9.
+  - Added: change a part, current setup, prep, closest-setup dial-in, setup
+    switching, the opened clock (+19).
+  - Resized: +3.
+- Revision 4: +38.
+  - Suggestions and the SH-OFF path: +13 (EPIC-02-03, from 8 to 21).
+  - Journal filters, its default and "Dial in from this": +8.
+  - The new Tried epic: +9.
+  - Milk: +5.
+  - On hand groups: +2.
+  - The "just right" questions: +1.
 
-The review (m9) already flagged the MVP's size. The cut candidates are
-under "Stories to split or cut". Later points are rough placeholders.
+Later points are rough placeholders. Review m9 already flagged the MVP's
+size; the Head of Product has since confirmed the MVP must be a fully usable
+logging tool (epics revision 10). Cut levers are under "Stories to split or
+cut".
 
 ---
 
@@ -284,34 +305,35 @@ under "Stories to split or cut". Later points are rough placeholders.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (X-1 closed: timestamps are integer milliseconds, TQ-04).
-  Design SCR-START. Uses Firebase anonymous sign-in per device (S-02).
-  Accepted risks (S-02): a lost or reset device, or Safari clearing a site's
-  storage after a period without use, loses the data until EPIC-05-03.
+- **Notes:** Updated (X-1 closed, TQ-04). Design SCR-START. Firebase anonymous
+  sign-in per device (S-02). Accepted risks (S-02): a lost or reset device,
+  or Safari clearing a site's storage, loses the data until EPIC-05-03.
 
 #### STORY-01-01-02: Get a starter drink list in my language
 
 - **Parent:** EPIC-01-01
 - **Story:** As a home enthusiast, I want my household to start with a list of
-  common drinks, so that I can pick what I'm making without setting anything
-  up.
+  common drinks, each knowing whether it has milk and how much, so that I can
+  pick what I'm making without setting anything up.
 - **Acceptance criteria**
   1. Given a new household is created, when I look at my drinks, then I see
      Espresso, Ristretto, Lungo, Americano, Cortado, Flat white, Cappuccino,
      Latte and Macchiato.
   2. Given the app is in a supported language other than English, when I see
-     the starter drinks, then their names are shown in that language.
-  3. Given I change the app's language, when I look at the starter drinks
-     again, then their names follow the new language and no drink is lost or
-     duplicated.
+     the starter drinks, then their names are shown in that language, and
+     changing language later changes them without losing or duplicating any.
+  3. Given a starter drink with milk (for example a flat white), when I log it,
+     then it's treated as a milk drink with a typical milk amount; a drink
+     without milk (for example an espresso) has no milk at all.
   4. Given two households, when one is created, then it gets its own copy of
      the list, separate from any other household's.
 - **Source sections:** S-02, S-04, S-08, S-07
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged. Editing the list is EPIC-02-05 (Next). `has_milk`
-  must be set on each starter row, but no behaviour depends on it yet
-  (EPIC-01-03 open question: `has_milk`).
+- **Notes:** Updated (whether a drink has milk, and its typical amount, S-08).
+  The typical amount per starter drink isn't in the spec (EPIC-01-01 open
+  question; S-02 gives ratios: a cortado about 1:1, a latte 1:3 or more).
+  Editing the list is EPIC-02-05 (Next).
 
 #### STORY-01-01-03: See and rename my profile
 
@@ -337,41 +359,36 @@ under "Stories to split or cut". Later points are rough placeholders.
 - **Source sections:** S-02, S-04, S-08, S-07
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (review M6). Design SCR-PROFILE, opened from the persona
-  label on Home. Criterion 5 is how the accepted risks show: a lost or reset
-  device, and Safari's storage eviction, both accepted for the MVP (S-02). It
-  is stated without alarm; EPIC-05-03 replaces it with the linked state.
-  EPIC-01-01 open question: is a rename in the MVP? The epic and the design
-  include it.
+- **Notes:** Updated (review M6). Design SCR-PROFILE. Criterion 5 is how the
+  accepted risks show (S-02), without alarm; EPIC-05-03 replaces it with the
+  linked state. The epic includes a minimal rename (EPIC-01-01 open question).
 
 #### STORY-01-01-04: Keep my kitchen private to my household
 
 - **Parent:** EPIC-01-01
-- **Story:** As a home enthusiast, I want my equipment, setups, coffee,
-  recipes and shots to belong to my household only, so that no one else sees
-  or changes them.
+- **Story:** As a home enthusiast, I want my equipment, setups, beans, recipes
+  and shots to belong to my household only, so that no one else sees or
+  changes them.
 - **Acceptance criteria**
   1. Given I add anything (a part, a setup, a bag, a recipe, a shot), when
      it's saved, then it belongs to my household.
   2. Given another household exists, when its user browses Tare, then they
      can't see or change anything that belongs to my household.
-  3. Given I use Tare, when I browse my setups, pantry, recipes or shots, then
+  3. Given I use Tare, when I browse my setups, beans, recipes or Journal, then
      I only see my household's records, plus shared catalog entries.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Lightly updated (wording). Visibility of catalog entries a
-  household adds is STORY-01-06-03. The household itself is never shown in the
-  MVP (S-04).
+- **Notes:** Lightly updated (wording). Catalog visibility is STORY-01-06-03.
 
 #### STORY-01-01-05: Move around the app
 
 - **Parent:** EPIC-01-01
-- **Story:** As a home enthusiast, I want to reach brewing, my shots, my
-  pantry and my setup from anywhere, and to be brought back where I was after
-  a side task, so that I never get lost at the machine.
+- **Story:** As a home enthusiast, I want to reach Brew, Journal, Beans and
+  Setup from anywhere, and to be brought back where I was after a side task,
+  so that I never get lost at the machine.
 - **Acceptance criteria**
-  1. Given I'm on any main screen, when I choose Brew, Shots, Pantry or Setup,
+  1. Given I'm on any main screen, when I choose Brew, Journal, Beans or Setup,
      then I go straight there.
   2. Given a main screen whose feature isn't built yet, when I open it, then I
      see a short explanation, never a blank screen or an action that does
@@ -382,14 +399,12 @@ under "Stories to split or cut". Later points are rough placeholders.
   4. Given I start adding something from inside another task (for example a
      bag from the shot log), when I finish, then I return to that task with
      the new item chosen and nothing I'd entered lost.
-- **Source sections:** S-06, S-01
+- **Source sections:** S-02, S-06, S-01
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated. Revision 2's criterion 5 (reopen on the last screen if
-  the app was used a few minutes ago) is cut. It came from the design, not the
-  spec (review m8); see "Not covered". Design 2.1 (screen map, tabs NC-01,
-  full-screen tasks, return-to). The shell is the frame only: each screen's
-  content belongs to its own epic.
+- **Notes:** Updated (the four section names, S-02; revision 2's "reopen on the
+  last screen" criterion cut, review m8, see "Not covered"). Design 2.1. The
+  shell is the frame only.
 
 #### STORY-01-01-06: See the same loading, empty and error behaviour everywhere
 
@@ -410,20 +425,17 @@ under "Stories to split or cut". Later points are rough placeholders.
 - **Source sections:** S-01, S-06
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Lightly updated (criterion 2, after the design's one-primary fix,
-  review m4). Design 1.2 (states), NC-10, NC-11, NC-12. Later stories rely on
-  these patterns and don't repeat them, except where a failure has its own
-  behaviour.
+- **Notes:** Lightly updated (criterion 2, review m4). Design 1.2, NC-10 to
+  NC-12.
 
 #### STORY-01-01-07: Get started with a short checklist
 
 - **Parent:** EPIC-01-01
-- **Story:** As a home enthusiast, I want the first screen to show me the few
-  steps to my first shot, so that setup feels short and I always know what's
-  next.
+- **Story:** As a home enthusiast, I want Brew to show me the few steps to my
+  first shot, so that setup feels short and I always know what's next.
 - **Acceptance criteria**
   1. Given nothing is set up, when I open Brew, then I see three steps: add my
-     machine, grinder and basket; add a bag of coffee; pull my first shot.
+     machine, grinder and basket; add a bag of beans; pull my first shot.
   2. Given I start the first step, when I add my parts, then I'm walked
      through machine, grinder and basket in one pass.
   3. Given I've done a step, when I return, then it's marked done and the next
@@ -436,19 +448,37 @@ under "Stories to split or cut". Later points are rough placeholders.
 - **Source sections:** S-06, S-02
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (the basket is a required part, S-02). Design 2.3
-  (first-run state), DES-02-02-04. Ownership between EPIC-01-01 and
-  EPIC-02-02 is still SQ-16; placed here because it ships before Home's
-  recipe card. Depends on STORY-01-02-02 and STORY-03-01-02 for its targets.
+- **Notes:** Updated (basket required; Beans wording). Design 2.3 and
+  DES-02-02-04. Ownership is SQ-16.
 
-**Coverage:** all In items covered, including the app shell (PEC-01). Out
-items (Google sign-in, drink list editing, sub personas, consent) are in
-their own epics.
+#### STORY-01-01-08: Get a starter milk list
+
+- **Parent:** EPIC-01-01
+- **Story:** As a home enthusiast, I want my household to start with the milks
+  people commonly use, so that I can say which milk went into a drink without
+  setting anything up.
+- **Acceptance criteria**
+  1. Given a new household is created, when I choose a milk, then I see whole,
+     semi-skimmed, skimmed, oat, soy, almond and lactose-free.
+  2. Given the app is in another supported language, when I see the milks, then
+     their names are in that language and follow a language change.
+  3. Given two households, when one is created, then it gets its own copy of
+     the milk list.
+  4. Given the milk list, when I look for brands, then there are none: milks are
+     kinds, not products.
+- **Source sections:** S-02, S-08, S-07
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New (S-02 milk). Editing the list ("Oat (barista)") is Next
+  (STORY-02-05-05).
+
+**Coverage:** all In items covered, including the shell with the four
+sections (PEC-01, S-02) and the starter drink and milk lists.
 
 ### EPIC-01-02: Describe your setup once
 
-Retired in this revision: STORY-01-02-03 (retire), STORY-01-02-06 (edit a
-setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
+Retired: STORY-01-02-03 (retire), STORY-01-02-06 (edit a setup), STORY-01-02-07
+(swap warning).
 
 #### STORY-01-02-01: Find my machine, grinder and basket in the catalog
 
@@ -467,23 +497,19 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
      first.
   4. Given two baskets of the same size from different makers, when I see
      them, then each is shown by its maker and model, never by size alone.
-  5. Given a model is sold under a regional name, when I search by that alias
-     (for example the UK name of a US-branded machine), then the model is
-     found.
-  6. Given a catalog entry has been merged into another, or my household added
-     an unverified entry, when I search, then I only see the surviving entry,
-     and my own unverified entries are marked as added by us; other
-     households' unverified entries never appear.
-  7. Given I can't find it, when I look at the results, then I can always
-     choose to add it (STORY-01-06-01), with my search text carried over.
+  5. Given a model is sold under a regional name, when I search by that alias,
+     then the model is found.
+  6. Given a merged entry or one my household added, when I search, then I only
+     see the surviving entry, my own unverified entries are marked as added by
+     us, and other households' unverified entries never appear; and I can
+     always choose to add a model I can't find (STORY-01-06-01).
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
 - **Notes:** Updated (exact models, three kinds, stock baskets first). Design
-  SCR-CATALOG-PICK (shared with coffee, STORY-03-01-01) and SCR-UNIT-ADD.
-  DQ-22 is the working assumption: the seed catalog includes each machine
-  maker's stock baskets by model. Confirm the seed covers them. Who curates the
-  seed list is still the EPIC-01-02 open question.
+  SCR-CATALOG-PICK. DQ-22 is the working assumption: the seed includes each
+  machine maker's stock baskets, with dose ranges (EPIC-01-02 open question:
+  who curates the seed).
 
 #### STORY-01-02-02: Add the parts I own
 
@@ -497,22 +523,20 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
      (machine, grinder or basket). No other kind of part can be added.
   2. Given I add a part, when I give it a nickname or acquired date, then they
      are saved with it; when I give neither, it still saves.
-  3. Given I've picked a machine or grinder, when I review it before saving,
-     then I can see what it can control (for example exact temperature and its
-     range); a basket shows no controls.
+  3. Given I've picked a machine or grinder, when I review it, then I can see
+     what it can control (for example exact temperature and its range); given
+     a basket, I can see the dose range it's made for (for example 16 to 20 g).
   4. Given I own two of the same model, when I add both, then they are two
      separate parts, each with its own history.
   5. Given a part, when I open it, then I see which of my setups it's in.
-  6. Given I have no parts yet, when I open the Setup screen, then I'm offered
-     to add my machine.
+  6. Given I have no parts yet, when I open Setup, then I'm offered to add my
+     machine.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (three kinds; the setups a part is in). Design
-  SCR-UNIT-ADD, SCR-KIT and SCR-UNIT. Portafilter, tamper and scale aren't
-  tracked; WDT and puck screen are prep checkboxes (STORY-01-03-06). There is
-  no retire (S-02). Adding a part never changes a setup by itself
-  (STORY-01-02-08).
+- **Notes:** Updated (three kinds; the basket's dose range, S-08; the setups a
+  part is in). Design SCR-UNIT-ADD, SCR-KIT, SCR-UNIT. There's no retire.
+  Adding a part never changes a setup by itself (STORY-01-02-08).
 
 #### STORY-01-02-04: Put my machine, grinder and basket together as a setup
 
@@ -533,17 +557,13 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
      can give it a name, and without one it's shown by its parts.
   5. Given one of the three parts is missing, when I confirm, then I'm told
      which one, and nothing is saved.
-  6. Given I confirm, when I return, then the setup I confirmed is my current
-     setup (STORY-01-02-09).
+  6. Given I confirm, when I return, then that setup is my current setup.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (rewritten for fixed setups; title was "Group my kit into
-  a toolkit"). Design SCR-TOOLKIT (the setup builder, rows and match line).
-  Setups are matched by their exact set of parts (S-08). DQ-22 is the working
-  assumption: the basket is required, and the machine maker's stock baskets
-  are seeded and listed first, so most people can find theirs. Several setups
-  can share a part.
+- **Notes:** Updated (rewritten for fixed setups). Design SCR-TOOLKIT (the
+  setup builder). Setups are matched by their exact set of parts (S-08).
+  DQ-22: the basket is required.
 
 #### STORY-01-02-05: Make my first setup in one tap
 
@@ -554,8 +574,7 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
 - **Acceptance criteria**
   1. Given my household has exactly one machine, one grinder and one basket
      and no setup, when I accept the offer, then a setup of those three is made
-     without my typing anything, shown by its parts, and it becomes my current
-     setup.
+     without my typing anything, shown by its parts, and it becomes current.
   2. Given my household has more than one part of any kind and no setup, when
      I accept the offer, then I go to choosing parts with the most recently
      added part of each kind already chosen.
@@ -563,14 +582,13 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
      it, then I'm offered the setup straight away.
   4. Given the offer, when I look at it, then it names the three parts it will
      use, by maker and model.
-  5. Given any setup exists, when I look at the Setup screen or the checklist,
-     then the offer is gone.
+  5. Given any setup exists, when I look at Setup or the checklist, then the
+     offer is gone.
 - **Source sections:** S-02, S-04, S-08, S-06
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (three parts; no default name). DQ-01 is closed by S-08:
-  a setup's name is optional, and without one it's shown by its parts. Design
-  EPIC-01-02 step 7.
+- **Notes:** Updated (three parts; no default name, so DQ-01 is closed by
+  S-08). Design EPIC-01-02 step 7.
 
 #### STORY-01-02-08: Change a part and get the right setup
 
@@ -589,20 +607,17 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
   4. Given I changed a part, when I look at shots pulled before, then they
      still show the setup and parts they were pulled with.
   5. Given I've just added a new part and already have a setup, when I save
-     the part, then I'm asked whether to use it in my setup. Saying yes starts
-     from my current setup with the new part in place of the old one; saying
-     no changes nothing.
+     the part, then I'm asked whether to use it in my setup; yes starts from my
+     current setup with the new part in place of the old one, and no changes
+     nothing.
   6. Given I want to change a setup's parts in place, when I look for a way to,
-     then none is offered: every change of parts goes through choosing a
-     combination.
+     then none is offered.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** New (fixed setups, S-02). Design SCR-TOOLKIT starting points,
-  "use the new part?" (SCR-UNIT-ADD step 6), and SCR-KIT's change-a-part
-  action. Servicing a part (new burrs, a clean) is maintenance, never a new
-  setup (STORY-04-01-01). The same part-change from Home or the shot log is
-  STORY-02-02-07.
+- **Notes:** New. Design SCR-TOOLKIT, SCR-UNIT-ADD step 6, SCR-KIT. Servicing
+  a part is maintenance, never a new setup (STORY-04-01-01). The same change
+  from Brew or the shot log is STORY-02-02-07.
 
 #### STORY-01-02-09: See my setups and know which one is current
 
@@ -611,35 +626,29 @@ setup) and STORY-01-02-07 (swap warning). See "Changes in this revision".
   using now marked, and to switch or name them, so that I always know which
   setup my shots are recorded against.
 - **Acceptance criteria**
-  1. Given I've logged shots, when I look at my setups, then the current
-     setup is the one my last shot (measured or one-tap) was pulled with, and
-     it's shown first and marked as current.
+  1. Given I've logged shots, when I look at my setups, then the current setup
+     is the one my last shot (measured or one-tap) was pulled with, shown first
+     and marked as current.
   2. Given I haven't logged a shot yet, when I look, then my newest setup is
      current.
   3. Given another setup, when I choose to use it, then it becomes current at
      once, without waiting for a shot.
   4. Given my setups, when I look at them, then each shows its name (or its
      parts), its three parts by maker and model, how many recipes it has and
-     when it was last used. Setups I haven't used for 90 days are grouped out
-     of the way.
+     when it was last used; setups unused for 90 days are grouped out of the
+     way.
   5. Given a setup, when I name or rename it, then only its name changes: it's
      the same setup with the same recipes.
   6. Given two setups share a machine and grinder, when either is shown by its
-     parts, then its basket is named too, so the two never look alike.
+     parts, then its basket is named too.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** New. DQ-18 (current setup) and DQ-21 (naming a setup doesn't
-  change it) are the working assumptions. Design SCR-KIT. Criterion 4's
-  90-day grouping is the design's way to keep the list calm as setups
-  multiply.
+- **Notes:** New. DQ-18 and DQ-21 are the working assumptions. Design SCR-KIT.
 
-**Coverage:** all In items covered: parts from the catalog, owned parts,
-setups as fixed combinations with reuse, one part per kind, the optional
-name, the current setup (DQ-18), "change a part" (PEC-09; the selects on Home
-and in the log are STORY-02-02-07) and the first-setup shortcut. Out by S-02:
-editing a setup, retire, untracked tools. Not covered: deleting a setup (not
-in the spec).
+**Coverage:** all In items covered, including the basket's dose range.
+Selects on Brew and in the log are STORY-02-02-07. Out by S-02: editing a
+setup, retire, untracked tools. Not covered: deleting a setup.
 
 ### EPIC-01-03: Log a shot in seconds
 
@@ -651,10 +660,10 @@ in the spec).
   most shots need no choices before the numbers.
 - **Acceptance criteria**
   1. Given I open the shot log, when it opens, then the setup is my current
-     setup, and the drink and coffee are the ones on my home screen.
+     setup, and the drink and coffee are the ones on Brew.
   2. Given I want a different drink or coffee, when I change it, then I can
      choose from my household's visible drinks and my unfinished portions,
-     each named by its bean with its bag, state and how long it's been open.
+     each named by its coffee with its bag, state and how long it's been open.
   3. Given I have unopened portions, when I choose the coffee, then they're
      offered; frozen portions are offered last and marked as frozen.
   4. Given I pick a frozen portion, when I save the shot, then it's recorded as
@@ -665,12 +674,9 @@ in the spec).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (current setup; frozen portions last). Design SCR-LOG
-  context. DQ-18 (current setup) and DQ-06 (as updated in design round 3)
-  are the working assumptions: the first shot logged on an unopened,
-  unfrozen portion marks it opened that day (STORY-03-02-03), and a frozen
-  pick doesn't. Changing the setup here is STORY-02-02-07. Finished portions
-  are excluded (INIT-03 Q3). Hidden drinks only exist once EPIC-02-05 ships.
+- **Notes:** Updated (current setup; frozen portions). Design SCR-LOG context.
+  DQ-18 and DQ-06 (round 3) are the working assumptions. Changing the setup
+  here is STORY-02-02-07.
 
 #### STORY-01-03-02: Set grind, dose, yield and time by touch
 
@@ -686,8 +692,8 @@ in the spec).
      measured shot on this setup, or from neutral defaults if there isn't
      one.
   3. Given my setup's grinder is stepped, when I set grind, then I can only
-     choose values on its steps, within its range; given it's stepless, I can
-     choose any value in its range at its finest increment.
+     choose values on its steps, within its range; given it's stepless, any
+     value in its range at its finest increment.
   4. Given my grinder's coarser direction is known, when I set grind, then I can
      see which way is finer and which is coarser.
   5. Given I change dose or yield, when I look, then the ratio updates at once.
@@ -696,17 +702,15 @@ in the spec).
 - **Source sections:** S-06, S-08, S-02
 - **Priority:** MVP
 - **Size:** 5
-- **Notes:** Updated (grind follows the setup's grinder). Design SCR-LOG,
-  ShotDial (NC-09), NumberWheel end captions. DQ-07 is the working assumption
-  for criterion 2 (defaults: dose 18 g, yield 36 g, time 28 s, grind
-  mid-range). The ratio is shown, never stored. When the coarser direction is
-  "not sure", no direction is shown (STORY-01-06-08).
+- **Notes:** Updated (the setup's grinder). Design ShotDial (NC-09). DQ-07 for
+  defaults. When the coarser direction is "not sure", none is shown
+  (STORY-01-06-08).
 
 #### STORY-01-03-03: Save the shot as I measured it
 
 - **Parent:** EPIC-01-03
 - **Story:** As a home enthusiast, I want to save a shot with its values and
-  setup, so that my history shows exactly what I pulled, even after I change
+  setup, so that my Journal shows exactly what I pulled, even after I change
   parts.
 - **Acceptance criteria**
   1. Given my context and values are set, when I save, then the shot is saved
@@ -722,16 +726,14 @@ in the spec).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated. Shots record their setup only; the machine, grinder and
-  basket follow from it, and setups never change (S-02, S-08). Tasting is
-  STORY-01-05-01 to 04 (SCR-TASTE). Network eligibility is not computed here
-  (X-3).
+- **Notes:** Updated (shots record their setup only, S-08). Tasting is
+  EPIC-01-05. Network eligibility isn't computed here (X-3).
 
 #### STORY-01-03-04: Mark a shot as sweetened
 
 - **Parent:** EPIC-01-03
 - **Story:** As a home enthusiast, I want to mark a drink as sweetened, so
-  that my history knows when sugar or syrup was added.
+  that my Journal knows when sugar or syrup was added.
 - **Acceptance criteria**
   1. Given I'm logging a shot, when I mark it sweetened, then the saved shot
      records that it was sweetened.
@@ -741,8 +743,7 @@ in the spec).
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 1
-- **Notes:** Lightly updated (criterion 2: sweetened always starts off, per
-  the design, because it's per drink, not per recipe).
+- **Notes:** Lightly updated (criterion 2: always starts off, per the design).
 
 #### STORY-01-03-05: Enter and read numbers in my local format
 
@@ -759,15 +760,14 @@ in the spec).
 - **Source sections:** S-07
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged. Applies to every number in the app; this story makes
-  it testable on the shot log, where it matters most.
+- **Notes:** Unchanged.
 
 #### STORY-01-03-06: Record whether I used WDT or a puck screen
 
 - **Parent:** EPIC-01-03
 - **Story:** As a home enthusiast, I want to tick whether I used a WDT tool
-  and a puck screen on a shot, so that my history shows how I prepped the
-  puck without making prep part of my setup.
+  and a puck screen on a shot, so that my Journal shows how I prepped the puck
+  without making prep part of my setup.
 - **Acceptance criteria**
   1. Given I'm logging a shot, when I look, then I can tick "WDT" and "puck
      screen" separately, each in one tap, and the saved shot records both.
@@ -783,14 +783,39 @@ in the spec).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** New (S-02 puck prep; schema `usedWdt`, `usedPuckScreen`). Design
-  SCR-LOG step 4. The ticks record whether prep was used, not which tool.
-  Which tool, portafilter and tamper aren't tracked (S-02). The starting rule
-  is the coordinator's working assumption, matching the design. Editing a
-  saved shot starts from its own ticks (STORY-02-06-02).
+- **Notes:** New (S-02 puck prep). Design SCR-LOG step 4. Which tool,
+  portafilter and tamper aren't tracked. Editing starts from the shot's own
+  ticks (STORY-02-06-02).
 
-**Coverage:** all In items covered, including puck prep. The setup field's
-select with "change a part" is EPIC-02-02 (STORY-02-02-07).
+#### STORY-01-03-07: Record the milk in a milk drink
+
+- **Parent:** EPIC-01-03
+- **Story:** As a home enthusiast, I want to record which milk and how much
+  went into a milk drink, so that my Journal shows the drink I actually made.
+- **Acceptance criteria**
+  1. Given I'm logging a drink with milk, when I look, then I can choose the
+     milk from my household's milks and set the amount in millilitres by
+     dragging, without a keyboard.
+  2. Given I'm logging a drink without milk (for example an espresso), when I
+     look, then no milk is asked.
+  3. Given the log starts from a recipe, when it opens, then milk type and
+     amount start as the recipe has them.
+  4. Given a blank log for a milk drink, when it opens, then the milk starts as
+     on my last shot of this drink (else the first milk on my list), and the
+     amount starts at the drink's typical amount.
+  5. Given I switch to another drink, when the drink changes, then milk values
+     I haven't touched follow the rule for the new drink, and milk disappears
+     if the new drink has none.
+  6. Given I save, when I look at the shot, then it records the milk type and
+     amount.
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New (S-02 milk; epics revision 9). DQ-26 is the working
+  assumption: amount 0 to 500 ml in steps of 10. Design SCR-LOG step 4 (milk).
+  Steamed-milk temperature isn't recorded (S-02).
+
+**Coverage:** all In items covered, including puck prep and milk.
 
 ### EPIC-01-04: Record temperature and pressure when your machine has them
 
@@ -817,9 +842,8 @@ select with "change a part" is EPIC-02-02 (STORY-02-02-07).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (closed: °F is display-only and stored in °C, S-08;
-  INIT-01 Q5 resolved). Design EPIC-01-04. Machines whose temperature control
-  is "not sure" follow STORY-01-06-08.
+- **Notes:** Updated (°F display-only and stored in °C, closed by S-08).
+  "Not sure" machines follow STORY-01-06-08.
 
 #### STORY-01-04-02: Record pressure in the way my machine sets it
 
@@ -842,14 +866,16 @@ select with "change a part" is EPIC-02-02 (STORY-02-02-07).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Lightly updated (wording). Design EPIC-01-04 table. Criterion 1
-  for gaugeless manual machines is the design's assumption too (EPIC-01-04
-  open question: manual without gauge). Pressure profiles are out of scope
-  (S-02).
+- **Notes:** Lightly updated (wording). Criterion 1 for gaugeless manual
+  machines is the design's assumption (EPIC-01-04 open question).
 
 **Coverage:** all In items covered.
 
 ### EPIC-01-05: Say how it tasted
+
+Rewritten in revision 4 for taste relative to the persona (S-02): four "just
+right" questions and six observation tags replace the 1-5 scores and the
+defect list. DQ-08 and INIT-01 Q3 are closed by S-02.
 
 #### STORY-01-05-01: Rate a shot overall
 
@@ -861,89 +887,97 @@ select with "change a part" is EPIC-02-02 (STORY-02-02-07).
      tasted, then I can see the shot's values while I rate it from 1 to 5.
   2. Given I chose a rating, when I choose it again, then it goes back to
      unrated.
-  3. Given I've made choices, when I leave in any way (done, back, or pinning
-     the shot), then my choices are saved without any question; with nothing
-     chosen, nothing more is saved.
+  3. Given I've made choices, when I leave in any way (done, back, pinning, or
+     dialling in with a suggested change), then all my tasting choices are
+     saved without a question; with nothing chosen, nothing more is saved.
   4. Given saving my choices fails, when I try to leave, then I stay, my
      choices are kept, and I can try again or leave without saving the
      tasting; the shot itself is already saved.
   5. Given I rated a shot, when I see it later, then its rating is shown.
-- **Source sections:** S-08, S-06
+- **Source sections:** S-02, S-08, S-06
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (review M2: the design's single "leaving saves" rule and
-  its failure path). Design SCR-TASTE. Tasting never comes before saving and
-  never blocks it. Rating is optional (INIT-01 Q3, still open). Rating later is
-  through editing a measured shot (STORY-02-06-02); one-tap shots don't carry
-  a rating (SQ-17).
+- **Notes:** Updated (review M2: the design's "leaving saves" rule).
+  Design SCR-TASTE. Rating is optional (INIT-01 Q3 closed: nothing is
+  required). One-tap shots never get a rating (DQ-23).
 
-#### STORY-01-05-02: Score sweetness, acidity, bitterness and body
+#### STORY-01-05-02: Say what was off, against my own taste
 
 - **Parent:** EPIC-01-05
-- **Story:** As a home enthusiast, I want to score sweetness, acidity,
-  bitterness and body from 1 to 5, so that my taste history shows what I
-  actually tasted.
+- **Story:** As a home enthusiast, I want to say in seconds whether a shot was
+  too sour or too bitter, too weak or too strong, too thin or too heavy, and
+  sweet enough, compared with what I like, so that Tare knows which way to fix
+  it and, over time, what I like.
 - **Acceptance criteria**
-  1. Given I'm saying how a measured shot tasted, when I score any of the four,
-     then each takes a whole number from 1 to 5, with its low and high ends
-     named.
-  2. Given I score some but not all four, when I leave, then the ones I scored
-     are saved and the rest are left empty.
-  3. Given I scored one, when I choose the same score again, then it goes back
-     to unscored.
-  4. Given I score, when I do it, then I can do it by touch or keyboard, without
-     typing.
-- **Source sections:** S-08, S-06
+  1. Given I'm saying how a shot tasted, when I answer, then I see four
+     questions, each with "just right" in the middle and "a bit" and "much" on
+     either side: balance (too sour to too bitter), strength (too weak to too
+     strong), body (too thin to too heavy), and sweetness (not sweet enough to
+     just right, one-sided).
+  2. Given the drink has milk, when I see the strength question, then its ends
+     read "lost in the milk" and "overpowering".
+  3. Given I don't touch a question, when I leave, then nothing is saved for it,
+     which is different from "just right".
+  4. Given a good shot, when I choose "all just right", then all four are set to
+     just right in one tap, and I can still change any of them.
+  5. Given I chose an answer, when I choose it again, then it goes back to
+     unanswered.
+  6. Given a good shot, when I rate it, choose "all just right" and finish, then
+     it's recorded in three taps; I'm never asked about flavour notes.
+- **Source sections:** S-02, S-08, S-06
 - **Priority:** MVP
-- **Size:** 2
-- **Notes:** Unchanged in substance. Design SCR-TASTE. Saving follows
-  STORY-01-05-01's rule. All four are optional (INIT-01 Q3). They aren't
-  interpreted in Phase 1.
+- **Size:** 3
+- **Notes:** Updated (rewritten; title was "Score sweetness, acidity,
+  bitterness and body"; 2 points became 3). Stored as -2 to +2 with 0 as just
+  right, and sweetness -2 to 0 (S-08). Design SCR-TASTE step 3. The same
+  questions are used on SH-OFF (STORY-02-03-04) and in editing
+  (STORY-02-06-02). Each question is operable by touch and keyboard.
 
-#### STORY-01-05-03: Tag what went wrong
+#### STORY-01-05-03: Note what I noticed
 
 - **Parent:** EPIC-01-05
-- **Story:** As a home enthusiast, I want to tag defects such as channelling on
-  a shot, so that I can see what went wrong when I look back.
+- **Story:** As a home enthusiast, I want to tick things I noticed about a
+  shot, such as a dry finish or little crema, so that my Journal describes
+  what happened without my having to judge it.
 - **Acceptance criteria**
-  1. Given I'm saying how a measured shot tasted, when I tag defects, then I can
-     choose one or more from the defect list, and they're saved on the shot.
-  2. Given I tag none, when I leave, then the shot saves with no defects.
-  3. Given I tagged a defect, when I tap it again, then it's untagged.
-  4. Given I tagged defects, when I see the shot later, then its defects are
-     shown.
-- **Source sections:** S-08, S-09
+  1. Given I'm saying how a shot tasted, when I look at what I noticed, then I
+     can tick any of six: sour and bitter at once, dry finish, flat, burnt,
+     little crema, channelling seen.
+  2. Given I tick none, when I leave, then the shot has none.
+  3. Given I ticked one, when I tap it again, then it's unticked.
+  4. Given I ticked some, when I see the shot later, then they're shown.
+- **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged in substance. The defect list is still undefined
-  (DQ-08); until it is, only channelling ships (the review's working
-  assumption). STORY-01-05-04 depends on channelling.
+- **Notes:** Updated (the six tags replace the defect list; title was "Tag
+  what went wrong"). Crema is an observation, never a target (S-02). Design
+  SCR-TASTE step 4.
 
 #### STORY-01-05-04: See a warning when a shot channelled
 
 - **Parent:** EPIC-01-05
-- **Story:** As a home enthusiast, I want a clear warning on any shot I tagged
-  as channelling, so that problem shots stand out when I look back.
+- **Story:** As a home enthusiast, I want a clear warning on any shot where I
+  saw channelling, so that problem shots stand out when I look back.
 - **Acceptance criteria**
-  1. Given I'm saying how a shot tasted, when I tag channelling, then a
-     channelling warning appears straight away; when I untag it, the warning
-     goes.
-  2. Given a shot tagged as channelling, when I see it in my recent shots, in
-     its details or while editing it, then the same warning is shown.
+  1. Given I'm saying how a shot tasted (after logging, or after a one-tap shot
+     I marked off), when I tick "channelling seen", then a channelling warning
+     appears straight away; when I untick it, the warning goes.
+  2. Given a shot with "channelling seen", when I see it in my Journal, in its
+     details or while editing it, then the same warning is shown.
   3. Given the warning, when anyone sees it, then it's understandable from its
      words alone, not only from its colour.
-  4. Given a shot without channelling, when I see it anywhere, then no warning
-     is shown, and nothing else in the app looks like a shot warning.
-- **Source sections:** S-01, S-08
+  4. Given any other tag or answer, including "sour and bitter at once" and
+     "dry finish", when I see the shot, then no warning is shown, and nothing
+     else in the app looks like a shot warning.
+- **Source sections:** S-01, S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged. Design EPIC-01-05 "Where the warning appears". This
-  epic owns the warning; EPIC-02-06 only shows it. "Ran fast" stays out until
-  a threshold exists (DQ-09). Only measured shots can carry defects, so only
-  they can show the warning (SQ-17).
+- **Notes:** Updated (the tag drives it; shown on SH-OFF too). Criterion 4 is
+  the epic's working assumption: only "channelling seen" warns (EPIC-01-05
+  open question). "Ran fast" is never a warning; it only appears in a
+  suggestion's reason (DQ-09).
 
-**Coverage:** all In items covered. Not covered: the "ran fast" warning, which
-the epic puts out of scope.
+**Coverage:** all In items covered. Out: flavour notes (S-02), "ran fast".
 
 ### EPIC-01-06: Add what's missing from the catalog
 
@@ -959,23 +993,22 @@ the epic puts out of scope.
      name.
   2. Given the link isn't already in the catalog, when I add the maker, model
      name and kind (machine, grinder or basket), then it's saved and I'm taken
-     back to where I was with it chosen, ready to add as a part.
+     back to where I was with it chosen.
   3. Given the maker isn't in the catalog either, when I add the model, then I
      can add the maker at the same time, also with a link.
-  4. Given I add a basket, when I save, then I'm not asked about capabilities.
+  4. Given I add a basket, when I describe it, then I'm asked the dose range
+     it's made for (lowest and highest grams), with "not sure" allowed, and no
+     machine or grinder questions.
   5. Given I try to save without a product page link, when I save, then I'm
      asked for one and nothing is saved.
   6. Given I added an entry, when I see it, then it's marked as added by my
-     household; and given saving fails, everything I entered is kept and I
-     can try again.
+     household; and given saving fails, everything I entered is kept.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (baskets; three kinds). Design SCR-CATALOG-ADD. A basket's
-  model name includes what tells it apart (for example "Normcore 18 g").
-  Capabilities for machines and grinders are STORY-01-06-06 and 01-06-07.
-  Baskets often have no product page of their own, and a product with no web
-  page can't be added (EPIC-01-06 open questions: no web page; basket pages).
+- **Notes:** Updated (baskets and their dose range, epics revision 9). The
+  design has no flow yet for the basket's dose-range question (SQ-20). Baskets
+  often have no product page of their own (EPIC-01-06 open question).
 
 #### STORY-01-06-02: Add a missing roaster or coffee
 
@@ -998,8 +1031,7 @@ the epic puts out of scope.
 - **Source sections:** S-02, S-04, S-08, S-09
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged. Design SCR-CATALOG-ADD (coffee). The roast level list
-  is S-09's. Bag scanning is EPIC-06-01.
+- **Notes:** Unchanged.
 
 #### STORY-01-06-03: Keep what I add private until it's verified
 
@@ -1014,13 +1046,12 @@ the epic puts out of scope.
      it and can use it, and apart from its "added by us" mark it looks like any
      other entry.
   3. Given an entry my household added has been verified, when any household
-     searches, then they see it in the shared catalog, and my existing parts,
-     setups, bags and shots that use it are unchanged.
+     searches, then they see it, and my parts, setups, bags and shots that use
+     it are unchanged.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Lightly updated (wording). Verification and merges are a manual
-  admin task until EPIC-06-07 (S-02). The reviewer role isn't a spec user type
+- **Notes:** Lightly updated (wording). Manual admin review until EPIC-06-07
   (SQ-12).
 
 #### STORY-01-06-04: Get pointed to an entry that already exists
@@ -1044,12 +1075,8 @@ the epic puts out of scope.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged. Design SCR-CATALOG-ADD steps 1 and 2 and the "check
-  failed" state. Criterion 3 is also the design's assumption (EPIC-01-06 open
-  question: cross-household check). Whether the user can add their own entry
-  anyway is DQ-10; the working assumption is no (the review's "add anyway"
-  flag is off). Normalisation rules per market: EPIC-01-06 open question.
-  Fuzzy matching is EPIC-06-07.
+- **Notes:** Unchanged. DQ-10 (add anyway) is off by the review's working
+  assumption.
 
 #### STORY-01-06-05: Add regional links and names to an entry
 
@@ -1069,8 +1096,7 @@ the epic puts out of scope.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged. Design SCR-CATALOG-ADD step 5. Assumes a household adds
-  links and aliases to its own entries only (SQ-04, still open).
+- **Notes:** Unchanged. SQ-04 still open.
 
 #### STORY-01-06-06: Describe a machine I added in my own words
 
@@ -1082,23 +1108,20 @@ the epic puts out of scope.
   1. Given I'm adding a machine, when I describe it, then I'm asked whether I
      can set the brew temperature and whether I can set or read the pressure,
      in plain words, each with "not sure" as an answer.
-  2. Given an answer that needs more detail (a few settings, an exact number,
-     or a lever with or without a gauge), when I give it, then only the
+  2. Given an answer that needs more detail, when I give it, then only the
      follow-up it needs is asked (how many settings, the unit, the lowest and
-     highest value, or whether there's a gauge), also with "not sure" where it
-     applies.
+     highest value, or whether there's a gauge), also with "not sure".
   3. Given a machine with no temperature or pressure control, when I describe
      it, then two answers are enough.
   4. Given I leave any question unanswered, when I save, then it's saved as
      "not sure", and I was told that before saving.
   5. Given I saved my machine, when I log a shot on a setup with it, then the
-     log offers temperature and pressure in the form I described
-     (STORY-01-04-01, 02).
+     log offers temperature and pressure in the form I described.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Lightly updated (criterion 5 wording). Design SCR-CATALOG-ADD step
-  4. "Not sure" is stored as an unknown value (S-08, TQ-06).
+- **Notes:** Lightly updated (wording). "Not sure" is stored as unknown
+  (TQ-06).
 
 #### STORY-01-06-07: Describe a grinder I added in my own words
 
@@ -1120,14 +1143,14 @@ the epic puts out of scope.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged. Design SCR-CATALOG-ADD step 4 (grinder questions).
+- **Notes:** Unchanged.
 
 #### STORY-01-06-08: Log shots even when I'm not sure about my equipment
 
 - **Parent:** EPIC-01-06
-- **Story:** As a home enthusiast, I want the shot log to work for equipment
-  whose details I didn't know, without guessing anything that matters, so
-  that "not sure" never stops me logging.
+- **Story:** As a home enthusiast, I want the shot log and suggestions to work
+  for equipment whose details I didn't know, without guessing anything that
+  matters, so that "not sure" never stops me logging.
 - **Acceptance criteria**
   1. Given my machine's temperature or pressure control is "not sure", when I
      log a shot, then that value isn't asked.
@@ -1138,28 +1161,29 @@ the epic puts out of scope.
      shot, then I can still set any grind in a wide default range.
   4. Given which way is coarser is "not sure", when I set grind, then no finer
      or coarser direction is shown, never a guessed one.
-  5. Given any part of my setup is "not sure", when I log a shot, then I'm
+  5. Given my basket's dose range is "not sure", when a suggestion is worked
+     out, then dose is never suggested (STORY-02-03-06).
+  6. Given any part of my setup is "not sure", when I log a shot, then I'm
      offered, quietly and once, to tell Tare more about it (STORY-01-06-09).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Lightly updated (title wording). DQ-11 is the working assumption:
-  settings 1 to 5; °C; 80 to 100 °C, step 0.5; 0 to 12 bar, step 0.5; grind
-  0 to 100, step 0.1 (smooth or unknown) or 1 (clicks with unknown step). The
-  exact ranges are still to be confirmed.
+- **Notes:** Updated (the basket's dose range; title wording). DQ-11 is the
+  working assumption for the fallback ranges. Criterion 5 is the epic's
+  working assumption (EPIC-01-06 open question: skip or default range).
 
 #### STORY-01-06-09: Answer capability questions later
 
 - **Parent:** EPIC-01-06
 - **Story:** As a home enthusiast, I want to come back and answer what I
-  wasn't sure about for equipment I added, so that the shot log gets better
-  once I know.
+  wasn't sure about for equipment I added, so that the shot log and
+  suggestions get better once I know.
 - **Acceptance criteria**
-  1. Given a machine or grinder my household added and that's still
+  1. Given a machine, grinder or basket my household added that's still
      unverified, when I open that part, then I see which answers are "not sure"
-     and can answer the same questions again.
-  2. Given I change an answer, when I log a new shot, then the log follows the
-     new answer.
+     and can answer the same questions again, including a basket's dose range.
+  2. Given I change an answer, when I log a new shot or get a suggestion, then
+     it follows the new answer.
   3. Given I change an answer, when I look at old shots, then their stored
      values are unchanged and mean what they meant.
   4. Given a new answer narrows the range, when I edit an old shot outside it,
@@ -1169,12 +1193,11 @@ the epic puts out of scope.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged in substance. PEC-08. Design SCR-UNIT "Answer later".
-  Whether the admin can correct capabilities on verification is still an
-  EPIC-01-06 open question.
+- **Notes:** Updated (baskets; suggestions follow answers). PEC-08. Design
+  SCR-UNIT "Answer later".
 
 **Coverage:** all In items covered, for both catalogs and all three part
-kinds, from the setup (STORY-01-02-01) and pantry (STORY-03-01-01) flows.
+kinds, including the basket's dose range.
 
 ---
 
@@ -1182,8 +1205,7 @@ kinds, from the setup (STORY-01-02-01) and pantry (STORY-03-01-01) flows.
 
 ### EPIC-02-01: Pin the recipe that worked
 
-Retired in this revision: STORY-02-01-05 (re-dial a recipe whose kit left its
-toolkit), replaced by STORY-02-01-06.
+Retired: STORY-02-01-05, replaced by STORY-02-01-06.
 
 #### STORY-02-01-01: Pin a recipe from a shot I liked
 
@@ -1192,17 +1214,18 @@ toolkit), replaced by STORY-02-01-06.
   that coffee, drink and setup, so that I can make it again without dialing
   in.
 - **Acceptance criteria**
-  1. Given a measured shot, right after saving it or from its details, when I
+  1. Given a measured shot, right after tasting it or from its details, when I
      choose to pin it, then before confirming I see which drink, coffee and
-     setup it applies to, its values and puck prep, and the current recipe it
-     replaces, if any, with any differences shown.
+     setup it applies to, its values, puck prep and milk, and the recipe it
+     replaces, if any, with differences shown.
   2. Given I confirm, when it's saved, then a recipe is saved for that shot's
-     bean, persona, setup and drink, with its grind, dose, yield, time, any
-     temperature or pressure in the same form, and its WDT and puck screen
-     ticks, and I'm told it's pinned.
-  3. Given I pinned a shot, when I look at the recipe, then it shows which shot
-     it came from.
-  4. Given a recipe exists for a bean, persona, setup and drink, when anything
+     coffee, persona, setup and drink, with its grind, dose, yield, time, any
+     temperature or pressure, its WDT and puck screen ticks and, for a milk
+     drink, its milk type and amount.
+  3. Given I pinned a flat white made with oat milk, when I later pin a flat
+     white of the same coffee on the same setup made with whole milk, then it
+     replaces the same recipe: milk is never part of which recipe it is.
+  4. Given a recipe exists for a coffee, persona, setup and drink, when anything
      in the app needs the recipe for that combination, then it gets the latest
      one pinned, and only for that setup.
   5. Given a one-tap shot, when I look at it, then pinning isn't offered.
@@ -1211,11 +1234,12 @@ toolkit), replaced by STORY-02-01-06.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (setup and prep; review m10). **This story owns "which
-  recipe applies now"** (criterion 4). STORY-02-01-04, Home and every
-  pre-fill use it. Design SH-PIN, from SCR-TASTE or SCR-SHOT. Assumes a pin
-  sets the bean's default (INIT-02 Q1, still open). One-tap shots are
-  excluded, as the design confirms.
+- **Notes:** Updated (setup, prep and milk; review m10). **This story owns
+  "which recipe applies now"** (criterion 4); STORY-02-01-04, Brew, every
+  pre-fill and the coffee screen (STORY-03-06-03) use it. Someone who
+  alternates milks can add a drink such as "Oat flat white" once drink editing
+  ships (EPIC-02-01 open question; EPIC-02-05). Assumes a pin sets the
+  coffee's default (INIT-02 Q1).
 
 #### STORY-02-01-02: Pin a recipe by entering the values
 
@@ -1224,22 +1248,20 @@ toolkit), replaced by STORY-02-01-06.
   setting its values myself, so that I can start from a recipe I already know,
   such as one from the roaster.
 - **Acceptance criteria**
-  1. Given a bag in my pantry, when I add a recipe for its coffee, then I choose
-     the drink and setup and set grind, dose, yield and time as on the shot
-     log.
-  2. Given the setup's machine can set temperature or pressure, when I enter
-     the recipe, then I can set them in the machine's form, and I can tick
-     WDT and puck screen.
+  1. Given a bag in Beans, when I add a recipe for its coffee, then I choose the
+     drink and setup and set grind, dose, yield and time as on the shot log.
+  2. Given the setup's machine can set temperature or pressure, or the drink has
+     milk, when I enter the recipe, then I can set those too, and I can tick WDT
+     and puck screen.
   3. Given I confirm the pin, when it's saved, then a recipe is saved for that
-     bean, drink, setup and my persona, with no source shot, and no shot is
+     coffee, drink, setup and my persona, with no source shot, and no shot is
      logged.
   4. Given I'm entering a recipe, when I look at the screen, then it's clear I'm
      pinning a recipe, not logging a shot.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (setup and prep). Design SCR-BAG recipes, SCR-LOG recipe
-  mode, SH-PIN.
+- **Notes:** Updated (setup, prep, milk). Design SCR-LOG recipe mode, SH-PIN.
 
 #### STORY-02-01-03: Pin a better recipe and keep the old one
 
@@ -1248,20 +1270,18 @@ toolkit), replaced by STORY-02-01-06.
   recipe without deleting the old one, so that I always brew my latest best
   and nothing is lost.
 - **Acceptance criteria**
-  1. Given a bean, persona, setup and drink already have a recipe, when I pin
+  1. Given a coffee, persona, setup and drink already have a recipe, when I pin
      another, then the new one becomes the current recipe.
   2. Given I re-pinned, when I look at the current recipe, then I see only the
      newest one.
-  3. Given I re-pinned, when anything in the app needs a recipe for that bean,
-     persona, setup and drink, then it uses the newest one.
+  3. Given I re-pinned, when anything in the app needs that recipe, then it uses
+     the newest one.
   4. Given I re-pinned, when the older recipe is checked, then it still exists,
      unchanged.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged in substance. The design has no recipe history screen
-  in the MVP, so criterion 4 is a data check. Unpinning or removing a recipe
-  isn't in the spec or the design (SQ-05).
+- **Notes:** Unchanged. Criterion 4 is a data check. SQ-05 still open.
 
 #### STORY-02-01-04: See the recipes for a coffee
 
@@ -1269,22 +1289,22 @@ toolkit), replaced by STORY-02-01-06.
 - **Story:** As a home enthusiast, I want to see my recipes for a coffee, per
   drink and setup, so that every new bag of it starts from what worked.
 - **Acceptance criteria**
-  1. Given recipes are pinned for a bean, when I look at a bag of it, then I see
-     one recipe per drink and setup, with its values, puck prep and the date
-     it was pinned.
-  2. Given I add a new bag of the same bean, when I look at it, then I see the
-     recipes pinned for that bean, not blank ones.
+  1. Given recipes are pinned for a coffee, when I look at a bag of it, then I
+     see one recipe per drink and setup, with its values, puck prep, milk and
+     the date it was pinned.
+  2. Given I add a new bag of the same coffee, when I look at it, then I see
+     the recipes pinned for that coffee, not blank ones.
   3. Given a recipe, when I open it, then I can dial in from it or change it.
   4. Given no recipe is pinned for that coffee, when I look, then I'm told
      there's none yet and can add one (STORY-02-01-02).
-  5. Given the bean was merged into another catalog entry, when I look for its
+  5. Given the coffee was merged into another catalog entry, when I look for its
      recipes, then I see recipes pinned against either entry.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (per setup; review m10). Shows recipes as resolved by
-  STORY-02-01-01. Design SCR-BAG section `bag.recipes`. "Change it" opens
-  recipe mode (STORY-02-01-02). Drift and offsets are not applied (INIT-04).
+- **Notes:** Updated (per setup; milk; review m10). Shows recipes as resolved
+  by STORY-02-01-01. The same rows appear on the coffee screen
+  (STORY-03-06-03).
 
 #### STORY-02-01-06: Dial in on a new setup from my closest setup's recipe
 
@@ -1294,75 +1314,65 @@ toolkit), replaced by STORY-02-01-06.
   basket or grinder doesn't mean starting from scratch.
 - **Acceptance criteria**
   1. Given my current setup has no recipe for this coffee and drink but another
-     setup does, when I look at the home screen, then I'm told there's no
-     recipe on this setup yet, which setup the dial-in will start from, and
-     only "Dial in" is offered, never a one-tap pull.
-  2. Given several setups have such a recipe, when the starting setup is
-     chosen, then it's the one with the most parts in common with my current
-     setup; ties go to the one I used most recently.
+     setup does, when I look at Brew, then I'm told there's no recipe on this
+     setup yet and which setup the dial-in will start from, and only "Dial in"
+     is offered, never a one-tap pull.
+  2. Given several setups have such a recipe, when the starting setup is chosen,
+     then it's the one with the most parts in common with my current setup;
+     ties go to the one I used most recently.
   3. Given I dial in, when the log opens, then I'm told it starts from that
-     setup's recipe, and dose, yield, time and puck prep come from it.
+     setup's recipe, and dose, yield, time, puck prep and milk come from it.
   4. Given the starting setup has the same grinder, when the log opens, then
-     grind comes from its recipe too; given a different grinder, grind starts
-     at this grinder's last measured value (else the middle of its range) and
-     I'm told grind wasn't carried over.
+     grind comes from its recipe too; given a different grinder, grind starts at
+     this grinder's last measured value (else the middle of its range) and I'm
+     told grind wasn't carried over.
   5. Given the starting setup has the same machine, when the log opens, then
      temperature and pressure come from its recipe; otherwise they start unset.
   6. Given I save and pin the dial-in, when I come back, then this setup has its
-     own recipe and the next shot is one tap. Given no setup has a recipe for
-     this coffee and drink, the dial-in starts blank (STORY-02-02-05).
+     own recipe and the next shot is one tap. Given no setup has a recipe, the
+     dial-in starts blank (STORY-02-02-05).
 - **Source sections:** S-02, S-01, S-08
 - **Priority:** MVP
 - **Size:** 5
-- **Notes:** New (S-02: recipes belong to one setup). It replaces retired
-  STORY-02-01-05. Working assumptions: DQ-19 (ties) and DQ-20 (grind and
-  temperature and pressure carry-over). Puck prep carries over because it
-  isn't tied to a part (design; answers the EPIC-02-01 prep question). Design
-  "dial in on a setup with no recipe", the `log.fromOtherSetup` note,
-  DES-02-01-05. Each pre-filled value shows its source when changed, as in
-  STORY-02-03-02.
+- **Notes:** New. DQ-19 and DQ-20 are the working assumptions. Prep and milk
+  carry over because they aren't tied to a part (design; answers the
+  EPIC-02-01 carry-over question). Design DES-02-01-05.
 
-**Coverage:** all In items covered, including the closest-setup head start.
+**Coverage:** all In items covered, including milk on recipes.
 
 ### EPIC-02-02: Pull your daily shot in one tap
 
-#### STORY-02-02-01: See my daily shot on the home screen
+#### STORY-02-02-01: See my daily shot on Brew
 
 - **Parent:** EPIC-02-02
-- **Story:** As a home enthusiast, I want the home screen to show the recipe I
-  usually make at this time of day, on my current setup, with the coffee I'm
-  on, so that my daily shot needs no choices.
+- **Story:** As a home enthusiast, I want Brew to show the recipe I usually
+  make at this time of day, on my current setup, with the coffee I'm on, so
+  that my daily shot needs no choices.
 - **Acceptance criteria**
-  1. Given my profile is selected, when I open the home screen, then it shows
-     the drink I usually make at this time of day, the coffee I'm on, my
-     current setup, and my recipe for them on that setup: values, puck prep if
-     used, and how much coffee is left.
-  2. Given the coffee in use is opened, when I see the home screen, then both
-     freshness clocks show on one line (since roast, and how long it's been
-     open); while it's unopened, only the roasting clock shows.
+  1. Given my profile is selected, when I open Brew, then it shows the drink I
+     usually make at this time of day, the coffee I'm on, my current setup, and
+     my recipe for them on that setup: values, puck prep if used, milk for a
+     milk drink, and how much coffee is left.
+  2. Given the coffee in use is opened, when I see Brew, then both freshness
+     clocks show on one line; while it's unopened, only the roasting clock.
   3. Given I usually make different drinks in the morning and the afternoon,
-     when I open the home screen at each time, then it shows the matching
-     drink; if I've never made a drink at this time of day, it shows the one I
-     made most recently, or the first drink on my list.
-  4. Given several coffees, when I open the home screen, then it shows the
-     earliest-opened open portion whose coffee has a recipe for this drink on
-     this setup; with none, the earliest-opened open portion; with none open,
-     my newest unopened portion that isn't frozen; with only frozen coffee
-     left, a frozen coffee, and pulling asks which bag to use.
-  5. Given a portion that was opened and then frozen, when the home screen
-     chooses the coffee, then it doesn't count as open.
-  6. Given my recipe's coffee is finished, when I open the home screen, then I'm
-     told I've finished it and offered to choose another coffee or add a bag.
+     when I open Brew at each time, then it shows the matching drink; with no
+     drink at this time of day, the most recent drink, or the first on my list.
+  4. Given several coffees, when I open Brew, then it shows the earliest-opened
+     open portion whose coffee has a recipe for this drink on this setup; else
+     the earliest-opened open portion; else my newest unopened portion that
+     isn't frozen; else a frozen coffee, and pulling asks which bag to use.
+  5. Given a portion that was opened and then frozen, when Brew chooses the
+     coffee, then it doesn't count as open.
+  6. Given my recipe's coffee is finished, when I open Brew, then I'm told I've
+     finished it and offered to choose another coffee or add a bag.
 - **Source sections:** S-06, S-02, S-08
 - **Priority:** MVP
 - **Size:** 5
-- **Notes:** Updated (current setup, both clocks, prep line, "open" excludes
-  frozen, review M5). Design 2.3 (layout and states). Working assumptions:
-  DQ-18 (current setup), DQ-02 (drink: a shot within 90 minutes either side of
-  now on any of the last 14 days, else the most recent drink, else the first
-  visible drink), DQ-03 as updated in design round 3 (coffee). The clocks are
-  STORY-03-03-01 and 03-03-04, and remaining coffee is EPIC-03-04; Home only
-  shows them. In the MVP the only persona is the main persona.
+- **Notes:** Updated (current setup, clocks, prep and milk lines, "open"
+  excludes frozen). Working assumptions: DQ-18, DQ-02, DQ-03 (round 3).
+  Design 2.3. A pending suggestion changes the "Dial in" label
+  (STORY-02-03-07).
 
 #### STORY-02-02-02: Pull this shot in one tap
 
@@ -1370,10 +1380,10 @@ toolkit), replaced by STORY-02-01-06.
 - **Story:** As a home enthusiast, I want one tap to record my daily shot, so
   that my coffee use counts without logging anything.
 - **Acceptance criteria**
-  1. Given the home screen shows a recipe on my current setup, when I tap
-     "Pull This Shot", then a shot is recorded at once with the recipe's values
-     and its WDT and puck screen ticks, marked one-tap, and I'm told it's
-     logged; nothing else is asked.
+  1. Given Brew shows a recipe on my current setup, when I tap "Pull This Shot",
+     then a shot is recorded at once with the recipe's values, its WDT and puck
+     screen ticks and its milk type and amount, marked one-tap, and I'm told
+     it's logged; nothing else is asked.
   2. Given I pull a shot, when it's recorded, then it uses the recipe's setup,
      the drink and coffee shown, my profile as whose taste, and me as who
      logged it.
@@ -1387,12 +1397,11 @@ toolkit), replaced by STORY-02-01-06.
 - **Source sections:** S-06, S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (prep copied; setup; frozen isn't open, review M5).
-  Design EPIC-02-02 steps 3 and 4, PulledState (NC-07). One-tap shots count
-  toward coffee used (STORY-03-04-01) but are never measurements or
-  network-eligible (S-02). A day without WDT records "used WDT" unless the
-  shot is edited (STORY-02-06-02); that's the accepted price of zero inputs.
-  The quick reaction is STORY-02-03-01.
+- **Notes:** Updated (prep and milk copied; frozen isn't open, review M5).
+  One-tap shots count toward coffee used but are never measurements or
+  network-eligible (S-02). A day with a different milk or no WDT needs an edit
+  (STORY-02-06-02); changing milk on Brew before a pull isn't in the spec
+  (EPIC-02-02 open question).
 
 #### STORY-02-02-03: Choose a bag when none is open
 
@@ -1403,23 +1412,22 @@ toolkit), replaced by STORY-02-01-06.
 - **Acceptance criteria**
   1. Given no portion of the coffee is open, when I tap "Pull This Shot", then
      I'm asked which of its unfinished portions to use, with each one's bag,
-     state, freshness and amount left; portions on the counter come first,
-     frozen ones last and marked as ground straight from the freezer.
+     state, freshness and amount left; portions on the counter first, frozen
+     ones last and marked as ground straight from the freezer.
   2. Given I choose an unopened or thawed portion, when I confirm, then the
      shot is recorded against it, and an unopened one is marked opened today.
   3. Given I choose a frozen portion, when I confirm, then the shot is recorded
      as ground from frozen, and none of the portion's dates change.
-  4. Given I have no unfinished portion of that coffee at all, when I tap
-     "Pull This Shot", then I'm told there's none left and offered to add a bag,
-     and no shot is recorded.
-  5. Given I'm asked and cancel, when I return to the home screen, then no shot
-     is recorded.
+  4. Given I have no unfinished portion of that coffee, when I tap "Pull This
+     Shot", then I'm told there's none left and offered to add a bag, and no
+     shot is recorded.
+  5. Given I'm asked and cancel, when I return to Brew, then no shot is
+     recorded.
 - **Source sections:** S-02
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (frozen portions; 2 points became 3). Design SH-PORTION
-  (round 3). DQ-06 (as updated in round 3) is the working assumption. "Open"
-  means opened, not finished and not in the freezer (S-02).
+- **Notes:** Updated (frozen portions; 2 points became 3). Design SH-PORTION.
+  DQ-06 (round 3).
 
 #### STORY-02-02-04: Undo a shot I didn't mean to pull
 
@@ -1431,104 +1439,97 @@ toolkit), replaced by STORY-02-01-06.
      then the shot is removed as if it was never pulled, and I'm told.
   2. Given the shot marked a portion opened, when I undo it, then the portion
      is back to unopened.
-  3. Given I undid a shot, when I look at remaining coffee and recent shots,
-     then the shot isn't counted or listed.
+  3. Given I undid a shot, when I look at remaining coffee and my Journal, then
+     the shot isn't counted or listed.
   4. Given the undo window has passed, when I look, then undo is no longer
-     offered, without a countdown, and the shot stays; I can still edit it
-     (STORY-02-06-02).
+     offered, without a countdown, and the shot stays; I can still edit it.
 - **Source sections:** S-02
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged. DQ-04 is the working assumption: an 8-second window.
+- **Notes:** Unchanged (wording only). DQ-04: 8 seconds.
 
 #### STORY-02-02-05: Dial in when there's no recipe on this setup
 
 - **Parent:** EPIC-02-02
-- **Story:** As a home enthusiast, I want the home screen to offer "Dial in"
-  instead of a one-tap pull when my current setup has no recipe for this
-  drink and coffee, so that I know to log a shot instead.
+- **Story:** As a home enthusiast, I want Brew to offer "Dial in" instead of a
+  one-tap pull when my current setup has no recipe for this drink and coffee,
+  so that I know to log a shot instead.
 - **Acceptance criteria**
   1. Given no setup has a recipe for my profile, the drink and the coffee shown,
-     when I open the home screen, then I'm told there's no recipe yet and the
-     main action is "Dial in" instead of "Pull This Shot".
+     when I open Brew, then I'm told there's no recipe yet and the main action
+     is "Dial in" instead of "Pull This Shot".
   2. Given that, when I choose "Dial in", then the shot log opens with that
-     drink, coffee and my current setup already chosen, and the values start as
-     in STORY-01-03-02.
-  3. Given another setup has a recipe for them, when I open the home screen,
-     then it's the no-recipe-on-this-setup case of STORY-02-01-06 instead.
-  4. Given I then pin a recipe on this setup, when I return to the home screen,
-     then "Pull This Shot" is offered.
+     drink, coffee and my current setup chosen, and values start as in
+     STORY-01-03-02.
+  3. Given another setup has a recipe for them, when I open Brew, then it's the
+     no-recipe-on-this-setup case of STORY-02-01-06 instead.
+  4. Given I then pin a recipe on this setup, when I return to Brew, then "Pull
+     This Shot" is offered.
 - **Source sections:** S-02, S-06
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (two no-recipe cases; 1 point became 2). Design 2.3 "no
-  recipe" states. Starting blank rather than from another bean's recipe is
-  the design's choice (EPIC-02-03 open question: dial-in start). Values
-  follow DQ-07.
+- **Notes:** Updated (two no-recipe cases; 1 point became 2). DQ-07.
 
 #### STORY-02-02-06: Change the drink or coffee before pulling
 
 - **Parent:** EPIC-02-02
-- **Story:** As a home enthusiast, I want to switch the drink or coffee on the
-  home screen and still pull in one tap, so that a different drink at my usual
-  time doesn't mean a full log.
+- **Story:** As a home enthusiast, I want to switch the drink or coffee on Brew
+  and still pull in one tap, so that a different drink at my usual time
+  doesn't mean a full log.
 - **Acceptance criteria**
-  1. Given the home screen, when I change the drink or the coffee, then I
-     choose from my visible drinks, or from coffees with an unfinished portion
-     (those with a recipe for this drink on this setup first, and coffees with
-     only frozen portions last, marked frozen), and my usual choice is marked
-     so I can always go back.
+  1. Given Brew, when I change the drink or the coffee, then I choose from my
+     visible drinks, or from coffees with an unfinished portion (those with a
+     recipe for this drink on this setup first, frozen-only coffees last and
+     marked), and my usual choice is marked so I can always go back.
   2. Given I chose another drink or coffee, when I look, then the recipe shown
-     updates without leaving the home screen.
+     updates without leaving Brew.
   3. Given the new drink and coffee have a recipe on this setup, when I tap
      "Pull This Shot", then the shot uses them, with no extra step.
-  4. Given they have no recipe on this setup, when I look, then the home screen
-     offers "Dial in" (STORY-02-02-05 or STORY-02-01-06).
-  5. Given I changed the drink or coffee and pulled, when I next open the home
-     screen, then my usual drink and coffee follow from what I pulled, and no
-     setting was saved.
+  4. Given they have no recipe on this setup, when I look, then Brew offers
+     "Dial in" (STORY-02-02-05 or STORY-02-01-06).
+  5. Given I changed the drink or coffee and pulled, when I next open Brew, then
+     my usual drink and coffee follow from what I pulled, and no setting was
+     saved.
   6. Given I changed them but didn't pull, when I come back after 30 minutes
-     away from the home screen, then it's back to my usual drink and coffee.
+     away from Brew, then it's back to my usual drink and coffee.
 - **Source sections:** S-06, S-02
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (frozen-only coffees; criterion 6 made exact, review
-  m7). PEC-03. Design 2.3 "Changing drink, coffee or setup". DQ-17 is the
-  working assumption for criteria 5 and 6. The setup is the exception: a
-  setup change sticks (STORY-02-02-07).
+- **Notes:** Updated (frozen-only coffees; criterion 6 exact, review m7).
+  DQ-17. The drink and coffee chosen here also pre-filter the Journal
+  (STORY-02-06-05).
 
-#### STORY-02-02-07: Switch setup on the home screen and in the shot log
+#### STORY-02-02-07: Switch setup on Brew and in the shot log
 
 - **Parent:** EPIC-02-02
 - **Story:** As a home enthusiast, I want to switch setup, or say I've changed
   a part, right where I brew, so that the recipe shown and the shot I log
   always match what's on my counter.
 - **Acceptance criteria**
-  1. Given the home screen or the shot log, when I change the setup, then I
-     choose from my setups (current first, marked) or choose to change a part.
-  2. Given I choose a setup, when I return, then it becomes my current setup at
-     once and stays current until I change it or log a shot on another setup;
-     the recipe shown updates without leaving the screen.
+  1. Given Brew or the shot log, when I change the setup, then I choose from my
+     setups (current first, marked) or choose to change a part.
+  2. Given I choose a setup, when I return, then it becomes current at once and
+     stays current until I change it or log a shot on another setup; the recipe
+     shown updates in place.
   3. Given I choose to change a part, when I finish (STORY-01-02-08), then I
      come back to where I was with the resulting setup chosen and current.
   4. Given I change the setup in the shot log, when the log updates, then dose,
-     yield and time stay as they were, and grind stays only if the new setup
-     has the same grinder; otherwise it moves to that grinder's last measured
-     value, or the middle of its range.
-  5. Given I change the setup in the shot log, when the log updates, then puck
-     prep ticks I haven't touched follow STORY-01-03-06 for the new setup.
+     yield and time stay, and grind stays only if the new setup has the same
+     grinder; otherwise it moves to that grinder's last measured value, or the
+     middle of its range.
+  5. Given I change the setup in the shot log, when the log updates, then prep
+     ticks I haven't touched follow STORY-01-03-06 for the new setup.
 - **Source sections:** S-02, S-01, S-06
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** New (PEC-09). Design 2.3 setup line, SCR-LOG context.
-  DQ-18 is the working assumption. Grind doesn't transfer between grinders
-  (S-01). "Change a part" itself is STORY-01-02-08.
+- **Notes:** New (PEC-09). DQ-18.
 
-**Coverage:** all In items covered, including PEC-03, PEC-09 and puck prep.
-Editing a one-tap shot afterwards is delivered by EPIC-02-06
-(STORY-02-06-02).
+**Coverage:** all In items covered, including prep and milk on one-tap pulls.
 
 ### EPIC-02-03: Fix a bad shot from your recipe
+
+Now M (epics revision 9): the off path, the SH-OFF sheet and rule-based
+suggestions. The rules are plain rules, not AI (S-02).
 
 #### STORY-02-03-01: Say whether a one-tap shot was good or off
 
@@ -1541,43 +1542,42 @@ Editing a one-tap shot afterwards is delivered by EPIC-02-06
      records that reaction and nothing else happens.
   2. Given I just pulled a one-tap shot, when I give no reaction, then the shot
      stays with no reaction, and I'm never asked again.
-  3. Given I choose "off", when I do, then the shot records that reaction and
-     the fix flow opens (STORY-02-03-02).
-  4. Given a one-tap shot, when I open it later from my recent shots, then I can
-     give or change its reaction.
+  3. Given I choose "off", when I do, then the shot records that reaction and I'm
+     asked what was off (STORY-02-03-04).
+  4. Given a one-tap shot, when I open it later from my Journal, then I can give
+     or change its reaction.
   5. Given saving the reaction fails, when I look, then I'm told and the
-     reaction isn't recorded; choosing "off" still opens the fix flow.
+     reaction isn't recorded; choosing "off" still lets me go on to fix it.
 - **Source sections:** S-02, S-06, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Lightly updated (the reaction is a one-tap shot's only taste
-  signal, SQ-17). DQ-05 is the working assumption for criterion 4. On Home,
-  the reaction stays offered for 30 seconds or until the user leaves.
+- **Notes:** Updated ("off" now opens SH-OFF, DQ-23). DQ-05 for criterion 4.
 
 #### STORY-02-03-02: Fix an off shot from my recipe
 
 - **Parent:** EPIC-02-03
 - **Story:** As a home enthusiast, I want an off shot to open the log already
-  filled with my recipe, so that I only nudge one or two values.
+  filled with my recipe, and the suggested change if there is one, so that I
+  only nudge one or two values.
 - **Acceptance criteria**
-  1. Given I marked a one-tap shot "off", when the log opens, then it's filled
-     with the current recipe's values and puck prep, its setup, drink and the
-     same portion, and I'm told it starts from my recipe.
-  2. Given the pre-filled log, when I change a value, then I can see what it
-     was in the recipe; unchanged values show nothing extra.
-  3. Given I change one or two values and save, when it's saved, then a new
-     measured shot is saved and the one-tap shot keeps its "off" reaction.
-  4. Given I saved the measured shot, when I'm offered to say how it tasted,
-     then pinning it as my new recipe is the suggested next step
-     (STORY-02-01-01).
+  1. Given I'm fixing an off one-tap shot, when the log opens, then it's filled
+     with the current recipe's values, puck prep and milk, its setup, drink and
+     the same portion.
+  2. Given I chose to try a suggested change, when the log opens, then that
+     change is already made and I'm told what was changed (for example "grind 2
+     steps finer"); given I skipped, the log is the recipe as it is.
+  3. Given the pre-filled log, when I or the suggestion change a value, then I
+     can see what it was in the recipe; unchanged values show nothing extra.
+  4. Given I save, when it's saved, then a new measured shot is saved, the
+     one-tap shot keeps its "off" reaction and answers, and I'm offered to say
+     how the new shot tasted.
   5. Given the pre-filled log, when I leave without saving, then no measured
-     shot is saved and the one-tap shot keeps its "off" reaction.
+     shot is saved, and the one-tap shot keeps its reaction and answers.
 - **Source sections:** S-02, S-06, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (prep pre-filled). Design SCR-LOG fix mode. DQ-12 is the
-  working assumption: two records. See SQ-14 on doses. Suggesting what to
-  change is out of scope.
+- **Notes:** Updated (suggestion pre-fill; prep and milk). DQ-12: two records
+  (SQ-14 on doses). Design SCR-LOG fix mode.
 
 #### STORY-02-03-03: Dial in from my recipe
 
@@ -1585,34 +1585,170 @@ Editing a one-tap shot afterwards is delivered by EPIC-02-06
 - **Story:** As a home enthusiast, I want to start a shot log from my recipe
   instead of pulling it, so that I can dial in a new bag of a coffee I know.
 - **Acceptance criteria**
-  1. Given the home screen shows a recipe on my current setup, when I choose
-     "Dial in", then the log opens filled with the recipe's values, including
-     any temperature, pressure and puck prep, its setup and drink.
-  2. Given the pre-filled log, when I change a value, then I can see what it
-     was in the recipe.
-  3. Given I adjust and save, when it's saved, then a measured shot is saved,
-     no one-tap shot is recorded, and pinning is the suggested next step.
+  1. Given Brew shows a recipe on my current setup, when I choose "Dial in",
+     then the log opens filled with the recipe's values, temperature, pressure,
+     puck prep and milk, its setup and drink.
+  2. Given a suggestion is pending for this recipe, when I choose "Dial in",
+     then the log starts with the suggested change already made (STORY-02-03-07).
+  3. Given I adjust and save, when it's saved, then a measured shot is saved and
+     no one-tap shot is recorded.
   4. Given no portion of the coffee is open, when I choose "Dial in", then I'm
      first asked which bag to use, as for a pull (STORY-02-02-03), and
      cancelling opens nothing.
-  5. Given I have no unfinished portion of that coffee, when I choose "Dial
-     in", then I'm told there's none left and offered to add a bag.
+  5. Given I have no unfinished portion of that coffee, when I choose "Dial in",
+     then I'm told there's none left and offered to add a bag.
 - **Source sections:** S-06, S-02
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (review m6: criteria 4 and 5 follow the design, "with no
-  open portion, SH-PORTION opens first, as for a pull"; 2 points became 3).
-  Design SCR-HOME and SCR-LOG dial-in mode. On a setup without a recipe, the
-  dial-in starts from the closest setup (STORY-02-01-06). Portion choice
-  otherwise follows the one-tap rule (STORY-02-02-02).
+- **Notes:** Updated (review m6, criteria 4 and 5; pending suggestion; 2
+  points became 3). On a setup without a recipe, see STORY-02-01-06.
 
-**Coverage:** all In items covered.
+#### STORY-02-03-04: Say what was off about a one-tap shot
+
+- **Parent:** EPIC-02-03
+- **Story:** As a home enthusiast, I want to say what was off about a one-tap
+  shot in a few taps, right after marking it off, so that Tare can suggest
+  what to change before I pull the next one.
+- **Acceptance criteria**
+  1. Given I marked a one-tap shot "off", when I'm asked what was off, then I
+     see the same four "just right" questions and six tags as after a logged
+     shot (STORY-01-05-02, 01-05-03), with no rating.
+  2. Given I answer, when I leave in any way (fix it, skip, or close), then my
+     answers are saved on the one-tap shot itself.
+  3. Given I answer, when an answer gives Tare something to change, then a
+     suggested change appears below, and updates as I change answers
+     (STORY-02-03-05).
+  4. Given I choose to fix it, when the log opens, then it starts from the
+     recipe with the suggested change made; given I choose to skip, it starts
+     from the recipe only (STORY-02-03-02).
+  5. Given I tick "channelling seen", when I look, then the channelling warning
+     shows (STORY-01-05-04).
+  6. Given saving the answers fails, when I look, then I'm told and can try
+     again, and skipping still opens the fix.
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New (DQ-23, closes SQ-17 and review M1 for the off path: one-tap
+  shots carry "just right" answers and tags, never a rating). Design SH-OFF.
+  A user may feel asked twice (here, then about the fix shot); the design
+  accepts this.
+
+#### STORY-02-03-05: See one suggested change, with its reason
+
+- **Parent:** EPIC-02-03
+- **Story:** As a home enthusiast, I want Tare to suggest exactly one change for
+  my next shot, and say why, so that I know what to try and can check it
+  against what I said.
+- **Acceptance criteria**
+  1. Given I gave an answer or tag that points to a change (after a logged shot,
+     or on an off one-tap shot), when I look, then I see one change for the next
+     shot and a one-line reason drawn from my answers (for example "too sour and
+     ran fast").
+  2. Given several answers point different ways, when the suggestion is worked
+     out, then I still see only one change, chosen by the lever order
+     (STORY-02-03-06).
+  3. Given I only rated the shot, or answered "just right" everywhere, when I
+     look, then no change is suggested.
+  4. Given the coffee is very fresh or likely past its peak, when I look, then
+     that's shown as an explanation, with or without a change, and never as a
+     change to make.
+  5. Given a suggestion, when I see it, then it's advice in plain ink, never in
+     the warning colour.
+  6. Given a suggestion, when I change my answers, then it updates at once.
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New (S-02). DQ-24 is the working assumption for freshness: "very
+  fresh, may channel" under 5 days since roast or packing, and "likely past
+  its peak" over 35 days since roast or over 21 days open, freezer time
+  excluded. Freshness lines need EPIC-03-03; until it ships, suggestions work
+  without them. Shot time is a diagnostic in reasons, never a lever or a
+  warning (DQ-09). Calculated on the device, never stored. Design
+  SuggestionCard (NC-16).
+
+#### STORY-02-03-06: Get the right change for what was off
+
+- **Parent:** EPIC-02-03
+- **Story:** As a home enthusiast, I want the suggested change to follow
+  established dial-in practice on my own equipment, so that I can trust it
+  and fix a bad shot in as few tries as possible.
+- **Acceptance criteria**
+  1. Given channelling signs (channelling seen, sour and bitter at once, or a
+     dry finish), when the change is worked out, then puck prep comes first:
+     use WDT if it wasn't used; else a puck screen if it wasn't used; if both
+     were used, no grind change is suggested and I'm told to check distribution
+     and tamping.
+  2. Given balance is off and there are no channelling signs, when the change is
+     worked out, then it's grind, in my grinder's own direction and steps.
+     *Example:* "much too sour" on a grinder at 15, whose steps are 1 and where
+     higher is coarser, suggests 2 steps finer, to 13. "A bit too bitter"
+     suggests 1 step coarser, to 16.
+  3. Given strength is off and balance is just right or unanswered, when the
+     change is worked out, then it's yield: a shorter yield (a more
+     concentrated shot) when too weak, and a longer one when too strong.
+     *Example:* "a bit too weak" at 36 g suggests stopping at 34 g. For a milk
+     drink that's "lost in the milk", it's dose first, within the basket's
+     dose range, then less milk. *Example:* "try about 30 ml less milk".
+  4. Given body is off, when the change is worked out, then it's dose, and only
+     within the basket's dose range. *Example:* "a bit too thin" at 18 g in a
+     basket made for 16 to 20 g suggests 18.5 g; at 20 g, dose isn't suggested
+     and the next lever in order is considered.
+  5. Given balance is still off and grind is at the end of its range, when the
+     change is worked out, then temperature is suggested, only on a machine
+     that can set it (for example "brew 1 °C hotter" when too sour).
+  6. Given my grinder's direction or my basket's dose range is "not sure", when
+     the change is worked out, then grind is suggested only as "finer" or
+     "coarser" without dial numbers, with a link to tell Tare more, and dose is
+     never suggested.
+- **Source sections:** S-02, S-08, S-01
+- **Priority:** MVP
+- **Size:** 5
+- **Notes:** New (S-02 lever order). "A bit" is one step and "much" two
+  (design). The gram, degree and millilitre sizes in the examples come from
+  the design's examples and are working assumptions (SQ-19). The rules are
+  tested against a fixed set of scenarios covering every lever, both
+  directions, the limits and the "not sure" cases, and all must pass before
+  release. These are plain scenario tests, not an LLM judge (EPIC-02-03 open
+  question: who writes the set). Grind suggestions use shots in the current
+  grind period (EPIC-04-01 open question, assumed yes). When the temperature
+  lever applies is SQ-21: S-02 lists it after dose, and the design triggers it
+  only when grind is at its limit; the design is followed here.
+
+#### STORY-02-03-07: Try the suggested change, or dismiss it
+
+- **Parent:** EPIC-02-03
+- **Story:** As a home enthusiast, I want to try the suggested change in one
+  tap, or set it aside, so that it helps without getting in my way.
+- **Acceptance criteria**
+  1. Given a suggestion after tasting a logged shot, when I choose to dial in
+     with it, then my tasting is saved and the shot log opens with that shot's
+     values plus the change, the changed value showing what it was.
+  2. Given I opened the log with a suggested change, when I leave without
+     saving, then nothing is saved: the change only becomes real in the next
+     shot I save.
+  3. Given a suggestion I haven't dismissed, when I go back to Brew, then "Dial
+     in" says it will use the suggested change.
+  4. Given a suggestion, when I dismiss it, then it's gone in one tap, the next
+     dial-in starts without it, and Brew's "Dial in" goes back to normal.
+  5. Given I dismissed a suggestion, when I log the next shot on that coffee,
+     setup and drink, then a new suggestion can appear from that shot.
+- **Source sections:** S-02
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New. DQ-25 is the working assumption: a dismissal lasts until the
+  next shot on that coffee, setup and drink, on this device only. Design
+  SCR-TASTE step 7, EPIC-02-03 "Pre-fill" and "Dismiss".
+
+**Coverage:** all In items covered: the reaction, SH-OFF with answers on the
+one-tap shot, the one-change suggestion in lever order with reasons,
+freshness and time as explanations, pre-fill, dismiss, dial-in from Brew
+with a pending suggestion, and scenario tests. Out: "Dial in from this"
+(EPIC-02-06), drift (EPIC-04-02), AI advice (EPIC-06-02).
 
 ### EPIC-02-04: Give one bag its own recipe
 
-Blocked on INIT-02 Q1 (does a pin update the bag's override or the bean's
-default?). The stories below are testable either way; only the default is a
-placeholder.
+Blocked on INIT-02 Q1. The stories are testable either way; only the default
+is a placeholder.
 
 #### STORY-02-04-01: Pin a recipe for one bag only
 
@@ -1620,45 +1756,42 @@ placeholder.
 - **Story:** As a home enthusiast, I want to pin a recipe for one bag that
   behaves differently, so that my usual recipe for that coffee stays as it is.
 - **Acceptance criteria**
-  1. Given I'm pinning a recipe, when I confirm, then I can choose between
-     every bag of this coffee and this bag only, and the recipe is saved for
-     the choice I made.
-  2. Given I pinned for one bag, when I look at the bean's default recipe on
+  1. Given I'm pinning a recipe, when I confirm, then I can choose between every
+     bag of this coffee and this bag only, and the recipe is saved for the
+     choice I made.
+  2. Given I pinned for one bag, when I look at the coffee's default recipe on
      that setup, then it's unchanged.
-  3. Given a bag's own recipe, when I see it on the home screen or with the
-     bag, then it's marked as for this bag only.
+  3. Given a bag's own recipe, when I see it on Brew or with the bag, then it's
+     marked as for this bag only.
   4. Given I pin for this bag again, when I look, then the newest bag recipe
      applies.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (review m7: criterion 1 no longer depends on a decision).
-  **Placeholder:** which option is pre-selected depends on INIT-02 Q1. Design
-  EPIC-02-04 (scope choice in SH-PIN). A bag's own recipe still belongs to one
-  setup (S-02).
+- **Notes:** Updated (review m7). **Placeholder:** the pre-selected option
+  depends on INIT-02 Q1.
 
 #### STORY-02-04-02: Use the bag's recipe while that bag is in use
 
 - **Parent:** EPIC-02-04
-- **Story:** As a home enthusiast, I want the home screen and pre-filled log to
-  use the bag's own recipe while I'm on that bag, so that I don't have to
+- **Story:** As a home enthusiast, I want Brew and the pre-filled log to use
+  the bag's own recipe while I'm on that bag, so that I don't have to
   remember the difference.
 - **Acceptance criteria**
-  1. Given a bag with its own recipe on my current setup, when the home screen
-     shows that bag, then it shows the bag's recipe, not the bean's default.
+  1. Given a bag with its own recipe on my current setup, when Brew shows that
+     bag, then it shows the bag's recipe, not the coffee's default.
   2. Given that bag's recipe, when I pull a one-tap shot or open the pre-filled
      log, then the bag's values are used.
-  3. Given I move to a new bag of the same coffee, when I open the home screen,
-     then the bean's default recipe is used again.
+  3. Given I move to a new bag of the same coffee, when I open Brew, then the
+     coffee's default recipe is used again.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged in substance. "In use" follows the home screen's coffee
-  choice (DQ-03, DQ-17). Removing an override is open (SQ-11).
+- **Notes:** Unchanged (wording only). SQ-11.
 
 **Coverage:** all In items covered.
 
-### EPIC-02-05: Make the drink list yours
+### EPIC-02-05: Make the drink and milk lists yours
 
 #### STORY-02-05-01: Rename a drink
 
@@ -1674,8 +1807,7 @@ placeholder.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged. Design EPIC-02-05 (drinks screen from Profile). Going
-  back to the translated starter name isn't in the spec.
+- **Notes:** Unchanged.
 
 #### STORY-02-05-02: Hide drinks I don't make
 
@@ -1684,35 +1816,37 @@ placeholder.
   my choices stay short.
 - **Acceptance criteria**
   1. Given a drink, when I hide it, then it no longer appears when I log a shot
-     or on the home screen.
+     or on Brew.
   2. Given a hidden drink, when I look at past shots of it, then they still show
      it.
   3. Given a hidden drink, when I unhide it, then it's offered again.
   4. Given only one drink is visible, when I try to hide it, then I can't, and
-     I'm told at least one drink must stay visible.
+     I'm told at least one must stay visible.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged. What happens to recipes and the home-screen default
-  for a hidden drink is still open (EPIC-02-05 open question).
+- **Notes:** Unchanged. Recipes for hidden drinks: EPIC-02-05 open question.
 
 #### STORY-02-05-03: Add my own drink
 
 - **Parent:** EPIC-02-05
 - **Story:** As a home enthusiast, I want to add a drink that's not on the
-  list, so that I can log what I actually make.
+  list, such as "Oat flat white", so that I can log what I actually make and
+  keep a separate recipe for it.
 - **Acceptance criteria**
-  1. Given my drink list, when I add a drink with a name, then it's offered when
-     logging and on the home screen.
+  1. Given my drink list, when I add a drink with a name and say whether it has
+     milk, then it's offered when logging and on Brew, with milk fields only if
+     it has milk.
   2. Given I try to add a drink without a name, when I save, then I'm asked for
      one and nothing is saved.
   3. Given I add a drink, when I see it, then it shows the name I gave in every
      language.
+  4. Given I added a drink, when I pin a recipe for it, then that recipe is
+     separate from other drinks' recipes.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged. Whether the user says if it has milk is open
-  (EPIC-02-05 open question: `has_milk`).
+- **Notes:** Updated (with or without milk; `has_milk` closed by S-08).
 
 #### STORY-02-05-04: Put my drinks in my order
 
@@ -1727,56 +1861,96 @@ placeholder.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 1
-- **Notes:** Unchanged. Criterion 3 is an assumption.
+- **Notes:** Unchanged.
 
-**Coverage:** all In items covered.
+#### STORY-02-05-05: Make the milk list mine
 
-### EPIC-02-06: See your recent shots
+- **Parent:** EPIC-02-05
+- **Story:** As a home enthusiast, I want to rename, hide, add and reorder
+  milks, such as adding "Oat (barista)", so that the list matches what's in
+  my fridge.
+- **Acceptance criteria**
+  1. Given a starter milk, when I rename it, then my name is shown everywhere,
+     including on past shots.
+  2. Given a milk, when I hide it, then it's no longer offered when logging, and
+     past shots still show it.
+  3. Given my milk list, when I add a milk with a name, then it's offered when
+     logging; without a name, nothing is saved.
+  4. Given my milk list, when I move a milk up or down, then milks appear in that
+     order wherever I choose one.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (PEC-13, epics revision 9). No brand catalog (S-02). What
+  happens to a recipe whose milk is hidden is an EPIC-02-05 open question.
 
-#### STORY-02-06-01: See my recent shots
+#### STORY-02-05-06: Set how much milk a drink usually gets
+
+- **Parent:** EPIC-02-05
+- **Story:** As a home enthusiast, I want to set the usual milk amount for each
+  milk drink, so that new shots start from the amount I really use.
+- **Acceptance criteria**
+  1. Given a drink with milk, when I set its usual amount in millilitres, then
+     new shots of it start from that amount when no recipe sets one.
+  2. Given a drink without milk, when I look at it, then no amount is asked.
+  3. Given I change the usual amount, when I look at past shots, then they're
+     unchanged.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 1
+- **Notes:** New.
+
+**Coverage:** all In items covered, including the milk list.
+
+### EPIC-02-06: Look back in your journal
+
+Now M (epics revision 9): the Journal with filters, a default from Brew, and
+"Dial in from this". The tab is "Journal"; its entries are still "shots"
+(S-02).
+
+#### STORY-02-06-01: See my journal of shots
 
 - **Parent:** EPIC-02-06
-- **Story:** As a home enthusiast, I want a list of my recent shots, newest
+- **Story:** As a home enthusiast, I want a journal of what I've made, newest
   first and grouped by day, so that I can find a shot I want to check or fix.
 - **Acceptance criteria**
-  1. Given my household has logged shots, when I open my shots, then I see them
-     newest first, grouped by day (today, yesterday, then dates), each with its
-     drink, time, coffee and grind, dose, yield and time.
-  2. Given the list has measured and one-tap shots, when I look at it, then I
-     can tell which is which in words, and see each shot's reaction, whether it
-     was ground from frozen, and any channelling warning.
+  1. Given my household has logged shots, when I open the Journal, then I see
+     them newest first, grouped by day (today, yesterday, then dates), each with
+     its drink, time, coffee, milk for a milk drink, and grind, dose, yield and
+     time.
+  2. Given the Journal has measured and one-tap shots, when I look at it, then
+     I can tell which is which in words, and see each shot's reaction, whether
+     it was ground from frozen, and any channelling warning.
   3. Given I have shots older than the last 30 days, when I reach the end of
      the list, then I can choose to show older shots.
-  4. Given my household has no shots yet, when I open my shots, then I'm told
+  4. Given my household has no shots yet, when I open the Journal, then I'm told
      there are none and offered to dial in.
-  5. Given a shot in the list, when I open it, then I see its details
+  5. Given a shot in the Journal, when I open it, then I see its details
      (STORY-02-06-03).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Lightly updated (criterion 3 states the window, review m7).
-  Design SCR-SHOTS. DQ-13 is the working assumption: 30 days. Rows don't show
-  puck prep. The warning is STORY-01-05-04, the frozen marker STORY-03-03-03,
-  and the grind period dividers STORY-04-01-04. Whose taste a shot records
-  shows once sub personas exist (STORY-05-01-04).
+- **Notes:** Updated (Journal; milk on rows; title was "See my recent
+  shots"). DQ-13. Design SCR-SHOTS. Rows don't show prep. An entry is never
+  called a "journal entry".
 
 #### STORY-02-06-02: Fix a shot after the fact
 
 - **Parent:** EPIC-02-06
-- **Story:** As a home enthusiast, I want to edit any recent shot, including a
-  one-tap shot that didn't go to plan, so that my history is right.
+- **Story:** As a home enthusiast, I want to edit any shot, including a
+  one-tap shot that didn't go to plan, so that my Journal is right.
 - **Acceptance criteria**
-  1. Given a measured shot, when I edit it, then I see its saved values, puck
-     prep, sweetened mark and taste (rating, scores, defects) together, and can
-     change any of them.
-  2. Given a one-tap shot, when I edit it, then I can change its values, puck
-     prep and sweetened mark; rating, scores and defects aren't offered, and its
-     reaction stays as it was.
+  1. Given a measured shot, when I edit it, then I see its values, milk, puck
+     prep, sweetened mark, rating, "just right" answers and tags together, and
+     can change any of them.
+  2. Given a one-tap shot, when I edit it, then I can change its values, milk,
+     puck prep, sweetened mark, "just right" answers and tags, but no rating is
+     offered, and its reaction stays as it was.
   3. Given I'm editing, when I look at the coffee, drink, setup and persona,
      then I can see them but not change them.
-  4. Given I change values and save, when I look at the shot again, then it
-     shows my changes, whose taste it records and who logged it are unchanged,
-     and a one-tap shot is still marked one-tap.
+  4. Given I save, when I look at the shot again, then it shows my changes,
+     whose taste it records and who logged it are unchanged, and a one-tap shot
+     is still marked one-tap.
   5. Given I change a dose, or edit a shot a recipe was pinned from, when I
      look, then remaining coffee reflects the new dose and the recipe is
      unchanged.
@@ -1785,15 +1959,11 @@ placeholder.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (review M1; prep; setup). Design SCR-LOG edit mode, which
-  saves only on "save changes" and asks before discarding (the deliberate
-  exception to STORY-01-05-01's rule). **M1, working assumption (SQ-17):**
-  one-tap shots carry a reaction, never a rating, scores or defects. The
-  tiebreakers are the design (SCR-SHOT shows a one-tap shot's reaction only)
-  and S-02 (one-tap shots use reactions, not ratings). So no one-tap shot can
-  show the channelling warning. Entry mode stays one-tap after editing
-  (EPIC-02-06 open question; the review's working assumption). Deleting a
-  shot is open (EPIC-02-06 open question).
+- **Notes:** Updated (review M1 via DQ-23; prep, milk, the new taste model).
+  Design SCR-LOG edit mode, which saves only on "save changes" (the exception
+  to STORY-01-05-01's rule). Entry mode stays one-tap after editing (the
+  review's working assumption). Deleting a shot is an EPIC-02-06 open
+  question.
 
 #### STORY-02-06-03: See a shot's details
 
@@ -1802,30 +1972,109 @@ placeholder.
   about it, so that I understand what I pulled and what to do next.
 - **Acceptance criteria**
   1. Given a shot, when I open it, then I see its values, drink, coffee, its
-     setup with the machine, grinder and basket by maker and model, its date
-     and time, whether it was sweetened, and its puck prep when used.
-  2. Given a measured shot, when I open it, then I also see its taste and
-     defects if any, and I can pin it as a recipe or edit it.
-  3. Given a one-tap shot, when I open it, then I'm told its values were copied
-     from my recipe, I can edit it, and I can give or change its reaction; I
-     can't pin it, and no taste scores are shown.
-  4. Given the shot was tagged as channelling, when I open it, then I see the
+     setup with the machine, grinder and basket by maker and model, its date and
+     time, milk for a milk drink, sweetened, and its puck prep when used.
+  2. Given the shot has taste, when I open it, then I see its rating, each
+     "just right" answer as a short phrase (for example "a bit sour"; questions
+     not answered aren't shown) and its tags.
+  3. Given a measured shot, when I open it, then I can pin it, dial in from it
+     (STORY-02-06-06) or edit it.
+  4. Given a one-tap shot, when I open it, then I'm told its values were copied
+     from my recipe, I can edit it, dial in from it, and give or change its
+     reaction; I can't pin it.
+  5. Given the shot has "channelling seen", when I open it, then I see the
      warning (STORY-01-05-04).
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (setup parts, prep, review M1). Design SCR-SHOT. Setups
-  never change, so the parts shown are always what was used. Editing a one-tap
-  shot is at most two taps from the shots list. Whose taste and who logged show
-  once sub personas exist (EPIC-05-01).
+- **Notes:** Updated (setup parts, prep, milk, taste phrases, "Dial in from
+  this"). Design SCR-SHOT.
 
-**Coverage:** all In items covered, including editing prep.
+#### STORY-02-06-04: Filter my journal by drink, coffee and setup
+
+- **Parent:** EPIC-02-06
+- **Story:** As a home enthusiast, I want to narrow my Journal to one drink,
+  coffee or setup, and widen it again in one tap, so that I can find the shots
+  that matter right now.
+- **Acceptance criteria**
+  1. Given the Journal, when I filter, then I can filter by drink and by coffee;
+     and by setup only when my household has more than one setup.
+  2. Given any filter is set, when I look, then each one is visible with its
+     value and can be removed on its own, and "All" clears every filter in one
+     tap.
+  3. Given filters are set, when I show older shots, then the filters still
+     apply.
+  4. Given no shot matches the filters, when I look, then I'm told no shots
+     match those filters and offered to clear them, with the filters still
+     visible.
+  5. Given a filter, when I use it, then it works by keyboard and is announced
+     with its value and how to remove it.
+- **Source sections:** S-02
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New (S-02, PEC-14). Design SCR-SHOTS step 2. Free-text search and
+  charts are out. Grind period dividers follow the shots listed
+  (STORY-04-01-04).
+
+#### STORY-02-06-05: Open the journal on what I'm brewing
+
+- **Parent:** EPIC-02-06
+- **Story:** As a home enthusiast, I want the Journal to open on the drink and
+  coffee I've got on Brew, so that the shots I care about are already in
+  front of me.
+- **Acceptance criteria**
+  1. Given a drink and coffee are selected on Brew (including one I just
+     changed there), when I open the Journal from the tab bar, then it's
+     filtered to that drink and coffee, and the setup isn't filtered.
+  2. Given nothing is selected on Brew yet (first run), when I open the Journal,
+     then no filter is set.
+  3. Given I opened a shot from the Journal, when I come back, then the filters
+     I left are kept.
+  4. Given I open the Journal from a coffee's screen, when it opens, then it's
+     filtered to that coffee only, with no drink filter.
+- **Source sections:** S-02
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New (S-02 "opens pre-filtered"). Wired in when EPIC-02-02 ships;
+  until then the Journal opens unfiltered (epic dependency note). Whether
+  people expect the tab to remember their last filters instead is a design
+  concern to watch.
+
+#### STORY-02-06-06: Dial in from a past shot
+
+- **Parent:** EPIC-02-06
+- **Story:** As a home enthusiast, I want to start a new shot from one I made
+  before, so that I can get back to a shot that worked without re-entering
+  it.
+- **Acceptance criteria**
+  1. Given a shot's details, when I choose "dial in from this", then the shot log
+     opens with that shot's values, puck prep and milk, on its setup, drink and
+     coffee, and I'm told which shot it starts from.
+  2. Given that coffee has no open portion, when I dial in from the shot, then
+     I'm first asked which bag to use, as for a pull (STORY-02-02-03).
+  3. Given that coffee is finished, when I dial in from the shot, then I'm told
+     there's no coffee left and can add a bag.
+  4. Given the shot's setup isn't my current setup, when I save the new shot,
+     then that setup becomes current.
+  5. Given I dial in from a shot and save or leave, when I look at the past
+     shot, then it's unchanged; nothing is saved unless I save the new shot.
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New. Design SCR-SHOT "Dial in from this", which answers two
+  EPIC-02-06 open questions: it uses the past shot's setup, and it's offered
+  on one-tap shots too. Warning when the past shot is from an earlier grind
+  period isn't in scope (EPIC-04-01 open question).
+
+**Coverage:** all In items covered: the Journal, filters, the default from
+Brew, the coffee filter for the coffee screen, editing and "Dial in from
+this".
 
 ---
 
 ## INIT-03: Always know what beans you have and how old they are
 
-### EPIC-03-01: Add a bag to your pantry
+### EPIC-03-01: Add a bag of beans
 
 #### STORY-03-01-01: Find my coffee in the catalog
 
@@ -1848,8 +2097,7 @@ placeholder.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged. Design SCR-BAG-ADD step 2, SCR-CATALOG-PICK (coffee).
-  Seed coverage for roasters and coffees: EPIC-03-01 open question.
+- **Notes:** Unchanged.
 
 #### STORY-03-01-02: Add a bag with its dates and weight
 
@@ -1858,9 +2106,9 @@ placeholder.
   whichever dates it shows, quickly, so that Tare knows how much I have and how
   fresh it is.
 - **Acceptance criteria**
-  1. Given I've picked a coffee, when I choose a common bag size or enter
-     another weight and save, then the bag is added and I see it with one
-     portion holding the whole bag.
+  1. Given I've picked a coffee, or started from that coffee's own screen, when
+     I choose a common bag size or enter another weight and save, then the bag
+     is added and I see it with one portion holding the whole bag.
   2. Given I add a bag, when I enter dates, then I can give a roast date and,
      if the bag shows them, a packing date and a best-before date; none is
      required.
@@ -1869,18 +2117,15 @@ placeholder.
      best-before date shows the time left instead.
   4. Given I add a bag, when I want to, then I can also give its lot code and
      purchase date; the purchase date starts as today.
-  5. Given I don't give a weight, when I save, then I'm asked for it and
-     nothing is saved.
+  5. Given I don't give a weight, when I save, then I'm asked for it and nothing
+     is saved.
   6. Given I buy another bag of the same coffee, when I add it, then it's a
      separate bag with its own dates and lot.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (packing date; revision 2's best-before toggle is
-  removed). Design SCR-BAG-ADD step 3 (common sizes 250, 340, 500 and 1000 g;
-  roast date first, other dates under a disclosure). Started from the shot
-  log, it returns there with the bag chosen (STORY-01-01-05). Rejecting a
-  future roast date is still open (SQ-09).
+- **Notes:** Updated (packing date; started from a coffee screen,
+  STORY-03-06-04). Design SCR-BAG-ADD. SQ-09.
 
 #### STORY-03-01-03: Start with the whole bag ready to brew
 
@@ -1894,43 +2139,42 @@ placeholder.
      offered as coffee to brew from.
   3. Given I log the first shot against it, when the shot is saved, then the
      portion is marked opened that day.
-  4. Given I split the bag later (STORY-03-02-01), when I look at it, then it's
-     still one bag with one roast date and lot.
+  4. Given I split the bag later, when I look at it, then it's still one bag with
+     one roast date and lot.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 1
-- **Notes:** Unchanged. DQ-06 is the working assumption.
+- **Notes:** Unchanged. DQ-06.
 
-#### STORY-03-01-04: See what's in my pantry
+#### STORY-03-01-04: See what's on hand
 
 - **Parent:** EPIC-03-01
-- **Story:** As a home enthusiast, I want to see all my bags and their
-  portions in one place, in the order I'll use them, so that I know what
-  coffee I have.
+- **Story:** As a home enthusiast, I want Beans to show every bag I still have,
+  with its portions, so that I know what coffee is in the house.
 - **Acceptance criteria**
-  1. Given my pantry has bags, when I open it, then I see each unfinished bag
-     with its coffee, roaster and roasting clock, and its portions with their
-     state, how long each has been open and the amount left.
-  2. Given several bags, when I look at the order, then bags with an open
-     portion come first (earliest opened first), then unopened bags, then bags
-     only in the freezer.
-  3. Given a bag whose only opened portion is now frozen, when I look at the
-     order, then it doesn't count as open.
-  4. Given I have finished bags, when I open the pantry, then they're kept in a
-     separate finished group I can open.
-  5. Given my pantry is empty, when I open it, then I'm told it's empty and
-     offered to add a bag, as the only main action.
+  1. Given I have bags that aren't finished, when I open Beans, then On hand
+     shows each one with its coffee, roaster and roasting clock, and its
+     portions with their state, how long each has been open and the amount
+     left.
+  2. Given a bag, when I open it, then I see its own screen with its facts,
+     portions and recipes.
+  3. Given every portion of a bag is finished, when I look at On hand, then the
+     bag is no longer there; it lives on in Tried and on its coffee's screen.
+  4. Given I have nothing on hand and have never brewed, when I open Beans, then
+     I'm told there are no beans yet and offered to add a bag, as the only main
+     action.
+  5. Given I have nothing on hand but have tried coffees, when I open Beans, then
+     On hand says so and offers to add a bag, and Tried shows below.
   6. Given a coffee was merged into another catalog entry, when I see my bag,
      then it shows the surviving coffee's details.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (clocks; "open" excludes frozen, review M5; one primary
-  when empty, review m4). Design SCR-PANTRY and SCR-BAG. The order matches the
-  one-tap portion rule. State, clocks and remaining weight come from
-  STORY-03-02-04, STORY-03-03-01, 03-03-04 and STORY-03-04-01.
+- **Notes:** Updated (Beans and On hand, S-02; title was "See what's in my
+  pantry"). Grouping by state is STORY-03-02-05. Tried is EPIC-03-06. Design
+  SCR-PANTRY (Beans).
 
-**Coverage:** all In items covered, including the packing date.
+**Coverage:** all In items covered, including the Beans tab and On hand.
 
 ### EPIC-03-02: Split and freeze a bag
 
@@ -1955,8 +2199,7 @@ placeholder.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged. Design SH-SPLIT. DQ-14 is the working assumption:
-  splitting into several portions is done one at a time.
+- **Notes:** Unchanged. DQ-14.
 
 #### STORY-03-02-02: Record freezing and thawing
 
@@ -1978,10 +2221,7 @@ placeholder.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (review M4: dates are set once, backdated only when set;
-  correcting a date isn't in the MVP, per the design). Design
-  SH-PORTION-ACTIONS and SH-DATE. Criterion 3 is the design's assumption: one
-  freeze and one thaw (EPIC-03-02 open question). Criterion 4 narrows SQ-09.
+- **Notes:** Updated (review M4). Design SH-PORTION-ACTIONS, SH-DATE.
 
 #### STORY-03-02-03: Record opening and finishing a portion
 
@@ -1996,16 +2236,15 @@ placeholder.
   3. Given a frozen portion, when I log a shot against it, then it isn't marked
      opened or thawed.
   4. Given an open or thawed portion, when I mark it finished, then the date is
-     saved, it's no longer offered for new shots, and once every portion of its
-     bag is finished the bag moves to the finished group.
+     saved and it's no longer offered for new shots; once every portion of its
+     bag is finished, the bag leaves On hand.
   5. Given a finished portion, when I look at its shots, then they're still
      there.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (frozen picks, review M4 wording). DQ-06 (as updated in
-  design round 3) is the working assumption. Reopening a finished portion is
-  still SQ-15.
+- **Notes:** Updated (frozen picks; review M4; On hand). DQ-06 (round 3).
+  SQ-15.
 
 #### STORY-03-02-04: See where each portion is
 
@@ -2018,19 +2257,42 @@ placeholder.
   2. Given an opened portion not frozen and not finished, when I see it, then it
      shows as on the counter.
   3. Given a portion frozen and not thawed, when I see it, then it shows as
-     frozen, even if it was opened before freezing, and it isn't treated as
-     open; once thawed, it shows as thawed and is open again.
+     frozen, even if it was opened before freezing, and isn't treated as open;
+     once thawed, it shows as thawed and is open again.
   4. Given a finished portion, when I see it, then it shows as finished.
-  5. Given a portion's dates are set (opened, frozen, thawed, finished), when I
-     see it, then its state follows those dates.
+  5. Given a portion's dates are set, when I see it, then its state follows
+     those dates.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (opened-then-frozen, review M5; criterion 5 wording,
-  review M4). Calculated from dates, never stored.
+- **Notes:** Updated (review M5; review M4 wording).
 
-**Coverage:** all In items covered. Correcting a date already set is out of
-the MVP (design EPIC-03-02).
+#### STORY-03-02-05: See what's on hand grouped by state
+
+- **Parent:** EPIC-03-02
+- **Story:** As a home enthusiast, I want On hand grouped into open, unopened
+  and frozen, so that I can tell at a glance what's in use, what's waiting and
+  what's in the freezer.
+- **Acceptance criteria**
+  1. Given bags with an open portion, when I look at On hand, then they're
+     under "open", earliest opened first, matching the bag a one-tap pull would
+     use.
+  2. Given bags with no open portion but at least one on the counter (unopened,
+     or thawed and not yet opened), when I look, then they're under
+     "unopened".
+  3. Given bags whose remaining portions are all in the freezer, when I look,
+     then they're under "frozen".
+  4. Given a bag that's half open and half frozen, when I look, then it appears
+     once, under "open", with both portions and their states.
+  5. Given a group has no bags, when I look, then that group isn't shown.
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New (S-02 "On hand, grouped by state"; epics revision 10). Design
+  SCR-PANTRY (Beans): a bag appears once, in its first qualifying group.
+  Calculated, never stored.
+
+**Coverage:** all In items covered, including On hand groups.
 
 ### EPIC-03-03: Know how fresh your beans really are
 
@@ -2044,24 +2306,19 @@ the MVP (design EPIC-03-02).
   1. Given a bag with a roast date, when I see it, then it shows the days since
      roast, less any days in the freezer.
   2. Given a bag with no roast date but a packing date, when I see it, then it
-     shows how long since packing, labelled as packed, less any days in the
-     freezer.
+     shows how long since packing, labelled as packed, less any freezer days.
   3. Given a bag with only a best-before date, when I see it, then no age is
-     shown; it shows the time left until best-before, or how long ago it
-     passed.
-  4. Given a bag with no dates, when I see it, then I'm told its age is
-     unknown and offered to add a date.
-  5. Given a day passes while the coffee isn't frozen, when I see it again,
-     then the roasting clock has gone up by one.
+     shown; it shows the time left until best-before, or how long ago it passed.
+  4. Given a bag with no dates, when I see it, then I'm told its age is unknown
+     and offered to add a date.
+  5. Given a day passes while the coffee isn't frozen, when I see it again, then
+     the roasting clock has gone up by one.
 - **Source sections:** S-02
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (rewritten; title was "See how old my beans are").
-  **Resolves review blocker B1:** there's no estimated age, so no
-  roast-to-best-before number is needed (S-02; INIT-03 Q2 closed). Design
-  EPIC-03-03 clock table. Shown on the bag's facts, its pantry card and Home.
-  Clocks never use colour. Calculated, never stored. A single combined
-  freshness score is deferred to INIT-04 (S-02).
+- **Notes:** Updated (rewritten; resolves review B1: no estimated age, INIT-03
+  Q2 closed). Design EPIC-03-03. Shown on the bag, On hand and Brew. A single
+  combined freshness score is deferred to INIT-04 (S-02).
 
 #### STORY-03-03-02: Freezing pauses both clocks
 
@@ -2071,19 +2328,18 @@ the MVP (design EPIC-03-02).
   freshness.
 - **Acceptance criteria**
   1. Given a portion frozen 10 days after roast and still frozen, when I see it
-     later, then its roasting clock stays at 10 days, and in place of its
-     opened clock it shows as paused in the freezer.
+     later, then its roasting clock stays at 10 days, and in place of its opened
+     clock it shows as paused in the freezer.
   2. Given a portion opened for 3 days, then frozen, then thawed, when I see it,
      then it shows 3 days open, rising again from there.
   3. Given two portions of the same bag, one frozen and one not, when I see
      them, then their clocks differ.
-  4. Given a bag's details, when I look at a portion that has been frozen,
-     then I can see how many days in the freezer weren't counted.
+  4. Given a bag's own screen, when I look at a portion that has been frozen,
+     then I can see how many freezer days weren't counted.
 - **Source sections:** S-02
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (both clocks; title was "Freezing pauses aging").
-  Depends on STORY-03-02-02.
+- **Notes:** Updated (both clocks).
 
 #### STORY-03-03-03: See freshness when logging, and spot frozen-ground shots
 
@@ -2095,17 +2351,16 @@ the MVP (design EPIC-03-02).
   1. Given I'm logging a shot, when I've chosen the coffee, then I see how long
      that portion has been open, and if it's frozen, that it's from frozen.
   2. Given a shot was pulled while its portion was frozen and not yet thawed,
-     when I see it in my shots or its details, then it's marked as from frozen.
+     when I see it in my Journal or its details, then it's marked as from
+     frozen.
   3. Given a shot was pulled after the portion was thawed, or never frozen,
      when I see it, then it's not marked.
   4. Given a portion's freeze and thaw dates are set, including backdated when
-     they were set, when I see its shots, then the mark follows those dates.
+     set, when I see its shots, then the mark follows those dates.
 - **Source sections:** S-02
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated (the since-opening clock; criterion 4 reworded, review
-  M4). Worked out from dates alone (S-02). X-1 is closed: timestamps are in
-  milliseconds (TQ-04), so a shot and a thaw on the same day are ordered.
+- **Notes:** Updated (opened clock; review M4). X-1 is closed (TQ-04).
 
 #### STORY-03-03-04: See how long each portion has been open
 
@@ -2115,41 +2370,38 @@ the MVP (design EPIC-03-02).
   machine.
 - **Acceptance criteria**
   1. Given an opened portion, when I see it, then it shows how many days it's
-     been open (or that it was opened today), less any days in the freezer.
+     been open (or that it was opened today), less any freezer days.
   2. Given an unopened portion, when I see it, then it shows as not opened, and
      no opened clock is counted.
   3. Given a bag with several portions, when I see the bag, then each portion
      shows its own opened clock, and the bag shows one roasting clock.
-  4. Given the coffee in use on the home screen, when it's opened, then the
-     home screen shows its roasting clock and opened clock together on one
-     line, worded so the two can't be confused.
-  5. Given a day passes while the portion isn't frozen, when I see it again,
-     then its opened clock has gone up by one.
+  4. Given the coffee in use on Brew is opened, when I look, then Brew shows its
+     roasting clock and opened clock together on one line, worded so the two
+     can't be confused.
+  5. Given a day passes while the portion isn't frozen, when I see it again, then
+     its opened clock has gone up by one.
 - **Source sections:** S-02, S-09
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** New (S-02 since-opening clock). Shown on portion rows, SCR-BAG,
-  the bag chooser, the shot log's coffee field and Home. This is the S-09
-  "days open" input, so the S-09 mismatch is closed. Design EPIC-03-03 and
-  2.3 (`home.coffeeClocks`). Calculated, never stored.
+- **Notes:** New. The S-09 "days open" input. Both clocks also feed
+  suggestion explanations (STORY-02-03-05).
 
-**Coverage:** all In items covered: both clocks, freezer pauses, Home's one
-line, the bag screen, and frozen-ground shots.
+**Coverage:** all In items covered, including clocks as suggestion
+explanations.
 
 ### EPIC-03-04: See how much coffee is left
 
 #### STORY-03-04-01: See how much is left
 
 - **Parent:** EPIC-03-04
-- **Story:** As a home enthusiast, I want each portion, bag and my home screen
-  to show how much coffee is left, so that I know when to buy more.
+- **Story:** As a home enthusiast, I want each portion, bag and Brew to show
+  how much coffee is left, so that I know when to buy more.
 - **Acceptance criteria**
   1. Given a portion with shots, when I see it, then it shows its weight minus
-     the doses of every shot against it, measured and one-tap, as a number in
-     grams.
+     the doses of every shot against it, measured and one-tap, in grams.
   2. Given a bag with several portions, when I see it, then it shows the total
-     left across its portions; the home screen shows what's left in the portion
-     in use, and nothing if it's unknown.
+     left; Brew shows what's left in the portion in use, and nothing if it's
+     unknown.
   3. Given I undo or edit a shot, when I see the portion, then what's left
      follows.
   4. Given logged doses add up to more than the portion, when I see it, then it
@@ -2157,10 +2409,7 @@ line, the bag screen, and frozen-ground shots.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Unchanged in substance. Design EPIC-03-04. Criterion 4 is the
-  design's answer to INIT-03 Q3. Weighing is the only remedy for a wrong
-  remaining weight in the MVP. See SQ-14 on doses from an "off" shot and its
-  fix (the working assumption is that both count). Calculated, never stored.
+- **Notes:** Unchanged (wording only). SQ-14 (both doses count).
 
 #### STORY-03-04-02: Weigh what's left
 
@@ -2179,8 +2428,7 @@ line, the bag screen, and frozen-ground shots.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Unchanged. Design SH-STOCK. Prompting a stock check on a schedule
-  is still open (EPIC-03-04 open question).
+- **Notes:** Unchanged.
 
 #### STORY-03-04-03: See which bags are open or finished
 
@@ -2188,23 +2436,22 @@ line, the bag screen, and frozen-ground shots.
 - **Story:** As a home enthusiast, I want each bag to show whether it's open or
   finished, so that I know at a glance which coffee is in use.
 - **Acceptance criteria**
-  1. Given a bag with at least one portion open (opened, not finished and not
-     in the freezer), when I see it, then it shows as open.
+  1. Given a bag with at least one portion open (opened, not finished and not in
+     the freezer), when I see it, then it shows as open.
   2. Given every portion of a bag is finished, when I see it, then it shows as
-     finished and is in the finished group.
-  3. Given a bag with no open portion (all unopened or frozen), when I see it,
-     then its portions show their states, and it's listed after open bags.
+     finished and is no longer on hand; it's listed on its coffee's screen.
+  3. Given a bag with no open portion, when I see it, then its portions show
+     their states.
   4. Given a portion's dates are set, when I see the bag, then its status
      follows those dates.
 - **Source sections:** S-02, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Updated ("open" excludes frozen, review M5; criterion 4 wording,
-  review M4). Calculated, never stored.
+- **Notes:** Updated (review M5, M4; finished bags leave On hand).
 
 **Coverage:** all In items covered.
 
-### EPIC-03-05: Know when you'll run out
+### EPIC-03-05: Know when you'll run out, and find any coffee
 
 #### STORY-03-05-01: See how fast we use coffee
 
@@ -2212,9 +2459,9 @@ line, the bag screen, and frozen-ground shots.
 - **Story:** As a household member, I want to see how much coffee my household
   really uses, so that I know how fast we go through it.
 - **Acceptance criteria**
-  1. Given enough finished portions, when I look at the pantry, then I see a
-     usage rate worked out from finished portions, doses, stock checks and
-     purchase dates, and can see what it's based on.
+  1. Given enough finished portions, when I look at Beans, then I see a usage
+     rate worked out from finished portions, doses, stock checks and purchase
+     dates, and can see what it's based on.
   2. Given not enough history yet, when I look, then I'm told Tare is still
      learning, rather than shown a guess.
   3. Given new shots or finished portions, when I look again, then the rate
@@ -2222,8 +2469,7 @@ line, the bag screen, and frozen-ground shots.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. "Enough history" and the accuracy target are open
-  (X-2). Calculated, never stored.
+- **Notes:** Lightly updated (Beans wording). X-2.
 
 #### STORY-03-05-02: See when we'll run out
 
@@ -2231,16 +2477,15 @@ line, the bag screen, and frozen-ground shots.
 - **Story:** As a household member, I want to see roughly when we'll run out,
   counting the freezer, so that I can buy coffee in time.
 - **Acceptance criteria**
-  1. Given a usage rate and coffee left across all portions, when I look at the
-     pantry, then I see roughly how many days of coffee we have, and how much of
-     it is in the freezer.
+  1. Given a usage rate and coffee left across all portions, when I look at On
+     hand, then I see roughly how many days of coffee we have, and how much of it
+     is in the freezer.
   2. Given no usage rate yet, when I look, then no estimate is shown.
   3. Given I add a bag, when I look again, then the estimate grows.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. Reorder prompts are out of scope. Whether prediction
-  is Phase 1 at all is INIT-03 Q1.
+- **Notes:** Lightly updated (On hand, design round 6). INIT-03 Q1.
 
 #### STORY-03-05-03: See how much of our coffee gets logged
 
@@ -2258,7 +2503,134 @@ line, the bag screen, and frozen-ground shots.
 - **Size:** 2
 - **Notes:** Unchanged.
 
-**Coverage:** all In items covered.
+#### STORY-03-05-04: Narrow Beans by roaster, roast level, origin or rating
+
+- **Parent:** EPIC-03-05
+- **Story:** As a home enthusiast, I want to narrow Beans to a roaster, roast
+  level, origin or rating, so that I can find a coffee in a long Tried list.
+- **Acceptance criteria**
+  1. Given On hand and Tried, when I filter by roaster, roast level, origin or
+     rating, then both show only matching coffees.
+  2. Given any filter is set, when I look, then it's visible with its value,
+     removable on its own, and "All" clears every filter.
+  3. Given no coffee matches, when I look, then I'm told and offered to clear the
+     filters.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (S-02 Beans filters; epics revision 10). Origin needs a
+  catalog field the schema doesn't have yet, and "rating" for a coffee isn't
+  defined (EPIC-03-05 open questions). Reuses the Journal's filter pattern.
+
+**Coverage:** all In items covered, including Beans filters.
+
+### EPIC-03-06: See every coffee you've tried
+
+New MVP epic (epics revision 10, PEC-15).
+
+#### STORY-03-06-01: See every coffee I've tried
+
+- **Parent:** EPIC-03-06
+- **Story:** As a home enthusiast, I want Beans to list every coffee I've ever
+  brewed, even after the bag is gone, so that I can find one worth buying
+  again.
+- **Acceptance criteria**
+  1. Given my household has brewed coffees, when I open Beans, then Tried,
+     below On hand, shows one row per coffee with at least one shot (measured
+     or one-tap), newest-had first.
+  2. Given a row, when I look at it, then I see the coffee, its roaster, when
+     it was last had (for example "3 weeks ago") and how many bags of it we've
+     had, finished or not.
+  3. Given a bag added but never brewed, when I look at Tried, then its coffee
+     isn't there until its first shot; it shows under On hand only.
+  4. Given two catalog entries were merged, when I look at Tried, then they show
+     as one row.
+  5. Given I have bags but haven't brewed yet, when I look at Tried, then I'm told
+     coffees I brew will appear here.
+  6. Given a row, when I tap it, then the coffee's screen opens (STORY-03-06-03).
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New (S-02). DQ-27 is the working assumption (tried means at least
+  one shot). No filters in the MVP (STORY-03-05-04, Next). Calculated, never
+  stored. With many bags on hand, Tried can sit below the fold; its heading
+  stays reachable (design concern).
+
+#### STORY-03-06-02: See how a coffee's shots went, in words
+
+- **Parent:** EPIC-03-06
+- **Story:** As a home enthusiast, I want each tried coffee to say in a few
+  words how its shots went, so that I remember which coffees worked for me.
+- **Acceptance criteria**
+  1. Given a coffee with three or more rated shots, when I see its row, then it
+     says "mostly good" when most ratings are 4 or 5, "mostly off" when most are
+     1 or 2, and "mixed" otherwise.
+  2. Given a coffee with one or two rated shots, when I see its row, then it says
+     "last rated N of 5".
+  3. Given a coffee with no ratings but good or off reactions, when I see its
+     row, then it says "mostly good" or "mostly off" from those reactions.
+  4. Given a coffee with neither, when I see its row, then it says "no ratings
+     yet".
+  5. Given any summary, when I see it, then it's words only, never a colour or a
+     score badge, and it describes the shots, not the coffee.
+- **Source sections:** S-02
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New. DQ-28 is the working assumption. It ignores personas in the
+  MVP (one persona); once sub personas exist it should be per persona
+  (EPIC-03-06 and EPIC-05-01 open questions). How ties are counted in
+  "most" is for the tech lead.
+
+#### STORY-03-06-03: Open a coffee's own screen
+
+- **Parent:** EPIC-03-06
+- **Story:** As a home enthusiast, I want one screen per coffee with its
+  details, recipes, recent shots and bags, so that everything I know about a
+  coffee is in one place.
+- **Acceptance criteria**
+  1. Given I open a coffee from Tried or from a bag on hand, when the screen
+     opens, then I see its name, roaster, roast level and tasting notes when the
+     catalog has them, and its summary line.
+  2. Given the coffee has recipes, when I look, then I see one per setup and
+     drink, as resolved by STORY-02-01-01, and can dial in from one or change
+     it.
+  3. Given the coffee has shots, when I look, then I see up to five recent ones,
+     and "all shots of this coffee" opens the Journal filtered to this coffee
+     only.
+  4. Given the coffee's bags, when I look, then I see each bag, on hand or
+     finished, with its date, state and weight, and can open it.
+  5. Given a section has nothing in it (no recipes, shots or bags), when I look,
+     then that section says so in one line.
+  6. Given the screen fails to load, when I look, then I'm told and can try
+     again.
+- **Source sections:** S-02, S-08
+- **Priority:** MVP
+- **Size:** 3
+- **Notes:** New. Design SCR-COFFEE (light). Editing the coffee's catalog
+  entry isn't in the MVP, apart from STORY-01-06-09 for a household's own
+  unverified entries.
+
+#### STORY-03-06-04: Add a bag of a coffee I've tried
+
+- **Parent:** EPIC-03-06
+- **Story:** As a home enthusiast, I want to add a new bag straight from a
+  coffee's screen, so that buying a coffee again takes a few taps.
+- **Acceptance criteria**
+  1. Given a coffee's screen, when I choose to add a bag of it, then I go
+     straight to the bag details with that coffee chosen, without searching.
+  2. Given I save the bag, when I return, then it's under On hand and listed on
+     the coffee's screen.
+  3. Given no bag of this coffee is on hand, when I open its screen, then adding
+     a bag is the main action; given one is on hand, it's still offered, but not
+     as the main action.
+- **Source sections:** S-02
+- **Priority:** MVP
+- **Size:** 1
+- **Notes:** New. Design SCR-COFFEE "add a bag of this". From a Tried row to a
+  new bag is three taps plus save. Depends on STORY-03-01-02.
+
+**Coverage:** all In items covered. Out: filters (Next), editing catalog
+entries, recommendations (Later).
 
 ---
 
@@ -2288,11 +2660,8 @@ line, the bag screen, and frozen-ground shots.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 3
-- **Notes:** Updated (on a part; servicing never makes a new setup, S-02;
-  title was "Log maintenance on a piece of kit"). Revision 2's "retired unit"
-  criterion is removed (no retire). Design SCR-UNIT maintenance section,
-  SH-MAINTENANCE. Offsets are Next (EPIC-04-03). Editing or deleting an event
-  isn't in scope.
+- **Notes:** Updated (on a part; no retire; servicing never makes a new setup).
+  Design SCR-UNIT, SH-MAINTENANCE.
 
 #### STORY-04-01-02: Mark a recalibration
 
@@ -2305,15 +2674,13 @@ line, the bag screen, and frozen-ground shots.
   2. Given I choose new burrs or a re-zero, when I log it, then it's marked as a
      recalibration unless I turn that off.
   3. Given a recalibration, when I see the grinder's events or the dividers in
-     my shots, then it's marked in words.
+     my Journal, then it's marked in words.
   4. Given maintenance on a machine or basket, when I log it, then no
      recalibration mark is offered.
 - **Source sections:** S-01, S-02
 - **Priority:** MVP
 - **Size:** 1
-- **Notes:** Updated (closed: recalibration is a flag on the event, TQ-05).
-  DQ-15 (on by default for burrs and re-zero) is still the working assumption
-  to confirm. Every grinder event starts a new grind period, flagged or not.
+- **Notes:** Updated (a flag, closed by TQ-05). DQ-15 for the default.
 
 #### STORY-04-01-03: Know my grinder's current grind period
 
@@ -2323,43 +2690,44 @@ line, the bag screen, and frozen-ground shots.
   my settings still compare.
 - **Acceptance criteria**
   1. Given a grinder with maintenance, when I look at it, then I see when its
-     current grind period started and how many shots on setups with that
-     grinder are in it.
+     current grind period started and how many shots on setups with that grinder
+     are in it.
   2. Given a grinder with no maintenance, when I look at it, then I'm told all
      its shots are in one period.
-  3. Given I add or back-date an event, when I look again, then the period
-     start and shot count follow, and no past shot is changed.
+  3. Given I add or back-date an event, when I look again, then the period start
+     and shot count follow, and no past shot is changed.
   4. Given maintenance on a machine or basket, when I look at shots, then grind
      periods aren't affected.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Lightly updated (shots belong to a grinder through their setup).
-  Design SCR-UNIT current-period line (PEC-06). Periods come from dates, never
-  stored.
+- **Notes:** Updated (title was "Split grind history at each grinder event"; 3
+  points became 2; shots reach a grinder through their setup). PEC-06.
 
-#### STORY-04-01-04: See maintenance in my recent shots
+#### STORY-04-01-04: See maintenance in my journal
 
 - **Parent:** EPIC-04-01
-- **Story:** As a home enthusiast, I want my recent shots list to show where I
-  serviced my grinder, so that I can see which shots came before and after.
+- **Story:** As a home enthusiast, I want my Journal to show where I serviced
+  my grinder, so that I can see which shots came before and after.
 - **Acceptance criteria**
-  1. Given a grinder event inside the listed period, when I look at my recent
-     shots, then a divider appears at the event's place in time, naming the
-     grinder (by nickname, else model), the kind of work and the date, and
-     whether it was a recalibration.
-  2. Given an event happened on a day I also pulled shots, when I look, then the
-     divider sits among that day's shots at its time.
-  3. Given maintenance on a machine or basket, or on a grinder with no shots in
+  1. Given a grinder event inside the listed period, when I look at my Journal,
+     then a divider appears at the event's place in time, naming the grinder (by
+     nickname, else model), the kind of work, the date, and whether it was a
+     recalibration.
+  2. Given an event on a day I also pulled shots, when I look, then the divider
+     sits among that day's shots at its time.
+  3. Given the Journal is filtered, when I look, then dividers show only for the
+     grinders of the shots listed.
+  4. Given maintenance on a machine or basket, or on a grinder with no shots in
      the list, when I look, then no divider is shown.
-  4. Given I add or back-date an event, when I look again, then its divider
-     moves to the new place and no shot changes.
-  5. Given a divider, when I open it, then I see that grinder.
+  5. Given I add or back-date an event, when I look again, then its divider moves
+     and no shot changes; and opening a divider shows that grinder.
 - **Source sections:** S-02, S-04
 - **Priority:** MVP
 - **Size:** 2
-- **Notes:** Lightly updated (part kinds). PEC-06. Design EPIC-04-01 step 3.
-  Depends on STORY-02-06-01. Dividers are read aloud to screen-reader users.
+- **Notes:** Updated (Journal; filtered lists; title was "See maintenance in
+  my recent shots"). PEC-06. Design EPIC-04-01 step 3. Read aloud to
+  screen-reader users.
 
 **Coverage:** all In items covered.
 
@@ -2368,14 +2736,14 @@ line, the bag screen, and frozen-ground shots.
 #### STORY-04-02-01: Grind that follows bean age
 
 - **Parent:** EPIC-04-02
-- **Story:** As a home enthusiast, I want my recipe's grind adjusted for how
-  my coffee has aged, so that I don't have to re-dial as a bag ages.
+- **Story:** As a home enthusiast, I want my recipe's grind adjusted for how my
+  coffee has aged, so that I don't have to re-dial as a bag ages.
 - **Acceptance criteria**
   1. Given a recipe and enough measured shots to estimate aging, when I open the
      recipe, then I see a suggested grind adjusted for the coffee's current
      freshness.
-  2. Given there aren't enough shots to estimate aging, when I open the recipe,
-     then I see the pinned grind unchanged.
+  2. Given there aren't enough shots, when I open the recipe, then I see the
+     pinned grind unchanged.
   3. Given I see a suggestion, when I check the stored recipe, then it's
      unchanged.
   4. Given the suggestion, when I see it, then it moves in the grinder's own
@@ -2383,9 +2751,8 @@ line, the bag screen, and frozen-ground shots.
 - **Source sections:** S-01, S-02, S-04
 - **Priority:** Next
 - **Size:** 5
-- **Notes:** Lightly updated (wording for the two clocks). Which clock drives
-  aging, or both, is part of INIT-04 Q3, which is still open; the size may
-  grow once answered. No AI (EPIC-04-02 open question: algorithm vs AI).
+- **Notes:** Lightly updated (the two clocks). INIT-04 Q3 (which clock, or
+  both); size may grow.
 
 #### STORY-04-02-02: Grind that follows this bag's character
 
@@ -2404,8 +2771,7 @@ line, the bag screen, and frozen-ground shots.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 5
-- **Notes:** Unchanged. "Batch character" isn't defined beyond S-02; assumed
-  to be the bag's consistent offset from the recipe. INIT-04 Q3.
+- **Notes:** Unchanged.
 
 #### STORY-04-02-03: Only measured shots count as measurements
 
@@ -2415,18 +2781,15 @@ line, the bag screen, and frozen-ground shots.
 - **Acceptance criteria**
   1. Given one-tap and measured shots, when the suggestion is worked out, then
      only measured shots' values are used as measurements.
-  2. Given one-tap shots with no "off" reaction, when the suggestion is worked
-     out, then they count only as "the recipe was fine".
+  2. Given one-tap shots with no "off" reaction, when it's worked out, then they
+     count only as "the recipe was fine".
   3. Given a bag with only one-tap shots, when I open the recipe, then the
-     suggestion is not moved by them.
+     suggestion isn't moved by them.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (prep note). How an "off" reaction is treated isn't in
-  the spec; assumed "off" one-tap shots carry no signal of their own (their
-  measured fix does, DQ-12). **Open (SQ-18, EPIC-04-02 open question):** are
-  shots with and without WDT or a puck screen compared as equals? Decide
-  before this epic is specified in full.
+- **Notes:** Updated (prep). **SQ-18:** are shots with and without WDT or a
+  puck screen compared as equals? Open for this epic.
 
 #### STORY-04-02-04: Recent shots count most
 
@@ -2436,14 +2799,14 @@ line, the bag screen, and frozen-ground shots.
 - **Acceptance criteria**
   1. Given older and newer measured shots that disagree, when the suggestion is
      worked out, then it's closer to the newer shots.
-  2. Given shots older than the window, when the suggestion is worked out, then
-     they have little or no effect.
-  3. Given the same shots, when the suggestion is worked out twice, then it's
-     the same both times.
+  2. Given shots older than the window, when it's worked out, then they have
+     little or no effect.
+  3. Given the same shots, when it's worked out twice, then it's the same both
+     times.
 - **Source sections:** S-01, S-02
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. Weighting strength and window are open (INIT-04 Q2).
+- **Notes:** Unchanged. INIT-04 Q2.
 
 #### STORY-04-02-05: Only compare shots from the same grind period
 
@@ -2452,44 +2815,40 @@ line, the bag screen, and frozen-ground shots.
   maintenance left out of the suggestion, so that a burr change or re-zero
   isn't mistaken for drift.
 - **Acceptance criteria**
-  1. Given shots before and after a grinder event, when the suggestion is worked
-     out, then only shots in the current period are used.
-  2. Given a new period with no measured shots yet, when I open the recipe,
-     then no drift adjustment is applied.
-  3. Given maintenance on a machine or basket, when the suggestion is worked
-     out, then periods aren't affected.
+  1. Given shots before and after a grinder event, when the suggestion is
+     worked out, then only shots in the current period are used.
+  2. Given a new period with no measured shots yet, when I open the recipe, then
+     no drift adjustment is applied.
+  3. Given maintenance on a machine or basket, when it's worked out, then periods
+     aren't affected.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Lightly updated (part kinds). Depends on STORY-04-01-03.
-  Maintenance offsets are EPIC-04-03.
+- **Notes:** Lightly updated (part kinds).
 
 #### STORY-04-02-06: See the suggested grind where I brew
 
 - **Parent:** EPIC-04-02
 - **Story:** As a home enthusiast, I want to see the suggested grind, with my
-  recipe's grind and a short reason, on the home screen and in the pre-filled
-  log, so that I trust it and use it without looking it up.
+  recipe's grind and a short reason, on Brew and in the pre-filled log, so
+  that I trust it and use it without looking it up.
 - **Acceptance criteria**
-  1. Given a suggestion differs from the pinned grind, when I see the home
-     screen, then I see the suggested grind, my recipe's grind, and a short
-     reason (for example that the beans have aged).
-  2. Given the pre-filled log (STORY-02-03-02, STORY-02-03-03), when it opens,
-     then grind starts at the suggestion, with the recipe's grind shown as what
-     it was.
+  1. Given a suggestion differs from the pinned grind, when I see Brew, then I
+     see the suggested grind, my recipe's grind, and a short reason.
+  2. Given the pre-filled log, when it opens, then grind starts at the
+     suggestion, with the recipe's grind shown as what it was.
   3. Given I pull a one-tap shot with a suggestion shown, when it's recorded,
      then it records the grind I was shown.
-  4. Given no suggestion applies, when I see the home screen, then only the
-     pinned grind is shown.
+  4. Given no suggestion applies, when I see Brew, then only the pinned grind is
+     shown.
 - **Source sections:** S-02, S-06
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. Design EPIC-04-02 shows both the value and the
-  reason; INIT-04 Q4 is still open. Criterion 3 is an assumption the spec
-  doesn't settle.
+- **Notes:** Updated (overlap note). When this drift adjustment and an MVP
+  one-change suggestion (EPIC-02-03) both apply to a pre-filled log, which wins
+  isn't in the spec (EPIC-04-02 open question). INIT-04 Q4.
 
-**Coverage:** all In items covered. Maintenance drift is EPIC-04-03 (epic
-overlap flag).
+**Coverage:** all In items covered.
 
 ### EPIC-04-03: Re-dial once after maintenance and keep every recipe
 
@@ -2500,10 +2859,10 @@ overlap flag).
   after grinder maintenance and have Tare work out how far my dial moved, so
   that I don't have to re-dial every coffee.
 - **Acceptance criteria**
-  1. Given I logged a grinder event, when I open the home screen, then I'm
-     invited, calmly, to re-dial one coffee, and accepting opens a dial-in.
-  2. Given a recipe pinned before the event on a setup with that grinder, when
-     I pin a new recipe for the same coffee on that setup after it, then Tare
+  1. Given I logged a grinder event, when I open Brew, then I'm invited, calmly,
+     to re-dial one coffee, and accepting opens a dial-in.
+  2. Given a recipe pinned before the event on a setup with that grinder, when I
+     pin a new recipe for the same coffee on that setup after it, then Tare
      proposes a shift in grinder units, with a one-line explanation.
   3. Given the beans aged between the two dial-ins, when the shift is proposed,
      then the aging estimate is taken off first.
@@ -2512,9 +2871,7 @@ overlap flag).
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 5
-- **Notes:** Lightly updated (setups). Depends on STORY-04-02-01 for the aging
-  estimate (INIT-04 Q3). Servicing doesn't change the setup (S-02), so the
-  re-dial is on the same setup.
+- **Notes:** Updated (prompt; setups). INIT-04 Q3.
 
 #### STORY-04-03-02: Confirm or edit the shift
 
@@ -2526,14 +2883,13 @@ overlap flag).
      the re-dial it came from.
   2. Given a proposed shift, when I change it and confirm, then my value is
      saved.
-  3. Given a confirmed shift, when I later edit it from the grinder's events,
-     then the new value is used from then on.
+  3. Given a confirmed shift, when I later edit it, then the new value is used
+     from then on.
   4. Given I decline, when I look at old recipes, then they're shown unshifted.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. A confirmed shift is a user decision: stored, not
-  recalculated (S-02).
+- **Notes:** Unchanged.
 
 #### STORY-04-03-03: Old recipes read right after maintenance
 
@@ -2543,21 +2899,17 @@ overlap flag).
   after one re-dial.
 - **Acceptance criteria**
   1. Given a confirmed shift on a grinder event, when I open any recipe pinned
-     before the event on a setup with that grinder, then its grind is shown
-     with the shift applied.
-  2. Given the shifted recipe, when I check what's stored, then the recipe is
-     unchanged.
-  3. Given a recipe on a setup with a different grinder, when I open it, then
-     no shift is applied.
+     before the event on a setup with that grinder, then its grind is shown with
+     the shift applied.
+  2. Given the shifted recipe, when I check what's stored, then it's unchanged.
+  3. Given a recipe on a setup with a different grinder, when I open it, then no
+     shift is applied.
   4. Given several events on one grinder, when I open an old recipe, then each
      confirmed shift after it is applied in order.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (recipes reach the grinder through their setup). Criterion
-  4 assumes shifts chain (EPIC-04-03 open question). Offsets never move a
-  recipe to a different setup; a new setup starts from the closest one
-  (STORY-02-01-06).
+- **Notes:** Updated (setups). EPIC-04-03 open question: chaining.
 
 **Coverage:** all In items covered.
 
@@ -2579,8 +2931,7 @@ overlap flag).
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. The fitting method and what counts as disagreeing are
-  open (EPIC-04-04 open question). Criterion 3 is an assumption.
+- **Notes:** Unchanged.
 
 #### STORY-04-04-02: Confirm or edit the stretch
 
@@ -2597,7 +2948,7 @@ overlap flag).
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged. Formula from S-08.
+- **Notes:** Unchanged.
 
 **Coverage:** all In items covered.
 
@@ -2614,18 +2965,16 @@ overlap flag).
   brew for who doesn't use Tare, so that their coffee is tracked separately
   from mine.
 - **Acceptance criteria**
-  1. Given my household, when I add a sub persona with a name, then it's saved
-     in my household with no login of its own.
+  1. Given my household, when I add a sub persona with a name, then it's saved in
+     my household with no login of its own.
   2. Given I try to add one without a name, when I save, then I'm asked for a
      name and nothing is saved.
-  3. Given I added a sub persona, when anyone in my household looks at
-     profiles, then they see it.
+  3. Given I added a sub persona, when anyone in my household looks at profiles,
+     then they see it.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged. Design EPIC-05-01 (people screen from Profile).
-  Criterion 2 assumes a sub persona must be named (EPIC-05-01 open question:
-  default label). Sub personas never share data (S-02).
+- **Notes:** Unchanged.
 
 #### STORY-05-01-02: Rename or remove a profile
 
@@ -2638,37 +2987,34 @@ overlap flag).
   2. **Placeholder, not testable until decided (EPIC-05-01 open question:
      delete):** given a sub persona with shots, when I remove it, then what
      happens to its shots and recipes follows the Head of Product's decision.
-     If removal is ruled out, this criterion becomes "removing isn't offered".
+     If removal is ruled out, this becomes "removing isn't offered".
   3. Given the main persona, when I look at removing it, then I can't.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Updated (review m7: criterion 2 is marked as an explicit
-  placeholder). The design covers add and rename only. Criterion 3 assumes
-  every login keeps its one main persona (S-04).
+- **Notes:** Updated (review m7: explicit placeholder).
 
-#### STORY-05-01-03: Choose who I'm brewing for on the home screen
+#### STORY-05-01-03: Choose who I'm brewing for on Brew
 
 - **Parent:** EPIC-05-01
-- **Story:** As a household member, I want to pick a profile on the home
-  screen, so that the drink, coffee and recipe shown are theirs.
+- **Story:** As a household member, I want to pick a profile on Brew, so that
+  the drink, coffee and recipe shown are theirs.
 - **Acceptance criteria**
-  1. Given my household has more than one persona, when I pick one on the home
-     screen, then it shows that persona's usual drink at this time of day, the
-     coffee and their recipe on the current setup.
+  1. Given my household has more than one persona, when I pick one on Brew, then
+     it shows that persona's usual drink at this time of day, the coffee and
+     their recipe on the current setup.
   2. Given I pick a persona with no recipe for the drink shown on this setup,
      when I look, then "Dial in" is offered.
-  3. Given I pull a shot or open the log after picking a persona, when the shot
-     is saved, then it's for that persona.
-  4. Given a household with only the main persona, when I open the home screen,
-     then nothing about picking a persona is in my way.
+  3. Given I pull a shot, log one, or answer how it tasted after picking a
+     persona, when it's saved, then it's for that persona.
+  4. Given a household with only the main persona, when I open Brew, then
+     nothing about picking a persona is in my way.
 - **Source sections:** S-02, S-04, S-06
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (setup). Design EPIC-05-01. The current setup is
-  per persona (DQ-18: the setup of that persona's last shot). Whether the
-  chosen persona is remembered between visits isn't in the spec; for the tech
-  lead and designer.
+- **Notes:** Updated (setup; taste answers follow the persona). DQ-18: the
+  current setup follows that persona's last shot (EPIC-05-01 open question:
+  confirm that's wanted).
 
 #### STORY-05-01-04: Log and pin for someone else
 
@@ -2681,14 +3027,16 @@ overlap flag).
      sub persona as whose taste and me as who logged it.
   2. Given I pin a recipe from that shot, when it's saved, then it's that sub
      persona's recipe, not mine.
-  3. Given my recent shots or a shot's details, when I look, then I can tell
-     whose taste each shot records.
+  3. Given my Journal or a shot's details, when I look, then I can tell whose
+     taste each shot records.
   4. Given my own recipes, when I brew for a sub persona, then mine are
      unchanged.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. No schema change (S-02).
+- **Notes:** Lightly updated (Journal). "Just right" answers given on someone's
+  behalf are second-hand; a persona filter for the Journal and Tried isn't in
+  the spec (EPIC-05-01 open questions).
 
 **Coverage:** all In items covered.
 
@@ -2706,8 +3054,7 @@ overlap flag).
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Delivery (link, email) and owner vs member permissions are open
-  (EPIC-05-02 open question; INIT-05 Q2).
+- **Notes:** Unchanged. INIT-05 Q2.
 
 #### STORY-05-02-02: Join a household from an invite
 
@@ -2723,8 +3070,7 @@ overlap flag).
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Criterion 2 is marked as a placeholder (review m7). Depends on
-  EPIC-05-03.
+- **Notes:** Updated (review m7: explicit placeholder).
 
 #### STORY-05-02-03: Claim my profile and keep its history
 
@@ -2742,9 +3088,7 @@ overlap flag).
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Design direction: the joiner sees the history before claiming,
-  and the claim is reversible until confirmed. Criterion 3 is open
-  (EPIC-05-02 open question). Leaving the household is open (INIT-05 Q3).
+- **Notes:** Unchanged. INIT-05 Q3.
 
 #### STORY-05-02-04: My shots follow my own consent
 
@@ -2759,7 +3103,7 @@ overlap flag).
 - **Source sections:** S-02, S-07, S-08
 - **Priority:** Later
 - **Size:** 2
-- **Notes:** The opt-in itself is EPIC-06-05.
+- **Notes:** Unchanged.
 
 ### EPIC-05-03: Keep your coffee history when you change phones
 
@@ -2771,21 +3115,19 @@ overlap flag).
   phone is, or if my browser clears its storage.
 - **Acceptance criteria**
   1. Given I've been using Tare without signing in, when I link Google from my
-     profile, then all my parts, setups, pantry, recipes and shots are still
+     profile, then all my parts, setups, beans, recipes and shots are still
      there, unchanged, and my profile says my account is linked.
   2. Given I linked Google, when I see my profile, then its name or label is
      unchanged; nothing is taken from my Google account.
   3. Given the Google account is already linked to another Tare account, when I
      try to link it, then I'm told, and my current data stays as it is.
-  4. Given linking fails or I cancel, when I return, then I'm still in my
-     account with all my data, and can try again.
+  4. Given linking fails or I cancel, when I return, then I'm still in my account
+     with all my data, and can try again.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (the eviction risk in the story's benefit, S-02).
-  Design EPIC-05-03. Firebase links Google to the same anonymous account
-  (S-02). Criterion 3 assumes no merge of households (EPIC-05-03 open
-  question). DQ-16 (Google's branded button) is a design question.
+- **Notes:** Lightly updated (eviction risk; wording). DQ-16 is a design
+  question.
 
 #### STORY-05-03-02: Reach my history on another phone
 
@@ -2797,15 +3139,14 @@ overlap flag).
   1. Given I linked Google on one device, when I sign in with the same Google
      account on another, then I reach the same account and household.
   2. Given I'm signed in on a new device, when I look, then I see all my parts,
-     setups, pantry, recipes and shots.
+     setups, beans, recipes and shots.
   3. Given I open Tare on a new device for the first time, when it starts, then
-     I'm offered, quietly, to sign in with Google before a new account is set
-     up, and I can ignore it.
+     I'm offered, quietly, to sign in with Google before a new account is set up,
+     and I can ignore it.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (wording). Design SCR-START sign-in option, never
-  a wall. Using two devices at once isn't in the spec.
+- **Notes:** Lightly updated (wording).
 
 #### STORY-05-03-03: Be reminded once to keep my history safe
 
@@ -2815,15 +3156,14 @@ overlap flag).
   being nagged.
 - **Acceptance criteria**
   1. Given I haven't linked Google, when I pin my first recipe or log my tenth
-     shot, whichever comes first, then my home screen invites me to link, once.
+     shot, whichever comes first, then Brew invites me to link, once.
   2. Given the invitation, when I dismiss it, then it never comes back; I can
      still link from my profile.
   3. Given I accept it, when I link, then it behaves as STORY-05-03-01.
 - **Source sections:** S-02
 - **Priority:** Next
 - **Size:** 1
-- **Notes:** Unchanged. The design answers the EPIC-05-03 prompting question;
-  confirm the trigger.
+- **Notes:** Unchanged (wording only).
 
 **Coverage:** all In items covered.
 
@@ -2831,12 +3171,10 @@ overlap flag).
 
 ## INIT-06: Dial in a new bag in fewer shots with AI and the community
 
-All stories in this initiative are Later and light; the design gives
-direction only (section 6). Each AI feature ships with evals and
-observability (S-01). The eval stories are marked **enabler placeholders**
-(review m7, SQ-13): they hold scope and size, but aren't user value as
-written, and will be re-framed when the initiative is re-planned. All AI
-output is offered as a suggestion the user can accept or ignore.
+All Later and light; the design gives direction only (section 6). Each AI
+feature ships with evals and observability (S-01). Eval stories are
+**enabler placeholders** (review m7, SQ-13), to be re-framed when INIT-06 is
+re-planned. AI output is always a suggestion the user can accept or ignore.
 
 ### EPIC-06-01: Scan a bag instead of typing it
 
@@ -2854,13 +3192,13 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-09, S-01
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Model choice is open (INIT-06 Q5).
+- **Notes:** Unchanged. INIT-06 Q5.
 
 #### STORY-06-01-02: Review a scan before adding the bag
 
 - **Parent:** EPIC-06-01
 - **Story:** As a home enthusiast, I want to check and correct what was scanned
-  before saving, so that a wrong read doesn't end up in my pantry.
+  before saving, so that a wrong read doesn't end up in Beans.
 - **Acceptance criteria**
   1. Given a scan result, when I review it, then I can correct any field before
      the bag is added.
@@ -2869,8 +3207,7 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-09, S-02
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** How a scan is matched to a catalog entry is open (EPIC-06-01 open
-  question).
+- **Notes:** Unchanged (wording only).
 
 #### STORY-06-01-03: A scanner that's checked before each release (enabler placeholder)
 
@@ -2885,32 +3222,31 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-01, S-09
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Enabler placeholder (SQ-13). The scanner's eval set isn't
-  described (EPIC-06-01 open question).
+- **Notes:** Unchanged. Enabler placeholder.
 
 ### EPIC-06-02: Get a grounded fix when a shot goes wrong
 
 #### STORY-06-02-01: Get a fix for a bad shot
 
 - **Parent:** EPIC-06-02
-- **Story:** As a home enthusiast, I want to be told what to change after a bad
-  shot, on my own setup and in the right direction on my dial, so that the
-  next shot is better.
+- **Story:** As a home enthusiast, I want a deeper explanation of what to
+  change after a bad shot, on my own setup and in the right direction on my
+  dial, so that the next shot is better.
 - **Acceptance criteria**
-  1. Given a bad measured shot with scores or defects, when I ask for help in
-     the fix flow, then I get a short diagnosis and one action for my setup.
-  2. Given my grinder's coarser direction, when the action says finer or
-     coarser, then it names the right way on my dial.
-  3. Given one-tap shots in my history, when the Coach advises, then it uses
-     only measured shots.
-- **Source sections:** S-09, S-08, S-01, S-03
+  1. Given an off shot with "just right" answers or tags, when I ask the Coach,
+     then I get a short diagnosis and one action for my setup, consistent with
+     the MVP's suggestion rules (STORY-02-03-06).
+  2. Given my grinder's coarser direction and my basket's dose range, when the
+     action changes grind or dose, then it stays in the right direction and
+     range.
+  3. Given "channelling seen" and no WDT ticked on the shot, when the Coach
+     advises, then it suggests WDT.
+- **Source sections:** S-09, S-08, S-01, S-02, S-03
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** The Coach's "suggest a WDT" rule reads the shot's WDT tick, not
-  the setup's parts (epics revision 8). The S-09 "days open" input is the
-  since-opening clock (STORY-03-03-04). With "not sure" about the coarser
-  direction (STORY-01-06-07), the Coach can't name a direction on the dial;
-  to resolve when re-planned.
+- **Notes:** Updated (builds on the rules; the "just right" model; the shot's
+  WDT tick). S-09's prompt still names scores and defects and should be
+  updated when re-planned (EPIC-06-02 open question).
 
 #### STORY-06-02-02: Advice grounded in guides and my manuals
 
@@ -2925,9 +3261,7 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-01, S-09, S-03
 - **Priority:** Later
 - **Size:** 8
-- **Notes:** **Flagged at 8: split** into ingesting guides and manuals, and
-  using them in advice, when this epic is re-planned. Sources and licensing
-  are open (EPIC-06-02 open question).
+- **Notes:** Unchanged. **Flagged at 8: split** when re-planned.
 
 #### STORY-06-02-03: A Coach that's checked before each release (enabler placeholder)
 
@@ -2942,26 +3276,31 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-09, S-01
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Enabler placeholder (SQ-13). Golden Dataset source and owner are
-  open (INIT-06 Q6). Palate alignment needs EPIC-06-04 first.
+- **Notes:** Unchanged. The MVP's rule scenarios (STORY-02-03-06) could seed
+  the Golden Dataset (INIT-06 Q6).
 
 ### EPIC-06-04: Tare learns your palate as you log
 
 #### STORY-06-04-01: Learn my taste without a survey
 
 - **Parent:** EPIC-06-04
-- **Story:** As a home enthusiast, I want Tare to learn what I like from what I
-  log and rate, so that advice fits my taste without filling in forms.
+- **Story:** As a home enthusiast, I want Tare to learn what I like for each
+  kind of drink and milk from how I answer and rate, so that advice fits my
+  taste without filling in forms.
 - **Acceptance criteria**
-  1. Given a persona's logged shots and ratings, when the taste graph is built,
-     then it reflects them, with no preference questions asked.
-  2. Given two personas, when their graphs are built, then each uses only its
+  1. Given a persona's "just right" answers and ratings, when their target is
+     learned, then it's learned per drink style and milk (an ideal straight
+     espresso and an ideal oat flat white are different targets), with no
+     preference questions asked.
+  2. Given two personas, when their targets are learned, then each uses only its
      own shots.
-- **Source sections:** S-01, S-06, S-04
+  3. Given ratings and the coffees' catalog tasting notes, when flavour
+     preferences are inferred, then no flavour question is ever asked.
+- **Source sections:** S-01, S-02, S-06, S-04
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** What a taste graph contains is open (EPIC-06-04 open question). A
-  non-AI slice could move to Next (INIT-06 Q2).
+- **Notes:** Updated (S-02 per persona, drink style and milk). What makes two
+  drinks one "style" isn't defined (EPIC-06-04 open question). INIT-06 Q2.
 
 #### STORY-06-04-02: One-tap shots and reactions count the right way
 
@@ -2970,14 +3309,15 @@ output is offered as a suggestion the user can accept or ignore.
   reactions to count as light signals, so that my taste isn't skewed by
   copied values.
 - **Acceptance criteria**
-  1. Given one-tap shots, when the graph is built, then their values are never
+  1. Given one-tap shots, when the target is learned, then their values are never
      used as measurements.
-  2. Given silence and reactions, when the graph is built, then silence counts
-     as a weak "fine" and reactions as stronger signals.
+  2. Given silence, reactions and the answers on off one-tap shots, when the
+     target is learned, then silence counts as a weak "fine", reactions as
+     stronger signals, and the answers as the persona's own judgement.
 - **Source sections:** S-02, S-06
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** One-tap shots carry a reaction only, never taste scores (SQ-17).
+- **Notes:** Updated (answers on off one-tap shots, DQ-23).
 
 #### STORY-06-04-03: Palate learning that's checked and monitored (enabler placeholder)
 
@@ -2985,13 +3325,13 @@ output is offered as a suggestion the user can accept or ignore.
 - **Story:** As a home enthusiast, I want palate learning tested and
   monitored, so that it doesn't drift away from my taste.
 - **Acceptance criteria**
-  1. Given an eval set of logging histories, when it runs, then the graphs are
-     scored against expected tastes.
+  1. Given an eval set of logging histories, when it runs, then the learned
+     targets are scored against expected ones.
   2. Given it's live, when it runs, then results are observable.
 - **Source sections:** S-01
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Enabler placeholder (SQ-13). Eval set not defined in the spec.
+- **Notes:** Unchanged. Enabler placeholder.
 
 ### EPIC-06-05: Share your shots, with your consent
 
@@ -3006,25 +3346,24 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-07, S-05, S-02
 - **Priority:** Later
 - **Size:** 2
-- **Notes:** Design direction: a plain-language consent screen in Profile, off
-  by default. Withdrawing and deleting already-shared data is open (INIT-06
-  Q7). Whether an anonymous account can opt in is open (EPIC-06-05 open
-  question).
+- **Notes:** Unchanged. INIT-06 Q7.
 
-#### STORY-06-05-02: Only complete, measured shots are shared
+#### STORY-06-05-02: Only complete, measured shots are shared, with how they tasted to me
 
 - **Parent:** EPIC-06-05
 - **Story:** As a home enthusiast, I want only my complete measured shots
-  shared, so that the community isn't fed partial or copied data.
+  shared, together with how they tasted to me, so that others can tell
+  whether my palate is like theirs.
 - **Acceptance criteria**
   1. Given a measured shot with grind, dose, yield and time, for a persona
-     claimed by a user who opted in, when it's saved, then it's eligible.
+     claimed by a user who opted in, when it's saved, then it's eligible, and it
+     carries the persona's "just right" answers and rating.
   2. Given a one-tap shot, a partial log, or a shot for an unclaimed persona,
      when it's saved, then it's never eligible.
 - **Source sections:** S-05, S-07, S-02
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Whether eligibility is computed from day one is open (X-3).
+- **Notes:** Updated (taste answers shared to compare palates, S-02). X-3.
 
 #### STORY-06-05-03: Shared shots can't be traced to me
 
@@ -3039,40 +3378,46 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-07
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Cohort grouping is open (INIT-06 Q4).
+- **Notes:** Unchanged. INIT-06 Q4.
 
 ### EPIC-06-06: Start a new bag from the community, tuned to you
 
-#### STORY-06-06-01: Start a new bag from community shots
+#### STORY-06-06-01: Start a new bag from shots by people with my taste
 
 - **Parent:** EPIC-06-06
 - **Story:** As a home enthusiast, I want a starting recipe for a new bag from
-  community shots of the same coffee, so that I dial in with fewer shots.
+  community shots of the same coffee by people whose palate resembles mine,
+  so that I dial in with fewer shots.
 - **Acceptance criteria**
-  1. Given community shots of the same coffee logged within 7 days of their
-     bag being opened, when I add a new bag, then I'm offered starting values
-     from them, with where they came from.
-  2. Given no such shots, when I add a bag, then no community start is offered.
-- **Source sections:** S-05, S-03
+  1. Given community shots of the same coffee logged within 7 days of their bag
+     being opened, when I add a new bag, then I'm offered starting values from
+     them, with where they came from.
+  2. Given those shots, when the start is worked out, then each counts only as
+     far as its contributor's palate resembles mine; using the same coffee isn't
+     enough on its own.
+  3. Given no such shots, when I add a bag, then no community start is offered.
+- **Source sections:** S-05, S-03, S-02
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** How a community grind maps to my grinder is open (EPIC-06-06 open
-  question). Needs EPIC-06-07 so the same coffee is one entry.
+- **Notes:** Updated (learn only from similar palates, S-02 and S-05 C). How a
+  community grind maps to my grinder is open (EPIC-06-06 open question).
 
 #### STORY-06-06-02: Trust the right contributors more
 
 - **Parent:** EPIC-06-06
 - **Story:** As a home enthusiast, I want shots from verified pros to count
-  more than others, so that my starting point is reliable.
+  more than others, among people with a palate like mine, so that my starting
+  point is reliable.
 - **Acceptance criteria**
   1. Given shots from enthusiasts and verified pros, when the start is worked
-     out, then they're weighted by contributor level.
+     out, then they're weighted by contributor level on top of palate
+     similarity.
   2. Given a contributor's level changes, when the start is worked out again,
      then the new weight is used.
-- **Source sections:** S-05
+- **Source sections:** S-05, S-02
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** How contributor level is determined is open (INIT-06 Q3).
+- **Notes:** Updated (combined with palate similarity). INIT-06 Q3.
 
 #### STORY-06-06-03: Warn me when a pro's recipe aims for another taste
 
@@ -3081,16 +3426,14 @@ output is offered as a suggestion the user can accept or ignore.
   aims for a different taste from mine, with a version nudged toward my
   palate, so that I don't chase someone else's cup.
 - **Acceptance criteria**
-  1. Given a pro's recipe whose target differs from my taste graph, when it's
-     offered, then I see a Match Score Warning, which isn't styled as a shot
-     warning.
+  1. Given a pro's recipe whose target differs from mine, when it's offered, then
+     I see a Match Score Warning, which isn't styled as a shot warning.
   2. Given the warning, when I look, then I'm offered a version adjusted toward
      my palate.
 - **Source sections:** S-05, S-03
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Needs EPIC-06-04 and EPIC-06-02. Design direction: neutral, not
-  the signal colour.
+- **Notes:** Unchanged.
 
 #### STORY-06-06-04: Community starts that are checked and monitored (enabler placeholder)
 
@@ -3104,7 +3447,7 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-01, S-05
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Enabler placeholder (SQ-13). Eval set not defined in the spec.
+- **Notes:** Unchanged. Enabler placeholder.
 
 ### EPIC-06-07: Merge duplicate catalog entries, with AI suggestions
 
@@ -3123,10 +3466,8 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-02, S-08
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Who confirms is open (EPIC-06-07 open question; SQ-12).
-  Conflicting data between entries is open, including capabilities a
-  household answered (STORY-01-06-06 to 09). Merging parts may make two
-  setups identical; how they combine is a question for the re-plan.
+- **Notes:** Unchanged. SQ-12. Merged parts may make two setups identical; for
+  the re-plan.
 
 #### STORY-06-07-02: Get suggested duplicates with a reason
 
@@ -3142,7 +3483,7 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-02, S-08
 - **Priority:** Later
 - **Size:** 5
-- **Notes:** Model choice is open (INIT-06 Q5).
+- **Notes:** Unchanged.
 
 #### STORY-06-07-03: A matcher that's checked before each release (enabler placeholder)
 
@@ -3158,39 +3499,41 @@ output is offered as a suggestion the user can accept or ignore.
 - **Source sections:** S-02, S-08
 - **Priority:** Later
 - **Size:** 3
-- **Notes:** Enabler placeholder (SQ-13).
+- **Notes:** Unchanged. Enabler placeholder.
 
 ---
 
 ## Stories to split or cut
 
-- **Split:** STORY-06-02-02 (RAG grounding, 8), when EPIC-06-02 is re-planned.
-- **Watch:** STORY-04-02-01 and STORY-04-02-02 (5 each) may reach 8 once
-  INIT-04 Q3 is answered. STORY-02-01-06 (5) is the largest new MVP story; if
-  it runs long, ship the same-grinder case first and the different-grinder
-  grind rule next.
-- **MVP size (review m9):** the MVP is now 190 points. The biggest levers:
-  - EPIC-01-06 split (26 points): ship coffee additions and the duplicate
-    check (01-06-01 to 05) first, then the hardware capability stories
-    (01-06-06 to 09).
-  - STORY-01-06-09 (answer capabilities later, 3), approved as PEC-08.
-  - STORY-01-01-03 (rename the profile, 2) and STORY-02-01-02 (pin by entering
-    values, 3).
-  - STORY-01-02-09 criterion 4's 90-day grouping can wait until setups
-    actually multiply.
-- **Could merge:** STORY-01-01-06 (shared states) into STORY-01-01-05.
+- **Split:** STORY-06-02-02 (8), when EPIC-06-02 is re-planned.
+- **Watch:**
+  - STORY-02-03-06 (5, the suggestion rules). If it runs long, ship puck prep
+    and grind first, then yield, dose, temperature and milk.
+  - STORY-02-01-06 (5).
+  - STORY-04-02-01 and 04-02-02 (5 each).
+- **MVP size (review m9):** the MVP is 228 points. The Head of Product wants a
+  fully usable logging tool, so these levers keep that intact:
+  - EPIC-01-06 (26): ship coffee additions and the duplicate check (01-06-01
+    to 05) first, then the capability stories (01-06-06 to 09).
+  - Defer pieces of the new work. STORY-03-06-02 (Tried summary, 2) and
+    STORY-02-06-05 (the Journal's default filter, 2) are small and separable.
+  - STORY-01-06-09 (3), STORY-01-01-03 (2) and STORY-02-01-02 (3), as before.
+  - STORY-01-02-09 criterion 4 (90-day grouping) can wait.
+- **Could merge:** STORY-01-01-06 into 01-01-05; STORY-02-03-07 into 02-03-05.
 
 ## Not covered
 
-- The "ran fast" shot warning: out of scope until a threshold exists (DQ-09).
-- Reopening the app on the last screen used (revision 2's STORY-01-01-05
-  criterion 5): cut as unrequested scope (review m8). The design still
-  describes it; the Head of Product can restore it.
-- Correcting a portion's dates after they're set (review M4): not in the MVP;
-  the design names it a Next candidate.
+- The "ran fast" warning: never a warning; time appears only in suggestion
+  reasons (DQ-09).
+- Reopening on the last screen used (revision 2's STORY-01-01-05 criterion 5):
+  cut as unrequested scope (review m8); the design still describes it.
+- Correcting a portion's dates after they're set (review M4): a Next
+  candidate.
+- Changing the milk on Brew before a one-tap pull (EPIC-02-02 open question).
+- Steamed-milk temperature and flavour notes (S-02: not recorded or asked).
 - Editing or deleting a maintenance event, deleting a setup or a shot,
-  removing a recipe (SQ-05) or a bag override (SQ-11), and reopening a
-  finished portion (SQ-15): in neither the epic scope nor the design.
+  removing a recipe (SQ-05) or bag override (SQ-11), and reopening a finished
+  portion (SQ-15).
 
 ## Open questions for the Head of Product
 
@@ -3198,56 +3541,59 @@ output is offered as a suggestion the user can accept or ignore.
 
 These shape MVP stories:
 
-1. **SQ-17, one-tap taste (review M1).** STORY-02-06-02 now assumes one-tap
-   shots carry a reaction only, never a rating, scores or defects. Confirm,
-   so the tech lead can align `updateShot` and the edit screen.
-2. **DQ-22, stock baskets in the seed.** A basket is required for every setup
-   (S-02). That only works if the seed catalog lists each machine maker's
-   stock baskets by model. Who curates the seed (EPIC-01-02) is still open.
-3. **DQ-08, the defect list.** Only channelling ships until it's defined;
-   STORY-01-05-03 and the only shot warning depend on it.
-4. **SQ-14, doses from an "off" shot and its fix.** Both count today (DQ-12).
-5. **DQ-11 fallback ranges** for "not sure" equipment (STORY-01-06-08).
-6. **INIT-02 Q1** still blocks EPIC-02-04 (Next).
+1. **SQ-19, suggestion step sizes.**
+   - "A bit" is one step and "much" two for grind.
+   - The other levers use the design's examples (2 g yield, 0.5 g dose,
+     1 °C, about 30 ml milk) as working assumptions.
+   - Confirm them, along with who writes the scenario set and what passing
+     means (EPIC-02-03 open question). STORY-02-03-06 depends on both.
+2. **SQ-21, when temperature is suggested.** S-02 puts it after dose. The
+   design suggests it only when balance is still off and grind is at its
+   limit. The stories follow the design.
+3. **Typical milk amounts per starter drink** (EPIC-01-01 open question). S-02
+   gives only ratios. STORY-01-01-02 and 01-03-07 need numbers.
+4. **SQ-20, the basket's dose-range question.**
+   - It's in scope (STORY-01-06-01) but has no designed flow yet.
+   - The seed list must give every basket a dose range (DQ-22).
+   - Who curates the seed is still open.
+5. **DQ-28, the Tried summary** ignores personas in the MVP. Confirm it's
+   acceptable until sub personas arrive.
+6. **SQ-14, doses from an "off" shot and its fix.** Both count (DQ-12).
+7. **DQ-11 fallback ranges** for equipment marked "not sure".
+8. **INIT-02 Q1** still blocks EPIC-02-04 (Next).
 
 The design's working assumptions DQ-02 to DQ-07, DQ-12 to DQ-15 and DQ-17 to
-DQ-22 are used as written. Each is cited in the stories that depend on it.
+DQ-28 are used as written and cited where they apply.
 
 ### Story questions (SQ)
 
-Closed in this revision:
+Closed:
 
-- **SQ-02** (retired part in a setup): no retire exists (S-02), and
-  STORY-01-02-03 is retired.
-- **X-1** (timestamp precision; not an SQ, listed for completeness): closed by
-  TQ-04 and TQ-07, and removed from story notes (review m1).
+- **SQ-02** (retire): no retire exists (S-02).
+- **SQ-17** (one-tap taste, review M1): one-tap shots carry "just right"
+  answers and tags, never a rating (DQ-23, epics revision 9).
+- **X-1** (timestamps; listed for completeness): closed by TQ-04.
 
 Still open:
 
-- **SQ-04** (STORY-01-06-05): can a household add links or aliases to a
-  verified or seed entry, or only to its own?
-- **SQ-05** (STORY-02-01-03): can a recipe be unpinned or removed?
-- **SQ-09** (STORY-03-01-02), narrowed: thaw-before-freeze is rejected. Should
-  a roast or packing date in the future also be rejected?
-- **SQ-11** (EPIC-02-04): can a bag's own recipe be removed? Answer it with
-  INIT-02 Q1.
-- **SQ-12** (STORY-01-06-03, STORY-06-07-01): the catalog reviewer (admin) is
-  not a spec user type. Should the spec name the role?
-- **SQ-13** (INIT-06 eval stories): they're now marked as enabler
-  placeholders. Re-frame them when INIT-06 is re-planned, or name a team role
-  in the spec.
-- **SQ-14** (STORY-03-04-01, STORY-02-03-02): doses from an "off" one-tap shot
-  and its fix (see "Most pressing").
-- **SQ-15** (STORY-03-02-03): can a portion marked finished by mistake be
-  reopened?
-- **SQ-16** (STORY-01-01-07): who owns the first-run checklist, EPIC-01-01 or
-  EPIC-02-02? Ownership only; it doesn't affect the code.
+- **SQ-04** (STORY-01-06-05): can a household add links or aliases to verified
+  entries?
+- **SQ-05** (STORY-02-01-03): can a recipe be unpinned?
+- **SQ-09** (STORY-03-01-02), narrowed: should future roast or packing dates be
+  rejected?
+- **SQ-11** (EPIC-02-04): can a bag's own recipe be removed?
+- **SQ-12** (STORY-01-06-03, 06-07-01): the catalog reviewer isn't a spec user
+  type.
+- **SQ-13** (Later eval stories): re-frame them when re-planning, or name a team
+  role.
+- **SQ-14** (STORY-03-04-01): doses from an "off" one-tap shot and its fix.
+- **SQ-15** (STORY-03-02-03): can a finished portion be reopened?
+- **SQ-16** (STORY-01-01-07): first-run checklist ownership.
 
 New:
 
-- **SQ-17** (STORY-02-06-02, 02-06-03, review M1): can a one-tap shot carry a
-  rating, scores and defects when edited? Working assumption: no, a reaction
-  only.
-- **SQ-18** (STORY-04-02-03, EPIC-04-02 open question): should drift detection
-  compare shots with and without WDT or a puck screen as equals? Open for the
-  Next epic; it doesn't affect the MVP, which only records the ticks.
+- **SQ-18** (STORY-04-02-03, Next): should drift detection compare shots with
+  and without prep as equals?
+- **SQ-19** (STORY-02-03-06): step sizes per lever (see "Most pressing").
+- **SQ-20** (STORY-01-06-01): no designed flow for a basket's dose range.
+- **SQ-21** (STORY-02-03-06): when the temperature lever applies.
