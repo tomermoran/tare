@@ -485,7 +485,8 @@ picking a combination in the setup builder, and Tare finds or makes the setup.
 4. **Details**: `unit.nickname` (Input, optional) and `unit.acquired`
    (Input, date, optional). For machines and grinders, a capabilities summary
    in `text-label`, read-only (for example "temperature: exact, 85 to 100 °C"
-   composed from keys). Baskets have no capabilities.
+   composed from keys). For baskets, its dose range (round-6 addendum;
+   every seeded basket has one, curated by the Head of Product as admin).
 5. Save. Back to where the user came from (return-to).
 6. **Use the new part?** When a household that already has a setup adds a part
    from SCR-KIT, the flow ends on one quiet offer, `setup.useNewPart` [use it in
@@ -982,7 +983,8 @@ carried over as the name.
    model name includes what tells it apart, for example "18 g" in "Normcore
    18 g". For coffee: roaster (same pattern), bean name, and optional roast level (ChipGroup of the fixed list, S-09) and
    tasting notes (Input).
-4. **Capabilities (machines and grinders only; in scope, PEC-05).** The user
+4. **Capabilities (machines, grinders and, from the round-6 addendum,
+   baskets; in scope, PEC-05).** The user
    answers; the admin doesn't fill them in. A section `catalog.cap.title`
    with one sentence on why (so the shot log shows the right fields). Each
    question is a single ChipGroup whose last chip is `catalog.cap.notSure`.
@@ -998,6 +1000,7 @@ carried over as the name.
    | Grinder: `catalog.cap.rangeQ` [lowest and highest number on the dial] | two Inputs, decimal, each optional | |
    | Grinder: `catalog.cap.stepQ` [smallest change you can make] | Input, decimal, optional; shown only for "clicks" | |
    | Grinder: `catalog.cap.coarserQ` [which way is coarser?] | higher numbers; lower numbers; not sure | |
+   | Basket (round-6 addendum): `catalog.cap.doseQ` [how many grams is it made for?] | 14–16 g; 17–19 g; 20–22 g; other; not sure (chips, ranges formatted with `Intl`, not hand-joined) | Other: lowest and highest grams (two Inputs, decimal, optional) |
 
    Every question is phrased around what the user sees on the machine or
    grinder, never schema words (control, stepless, capabilities).
@@ -1018,6 +1021,7 @@ Unknown parts fall back to the simplest honest behaviour:
 | Dial range | Grind wheel 0 to 100. Typed entry is the quickest way in, and the ruler only draws visible ticks, so a wide range costs nothing. |
 | Step (clicks) | Step 1. |
 | Which way is coarser | No finer and coarser captions on the grind wheel. Direction is never guessed, because a wrong caption is worse than none. |
+| Basket dose range (round-6 addendum) | Nothing changes in the shot log (the dose wheel keeps its normal range). Dose suggestions skip the basket bound and say so in their reason, `suggest.noBasketRange` [your basket's dose range isn't set], with the same quiet link to answer it. |
 
 - When any part is "not sure", the grind tab or the affected tab shows a quiet
   ghost link under its wheel, `log.capUnknown` [tell us about your grinder],
@@ -1060,8 +1064,10 @@ Button, PageHeader, ListRow.
   coarser"), not schema terms, and every one has a "not sure" answer.
 - After saving, the user lands back in the flow they came from with the new
   entry selected, in one step.
-- A machine or grinder can be saved with every capability question
+- A machine, grinder or basket can be saved with every capability question
   unanswered, and the shot log still works for it.
+- A basket's dose range is one compact question: a chip for a common range,
+  "other" or "not sure". It can be answered later, like the others (PEC-08).
 - Follow-up questions appear only when an answer needs them; a machine with
   no temperature or pressure control is two taps.
 - With "not sure" about the coarser direction, the grind wheel shows no
@@ -1073,11 +1079,14 @@ Button, PageHeader, ListRow.
 - DES-01-06-01 Wireframe SCR-CATALOG-ADD for hardware and for coffee.
 - DES-01-06-02 Design the duplicate-found state and its two outcomes.
 - DES-01-06-03 Design the capability questions and follow-ups, with copy
-  direction for the story writer.
+  direction for the story writer, including the basket dose-range question
+  (updated round-6 addendum).
 - DES-01-06-04 Design the repeatable links and other names rows.
 - DES-01-06-05 Design the shot log's "not sure" fallbacks, the
   `log.capUnknown` link, and the "answer later" capabilities on SCR-UNIT; add
-  ShotDial stories for a fully "not sure" grinder and machine (round 2).
+  ShotDial stories for a fully "not sure" grinder and machine (round 2), and
+  the "no basket range" dose suggestion and answer-later path for baskets
+  (updated round-6 addendum).
 
 ### INIT-02: Every new bag starts from what you already learned
 
@@ -1315,7 +1324,7 @@ one-tap shot). Home only changes the Dial in label (step 4).
   | Channelling seen, sour and bitter at once, or dry finish | Puck prep first: WDT, then puck screen, if not used; if both used, grind (uneven extraction) is not suggested and the card shows `suggest.prepAlready` [prep was used; check distribution and tamping] | "Use WDT next time" |
   | Balance off | Grind, in the grinder's own direction and steps; time is a diagnostic in the reason (fast and sour, slow and bitter) | "Grind 2 steps finer" (sour, much) |
   | Strength off | Yield (shorter for weak, longer for strong); for milk drinks, dose, then milk amount | "Stop at 34 g instead of 36 g"; "Try about 30 ml less milk" |
-  | Body off | Dose, within the basket's dose range | "Dose 0.5 g more" |
+  | Body off | Dose, within the basket's dose range (with a "not sure" range, no bound, and the reason says so) | "Dose 0.5 g more" |
   | Balance still off and grind at its limit | Temperature, only on machines that can set it | "Brew 1 °C hotter" |
 
   Step size follows "a bit" (one step) or "much" (two). Grind direction uses
@@ -2361,7 +2370,7 @@ Phase 0 work (PR #3) already delivers as done.
 | EPIC-01-03 | DES-01-03-01: 10 · 02: 12 · 03: 4 · 04: 5 · 05: 4 · 06: 8 | 43 h |
 | EPIC-01-04 | DES-01-04-01: 6 · 02: 4 | 10 h |
 | EPIC-01-05 | DES-01-05-01: 10 · 02: 6 · 03: 4 · 04: 3 · 05: 3 | 26 h |
-| EPIC-01-06 | DES-01-06-01: 8 · 02: 4 · 03: 6 · 04: 3 · 05: 6 | 27 h |
+| EPIC-01-06 | DES-01-06-01: 8 · 02: 4 · 03: 7 · 04: 3 · 05: 7 | 29 h |
 | EPIC-02-01 | DES-02-01-01: 5 · 02: 4 · 03: 3 · 04: 5 · 05: 4 | 21 h |
 | EPIC-02-02 | DES-02-02-01: 11 · 02: 6 · 03: 3 · 04: 4 · 05: 4 | 28 h |
 | EPIC-02-03 | DES-02-03-01: 5 · 02: 3 · 03: 6 · 04: 8 · 05: 5 | 27 h |
@@ -2371,7 +2380,7 @@ Phase 0 work (PR #3) already delivers as done.
 | EPIC-03-03 | DES-03-03-01: 4 | 4 h |
 | EPIC-03-04 | DES-03-04-01: 3 · 02: 3 · 03: 2 | 8 h |
 | EPIC-04-01 | DES-04-01-01: 4 · 02: 4 | 8 h |
-| **MVP** | **61 tasks** | **326 h** |
+| **MVP** | **61 tasks** | **328 h** |
 | EPIC-05-03 | DES-05-03-01: 4 | 4 h |
 | EPIC-02-05 | DES-02-05-01: 5 | 5 h |
 | EPIC-02-04 | DES-02-04-01: 2 | 2 h |
@@ -2414,6 +2423,10 @@ Round 6 adds one task and 10 h, taking the MVP to 61 tasks and 326 h:
   and three empty states.
 The renames (Journal, Beans) cost no design time beyond copy keys. These
 tasks assume PEC-15.
+
+The round-6 addendum (basket dose range) adds 2 h with no new tasks:
+DES-01-06-03 and DES-01-06-05 each grow by 1 h. That makes the MVP 61 tasks
+and 328 h.
 
 Next: 9 tasks, 33 h (DES-02-05-01 grows from 4 to 5 h for the milk list,
 assuming PEC-13). Later: none until re-planned.
@@ -2704,3 +2717,24 @@ assuming PEC-13). Later: none until re-planned.
 - **Sent to the epic-planner:** PEC-15 (Tried and the coffee screen in
   EPIC-03-01, or a small new INIT-03 epic; Beans filters need a Next epic and
   an origin field), to record the Head of Product's decision.
+
+#### Round 6 addendum (2026-10-21): basket dose range
+
+- **Feedback received:** a Head of Product decision (`stories.md` revision
+  4, answer 4). A household adding a basket that isn't in the catalog is
+  asked what dose it's made for, with "not sure". The seed catalog carries
+  every seeded basket's dose range, curated by the Head of Product as admin.
+- **What changed:**
+  - EPIC-01-06's capability questions gain one basket row,
+    `catalog.cap.doseQ`: chips for 14–16 g, 17–19 g and 20–22 g, "other"
+    (two optional gram Inputs) and "not sure". It can be answered later, as
+    in PEC-08.
+  - With a "not sure" range, the shot log is unchanged. Dose suggestions
+    skip the basket bound and say so (`suggest.noBasketRange`), with the
+    usual quiet link to answer it.
+  - The part details show a basket's dose range.
+  - Acceptance criteria, DES-01-06-03 and DES-01-06-05 were updated, at +2 h
+    in total; the MVP is 61 tasks and 328 h.
+  - No new components.
+- **Sent to the epic-planner:** nothing new. It fits PEC-05 and PEC-08 in
+  EPIC-01-06.
