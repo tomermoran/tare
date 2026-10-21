@@ -11,6 +11,9 @@ be revised against it.
 
 **Status: design approved by the Head of Product after review round 3**
 (PEC-09 accepted, applied in epics revision 7; Home shows both clocks).
+**Round 6 applies naming and Beans decisions already made** (S-02): tabs
+are Brew, Journal, Beans and Setup, and Beans has On hand and Tried
+sections, with a light coffee screen. Epic placement is proposed as PEC-15.
 **Round 5 applies further decisions already made** (S-02, S-05 C, S-08):
 "just right" tasting with six observation tags, rules-based dial-in
 suggestions in the MVP, and milk type and amount on milk drinks. Its epic
@@ -105,8 +108,10 @@ These apply to every flow below and are not repeated per epic.
 ### 1.3 Copy and formatting
 
 - Keys are grouped by screen: `nav.*`, `start.*`, `home.*`, `log.*`,
-  `taste.*`, `shots.*`, `shot.*` (existing field labels), `recipe.*`,
-  `pantry.*`, `bag.*`, `portion.*`, `setup.*`, `unit.*`,
+  `taste.*`, `journal.*` (the Journal tab; was `shots.*` before round 6),
+  `shot.*` (existing field labels, and one shot's detail), `recipe.*`,
+  `beans.*` (the Beans tab; was `pantry.*` before round 6), `coffee.*` (the
+  coffee screen, round 6), `bag.*`, `portion.*`, `setup.*`, `unit.*`,
   `maintenance.*`, `catalog.*`, `profile.*`, `drinks.*` (starter drink names,
   already planned as `drinks.latte` and so on), `milks.*` (starter milk
   names, round 5), `suggest.*` and `off.*` (round 5), `states.*` (shared
@@ -129,7 +134,7 @@ SCR-START  Launch (first run: create anonymous account)
    |
    v
 +-------------------------- tab bar (NC-01) --------------------------+
-| Brew              Shots              Pantry             Setup       |
+| Brew              Journal            Beans              Setup       |
 | SCR-HOME          SCR-SHOTS          SCR-PANTRY         SCR-KIT     |
 |   |                 |                  |                  |         |
 |   |-> SCR-LOG       |-> SCR-SHOT       |-> SCR-BAG        |-> SCR-UNIT
@@ -138,16 +143,21 @@ SCR-START  Launch (first run: create anonymous account)
 |   |   |-> SCR-TASTE |-> SH-PIN         |-> SCR-BAG-ADD    |-> SCR-UNIT-ADD
 |   |   |-> SH-PIN    |                  |     |-> SCR-CATALOG-PICK
 |   |-> SH-PORTION    |                  |           |-> SCR-CATALOG-ADD
-|   |-> SH-OFF        |                  |                  |
+|   |-> SH-OFF        |                  |-> SCR-COFFEE     |
+|   |                 |                  |     (Tried)      |
 |   |-> SH-SELECT     |                  |                  |-> SCR-TOOLKIT
 |   |-> SCR-PROFILE   |                  |                  |-> SH-MAINTENANCE
 +---------------------------------------------------------------------+
 ```
 
 - **Tabs (NC-01).** Four destinations, text labels only, at the bottom of the
-  screen: `nav.brew`, `nav.shots`, `nav.pantry`, `nav.setup`. No icons in the
-  MVP: the design system has no icon set, and four short words are calmer and
-  clearer than four pictograms. Active tab: `ink`, weight 400, with a 2 px
+  screen: `nav.brew` [Brew], `nav.journal` [Journal], `nav.beans` [Beans],
+  `nav.setup` [Setup] (round 6, S-02). Each answers one question: what am I
+  making, what did I make, what do I have, what am I making it with. Journal
+  is method-neutral; single espresso entries are still "shots" everywhere
+  ("Pull this shot", "Shot logged"). Screen IDs stay SCR-SHOTS (Journal) and
+  SCR-PANTRY (Beans). No icons in the MVP: the design system has no icon
+  set, and four short words are calmer and clearer than four pictograms. Active tab: `ink`, weight 400, with a 2 px
   `ink` bar at its top edge; inactive tabs: `ink-secondary`. The bar sits on
   `paper` with a `border-line` hairline above it. It respects the safe-area
   inset at the bottom.
@@ -172,9 +182,10 @@ SCR-START  Launch (first run: create anonymous account)
 | SCR-HOME | Brew: today's recipe, Pull this shot, Dial in; first-run checklist | 02-02, 02-03, 01-01, 03-03, 03-04 |
 | SCR-LOG | Shot log, five modes: new, dial-in from recipe, fix an off shot, edit, enter a recipe | 01-03, 01-04, 02-03, 02-06, 02-01 |
 | SCR-TASTE | Shot saved: rating, just-right questions, tags, suggestion, pin | 01-05, 02-03, 02-01 |
-| SCR-SHOTS | Recent shots, filtered by drink, coffee and setup (round 5) | 02-06, 04-01 |
+| SCR-SHOTS | Journal: recent shots, filtered by drink, coffee and setup (renamed round 6) | 02-06, 04-01 |
 | SCR-SHOT | Shot detail | 02-06, 02-01, 01-05 |
-| SCR-PANTRY | Pantry: bags and their portions | 03-01 to 03-04 |
+| SCR-PANTRY | Beans: On hand (bags by state, with portions) and Tried (every coffee used) (round 6) | 03-01 to 03-04 (Tried: PEC-15) |
+| SCR-COFFEE | One coffee: its recipes per setup and drink, recent shots, add a bag of it (round 6) | 03-01 (PEC-15), 02-01, 02-06 |
 | SCR-BAG | Bag detail: facts, portions, recipes for this coffee | 03-01 to 03-04, 02-01 |
 | SCR-BAG-ADD | Add a bag: pick coffee, then bag details | 03-01 |
 | SCR-KIT | Setup tab: your setups (current first) and your parts | 01-02 |
@@ -326,20 +337,20 @@ story with text from `en.json`, axe checks and a right-to-left story.
 |---|---|---|---|---|
 | NC-01 | **TabBar** | Bottom navigation, four text tabs, active bar, safe-area aware | No navigation exists | App shell (EPIC-01-01) |
 | NC-02 | **PageHeader** | Screen title (`text-h1` or `text-h2`), optional back or cancel at the start, optional action at the end | No header exists | All screens |
-| NC-03 | **ListRow** | Hairline-separated row: primary text, secondary line, end slot (value, label, chevron that mirrors), whole row tappable | Card is too heavy for lists | Shots, pantry, setup, pickers |
+| NC-03 | **ListRow** | Hairline-separated row: primary text, secondary line, end slot (value, label, chevron that mirrors), whole row tappable | Card is too heavy for lists | Journal, Beans, Setup, pickers |
 | NC-04 | **ChipGroup** | Single choice (radio group) or multiple choice (checkbox group) chips, `border-line-strong`, selected = `ink` fill with `on-action` text; keyboard arrows; optional numbered scale variant (1 to 5); **just-right scale variant (round 5):** five (or three, one-sided) compact chips with a stronger centre "just right" chip, end words under the outer chips, "a bit" and "much" in the accessible names; **filter variant (round 5):** a chip that shows its current value, opens a select, and when active is filled with a close Icon to remove it | No choice control exists | Reaction, rating, just-right questions, observation tags, part kind, temperature and pressure steps, bag size presets |
 | NC-05 | **Sheet** | Bottom sheet on phones, centred dialog on wide screens; `paper` with a `border-line` top edge and a `surface` grabber, no shadow; scrim in `ink` at low opacity; focus trap; Escape and swipe down close | No overlay exists | SH-* |
 | NC-06 | **SelectField** | Shows the current choice and opens SH-SELECT. Two looks: field (like Input, on `surface-sunken`) and quiet (text only, with a chevron, for the home screen) | Input is for typing | Log context, home drink, coffee and setup, setup builder rows |
 | NC-07 | **PulledState** | The in-place result of a one-tap pull: confirmation, undo for the window, good and off chips, live-region announcement | New behaviour | SCR-HOME |
-| NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure, a milk line for milk drinks, and a puck-prep line when WDT or a puck screen was used) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, shots, bag recipes, pin sheet |
+| NC-08 | **ShotValues** | Grind, dose, yield, time (and optional temperature, pressure, a milk line for milk drinks, and a puck-prep line when WDT or a puck screen was used) as a read-only group. Sizes: large (home, detail, 2 x 2 grid) and compact (one line in rows). Dose-to-yield arrow mirrors | Nothing displays a set of values | Home, Journal, bag and coffee recipes, pin sheet |
 | NC-09 | **ShotDial** | The shot log's editor: a row of compact value tabs (grind, dose, yield, time, plus temperature and pressure when the machine has them) above one full NumberWheel for the selected value. Shows the starting value under any changed value ("was 18.0"). Optional values have an unset state | Four stacked 96 px wheels don't fit a phone screen; optional values need "unset" | SCR-LOG |
 | NC-10 | **Notice** | Inline message: neutral (ink on `surface`, for errors, info, empty results) or warning (`signal` on `signal-subtle`, shot warnings only, enforced by the API: the warning tone only takes a shot-warning kind). Two sizes: block (detail and tasting screens) and inline (one line of `signal` text with no fill, for list rows) | Nothing exists; keeps signal use auditable | Errors everywhere; shot warnings |
 | NC-11 | **Skeleton** | `surface-sunken` blocks with `radius-sm`, a slow opacity pulse that stops under reduced motion; `aria-busy` on the region | Loading states | All data screens |
 | NC-12 | **EmptyState** and **Checklist** | Empty state: `text-h2` line, one `text-body` sentence, one action. Checklist: numbered steps with done, next and later states | Empty and first-run states | All lists; first run |
 | NC-13 | **Toggle** | On or off switch with a visible label, `role="switch"` | No boolean control exists | Sweetened, puck prep (WDT, puck screen), recalibration, freeze the new portion |
 | NC-14 | **Icon** (minimal) | Four strokes drawn like the Logo (round caps, `currentColor`): chevron, check, plus, close. Chevron mirrors in right-to-left | No icons exist; text alone doesn't work for a row chevron or a sheet close | ListRow, Sheet, Checklist |
+| NC-15 | **Meter** | A 2 px hairline track (`line`) with an `ink` fill, for remaining coffee; `role="meter"` with a text value | New display | Beans, bag |
 | NC-16 | **SuggestionCard** (round 5) | One suggested change for the next shot: overline, the change as a short sentence with the dial values, a one-line reason, an optional freshness line, and dismiss. Outline Card, ink only, never `signal`; polite live region so updates are announced | A suggestion combines rule output, values and actions in one recurring unit on two screens; a plain Card would be rebuilt twice | SCR-TASTE, SH-OFF |
-| NC-15 | **Meter** | A 2 px hairline track (`line`) with an `ink` fill, for remaining coffee; `role="meter"` with a text value | New display | Pantry, bag |
 
 **Extensions to existing components** (flagged, not new):
 
@@ -354,7 +365,7 @@ story with text from `en.json`, axe checks and a right-to-left story.
 - **Card**: no change. Used for home recipe, setups and bags.
 
 **Not needed**: no tooltips, no tabs component inside screens, no charts, no
-avatars, no badges in colour. Markers such as `shots.oneTap` [One tap],
+avatars, no badges in colour. Markers such as `journal.oneTap` [One tap],
 `catalog.addedByYou` [Added by you] and `bag.fromFrozen` [From frozen] are
 plain `text-overline` text in `ink-secondary`.
 
@@ -1367,24 +1378,25 @@ shot, so it has no loading state.
 
 #### EPIC-02-06: See your recent shots
 
-**UX flow: SCR-SHOTS**
+**UX flow: SCR-SHOTS (the Journal)**
 
-1. Tab `nav.shots`. Title `shots.title`. (The tab may be renamed to a
-   method-neutral name, likely "Journal"; the Head of Product is deciding, so
-   this design keeps "Shots" for now.)
+1. Tab `nav.journal` [Journal]. Title `journal.title` [Journal]. (Round 6:
+   the tab and title are "Journal", answering "what did I make?". The entries
+   in it are still shots: "12 shots", "one-tap shot". The screen ID stays
+   SCR-SHOTS.)
 2. **Filters (round 5, Head of Product decision; PEC-14).** A single row of
    filter chips under the title, scrolling sideways if it overflows:
-   - `shots.filterDrink` and `shots.filterCoffee`, and `shots.filterSetup`
-     only when the household has more than one setup.
+   - `journal.filterDrink` and `journal.filterCoffee`, and
+     `journal.filterSetup` only when the household has more than one setup.
    - Each chip shows its current value ("Flat white", a coffee name) or
-     `shots.filterAnyDrink` / `shots.filterAnyCoffee` / `shots.filterAnySetup`
-     when off. Tapping opens SH-SELECT with the household's drinks, coffees
-     with shots, or setups.
+     `journal.filterAnyDrink` / `journal.filterAnyCoffee` /
+     `journal.filterAnySetup` when off. Tapping opens SH-SELECT with the
+     household's drinks, coffees with shots, or setups.
    - An active chip is filled (`ink` with `on-action` text) and carries a
      close Icon (NC-14) with its own accessible name
-     (`shots.removeFilter`); one tap removes that filter.
-   - When any filter is active, a ghost chip `shots.filterAll` [All] leads the
-     row and clears every filter in one tap.
+     (`journal.removeFilter`); one tap removes that filter.
+   - When any filter is active, a ghost chip `journal.filterAll` [All] leads
+     the row and clears every filter in one tap.
    - **Default:** each time the tab is opened from the tab bar, drink and
      coffee are pre-set to what's currently selected on SCR-HOME (including a
      change made there; DQ-17). Setup is not pre-set. With nothing selected on
@@ -1394,17 +1406,19 @@ shot, so it has no loading state.
      what's filtered is on screen, and "All" is one tap.
    - Filters apply to "show older" too. Grind period dividers still follow
      their EPIC-04-01 rule, for the grinders of the shots listed.
-3. ListRows grouped by day (`shots.today`, `shots.yesterday`, then a formatted
-   date as a `text-overline` group heading). Each row:
+3. ListRows grouped by day (`journal.today`, `journal.yesterday`, then a
+   formatted date as a `text-overline` group heading). Each row is one shot:
    - primary: drink and time of day (formatted);
    - secondary: coffee name, and for milk drinks the milk type and amount
-     (`shots.coffeeAndMilk` pattern, round 5);
+     (`journal.coffeeAndMilk` pattern, round 5);
    - end: compact ShotValues (dose to yield, time; grind on a second line);
-   - markers in `text-overline` `ink-secondary`: `shots.oneTap` for one-tap
-     shots, the reaction (`shots.good`, `shots.off`), `bag.fromFrozen`;
+   - markers in `text-overline` `ink-secondary`: `journal.oneTap` for
+     one-tap shots, the reaction (`journal.good`, `journal.off`),
+     `bag.fromFrozen`;
    - the channelling warning as an inline Notice (EPIC-01-05 owns it).
    - Grind period dividers: owned by EPIC-04-01 and specified there.
-4. The list shows the last 30 days, then `shots.showOlder` (DQ-13).
+4. The list shows the last 30 days, then `journal.showOlder` [show older
+   shots] (DQ-13).
 5. Tap a row: SCR-SHOT.
 
 **UX flow: SCR-SHOT (shot detail)**
@@ -1417,7 +1431,7 @@ shot, so it has no loading state.
   round 4), sweetened, and taste if any: the rating, each just-right answer
   as a short phrase (for example "a bit sour"; untouched questions aren't
   shown) and the observation tags (round 5).
-  Rows in SCR-SHOTS don't show prep, to keep them to one glance.
+  Journal rows don't show prep, to keep them to one glance.
 - Actions (updated round 5):
   - Measured shots: `recipe.pin` (primary), next to it `shot.dialInFromThis`
     [dial in from this] (secondary), and `actions.edit` (ghost).
@@ -1446,8 +1460,8 @@ shot, so it has no loading state.
 | State | Design |
 |---|---|
 | Loading | Skeleton rows (five). |
-| Empty | EmptyState `shots.empty` with primary `home.dialIn` (opens SCR-LOG). No filter row. |
-| Empty with filters (round 5) | EmptyState `shots.emptyFiltered` ["No shots of this drink and coffee yet"; the pattern names whichever filters are set], with primary `shots.clearFilters` that does the same as "All". The filter chips stay visible above it. |
+| Empty | EmptyState `journal.empty` [no shots yet] with primary `home.dialIn` (opens SCR-LOG). No filter row. |
+| Empty with filters (round 5) | EmptyState `journal.emptyFiltered` ["No shots of this drink and coffee yet"; the pattern names whichever filters are set], with primary `journal.clearFilters` that does the same as "All". The filter chips stay visible above it. |
 | Load failed | Notice with retry in place of the list. |
 | Older loading | Skeleton rows under the list; button disabled. |
 
@@ -1463,7 +1477,8 @@ round 5), Sheet (SH-SELECT), Icon (close).
   order.
 - Values in rows align across rows (tabular numbers, end-aligned in
   left-to-right, start-aligned mirror in right-to-left).
-- Editing a one-tap shot is at most two taps from the Shots tab.
+- Editing a one-tap shot is at most two taps from the Journal tab.
+- The tab and title say "Journal"; each entry is still called a shot.
 - Every active filter is visible as a chip with its own remove control, and
   "All" clears them in one tap; the list is never filtered by something the
   user can't see.
@@ -1477,9 +1492,9 @@ round 5), Sheet (SH-SELECT), Icon (close).
 
 **Design tasks** (`design`)
 
-- DES-02-06-01 Design SCR-SHOTS, including grouping, markers, dividers, the
-  filter row with its default from Brew, "All" and the filtered empty state
-  (updated round 5).
+- DES-02-06-01 Design SCR-SHOTS (the Journal), including grouping, markers,
+  dividers, the filter row with its default from Brew, "All" and the
+  filtered empty state (updated rounds 5 and 6).
 - DES-02-06-02 Design SCR-SHOT for measured and one-tap shots, with puck
   prep, milk, parts by maker and model, and "Dial in from this" (updated
   rounds 4 and 5).
@@ -1491,8 +1506,9 @@ round 5), Sheet (SH-SELECT), Icon (close).
 
 **UX flow: SCR-BAG-ADD**
 
-1. From SCR-PANTRY `pantry.addBag`, the checklist, or the shot log's coffee
-   field.
+1. From Beans (SCR-PANTRY) `beans.addBag`, the checklist, the shot log's
+   coffee field, or a coffee screen's `coffee.addBag` (round 6), which
+   skips step 2 with that coffee already chosen.
 2. **Pick the coffee**: SCR-CATALOG-PICK (coffee): search matches roasters,
    beans and aliases; results show bean as primary and roaster as secondary.
    Recently bought coffees first when the query is empty.
@@ -1513,28 +1529,74 @@ round 5), Sheet (SH-SELECT), Icon (close).
 4. Save `bag.save`. Lands on SCR-BAG for the new bag (or return-to), which
    shows one portion holding the whole bag.
 
-**UX flow: SCR-PANTRY**
+**UX flow: SCR-PANTRY (Beans, round 6)**
 
-- Title `pantry.title`, with `pantry.addBag` as a primary action in the
-  header end, **only when the pantry has bags**. When it's empty, the header
-  action is hidden and the EmptyState's button is the one primary (round 3,
+The Beans tab answers "what do I have?", and below that "what have I tried?"
+(S-02). One scrolling screen with two sections under `text-h2` headings, On
+hand first. There's no segmented control, so no new component.
+
+- Title `beans.title` [Beans]. `beans.addBag` is a primary action in the
+  header end **only when there are bags on hand**. Otherwise the header
+  action is hidden and the empty state's button is the one primary (round 3,
   review m4).
-- One Card per bag that isn't finished: bean (`text-h3`), roaster and the
-  since-roasting clock (`text-label`), and its portions as ListRows inside:
-  state (`portion.unopened`, `portion.counter`, `portion.frozen`,
-  `portion.thawed`), the since-opening clock (EPIC-03-03), remaining
-  (EPIC-03-04, NC-15 Meter).
-- Order: bags with an open portion first (earliest opened first, matching
-  the one-tap rule; "open" excludes frozen, so an opened-then-frozen portion
-  doesn't count), then unopened, then bags only in the freezer.
-- `pantry.finished` collapsed section at the end.
+- **On hand** (`beans.onHand`). Bags that aren't finished, grouped under
+  three `text-overline` subheadings in this order:
+  - `beans.groupOpen` [open]: a bag with any open portion. Open means opened,
+    not finished and not frozen (S-02). Earliest opened first, matching the
+    one-tap rule.
+  - `beans.groupUnopened` [unopened]: no open portion, but at least one on
+    the counter (unopened, or thawed and not yet opened).
+  - `beans.groupFrozen` [frozen]: everything left is in the freezer.
+
+  A bag appears once, in the first group it qualifies for, so a half-open,
+  half-frozen bag sits under "open" and its Card shows both portions with
+  their states. Each Card is as before: bean (`text-h3`), roaster and the
+  since-roasting clock (`text-label`), and its portions as ListRows (state,
+  since-opening clock, remaining with the Meter, NC-15). A group with no
+  bags is left out.
+- **Tried** (`beans.tried`, round 6, PEC-15). One ListRow per coffee the
+  household has ever brewed (at least one shot, DQ-27). It's calculated, not
+  stored. Newest last-had first. Each row shows:
+  - primary: bean name; secondary: roaster;
+  - end: when it was last had (`beans.lastHad`, relative: "today", "3 weeks
+    ago") and the bag count (`beans.bagCount` [2 bags]);
+  - a one-line summary of how its shots went, in `text-label`
+    `ink-secondary` (`beans.summary.*`, DQ-28), for example "mostly good",
+    "mixed", "last rated 4 of 5" or "no ratings yet". Text only, never a
+    colour or a score badge.
+  Tapping a row opens SCR-COFFEE. No filters in the MVP. **Beans filters**
+  (roaster, roast level, origin, rating) are Next (S-02); see section 5.
+- Finished bags no longer have their own section: they're counted in Tried,
+  and each one is listed on its coffee's screen.
+
+**UX flow: SCR-COFFEE (one coffee, round 6, designed lightly)**
+
+- Header: bean name (`text-h1`), roaster, and the catalog's roast level and
+  tasting notes when known (`text-label`). The Tried summary line sits
+  under them.
+- Primary `coffee.addBag` [add a bag of this] opens SCR-BAG-ADD with this
+  coffee chosen (bag details only). When a bag of it is on hand, the button
+  is secondary and there's no primary.
+- **Recipes** (`coffee.recipes`): one ListRow per setup and drink, with
+  compact ShotValues (milk and prep lines included) and the date pinned; tap
+  for `recipe.dialIn` or `recipe.edit`, as on SCR-BAG (the same rows,
+  EPIC-02-01). None: one line `coffee.noRecipes`.
+- **Recent shots** (`coffee.recentShots`): up to five Journal rows, then
+  `coffee.allShots` [all shots of this coffee], which opens the Journal with
+  the coffee filter set to it (and no drink filter). None: one line.
+- **Bags** (`coffee.bags`): this coffee's bags, on hand and finished, as
+  ListRows (bought or roast date, state, weight), each opening SCR-BAG.
+- States: loading skeleton; load failed Notice with retry. Each section has
+  its own one-line empty state, so the screen never looks broken.
 
 **States**
 
 | State | Design |
 |---|---|
-| Loading | Skeleton cards (two). |
-| Empty | EmptyState `pantry.empty`, primary `pantry.addBag`; header action hidden, so it's the only primary. |
+| Loading | Skeleton cards (two) under On hand, skeleton rows (three) under Tried. |
+| First run: nothing on hand, nothing tried | One EmptyState for the whole screen, `beans.empty` [no beans yet], with primary `beans.addBag`. No section headings. |
+| No bags on hand, but coffees tried | On hand shows a compact EmptyState `beans.onHandEmpty` [nothing on hand] with primary `beans.addBag`; header action hidden. Tried shows as normal, and each coffee's screen offers "add a bag of this". |
+| Bags on hand, nothing tried yet | Tried shows one `text-body` line, `beans.triedEmpty` [coffees you brew will appear here], with no action. |
 | Coffee search, no match | Notice `catalog.noMatch`, secondary `catalog.cantFind`. |
 | Missing weight on save | Error on the weight group in ink. |
 | Save failed | Form kept, Notice with retry. |
@@ -1548,18 +1610,27 @@ SelectField, PageHeader, EmptyState, Skeleton, Notice, Button, Meter.
   search, pick, tap a size, set roast date, save.
 - No date blocks saving; packing date and best-before are one tap away, not
   in the way.
-- The pantry list order matches the order the one-tap rule uses.
-- The pantry has exactly one primary button in every state.
+- The On hand order matches the order the one-tap rule uses, and every bag
+  appears exactly once, under open, unopened or frozen.
+- The Beans screen has exactly one primary button in every state.
+- Tried lists each coffee once, with last had, bag count and a summary in
+  words. It can be reached and read without any filters.
+- From a Tried row to adding a new bag of that coffee is three taps (row, add
+  a bag, a size), plus save.
 - Dates use the locale's format and the native date picker.
 
 **Design tasks** (`design`)
 
 - DES-03-01-01 Wireframe the add-a-bag flow, with the other-dates disclosure
   (updated round 3).
-- DES-03-01-02 Design SCR-PANTRY (bags with portions, order, finished, one
-  primary when empty) (updated round 3).
+- DES-03-01-02 Design SCR-PANTRY as Beans: On hand grouped by open, unopened
+  and frozen, Tried with its summary line, and the three empty states, with
+  one primary in each (updated rounds 3 and 6).
 - DES-03-01-03 Design SCR-BAG (facts, both clocks, portions, recipes)
   (updated round 3).
+- DES-03-01-04 Design SCR-COFFEE lightly: header and summary, recipes per
+  setup and drink, recent shots with the link to the filtered Journal, bags,
+  and "add a bag of this" (round 6, PEC-15).
 
 #### EPIC-03-02: Split and freeze a bag
 
@@ -1631,7 +1702,7 @@ never invents an age (this resolves review B1).
 
 | Clock | What it counts | Phrases | Where |
 |---|---|---|---|
-| Since roasting (per bag) | From the roast date; else from the packing date, labelled as packed; minus freezer time | `bag.daysSinceRoast` [18 days since roast], `bag.daysSincePacked` [packed 10 days ago] | SCR-HOME coffee line, SCR-BAG facts, bag Cards on SCR-PANTRY |
+| Since roasting (per bag) | From the roast date; else from the packing date, labelled as packed; minus freezer time | `bag.daysSinceRoast` [18 days since roast], `bag.daysSincePacked` [packed 10 days ago] | SCR-HOME coffee line, SCR-BAG facts, bag Cards under On hand in Beans |
 | Best-before only (no age) | Time left until best-before, not an age | `bag.bestBeforeIn` [best before in 140 days], `bag.bestBeforePassed` [best before passed 3 days ago] | Same places as since roasting |
 | No date at all | Nothing to count | `bag.ageUnknown`, with ghost `bag.addDate` on SCR-BAG | Same places |
 | Since opening (per portion) | From the portion's opened date, minus freezer time | `portion.daysOpen` [5 days open], `portion.openedToday`, `portion.notOpened` | SCR-HOME coffee line, portion rows, SH-PORTION, SCR-LOG coffee field |
@@ -1683,10 +1754,10 @@ with the row.
 - **Logged doses exceed the portion**: remaining shows zero grams, and a
   neutral Notice on the portion `portion.overLogged` with `portion.weigh`
   (INIT-03 Q3). Not signal: it's not a shot warning.
-- Bag status: open and finished shown as text on cards; finished bags move to
-  `pantry.finished`.
+- Bag status: open and finished shown as text on cards. Finished bags leave
+  On hand and are counted under their coffee in Tried (round 6).
 
-**States:** as pantry. Stock check failure: sheet stays, Notice with retry.
+**States:** as Beans. Stock check failure: sheet stays, Notice with retry.
 
 **Components:** Meter (NC-15), Sheet, NumberWheel, Notice, ListRow.
 
@@ -1723,7 +1794,7 @@ with the row.
      [all shots are in one period].
    - **SCR-SHOTS dividers:** at the event's place in time, a full-width
      divider: a `line-strong` hairline with one line of `text-overline`
-     `ink-secondary` text, `shots.maintenance` [grinder name, event kind,
+     `ink-secondary` text, `journal.maintenance` [grinder name, event kind,
      date], plus `maintenance.recalibration` when marked. The grinder is named
      by nickname, else model, so two grinders are never confused.
    - A divider shows only for grinder events (not work on the machine or
@@ -1811,10 +1882,18 @@ with the row.
 
 ### EPIC-03-05: Know when you'll run out
 
-- **Flow:** SCR-PANTRY header gains one line: `pantry.runOut` [about N days
-  of coffee, M in the freezer], with an explanation sheet of the inputs and
-  how much of real use is logged. Shown only once enough finished portions
-  exist; before that, `pantry.learning`.
+- **Flow:** the On hand section of Beans gains one line under its heading:
+  `beans.runOut` [about N days of coffee, M in the freezer], with an
+  explanation sheet of the inputs and how much of real use is logged. Shown
+  only once enough finished portions exist; before that, `beans.learning`.
+
+### Beans filters (Next, S-02; no epic yet, see PEC-15)
+
+- **Direction:** filter chips above Tried for roaster, roast level, origin
+  and rating, reusing the Journal's filter chips (the ChipGroup filter
+  variant): removable chips and one-tap "All". No default filter. Origin
+  needs a catalog field the schema doesn't have yet.
+- **Design tasks:** none until an epic owns it.
 - **Design tasks:** DES-03-05-01 Design the run-out line and its explanation.
 
 ### EPIC-05-01: Brew for someone else in the household
@@ -2019,8 +2098,21 @@ The round-5 decisions are already made in S-02 and S-08, but epics revision
   now put filters by drink, coffee and setup in, with Brew's drink and coffee
   as the default, plus "Dial in from this" on shot detail. Search, charts and
   analysis stay out. EPIC-02-06 probably moves from S to the small end of M.
-  The tab may later be renamed (likely "Journal"); that's the Head of
-  Product's call and would be a mechanical rename.
+  *Round 6:* the tab is now "Journal" (S-02).
+
+### New in round 6 (for the epic-planner)
+
+- **PEC-15 EPIC-03-01: the Tried section and the coffee screen; Beans
+  filters in Next.** This is an applied Head of Product decision (S-02), to
+  record. The Tried section of Beans and SCR-COFFEE ship in the MVP, but no
+  epic has them in scope.
+  - Proposal: EPIC-03-01, which owns the pantry list, also owns Tried and
+    the coffee screen. That probably takes it from M to the top of M. The
+    alternative is a small new MVP epic under INIT-03 ("See every coffee
+    you've tried").
+  - Beans filters (roaster, roast level, origin, rating) are Next and need
+    an epic. Origin also needs a catalog field the schema doesn't have yet.
+  - The renames (Journal, Beans) need no epic change beyond wording.
 
 ---
 
@@ -2057,11 +2149,23 @@ The round-5 decisions are already made in S-02 and S-08, but epics revision
   That's why the direction is never guessed, the reason is always shown, and
   dismissing is one tap. The evals the spec requires matter more than the
   card.
-- **A pre-filtered list can hide the shot you want (round 5).** Opening Shots
-  on Brew's drink and coffee is right most of the time. But someone looking
+- **A pre-filtered list can hide the shot you want (round 5).** Opening the
+  Journal on Brew's drink and coffee is right most of the time. But someone looking
   for yesterday's shot of a different drink lands on a shorter list. The
   filled chips and the one-tap "All" make that visible and cheap to undo.
   Watch whether people expect the tab to remember their last filters instead.
+- **Tried below On hand can be missed (round 6).** On one scroll, a
+  household with many bags on hand pushes Tried below the fold. That's the
+  right priority ("what do I have" first), but the Tried heading should stay
+  reachable. If testing shows people miss it, a sticky section heading is the
+  next step, not tabs inside the tab.
+- **The summary line is a judgement (round 6).** "Mostly off" for a coffee
+  the user simply hadn't dialled in yet could put them off a good bean. The
+  line is worded as what happened ("shots"), not a verdict on the coffee, and
+  it never uses colour.
+- **"Journal" alongside "shots" (round 6).** The tab says Journal and its
+  entries say shots. That's deliberate and reads naturally ("your journal of
+  shots"). Copy must never call an entry a "journal entry".
 - **Two places to taste a one-tap shot (round 5).** SH-OFF asks about the
   one-tap shot, and then SCR-TASTE asks about the fix shot. That's correct
   (two shots), but a user may feel asked twice. The design keeps SCR-TASTE
@@ -2222,6 +2326,18 @@ reversed without changing the structure.
   step 10, range 0 to 500, pre-filled from the recipe or the drink's typical
   amount. The milk type starts from the last shot of this drink, else the
   first visible milk.
+- **DQ-27** (round 6) What counts as "tried": assumed a coffee with at least
+  one shot (measured or one-tap) in this household. A bag added but never
+  brewed shows only under On hand until its first shot.
+- **DQ-28** (round 6) The Tried summary line, in words and calculated:
+  - With three or more rated shots: "mostly good" (most ratings 4 or 5),
+    "mostly off" (most 1 or 2), else "mixed".
+  - With fewer: "last rated N of 5".
+  - With no ratings but reactions: "mostly good" or "mostly off" from good
+    and off.
+  - Otherwise: "no ratings yet".
+  Persona-blind in the MVP (one persona); per persona once sub personas
+  exist.
 
 ---
 
@@ -2250,12 +2366,12 @@ Phase 0 work (PR #3) already delivers as done.
 | EPIC-02-02 | DES-02-02-01: 11 · 02: 6 · 03: 3 · 04: 4 · 05: 4 | 28 h |
 | EPIC-02-03 | DES-02-03-01: 5 · 02: 3 · 03: 6 · 04: 8 · 05: 5 | 27 h |
 | EPIC-02-06 | DES-02-06-01: 9 · 02: 7 · 03: 4 | 20 h |
-| EPIC-03-01 | DES-03-01-01: 4 · 02: 6 · 03: 6 | 16 h |
+| EPIC-03-01 | DES-03-01-01: 4 · 02: 10 · 03: 6 · 04: 6 | 26 h |
 | EPIC-03-02 | DES-03-02-01: 4 · 02: 3 · 03: 2 | 9 h |
 | EPIC-03-03 | DES-03-03-01: 4 | 4 h |
 | EPIC-03-04 | DES-03-04-01: 3 · 02: 3 · 03: 2 | 8 h |
 | EPIC-04-01 | DES-04-01-01: 4 · 02: 4 | 8 h |
-| **MVP** | **60 tasks** | **316 h** |
+| **MVP** | **61 tasks** | **326 h** |
 | EPIC-05-03 | DES-05-03-01: 4 | 4 h |
 | EPIC-02-05 | DES-02-05-01: 5 | 5 h |
 | EPIC-02-04 | DES-02-04-01: 2 | 2 h |
@@ -2291,6 +2407,13 @@ The round-5 addition for recent-shot filters (PEC-14) adds 4 h with no new
 tasks: DES-02-06-01 grows from 6 to 9 h for the filter row, default and
 filtered empty state, and DES-02-06-02 from 6 to 7 h for "Dial in from
 this". That makes the MVP 60 tasks and 316 h.
+
+Round 6 adds one task and 10 h, taking the MVP to 61 tasks and 326 h:
+- new DES-03-01-04, the coffee screen (6 h);
+- DES-03-01-02 grows from 6 to 10 h, for Beans' two sections, the grouping
+  and three empty states.
+The renames (Journal, Beans) cost no design time beyond copy keys. These
+tasks assume PEC-15.
 
 Next: 9 tasks, 33 h (DES-02-05-01 grows from 4 to 5 h for the milk list,
 assuming PEC-13). Later: none until re-planned.
@@ -2537,3 +2660,47 @@ assuming PEC-13). Later: none until re-planned.
     in Next, with EPIC-02-05).
   - To record, as the Head of Product has already decided it: PEC-14 (filters
     and "dial in from this" in EPIC-02-06).
+
+### Round 6 (2026-10-21, applied decisions)
+
+- **Feedback received:** decisions the Head of Product had already made,
+  recorded in S-02 ("App sections are named for what people ask"):
+  - the tabs are Brew, Journal, Beans and Setup;
+  - Beans has On hand (bags grouped by state) and Tried (every coffee used,
+    calculated);
+  - there's a light coffee screen;
+  - Beans filters are Next.
+- **What changed** (IDs kept: SCR-SHOTS is the Journal, SCR-PANTRY is
+  Beans):
+  - Journal:
+    - The tab and title are "Journal", and the keys moved from `shots.*` to
+      `journal.*` (`nav.journal`).
+    - Entries are still "shots" in copy ("show older shots", "Pull this
+      shot", "Shot logged").
+    - The round-5 filters and "Dial in from this" are unchanged.
+  - Beans:
+    - The tab is "Beans" (`nav.beans`), with keys moved from `pantry.*` to
+      `beans.*`, reworded rather than swapped.
+    - On hand groups bags under open, unopened and frozen. Each bag appears
+      once, in its first qualifying group, and the clocks and remaining
+      coffee are as before.
+    - The old finished section is gone: finished bags are counted in Tried
+      and listed on their coffee's screen.
+    - Tried has one row per coffee, with roaster, last had, bag count and a
+      summary in words.
+    - There are three empty states (first run, nothing on hand, nothing
+      tried), each with one primary.
+  - New SCR-COFFEE (light): header and summary, recipes per setup and drink,
+    up to five recent shots with a link to the Journal filtered by that
+    coffee, its bags, and "add a bag of this", which skips the coffee pick.
+  - Beans filters noted as Next direction only, reusing the filter chips.
+  - The run-out line (EPIC-03-05, Next) moved under On hand.
+  - New DQ-27 (what counts as tried) and DQ-28 (the summary line). New UX
+    concerns: Tried below the fold, the summary as a judgement, and
+    "Journal" alongside "shots".
+  - Hours: one new task (DES-03-01-04) and +10 h, so the MVP is 61 tasks and
+    326 h (was 60 tasks and 316 h). Next is unchanged at 33 h.
+  - No new components.
+- **Sent to the epic-planner:** PEC-15 (Tried and the coffee screen in
+  EPIC-03-01, or a small new INIT-03 epic; Beans filters need a Next epic and
+  an origin field), to record the Head of Product's decision.
