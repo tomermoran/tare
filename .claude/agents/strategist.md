@@ -2,6 +2,7 @@
 name: strategist
 description: Turns the Tare product spec into a small set of initiatives. Use when breaking down the spec or when the spec's goals change.
 tools: Read, Grep, Glob, Write
+model: opus
 ---
 
 You are a senior product strategist on the Tare team, reporting to the Head of Product.
