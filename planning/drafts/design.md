@@ -28,7 +28,7 @@ issues have been created. Nothing here is production code.
 
 ## How to read this file
 
-- **Detail level.** MVP epics (15) have full UX flows with empty, loading and
+- **Detail level.** MVP epics (16) have full UX flows with empty, loading and
   error states, components, design acceptance criteria and design tasks.
   **Next epics (8) have lighter flows.** **Later epics (7) have brief
   direction only**, because they will be re-planned before they are built.
@@ -1000,7 +1000,7 @@ carried over as the name.
    | Grinder: `catalog.cap.rangeQ` [lowest and highest number on the dial] | two Inputs, decimal, each optional | |
    | Grinder: `catalog.cap.stepQ` [smallest change you can make] | Input, decimal, optional; shown only for "clicks" | |
    | Grinder: `catalog.cap.coarserQ` [which way is coarser?] | higher numbers; lower numbers; not sure | |
-   | Basket (round-6 addendum): `catalog.cap.doseQ` [how many grams is it made for?] | 14–16 g; 17–19 g; 20–22 g; other; not sure (chips, ranges formatted with `Intl`, not hand-joined) | Other: lowest and highest grams (two Inputs, decimal, optional) |
+   | Basket (round-6 addendum): `catalog.cap.doseQ` [how many grams is it made for?] | 14–16 g; 17–19 g; 20–22 g; other; not sure (chips, ranges formatted with `Intl`, not hand-joined) | Other (also for baskets outside the chips, such as 7–10 g singles or 23 g and up): lowest and highest grams (two Inputs, decimal, optional; empty saves as not sure) |
 
    Every question is phrased around what the user sees on the machine or
    grinder, never schema words (control, stepless, capabilities).
@@ -1021,7 +1021,7 @@ Unknown parts fall back to the simplest honest behaviour:
 | Dial range | Grind wheel 0 to 100. Typed entry is the quickest way in, and the ruler only draws visible ticks, so a wide range costs nothing. |
 | Step (clicks) | Step 1. |
 | Which way is coarser | No finer and coarser captions on the grind wheel. Direction is never guessed, because a wrong caption is worse than none. |
-| Basket dose range (round-6 addendum) | Nothing changes in the shot log (the dose wheel keeps its normal range). Dose suggestions skip the basket bound and say so in their reason, `suggest.noBasketRange` [your basket's dose range isn't set], with the same quiet link to answer it. |
+| Basket dose range (round-6 addendum) | Nothing changes in the shot log (the dose wheel keeps its normal range). A dose change is never suggested: the suggestion skips dose and moves to the next lever. The reason line is the next lever's own and doesn't mention dose. Only when dose would have been the lever, the card adds one quiet link under the reason, `suggest.noBasketRange` [set your basket's dose range to get dose advice], to answer the question. |
 
 - When any part is "not sure", the grind tab or the affected tab shows a quiet
   ghost link under its wheel, `log.capUnknown` [tell us about your grinder],
@@ -1324,7 +1324,7 @@ one-tap shot). Home only changes the Dial in label (step 4).
   | Channelling seen, sour and bitter at once, or dry finish | Puck prep first: WDT, then puck screen, if not used; if both used, grind (uneven extraction) is not suggested and the card shows `suggest.prepAlready` [prep was used; check distribution and tamping] | "Use WDT next time" |
   | Balance off | Grind, in the grinder's own direction and steps; time is a diagnostic in the reason (fast and sour, slow and bitter) | "Grind 2 steps finer" (sour, much) |
   | Strength off | Yield (shorter for weak, longer for strong); for milk drinks, dose, then milk amount | "Stop at 34 g instead of 36 g"; "Try about 30 ml less milk" |
-  | Body off | Dose, within the basket's dose range (with a "not sure" range, no bound, and the reason says so) | "Dose 0.5 g more" |
+  | Body off | Dose, within the basket's dose range (with a "not sure" range, dose is never suggested: skip to the next lever, temperature if it applies, otherwise freshness or no change; see the "not sure" table) | "Dose 0.5 g more" |
   | Balance still off and grind at its limit | Temperature, only on machines that can set it | "Brew 1 °C hotter" |
 
   Step size follows "a bit" (one step) or "much" (two). Grind direction uses
@@ -2326,7 +2326,8 @@ reversed without changing the structure.
 - **DQ-24** (round 5) Freshness thresholds for the explanations: assumed
   "very fresh, may channel" under 5 days since roast (or packing), and
   "likely past its peak" over 35 days since roast or over 21 days open, with
-  freezer time excluded as usual. These are rule parameters, to be tuned by
+  freezer time excluded as usual. **Still awaiting confirmation** from the
+  Head of Product; these numbers are placeholders, not a decision. These are rule parameters, to be tuned by
   the rule evals; the design only needs the two phrases.
 - **DQ-25** (round 5) How long a dismissal lasts: assumed until the next shot
   on that coffee, setup and drink. A new shot gives a fresh suggestion. On
@@ -2728,13 +2729,32 @@ assuming PEC-13). Later: none until re-planned.
   - EPIC-01-06's capability questions gain one basket row,
     `catalog.cap.doseQ`: chips for 14–16 g, 17–19 g and 20–22 g, "other"
     (two optional gram Inputs) and "not sure". It can be answered later, as
-    in PEC-08.
-  - With a "not sure" range, the shot log is unchanged. Dose suggestions
-    skip the basket bound and say so (`suggest.noBasketRange`), with the
-    usual quiet link to answer it.
+    in PEC-08. Baskets outside the chips (7–10 g singles, 23 g and up) use
+    "other" and type their lowest and highest grams; no extra chip is needed.
+    If "other" is left empty, it saves as "not sure".
+  - With a "not sure" range, the shot log is unchanged. A dose change is
+    never suggested (amended 2026-11-03, see Round 7): the suggestion skips
+    dose and moves to the next lever. The reason line doesn't mention dose; a
+    quiet link (`suggest.noBasketRange`) shows only when dose would have been
+    the lever.
   - The part details show a basket's dose range.
   - Acceptance criteria, DES-01-06-03 and DES-01-06-05 were updated, at +2 h
     in total; the MVP is 61 tasks and 328 h.
   - No new components.
 - **Sent to the epic-planner:** nothing new. It fits PEC-05 and PEC-08 in
   EPIC-01-06.
+
+#### Round 7 addendum (2026-11-03): no dose suggestion without a basket range
+- **Feedback received:** a Head of Product decision. When a basket's dose
+  range is "not sure", a dose change is never suggested. This matches
+  01-06-08 AC 5, 02-03-06 AC 6, the epics and S-02.
+- **What changed:**
+  - The "not sure" table, the lever table and the round 6 addendum now say
+    the suggestion skips dose and moves to the next lever. The reason line
+    doesn't mention dose; a quiet answer-it link shows only when dose would
+    have been the lever.
+  - The basket dose-range chips now say what happens outside 14–22 g:
+    "other" with typed lowest and highest grams, and empty saves as "not sure".
+  - The MVP epic count is corrected to 16.
+  - DQ-24 freshness thresholds are marked as still awaiting confirmation.
+- **Sent to the epic-planner:** nothing new.
