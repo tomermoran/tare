@@ -1,49 +1,173 @@
-# Tare engineering tasks (approved, MVP)
+# Tare engineering tasks (revision 2, for the Head of Product's approval)
 
-Source: `planning/drafts/stories.md` (revision 2, approved, 119 stories),
-`planning/drafts/design.md` (approved), `planning/drafts/epics.md` (revision 5,
-final, MVP build order), `docs/spec.md` (S-02 decisions, S-08 schema) and the
-codebase on branch `planning/breakdown-drafts`, plus open PR #3
-(`design/mvp-screens`) as described below.
+Source:
 
-**Status: approved by the Head of Product.** Technical decisions TQ-01 to
-TQ-07 are resolved and recorded in S-02. S-08 now matches the schema tasks.
-The build order is confirmed, with tasting (EPIC-01-05) moved up after
-EPIC-01-04. Nothing is built, no code is written and no GitHub issues are
-created. Questions that are still open are named in each task's dependencies
-and listed in section 9.
+- `planning/drafts/stories.md` (revision 4, approved, 138 stories, with the
+  Head of Product's six answers);
+- `planning/drafts/design.md` (approved through round 6, plus the basket
+  dose-range addendum);
+- `planning/drafts/epics.md` (revision 10, final, MVP build order);
+- `planning/drafts/review.md` (the plan review);
+- `docs/spec.md` (S-02 decisions including the Milestone 1 bullet, S-04
+  ontology, S-08 schema);
+- the codebase on branch `planning/breakdown-drafts`, plus open PR #3
+  (`design/mvp-screens`), described in section 3.
 
-**Scope.** Only the 69 MVP stories in the 15 MVP epics are broken down:
-**252 tasks, 851 hours** (about 106 developer-days). Next and Later stories are
-listed in section 1 and not broken down.
+**Status: revision 2, for the Head of Product's approval.** Revision 1 was
+approved by the Head of Product. Nothing is built, no code is written, and no
+GitHub issues are created. Open questions are named in each task's
+dependencies and listed in section 9.
 
-## Changes at approval
+**Scope.** Only the 85 MVP stories in the 16 MVP epics are broken down. Next
+and Later stories are listed in section 1. **Milestone 1** (a lean walking
+skeleton, section 8.1) is a subset of these tasks, not extra work.
 
-- **Status.** The file is now marked approved.
-- **TQ-01 to TQ-07 resolved.** Each was accepted as proposed (section 9.1).
-  Their IDs are removed from task dependencies, and section 4 now states them
-  as decisions.
-- **S-08 matches.** S-08 now uses `timestamp_ms` throughout, has
-  `isRecalibration` on `maintenance_events`, and documents the "not sure"
-  capability values. Wording that treated these as pending deviations is
-  removed from section 6, from TASK-01-01-01-QA1, TASK-04-01-01-BE1 and
-  TASK-01-02-01-BE1, and from the risks (R-03).
-- **X-1 (timestamp precision) closed**, by the TQ-04 decision.
-- **Build order confirmed.** Wave 0 no longer waits for technical answers.
-  Product question 9 (build order) is closed.
-- **Estimates and totals unchanged.** The decisions match the proposals the
-  estimates were based on.
+## Changes since revision 1
+
+Revision 1 had 252 tasks and 851 hours. **Revision 2 has 313 tasks and
+1,084 hours:**
+
+- 75 tasks added;
+- 129 updated;
+- 109 unchanged;
+- 14 retired.
+
+Retired IDs are never reused. Each task's header line says New, Updated or
+Unchanged.
+
+### What drove the changes
+
+1. **Setups replace toolkits** (S-02, S-04, S-08).
+   - A setup is a machine, a grinder and a basket, each an exact catalog
+     model.
+   - Setups never change: a different combination is a different setup, and
+     the same combination reuses its setup and recipes.
+   - The schema has `setups` and `setup_parts`, with a unique `partsKey` per
+     household. Shots and recipes store `setupId` only.
+   - There's a setup builder, a current setup (DQ-18), switching on Brew and
+     in the log (PEC-09), and dial-in from the closest setup (DQ-19, DQ-20).
+     There's no editing and no retire.
+   - The toolkit tasks are rewritten as setup tasks. The retire, edit, swap
+     and re-dial tasks are retired.
+2. **Puck prep:** `usedWdt` and `usedPuckScreen` on shots and recipes, copied
+   by one-tap pulls (STORY-01-03-06).
+3. **Two freshness clocks, both paused by freezing.**
+   - `packedAt` on batches.
+   - There's no estimated age any more (review B1).
+   - The since-opening clock is new (STORY-03-03-04).
+4. **"Open" excludes frozen portions** (review M5). One definition,
+   `isOpen`, in TASK-03-02-04-BE1, is used by the one-tap rule, Brew's
+   defaults, On hand grouping and SH-PORTION.
+5. **Taste relative to the persona.**
+   - `tasteBalance`, `tasteStrength`, `tasteBody` and `tasteSweetness`
+     (-2..2, with sweetness -2..0) plus `tasteTags` replace the 1-5 scores
+     and defects.
+   - The off path is the SH-OFF sheet, and its answers are stored on the
+     one-tap shot (DQ-23, review M1).
+   - Leaving the tasting screen saves (review M2).
+6. **Rule-based dial-in suggestions** (EPIC-02-03, now M).
+   - Levers in order: puck prep, grind, yield, dose (within the basket's dose
+     range), temperature, milk.
+   - The starting step sizes are answer 1: grind 1 step for "a bit" and 2 for
+     "much", yield 2 g, dose 0.5 g, temperature 1 °C, milk about 30 ml.
+   - Temperature only when grind can't fix the balance (answer 2).
+   - The tech lead writes a scenario test suite. A scenario passes when it
+     gets the expected lever and direction. No LLM.
+7. **Milk.**
+   - A `milk_types` table and a household starter milk list.
+   - `typicalMilkMl` on drink types: cortado 60 ml, flat white 120 ml,
+     cappuccino 120 ml, latte 200 ml, macchiato 15 ml, and none for the rest
+     (answer 3).
+   - `milkTypeId` and `milkMl` on shots and recipes.
+   - Milk is never part of a recipe's identity.
+8. **Basket dose range** in capabilities.
+   - The seed carries every basket's range, curated by the Head of Product
+     as admin.
+   - A household adding a basket answers one small question, with "not sure"
+     (answer 4).
+9. **Journal** replaces "Shots" (keys `journal.*`, `nav.journal`).
+   - Filters by drink, coffee and setup.
+   - Pre-filtered from Brew.
+   - "Dial in from this".
+10. **Beans** replaces "Pantry" (keys `beans.*`, `nav.beans`).
+    - On hand is grouped by state.
+    - New MVP epic EPIC-03-06: the Tried list and the coffee screen
+      (SCR-COFFEE).
+11. **Coffee used** (answer 6): an off shot and its fix both count, because
+    both used beans. SQ-14 is closed.
+12. **Tried and personas** (answer 5): the Tried summary ignores personas
+    until sub personas exist (Next).
+13. **PR #3** already renames toolkit to setup. Tasks extend its code and
+    don't rebuild it.
+    - Still missing from it: the Journal and Beans renames, milk, prep
+      toggles, the new tasting and the guard against sections shrinking.
+    - TASK-01-01-05-FE7, TASK-01-01-05-FE8 and the extension tasks below
+      cover these.
+14. **Review findings for the tech lead.**
+    - **M7:** the design tasks now have hours and are scheduled ahead of the
+      waves that need them (section 8, "Design schedule").
+    - **m5:** undeclared dependencies are declared; see the notes on
+      TASK-01-06-01-BE2 and TASK-01-02-01-BE1.
+    - **M3:** gone, because there's no retire action.
+    - **M5:** resolved by the single `isOpen` rule.
+    - **m8:** "reopen on the last tab" is cut, so TASK-01-01-05-FE6 is
+      retired.
+15. **Next.js:** no new framework API beyond revision 1 (Server Actions,
+    Route Handlers, cookies). The Journal filters use URL search params.
+16. **Milestone 1** (S-02, added by the Head of Product during this
+    revision): a lean walking skeleton over EPIC-01-01, 01-02, 01-03, 03-01
+    and 02-06. Section 8.1 lists exactly which tasks belong to it and which
+    are deferred. It adds one task, TASK-01-02-01-BE6 (preparing the seed
+    catalog data). The Firebase project is a prerequisite, not a task.
+
+### Retired (14)
+
+| Task | Why |
+|---|---|
+| TASK-01-01-05-FE6 | Reopen on the last tab, cut by review m8 (STORY-01-01-05 AC 5 removed) |
+| TASK-01-02-03-BE1, FE1, FE2, QA1 | STORY-01-02-03 retired: no retire in the MVP. The part screen moves to the new TASK-01-02-02-FE5 and FE6. |
+| TASK-01-02-06-BE1, FE1, QA1 | STORY-01-02-06 retired: setups are never edited |
+| TASK-01-02-07-BE1, FE1, QA1 | STORY-01-02-07 retired: there are no swaps |
+| TASK-02-01-05-BE1, FE1, QA1 | STORY-02-01-05 retired: replaced by the closest-setup dial-in (TASK-02-01-06-*) |
+
+### Added (75)
+
+| Story | New tasks |
+|---|---|
+| STORY-01-01-05 | FE7 (rename PR #3's tabs and keys), FE8 (guard against sections shrinking) |
+| STORY-01-01-08 (new) | BE1 (milk_types schema), BE2, FE1, QA1 |
+| STORY-01-02-01 | BE6 (prepare the seed catalog data, Milestone 1) |
+| STORY-01-02-02 | FE5 (part screen), FE6 (part route) |
+| STORY-01-02-04 | BE2 (setups and setup_parts schema) |
+| STORY-01-02-08 (new) | BE1, FE1, QA1 |
+| STORY-01-02-09 (new) | BE1, BE2, FE1, QA1 |
+| STORY-01-03-06 (new) | BE1, FE1, QA1 |
+| STORY-01-03-07 (new) | BE1, FE1, FE2, QA1 |
+| STORY-01-05-02 | FE2 |
+| STORY-01-06-01 | FE3 (basket dose-range question) |
+| STORY-02-01-06 (new) | BE1, BE2, FE1, FE2, QA1 |
+| STORY-02-02-07 (new) | FE1, FE2, QA1 |
+| STORY-02-03-04 (new) | BE1, FE1, FE2, QA1 |
+| STORY-02-03-05 (new) | BE1, FE1, FE2, QA1 |
+| STORY-02-03-06 (new) | BE1, BE2, QA1 |
+| STORY-02-03-07 (new) | BE1, FE1, QA1 |
+| STORY-02-06-04 (new) | BE1, FE1, FE2, QA1 |
+| STORY-02-06-05 (new) | FE1, QA1 |
+| STORY-02-06-06 (new) | BE1, FE1, QA1 |
+| STORY-03-02-05 (new) | BE1, FE1, QA1 |
+| STORY-03-03-04 (new) | BE1, FE1, QA1 |
+| STORY-03-06-01 to 04 (new epic) | 12 tasks |
 
 ## Contents
 
 1. Not broken down yet
 2. How to read this file
 3. What exists and what this plan assumes
-4. Technical approach (decided)
+4. Technical approach
 5. Definition of done for every task
 6. Schema and migrations (first)
 7. Tasks by story
-8. Build order
+8. Build order, Milestone 1 and design schedule
 9. Questions
 10. Technical risks and tech debt
 11. Totals
@@ -54,90 +178,92 @@ listed in section 1 and not broken down.
 
 These are **not broken down yet: re-planned before they're built.**
 
-**Next (27 stories, 8 epics).** These come after the MVP. Several depend on
-questions that are still open, and the MVP's code will change what they
-need.
+**Next (30 stories, 8 epics).**
 
 | Epic | Stories | Why not now |
 |---|---|---|
-| EPIC-05-03 Keep your coffee history when you change phones | STORY-05-03-01, 02, 03 | First Next epic. It builds on the MVP's Firebase session (TQ-01, decided), so it's planned once that exists. |
-| EPIC-02-05 Make the drink list yours | STORY-02-05-01, 02, 03, 04 | Next. What happens to recipes when their drink is hidden is still open. |
-| EPIC-02-04 Give one bag its own recipe | STORY-02-04-01, 02 | Next, and blocked on INIT-02 Q1 (bag override or bean default). |
-| EPIC-03-05 Know when you'll run out | STORY-03-05-01, 02, 03 | Next. "Enough history" and the accuracy target (X-2) aren't defined. |
-| EPIC-05-01 Brew for someone else in the household | STORY-05-01-01, 02, 03, 04 | Next. Removing a persona is still open. |
-| EPIC-04-02 Suggested grind that follows bean age and recent shots | STORY-04-02-01 to 06 | Next. The algorithm depends on INIT-04 Q2 to Q4. |
-| EPIC-04-03 Re-dial once after maintenance and keep every recipe | STORY-04-03-01, 02, 03 | Next. It needs EPIC-04-02's aging estimate. |
+| EPIC-05-03 Keep your coffee history when you change phones | STORY-05-03-01, 02, 03 | First Next epic. It builds on the MVP's Firebase session (TQ-01). |
+| EPIC-02-05 Make the drink and milk lists yours | STORY-02-05-01 to 06 | Next. Hidden drinks and milks with recipes are still open. |
+| EPIC-02-04 Give one bag its own recipe | STORY-02-04-01, 02 | Next, and blocked on INIT-02 Q1. |
+| EPIC-03-05 Know when you'll run out, and find any coffee | STORY-03-05-01 to 04 | Next. X-2 is open, origin needs a catalog field, and a coffee's "rating" isn't defined. |
+| EPIC-05-01 Brew for someone else in the household | STORY-05-01-01 to 04 | Next. Removing a persona is still open. |
+| EPIC-04-02 Suggested grind that follows bean age and recent shots | STORY-04-02-01 to 06 | Next. INIT-04 Q2 to Q4 and SQ-18 are open. |
+| EPIC-04-03 Re-dial once after maintenance and keep every recipe | STORY-04-03-01 to 03 | Next. It needs EPIC-04-02's aging estimate. |
 | EPIC-04-04 Keep recipes right after new burrs of a different design | STORY-04-04-01, 02 | Next. The fitting method is still open. |
 
-**Later (23 stories, 7 epics).** These are AI and community features. The
-stories are light placeholders, and each epic needs evals and a model choice
-first (S-01).
+**Later (23 stories, 7 epics).** These are AI and community features. Each
+needs evals and a model choice first (S-01).
 
 | Epic | Stories | Why not now |
 |---|---|---|
 | EPIC-05-02 Invite them to take over their own profile | STORY-05-02-01 to 04 | Later (phase 3). Invite delivery and roles are still open. |
-| EPIC-06-01 Scan a bag instead of typing it | STORY-06-01-01, 02, 03 | Later. It's an AI feature, and the model and eval set aren't chosen. |
-| EPIC-06-02 Get a grounded fix when a shot goes wrong | STORY-06-02-01, 02, 03 | Later. It's an AI feature with RAG, and STORY-06-02-02 is flagged to split. |
-| EPIC-06-04 Tare learns your palate as you log | STORY-06-04-01, 02, 03 | Later. The contents of a taste graph aren't defined. |
-| EPIC-06-05 Share your shots, with your consent | STORY-06-05-01, 02, 03 | Later. Consent withdrawal and cohort grouping are still open. |
+| EPIC-06-01 Scan a bag instead of typing it | STORY-06-01-01 to 03 | Later. It's an AI feature, and the model and eval set aren't chosen. |
+| EPIC-06-02 Get a grounded fix when a shot goes wrong | STORY-06-02-01 to 03 | Later. It's AI with RAG, and STORY-06-02-02 is flagged to split. |
+| EPIC-06-04 Tare learns your palate as you log | STORY-06-04-01 to 03 | Later. What makes a "drink style" isn't defined. |
+| EPIC-06-05 Share your shots, with your consent | STORY-06-05-01 to 03 | Later. Consent withdrawal and cohorts are still open. |
 | EPIC-06-06 Start a new bag from the community, tuned to you | STORY-06-06-01 to 04 | Later. It depends on four other Later epics. |
-| EPIC-06-07 Merge duplicate catalog entries, with AI suggestions | STORY-06-07-01, 02, 03 | Later. Merges are a manual admin task until then (S-02). |
+| EPIC-06-07 Merge duplicate catalog entries, with AI suggestions | STORY-06-07-01 to 03 | Later. Merges are a manual admin task until then. |
 
-MVP code is written so that these epics can follow without rework. Catalog
-readers follow merge pointers, `share_data_consent` and
-`is_network_eligible` exist but stay false, and persona selection goes
-through one function.
+MVP code keeps these epics possible without rework:
+
+- catalog readers follow merge pointers;
+- `share_data_consent` and `is_network_eligible` exist but stay false;
+- taste is stored per persona, so palate learning can use it later;
+- the suggestion rules live in one domain module the Later Coach can build
+  on.
 
 ---
 
 ## 2. How to read this file
 
-- **Task ID:** `TASK-II-EE-SS-XXn`: the story ID, then `BE` (backend), `FE`
-  (frontend) or `QA`, then a number within that story. Example:
-  `TASK-01-01-01-BE1`.
-- **Format.** Each task gives its label, its parent story, its estimate and its
-  dependencies, then **Build** (what to build and which files it touches)
-  and **Done when** (checkable conditions, with acceptance criteria cited as
-  `AC n` of the parent story).
-- **Dependencies** are task IDs plus:
-  - `DES-*`: design tasks from `design.md`.
-  - `PR-3`: open PR #3 merged into `main`.
-  - Questions that are still open (section 9).
-- **Grouping.** Schema and migration tasks are listed first (section 6), each
-  with the story that first needs it. Everything else is grouped by epic and
-  story (section 7). The order across all tasks is section 8.
-- **Estimates** are hours of focused work, 2 to 16, including the task's own
-  stories or tests and its review fixes. Nothing exceeds 16.
-- **"Wire"** means connecting a props-only screen to a route, its data
-  (Server Component reads) and its mutations (Server Actions).
+- **Task ID:** `TASK-II-EE-SS-XXn`: the story ID, then `BE`, `FE` or `QA`, then
+  a number within that story. Example: `TASK-01-01-01-BE1`.
+  - IDs are stable. A retired ID is never reused, so gaps are retired tasks.
+  - New tasks take the next free number.
+- **Header line:** label, parent story, estimate, status (New, Updated or
+  Unchanged since revision 1), then dependencies.
+- **Build** says what to build and which files it touches. **Done when**
+  gives checkable conditions, citing the parent story's acceptance criteria
+  as `AC n`.
+- **Dependencies** are task IDs, plus:
+  - `DES-*`: design tasks;
+  - `PR-3`: PR #3 merged;
+  - open questions from section 9.
+- **Estimates** are focused hours, 2 to 16, including the task's own stories
+  or tests. Nothing exceeds 16.
+- **"Wire"** means connecting a props-only screen to a route, its reads
+  (Server Components) and its writes (Server Actions).
+- **Milestone 1** is marked in section 8.1, not on each task. Where a task
+  is trimmed inside Milestone 1, section 8.1 says how.
 
 ---
 
 ## 3. What exists and what this plan assumes
 
-**In this checkout (read before planning)**
+**In this checkout**
 
-- Next.js 16.4 App Router, `src/app` with a placeholder `page.tsx` and a root
-  layout that provides next-intl (`en` only, no locale routing,
-  `src/i18n/config.ts` has RTL detection).
-- `src/db/schema.ts`: conventions comment only, no tables.
-  `drizzle.config.ts` uses the `turso` dialect, migrations go to
-  `src/db/migrations`, and the default URL is `file:./data/tare.db`. There's
-  no `src/db` client yet.
-- `src/lib/units.ts`: `msToSeconds`, `secondsToMs`, decimal parsing and
-  sanitising, `formatValueParts`, `unitSymbol`. `CanonicalUnit` is
-  `gram | second | celsius` (no Fahrenheit yet).
-- `src/components/ui`: Button, Card, Input, NumberWheel (drag, flick,
-  keyboard, typed entry, RTL), and `src/components/brand/Logo`.
-- `src/i18n/messages/en.json`: `app`, `actions`, `shot` keys only.
-- Vitest has one project, Storybook story tests in headless Chromium with axe
-  (`a11y.test: "error"`). There's **no Node test project**, so nothing can test
-  the database or server code yet.
-- Dependencies: no Firebase SDKs and no validation library.
+- **Next.js 16.4 App Router.** `src/app` has a placeholder page. The root
+  layout provides next-intl (`en` only, RTL detection in
+  `src/i18n/config.ts`).
+- **`src/db/schema.ts`** has the conventions comment only, no tables. The
+  whole S-08 schema is still to be implemented, so the setup, milk and taste
+  changes need **no data migration**, only different first migrations.
+  `drizzle.config.ts` uses the `turso` dialect with `file:./data/tare.db`.
+- **`src/lib/units.ts`**:
+  - `msToSeconds` and `secondsToMs`;
+  - decimal parsing and sanitising;
+  - `formatValueParts` and `unitSymbol`;
+  - `CanonicalUnit` is `gram | second | celsius` (no Fahrenheit or
+    millilitre yet).
+- **`src/components/ui`:** Button, Card, Input and NumberWheel, plus
+  `src/components/brand/Logo`.
+- **Tests:** one Vitest project with Storybook story tests and axe. There's no
+  Node test project.
 
-**From open PR #3, treated as existing (props-only, no data wiring)**
+**PR #3 (branch `design/mvp-screens`, not in this checkout), treated as
+existing and props-only**
 
-- `src/components/ui`:
+- **Components in `src/components/ui`:**
   - TabBar (NC-01)
   - PageHeader (NC-02)
   - ListRow (NC-03)
@@ -146,3517 +272,3303 @@ through one function.
   - Toggle (NC-13)
   - ShotValues (NC-08)
   - ShotDial (NC-09)
-- `src/components/screens`: HomeScreen, ShotLogScreen and RecentShotsScreen
-  with stories, plus fixtures and PhoneFrame.
-- Every task that reuses these depends on `PR-3`. Where a task extends one of
-  them, the task says so and asks the developer to check what PR #3 already
-  covers first. The estimate assumes the extension is needed.
+- **Screens in `src/components/screens`:** HomeScreen, ShotLogScreen and
+  RecentShotsScreen with stories, fixtures and PhoneFrame.
+- **Already renamed** from toolkit to setup.
+- **Not yet in it** (each planned as an extension here):
+  - Shots renamed to Journal, and Pantry to Beans (TASK-01-01-05-FE7);
+  - milk (TASK-01-03-07-FE2);
+  - prep toggles (TASK-01-03-06-FE1);
+  - the just-right tasting (TASK-01-05-02-FE1, TASK-01-05-01-FE2);
+  - the guard against sections shrinking (TASK-01-01-05-FE8);
+  - ChipGroup's just-right and filter variants (TASK-01-05-02-FE1,
+    TASK-02-06-04-FE1).
+- Each task that extends PR #3 code checks what the PR already covers first.
+  The estimates assume the extension is needed.
 
-**Not built yet, planned here (each gets its own Storybook task before use)**
+**Not built yet**
 
-- Sheet (NC-05)
-- PulledState (NC-07): extracted from HomeScreen
-- Notice (NC-10)
-- Skeleton (NC-11)
-- EmptyState and Checklist (NC-12)
-- Icon (NC-14)
-- Meter (NC-15)
-- NumberWheel finer and coarser captions, and the Fahrenheit unit
-- The sheets: SH-SELECT, SH-PORTION, SH-PIN, SH-PORTION-ACTIONS, SH-SPLIT,
-  SH-STOCK, SH-DATE and SH-MAINTENANCE. SH-CONFIRM is built with Sheet.
-- Every screen except HomeScreen, ShotLogScreen and RecentShotsScreen.
+- **Components:**
+  - Sheet (NC-05)
+  - PulledState (NC-07)
+  - Notice (NC-10)
+  - Skeleton (NC-11)
+  - EmptyState and Checklist (NC-12)
+  - Icon (NC-14)
+  - Meter (NC-15)
+  - SuggestionCard (NC-16)
+- **NumberWheel extensions:** finer and coarser captions, and the Fahrenheit
+  and millilitre units.
+- **Sheets:**
+  - SH-SELECT
+  - SH-PORTION
+  - SH-PIN
+  - SH-OFF
+  - SH-PORTION-ACTIONS
+  - SH-SPLIT
+  - SH-STOCK
+  - SH-DATE
+  - SH-MAINTENANCE
+  - SH-CONFIRM
+- **Screens:** every screen except the three in PR #3, including the tasting
+  screen, the Setup tab, the setup builder, the part screen, Beans, the bag
+  screen and the coffee screen.
 
 ---
 
-## 4. Technical approach (decided)
+## 4. Technical approach
 
-TQ-01 to TQ-07 were accepted by the Head of Product as proposed and are
-recorded in S-02. The other entries below are tech-lead decisions; those still
-open for confirmation are TQ-08 to TQ-15 in section 9.
+**Decided** (S-02, TQ-01 to TQ-07): a Firebase ID token exchanged once at
+`POST /api/session` for an httpOnly session cookie; one server-side libSQL
+client, with Turso when deployed; Server Actions for writes; Route Handlers
+only for the session, catalog search and the duplicate-URL check; integer
+millisecond timestamps; `is_recalibration` as a flag; "not sure" as unknown
+values in the capabilities JSON; and local days from a time-zone cookie.
 
 **Module layout**
 
 | Path | What lives there |
 |---|---|
-| `src/db/client.ts` | One libSQL client and Drizzle instance, `import "server-only"` |
-| `src/db/schema.ts` | All S-08 tables |
-| `src/db/migrations/` | Generated by `db:generate`, one migration per schema task |
-| `src/db/seed/` | Catalog seed data and an idempotent loader (`npm run db:seed`) |
-| `src/domain/` | Pure TypeScript with no database or React: capabilities, grind scale, setup rules, recipe resolution, home defaults, bean age, remaining weight, portion state, grind periods, URL normalisation, defects, local-day helpers. Most rules live here and are unit-tested. |
-| `src/server/auth/` | Firebase token verification and the session (TQ-01) |
-| `src/server/dal/` | Household-scoped reads, `server-only`. Every function takes the session's household. |
-| `src/server/actions/` | `"use server"` mutations. Each one verifies the session and household ownership first (STORY-01-01-04). |
-| `src/app/(app)/` | Tab routes with the TabBar: `/` (Brew), `/shots`, `/shots/[shotId]`, `/pantry`, `/pantry/[batchId]`, `/setup`, `/setup/units/[unitId]` |
-| `src/app/(task)/` | Full-screen tasks without the TabBar: `/log`, `/taste/[shotId]`, `/pantry/add`, `/setup/add`, `/setup/setups/new`, `/setup/setups/[setupId]`, `/catalog/pick`, `/catalog/add`, `/profile` |
-| `src/app/api/` | Route Handlers, only for the session exchange, catalog search and the duplicate-URL check (TQ-03): `session`, `catalog/search`, `catalog/check-url` |
-| `src/components/screens/` | Props-only screens with stories, following PR #3's pattern. Fixtures stay generic and fictional. |
+| `src/db/client.ts`, `schema.ts`, `migrations/`, `seed/` | Database client, S-08 tables, migrations, catalog seed and loader |
+| `src/domain/` | Pure TypeScript, unit-tested: capabilities, grind scale, setup keys and the closest setup, recipe resolution, home defaults, the two clocks, `isOpen` and portion state, remaining weight, On hand groups, Tried summary, grind periods, URL normalisation, taste tags, local days |
+| `src/domain/suggest/` | The dial-in suggestion rules (EPIC-02-03), with no database or React. Its step sizes and freshness thresholds live in one constants file. |
+| `src/server/auth/`, `dal/`, `actions/` | Session, household-scoped reads, and Server Actions that each check the session and ownership |
+| `src/app/(app)/` | Tabs: `/` (Brew), `/journal`, `/journal/[shotId]`, `/beans`, `/beans/[batchId]`, `/beans/coffee/[beanId]`, `/setup`, `/setup/parts/[unitId]` |
+| `src/app/(task)/` | Full-screen tasks: `/log`, `/taste/[shotId]`, `/beans/add`, `/setup/add-part`, `/setup/builder`, `/catalog/pick`, `/catalog/add`, `/profile` |
+| `src/app/api/` | `session`, `catalog/search`, `catalog/check-url` |
 
-**Decisions**
+**Proposals that tasks depend on**
 
-- **Auth (TQ-01, decided).**
-  - The browser signs in anonymously with the Firebase JS SDK.
-  - It sends its ID token once to `POST /api/session`. The server verifies the
-    token with the Firebase Admin SDK and sets an httpOnly session cookie.
-  - The DAL verifies the cookie on each request (cached per request with
-    React `cache`) and maps the Firebase uid to a user and household.
-  - When the cookie expires, the client silently exchanges a fresh token.
-  - Firebase keys live outside the public repo.
-- **Database access (TQ-02, decided).** One server-side libSQL client. Server
-  Components and Server Actions call the DAL directly on the Node.js runtime,
-  with no separate API server. Locally it uses `./data/tare.db`; a deployed
-  prototype uses hosted Turso (`DATABASE_URL`, `DATABASE_AUTH_TOKEN`).
-  Migrations run at deploy time, never at request time.
-- **Mutations (TQ-03, decided).**
-  - Server Actions handle every write, then call `refresh()` or
-    `revalidatePath`.
-  - Route Handlers serve only the session exchange, catalog search and the
-    duplicate-URL check.
-- **Timestamps (TQ-04, decided; closes X-1).** Integer milliseconds,
-  `integer(..., { mode: 'timestamp_ms' })`, as S-08 now specifies throughout.
-- **Recalibration (TQ-05, decided).** A flag on the maintenance event,
-  `is_recalibration` (boolean, not null, default false), as in S-08.
-- **"Not sure" capabilities (TQ-06, decided).** Unknown values in the
-  capabilities JSON, as documented in S-08's comment. Seeded rows never use
-  them.
-- **Local days (TQ-07, decided).** The device's IANA time zone is sent in a
-  cookie, and nothing is stored for it. Day grouping, "today", the time-of-day
-  drink and bean age are computed in that zone. Tech-lead detail: a
-  back-dated date is stored as local noon of that day, so DST changes can't
-  move it to another day.
-- **IDs (TQ-11).** `crypto.randomUUID()` text keys. A one-tap pull sends a
-  client-generated ID, which makes double taps idempotent.
-- **Validation.** Hand-written guards in `src/domain` and `src/server`. No new
-  dependency is needed. Adding one (for example zod) is a team choice, not
-  planned.
-- **Return-to and drafts.** A `returnTo` query parameter, plus a
-  sessionStorage draft store keyed by task. A side task returns to the
-  original task with the new item selected and nothing lost.
-- **Last screen (STORY-01-01-05 AC 5).** "Shortly" is set to **5 minutes**,
-  the tech lead's call as the story allows. The path and time are kept in
-  localStorage.
-- **Undo (DQ-04, TQ-15).** An 8-second window in the UI. The server accepts an
-  undo up to 13 seconds after the pull, only for a one-tap shot logged by the
-  same user.
+- **Setup identity.**
+  - `partsKey` is the three `ownedHardware` IDs, sorted and joined.
+  - `findOrCreateSetup` inserts with the unique index, and on conflict reads
+    the existing row, so two quick taps never make two setups.
+- **Current setup (DQ-18), TQ-16, open.**
+  - The current setup is the setup of the persona's latest shot, unless a
+    setup was chosen more recently.
+  - The choice is stored as a device cookie, `currentSetup`, holding the
+    setup ID and the time it was chosen. S-08 has no column for it.
+  - In Milestone 1 there's one setup, so "current" is that setup and no rule
+    or cookie is built yet.
+- **Suggestions.**
+  - Calculated on read from the shot, its answers and the setup's
+    capabilities, never stored.
+  - "Pending" means the latest shot on that coffee, setup and drink has a
+    suggestion that hasn't been dismissed.
+  - A dismissal is stored on the device only (DQ-25), in localStorage keyed by
+    the shot's ID. If localStorage is unavailable, a dismissal lasts for the
+    session.
+- **Journal filters.**
+  - The filters live in URL search params, so the back button keeps them
+    (STORY-02-06-05 AC 3).
+  - Brew's current drink and coffee are client state (DQ-17). The tab bar's
+    Journal link reads them to build its link.
+- **Unchanged from revision 1:**
+  - return-to and drafts in sessionStorage;
+  - one-tap idempotency through a client-generated ID;
+  - an 8-second undo window, with 13 seconds accepted on the server.
 
 ---
 
 ## 5. Definition of done for every task
 
-These apply to every task and aren't repeated in each one:
+These apply to every task and aren't repeated:
 
-- `npm run lint`, `npx tsc --noEmit`, `npx vitest run` (story tests with axe)
-  and, from TASK-01-01-04-QA1 onward, the Node test project all pass.
-- No user-facing string in code. New keys go in `src/i18n/messages/en.json`,
-  grouped as design section 1.3 says (`home.*`, `log.*` and so on).
-  Components take text as props, and stories read text from `en.json`.
-- Numbers and units go through `Intl`, `useFormatter` or `src/lib/units.ts`.
-  Shot time is stored in ms and shown in seconds with one decimal.
-- Logical CSS only: no `ml mr pl pr left right text-left text-right border-l
-  border-r`. Every new component has an RTL story.
-- Semantic tokens only. `signal` appears only through the Notice warning tone.
-  `ink-tertiary` is used only at 18 px and above. No shadows.
-- No derived values or formatted strings are stored.
-- No personal data in code, fixtures, seed data, stories or tests. Example
-  data is obviously fictional or generic.
-- Small, focused commits with an imperative subject and a body that says why.
-- Server Actions and DAL functions check the session and household (from
-  TASK-01-01-04-BE1 onward), and each one adds its case to the isolation suite
-  (TASK-01-01-04-QA2).
+- `npm run lint`, `npx tsc --noEmit` and `npx vitest run` pass: story tests
+  with axe, plus the Node project once TASK-01-01-04-QA1 lands.
+- **Strings:** no user-facing string in code; keys go in `en.json`, grouped as
+  in design section 1.3:
+  - `journal.*`, `beans.*` and `coffee.*`;
+  - `milks.*`, `taste.tags.*`, `suggest.*` and `off.*`.
+
+  Components take text as props.
+- **Numbers and units** go through `Intl` or `src/lib/units.ts`, never joined
+  by hand.
+- **Logical CSS only,** and an RTL story for every new component.
+- **Tokens:** semantic tokens only. `signal` appears only through the Notice
+  warning tone, for channelling. Suggestions and empty states use ink.
+- **Never stored:** derived values (ratio, clocks, remaining coffee,
+  suggestions, Tried).
+- **No personal data** in code, fixtures, seed data, stories or tests.
+- **Commits** are small and focused.
+- **Server code:** actions and DAL functions check the session and household,
+  and add their case to the isolation suite (TASK-01-01-04-QA2).
 
 ---
 
 ## 6. Schema and migrations (first)
 
-These implement S-08 in `src/db/schema.ts` exactly as it now stands, each as
-its own task with its own generated migration, before any feature code uses
-the table. S-08 already includes the decided timestamp mode (`timestamp_ms`),
-the `is_recalibration` column and the "not sure" capability values, so the
-schema has no deviations. The tasks only add indexes, which change no
-behaviour. Circular references (`maintenance_events.offset_source_recipe_id`
-to `pinned_recipes`, and `pinned_recipes.source_extraction_id` to
-`extractions`) use Drizzle's lazy `references(() => …)`, as S-08 does.
+These implement S-08 as it now stands, each as its own task with its own
+migration, before any feature uses the table. S-08 already has:
+
+- `timestamp_ms` timestamps;
+- `is_recalibration` on maintenance events;
+- the "not sure" and basket dose values in the capabilities JSON;
+- `setups` and `setup_parts`;
+- `milk_types`, `typicalMilkMl` and `packedAt`;
+- prep, milk and taste columns on shots and recipes.
+
+The tasks add indexes, which change no behaviour.
 
 ##### TASK-01-01-01-BE1 · Add the database client and data access layer skeleton
-`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: none
+`backend` · Parent: STORY-01-01-01 · 4 h · Unchanged · Depends on: none
 - **Build:**
-  - `src/db/client.ts`: a libSQL client and Drizzle instance with
-    `server-only`, reading `DATABASE_URL` and `DATABASE_AUTH_TOKEN` (hosted
-    Turso when deployed, `file:./data/tare.db` locally, per TQ-02). Check
-    whether foreign keys are enforced on libSQL connections, and turn them on
-    if not.
-  - The ID helper `src/db/ids.ts` (TQ-11).
-  - The empty `src/server/dal/` and `src/server/actions/` folders with an
-    index of conventions.
-  - `.env.example` with placeholder variable names only, and `data/` in
-    `.gitignore` if it's missing.
+  - `src/db/client.ts`: libSQL and Drizzle, `server-only`, reading
+    `DATABASE_URL` and `DATABASE_AUTH_TOKEN` (Turso when deployed, the local
+    file otherwise).
+  - Check foreign-key enforcement, and turn it on if needed.
+  - The ID helper `src/db/ids.ts`.
+  - Empty `src/server/dal/` and `src/server/actions/` folders with a
+    conventions note.
+  - `.env.example` with variable names only, and `data/` in `.gitignore`.
 - **Done when:**
-  - `npm run dev` connects to `file:./data/tare.db`.
-  - The same client connects to a Turso URL when the env variables are set.
+  - The dev server connects to the local file.
   - Importing the client from a client component fails the build.
-  - Foreign-key enforcement is verified on.
+  - Foreign keys are verified on.
   - No secrets are committed.
 
 ##### TASK-01-01-01-BE2 · Add users, households, household members and personas tables
-`backend` · Parent: STORY-01-01-01 (also 01-01-03, 01-01-04) · 3 h · Depends on: TASK-01-01-01-BE1
-- **Build:** The S-08 tables `users` (with `firebase_uid` unique),
-  `households`, `household_members` (composite primary key) and `personas`
-  (nullable `name`, `is_default`), in `src/db/schema.ts`. Timestamps use
-  `timestamp_ms`. Plus a migration.
-- **Done when:**
-  - The migration applies to an empty database.
-  - Column names, types and timestamp modes match S-08.
-  - `firebase_uid` uniqueness is enforced.
-
-##### TASK-01-01-02-BE1 · Add the drink types table
-`backend` · Parent: STORY-01-01-02 · 2 h · Depends on: TASK-01-01-01-BE2
-- **Build:** `drink_types` per S-08 (`name_key`, `name`, `has_milk`, `hidden`,
-  `sort_order`), with an index on `(household_id, sort_order)`, and a
-  migration.
-- **Done when:** The migration applies, and a row with only `name_key` and
-  one with only `name` are both valid.
-
-##### TASK-01-02-01-BE1 · Add hardware makers and models, with a typed capabilities shape
-`backend` · Parent: STORY-01-02-01 (also 01-02-02, 01-06-06 to 09) · 4 h · Depends on: TASK-01-01-01-BE2
+`backend` · Parent: STORY-01-01-01 (also 01-01-03, 01-01-04) · 3 h · Unchanged · Depends on: TASK-01-01-01-BE1
 - **Build:**
-  - `hardware_makers` and `canonical_hardware` per S-08 (`source`, `status`,
-    `merged_into_id`, `created_by_household_id`), plus a migration.
-  - `src/domain/capabilities.ts`: the TypeScript type for the `capabilities`
-    JSON (machine temperature and pressure, grinder grind), including S-08's
-    "not sure" values (`control: 'unknown'`, a null gauge, null counts, units,
-    min, max and step, and `grind: { type: 'unknown', …, coarser: 'unknown' }`).
-  - A `parseCapabilities` guard that rejects malformed JSON, and the column
-    typed with `$type<>()`.
+  - The S-08 `users` table (unique `firebase_uid`), `households`,
+    `household_members` (composite key) and `personas` (nullable `name`,
+    `is_default`).
+  - `timestamp_ms` timestamps.
+  - A migration.
 - **Done when:**
-  - The migration applies.
-  - The guard accepts every shape in S-08, including the unknowns, and
-    rejects an unknown `control`.
-  - The guard has unit tests (run once TASK-01-01-04-QA1 lands).
+  - The migration applies from empty.
+  - Columns match S-08.
+  - `firebase_uid` is unique.
 
-##### TASK-01-02-01-BE2 · Add catalog URLs, aliases and merges tables
-`backend` · Parent: STORY-01-02-01 (also 01-06-04, 01-06-05) · 3 h · Depends on: TASK-01-02-01-BE1
-- **Build:** `catalog_urls` (index on `normalized_url`), `catalog_aliases`
-  (index on `entity_type, name`) and `catalog_merges` per S-08, plus a
-  migration. `catalog_merges` is only written by the manual admin task in
-  the MVP (S-02).
-- **Done when:** The migration applies, and an alias or URL can point at a
-  maker, model, roaster or bean.
-
-##### TASK-03-01-01-BE1 · Add roasters and beans tables
-`backend` · Parent: STORY-03-01-01 (also 01-06-02) · 2 h · Depends on: TASK-01-01-01-BE2
-- **Build:** `roasters` and `canonical_beans` per S-08 (`roast_level`,
-  `tasting_notes` JSON), plus a migration.
-- **Done when:** The migration applies, and `tasting_notes` round-trips a
-  string array.
-
-##### TASK-01-02-02-BE1 · Add owned hardware and setups tables
-`backend` · Parent: STORY-01-02-02 (also 01-02-03 to 07) · 2 h · Depends on: TASK-01-02-01-BE1
-- **Build:** `owned_hardware` (`retired_at`, index on `household_id`) and
-  `setups` (`components` typed as `string[]`) per S-08, plus a migration.
-- **Done when:** The migration applies. JSON `components` can be queried with
-  `json_each` for "setups containing this unit".
-
-##### TASK-03-01-02-BE1 · Add batches, portions and stock checks tables
-`backend` · Parent: STORY-03-01-02 (also 03-02, 03-04) · 3 h · Depends on: TASK-03-01-01-BE1
-- **Build:** `batches`, `batch_portions` (index on `batch_id`) and
-  `stock_checks` (index on `portion_id, checked_at`) per S-08, plus a
-  migration. Weights are `real` grams.
-- **Done when:** The migration applies, and no status, age or remaining column
-  exists (they're calculated, never stored).
-
-##### TASK-01-03-03-BE1 · Add the extractions table
-`backend` · Parent: STORY-01-03-03 (also every shot story) · 3 h · Depends on: TASK-01-02-02-BE1, TASK-03-01-02-BE1, TASK-01-01-02-BE1
+##### TASK-01-01-02-BE1 · Add the drink types table with typical milk amounts
+`backend` · Parent: STORY-01-01-02 · 2 h · Updated (typical milk) · Depends on: TASK-01-01-01-BE2
 - **Build:**
-  - `extractions` per S-08: `entry_mode`, the MVPayload, `yield_time` as
-    integer ms, the optional temperature and pressure pairs, sensory fields,
-    `defects` JSON, `reaction`, and `is_network_eligible` defaulting to false.
-  - Indexes on `(household_id, created_at)`, `(portion_id)` and
-    `(grinder_id, created_at)`.
+  - `drink_types` per S-08: `name_key`, `name`, `has_milk`,
+    `typical_milk_ml` (`real`, nullable), `hidden` and `sort_order`.
+  - An index on `(household_id, sort_order)`.
   - A migration.
 - **Done when:**
   - The migration applies.
-  - `yield_time` is an integer.
-  - A row needs the setup, grinder, machine, portion, drink, persona and
-    logging user.
+  - A drink without milk has a null `typical_milk_ml`.
 
-##### TASK-02-01-01-BE1 · Add the pinned recipes table
-`backend` · Parent: STORY-02-01-01 (also 02-01-02 to 05, 01-02-07) · 2 h · Depends on: TASK-01-03-03-BE1
-- **Build:** `pinned_recipes` per S-08 (nullable `batch_id` and
-  `source_extraction_id`), with an index on `(bean_id, persona_id,
-  setup_id, drink_type_id, pinned_at)`, plus a migration.
-- **Done when:** The migration applies. Two pins for the same key can coexist,
-  so re-pinning adds a row.
-
-##### TASK-04-01-01-BE1 · Add the maintenance events table
-`backend` · Parent: STORY-04-01-01 (also 04-01-02 to 04) · 2 h · Depends on: TASK-02-01-01-BE1
-- **Build:** `maintenance_events` per S-08, including `is_recalibration`
-  (boolean, not null, default false), with an index on
-  `(owned_hardware_id, occurred_at)`, plus a migration. `grind_shift`,
-  `grind_scale` and `offset_source_recipe_id` stay null in the MVP.
+##### TASK-01-01-08-BE1 · Add the milk types table
+`backend` · Parent: STORY-01-01-08 · 2 h · New · Depends on: TASK-01-01-01-BE2
+- **Build:**
+  - `milk_types` per S-08: `household_id`, `name_key`, `name`, `kind` (dairy
+    or plant), `hidden` and `sort_order`.
+  - An index on `(household_id, sort_order)`.
+  - A migration.
 - **Done when:**
   - The migration applies.
-  - `is_recalibration` defaults to false.
-  - The offset columns exist, but no MVP code writes them.
+  - A row with only `name_key` and one with only `name` are both valid.
+
+##### TASK-01-02-01-BE1 · Add hardware makers and models, with a typed capabilities shape
+`backend` · Parent: STORY-01-02-01 (also 01-02-02, 01-06-01, 06 to 09) · 4 h · Updated (three kinds, basket dose range) · Depends on: TASK-01-01-01-BE2, TASK-01-01-04-QA1
+- **Build:**
+  - `hardware_makers` and `canonical_hardware` per S-08. `kind` is limited
+    to `machine`, `grinder` or `basket`.
+  - A migration.
+  - `src/domain/capabilities.ts`: the TypeScript type and a
+    `parseCapabilities` guard covering:
+    - the machine's temperature and pressure;
+    - the grinder's grind;
+    - the basket's dose `{ min, max }`;
+    - S-08's "not sure" values (unknown control, a null gauge, null counts,
+      units, min, max and step, and an unknown grind type and coarser
+      direction).
+  - The guard rejects a capability that doesn't belong to the kind, for
+    example a dose range on a grinder.
+- **Done when:**
+  - The migration applies.
+  - The guard accepts every S-08 shape and rejects malformed or wrong-kind
+    JSON.
+  - Its unit tests run in the Node project (TASK-01-01-04-QA1, declared per
+    review m5).
+
+##### TASK-01-02-01-BE2 · Add catalog URLs, aliases and merges tables
+`backend` · Parent: STORY-01-02-01 (also 01-06-04, 01-06-05) · 3 h · Unchanged · Depends on: TASK-01-02-01-BE1
+- **Build:**
+  - `catalog_urls` (index on `normalized_url`), `catalog_aliases` (index on
+    `entity_type, name`) and `catalog_merges` per S-08.
+  - A migration.
+- **Done when:** The migration applies, and URLs and aliases can point at any
+  of the four entity types.
+
+##### TASK-03-01-01-BE1 · Add roasters and beans tables
+`backend` · Parent: STORY-03-01-01 (also 01-06-02) · 2 h · Unchanged · Depends on: TASK-01-01-01-BE2
+- **Build:** `roasters` and `canonical_beans` per S-08, plus a migration.
+- **Done when:** The migration applies, and `tasting_notes` round-trips a
+  string array.
+
+##### TASK-01-02-02-BE1 · Add the owned hardware table
+`backend` · Parent: STORY-01-02-02 (also 01-02-04 to 09) · 2 h · Updated (toolkits removed) · Depends on: TASK-01-02-01-BE1
+- **Build:**
+  - `owned_hardware` per S-08, with an index on `household_id`.
+  - `retired_at` exists but isn't written in the MVP (no retire action).
+  - The old `toolkits` table is not created.
+  - A migration.
+- **Done when:** The migration applies, and no `toolkits` table exists.
+
+##### TASK-01-02-04-BE2 · Add the setups and setup parts tables
+`backend` · Parent: STORY-01-02-04 (also 01-02-05, 08, 09, 02-01, 02-02) · 3 h · New · Depends on: TASK-01-02-02-BE1
+- **Build:**
+  - `setups` per S-08: `parts_key`, a nullable `name` and `created_at`, with
+    the unique index `setups_household_parts` on `(household_id, parts_key)`.
+  - `setup_parts` with the composite key `(setup_id, owned_hardware_id)`, and
+    an index on `owned_hardware_id` to answer "which setups is this part in".
+  - `src/domain/setupKey.ts`: `partsKey(ids)` sorts and joins the IDs.
+  - A migration.
+- **Done when:**
+  - The migration applies.
+  - The same three parts in any order give the same key.
+  - A second insert with the same household and key violates the unique
+    index.
+
+##### TASK-03-01-02-BE1 · Add batches, portions and stock checks tables
+`backend` · Parent: STORY-03-01-02 (also 03-02, 03-03, 03-04) · 3 h · Updated (packing date) · Depends on: TASK-03-01-01-BE1
+- **Build:**
+  - `batches` per S-08, including `packed_at`.
+  - `batch_portions` (index on `batch_id`) and `stock_checks` (index on
+    `portion_id, checked_at`).
+  - A migration.
+- **Done when:**
+  - The migration applies.
+  - No status, age or remaining column exists.
+
+##### TASK-01-03-03-BE1 · Add the extractions table
+`backend` · Parent: STORY-01-03-03 (also every shot story) · 4 h · Updated (setup only, prep, milk, taste) · Depends on: TASK-01-02-04-BE2, TASK-03-01-02-BE1, TASK-01-01-02-BE1, TASK-01-01-08-BE1
+- **Build:** `extractions` per S-08:
+  - `setup_id` only (no grinder or machine columns);
+  - `used_wdt` and `used_puck_screen`, not null with a default of false;
+  - `milk_type_id` and `milk_ml`;
+  - `reaction` and `user_rating`;
+  - `taste_balance`, `taste_strength`, `taste_body` and `taste_sweetness`
+    (integers);
+  - `taste_tags` (JSON, typed as the six tag keys from TASK-01-05-03-BE1's
+    type);
+  - `yield_time` as integer ms;
+  - `is_network_eligible` with a default of false.
+
+  Indexes on `(household_id, created_at)`, `(portion_id)` and
+  `(setup_id, created_at)`. Plus a migration.
+- **Done when:**
+  - The migration applies.
+  - No sensory-score or defects columns exist.
+  - Prep columns default to false.
+
+##### TASK-02-01-01-BE1 · Add the pinned recipes table
+`backend` · Parent: STORY-02-01-01 (also 02-01-02 to 06) · 2 h · Updated (setup only, prep, milk) · Depends on: TASK-01-03-03-BE1
+- **Build:**
+  - `pinned_recipes` per S-08: `setup_id`, the prep columns, `milk_type_id`
+    and `milk_ml`, and nullable `batch_id` and `source_extraction_id`.
+  - An index on `(bean_id, persona_id, setup_id, drink_type_id, pinned_at)`.
+  - A migration.
+- **Done when:**
+  - The migration applies.
+  - Two pins for one key coexist.
+  - Milk isn't part of the index.
+
+##### TASK-04-01-01-BE1 · Add the maintenance events table
+`backend` · Parent: STORY-04-01-01 (also 04-01-02 to 04) · 2 h · Unchanged · Depends on: TASK-02-01-01-BE1
+- **Build:**
+  - `maintenance_events` per S-08, with `is_recalibration` (not null, default
+    false), and an index on `(owned_hardware_id, occurred_at)`.
+  - The offset columns stay null in the MVP.
+  - A migration.
+- **Done when:** The migration applies, and no MVP code writes the offset
+  columns.
 
 ##### TASK-01-01-04-QA1 · Add a Node test project with a migrated test database and fixtures
-`qa` · Parent: STORY-01-01-04 · 5 h · Depends on: TASK-01-01-01-BE1, TQ-09
+`qa` · Parent: STORY-01-01-04 · 5 h · Updated (setup and milk fixtures) · Depends on: TASK-01-01-01-BE1, TQ-09
 - **Build:**
-  - A second Vitest project (`unit`, Node environment) in `vitest.config.ts`,
-    next to the existing storybook project. It covers `src/domain/**/*.test.ts`
-    and `src/server/**/*.test.ts`.
-  - A helper that creates an in-memory libSQL database and applies
-    `src/db/migrations` for each test file.
-  - Fixture builders for a household with a user, persona, drinks, setup,
-    setup, bag and portion, all with generic data.
-  - A way to call Server Actions with a fake session.
+  - A second Vitest project (`unit`, Node) for `src/domain/**` and
+    `src/server/**` tests.
+  - An in-memory libSQL database migrated for each test file.
+  - Generic fixture builders: a household with a user, persona, drinks,
+    milks, a machine, a grinder and a basket, a setup, a bag and a portion.
+  - A way to call actions with a fake session.
 - **Done when:**
   - `npx vitest run` runs both projects.
-  - A sample test creates two households in isolation.
-  - The CLAUDE.md commands section is noted for update in the PR description
-    (not edited by this plan).
+  - A sample test isolates two households.
 
 ##### TASK-01-01-01-QA1 · Verify the schema and migrations against S-08
-`qa` · Parent: STORY-01-01-01 · 3 h · Depends on: TASK-04-01-01-BE1, TASK-01-01-04-QA1
-- **Build:** A schema test that applies all migrations from empty and checks:
-  - every S-08 table and column exists with the right type and nullability,
-    including `timestamp_ms` timestamps and `is_recalibration`;
-  - `yield_time` is an integer and measurements are `real`;
-  - none of the calculated values (remaining weight, status, age) has a
-    column.
-- **Done when:** The test passes and fails if a column is renamed or retyped.
+`qa` · Parent: STORY-01-01-01 · 3 h · Updated (setups, milk, taste) · Depends on: TASK-04-01-01-BE1, TASK-01-01-04-QA1
+- **Build:** A schema test that applies every migration and checks:
+  - each S-08 table and column, its type and nullability, including
+    `timestamp_ms`;
+  - the unique `setups` index;
+  - no toolkit, defect or sensory-score columns;
+  - no stored derived values.
+- **Done when:** The test fails on any rename or retype.
 
 ---
 
 ## 7. Tasks by story
 
-### EPIC-01-01: Start brewing without setting anything up
+### INIT-01: Log a shot against your real setup in seconds
 
-#### STORY-01-01-01: Open the app and start, with no sign-in
+#### EPIC-01-01: Start brewing without setting anything up
 
-Schema: TASK-01-01-01-BE1, TASK-01-01-01-BE2, TASK-01-01-01-QA1 (section 6).
+##### STORY-01-01-01: Open the app and start, with no sign-in
+
+Schema and tests: TASK-01-01-01-BE1, BE2 and QA1 (section 6).
 
 ##### TASK-01-01-01-BE3 · Add Firebase anonymous sign-in on the client
-`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: TASK-01-01-01-BE1
-- **Build:**
-  - `src/lib/firebase/client.ts`: initialises the Firebase app from public env
-    config (`NEXT_PUBLIC_FIREBASE_*`), signs in with `signInAnonymously`, and
-    exposes `getIdToken()`.
-  - Persistence stays the SDK default (IndexedDB), so a reopen keeps the same
-    uid.
-  - Add the `firebase` dependency with `npx npm@11 install` (CLAUDE.md).
-- **Done when:**
-  - A fresh browser gets a uid, and a reload keeps it (AC 5).
-  - There's no sign-in UI (AC 1).
-  - Config comes only from env, and none is committed.
+`backend` · Parent: STORY-01-01-01 · 4 h · Unchanged · Depends on: TASK-01-01-01-BE1
+- **Build:** `src/lib/firebase/client.ts` initialises the app from public env
+  config, calls `signInAnonymously` and exposes `getIdToken()`. Persistence
+  stays the SDK default. Add `firebase` with `npx npm@11 install`.
+- **Done when:** A fresh browser gets a uid and a reload keeps it (AC 5);
+  there's no sign-in UI (AC 1); no config is committed.
 
 ##### TASK-01-01-01-BE4 · Verify the Firebase ID token on the server and keep a session
-`backend` · Parent: STORY-01-01-01 · 6 h · Depends on: TASK-01-01-01-BE3, TASK-01-01-01-BE2
-- **Build:**
-  - `src/app/api/session/route.ts` (POST) receives the ID token once,
-    verifies it with `firebase-admin` `verifyIdToken`, and sets an httpOnly,
-    Secure, SameSite=Lax session cookie made with `createSessionCookie`
-    (TQ-01).
-  - `src/server/auth/session.ts` provides `getSession()`, which verifies the
-    cookie and resolves user, household and default persona, with a
-    per-request `cache`, and `requireSession()`, which throws if the session
-    is missing.
-  - On an expired or invalid cookie the client re-exchanges a fresh token
-    silently.
-  - Service-account credentials come from env secrets only.
-- **Done when:**
-  - A forged or expired token is rejected.
-  - A valid one yields a session.
-  - Server Components and Server Actions can both call `getSession()`.
-  - Clearing the cookie recovers the same account with no user action
-    (AC 5).
+`backend` · Parent: STORY-01-01-01 · 6 h · Unchanged · Depends on: TASK-01-01-01-BE3, TASK-01-01-01-BE2
+- **Build:** `src/app/api/session/route.ts` (POST) verifies the token with
+  `firebase-admin` and sets an httpOnly session cookie. `src/server/auth/session.ts`
+  has `getSession()` (cached per request) and `requireSession()`. An expired
+  cookie is re-exchanged silently by the client. Credentials come from env
+  secrets only.
+- **Done when:** A forged or expired token is rejected; Server Components and
+  Actions can call `getSession()`; clearing the cookie recovers the same
+  account (AC 5).
 
-##### TASK-01-01-01-BE5 · Create the user, household, persona and starter drinks in one transaction
-`backend` · Parent: STORY-01-01-01 · 4 h · Depends on: TASK-01-01-01-BE4, TASK-01-01-02-BE2
-- **Build:**
-  - `src/server/auth/bootstrap.ts`, called from the session route the first
-    time a uid is seen. In one transaction it creates the `users` row,
-    `households`, a `household_members` row with role `owner`, a default
-    persona (`name` null, `is_default` true) and the starter drinks
-    (TASK-01-01-02-BE2).
-  - It's idempotent on `firebase_uid`: a retry after a failure finds the
-    existing user or creates everything.
-- **Done when:**
-  - A failure midway leaves no partial rows (AC 4).
-  - Two concurrent first calls create exactly one household.
-  - A second launch creates nothing new (AC 5).
-  - No personal data is stored (S-02).
+##### TASK-01-01-01-BE5 · Create the user, household, persona, starter drinks and starter milks in one transaction
+`backend` · Parent: STORY-01-01-01 · 4 h · Updated (milks) · Depends on: TASK-01-01-01-BE4, TASK-01-01-02-BE2, TASK-01-01-08-BE2
+- **Build:** `src/server/auth/bootstrap.ts`, called the first time a uid is
+  seen. In one transaction: user, household, owner membership, default
+  persona, the nine drinks and the seven milks. Idempotent on `firebase_uid`.
+- **Done when:** A failure midway leaves no rows (AC 4); two concurrent first
+  calls make one household; a second launch creates nothing (AC 5); no
+  personal data is stored.
 
 ##### TASK-01-01-01-FE1 · Build the start screen (SCR-START) with its story
-`frontend` · Parent: STORY-01-01-01 · 4 h · Depends on: DES-01-01-01, TASK-01-01-06-FE1
-- **Build:** `src/components/screens/StartScreen`, props-only. It shows
-  `LogoWordmark` centred on `paper` in these states:
-  - normal: wordmark only, no spinner;
-  - slow: `start.slow` under the wordmark;
-  - failed: `start.failed` in `text-h3`, one sentence, and a primary
-    `actions.retry`.
-
-  Stories cover each state, plus RTL.
-- **Done when:**
-  - The stories pass axe.
-  - There's no sign-in, consent or survey element (AC 1).
-  - Failed shows retry and nothing partial (AC 4).
+`frontend` · Parent: STORY-01-01-01 · 4 h · Unchanged · Depends on: DES-01-01-01, TASK-01-01-06-FE1
+- **Build:** `src/components/screens/StartScreen`, props-only: normal (wordmark
+  only), slow (`start.slow`) and failed (`start.failed` with `actions.retry`).
+  Stories for each, plus RTL.
+- **Done when:** The stories pass axe; no sign-in, consent or survey element
+  (AC 1); failed shows retry and nothing partial (AC 4).
 
 ##### TASK-01-01-01-FE2 · Wire first launch: sign in, start a session, land on Brew
-`frontend` · Parent: STORY-01-01-01 · 5 h · Depends on: TASK-01-01-01-FE1, TASK-01-01-01-BE5, TASK-01-01-05-FE3
-- **Build:**
-  - The `(app)` layout checks `getSession()`. With no session it renders a
-    client `StartGate` that:
-    - signs in;
-    - posts the token to `/api/session`;
-    - shows the slow state after 3 seconds;
-    - shows failed with retry on error;
-    - calls `router.refresh()` on success.
-  - With a session it renders the app shell.
-- **Done when:**
-  - A first open reaches Brew with no prompts (AC 1, AC 2).
-  - The slow message appears after 3 seconds (AC 3).
-  - Offline shows failed and retry, and retrying online succeeds (AC 4).
-  - A reopen goes straight to the app (AC 5).
+`frontend` · Parent: STORY-01-01-01 · 5 h · Unchanged · Depends on: TASK-01-01-01-FE1, TASK-01-01-01-BE5, TASK-01-01-05-FE3
+- **Build:** The `(app)` layout renders a client `StartGate` when there's no
+  session: sign in, post the token, show slow after 3 s, failed with retry on
+  error, then `router.refresh()`.
+- **Done when:** A first open reaches Brew with no prompts (AC 1, AC 2); slow
+  after 3 s (AC 3); offline shows failed and retry works online (AC 4); a
+  reopen goes straight in (AC 5).
 
 ##### TASK-01-01-01-QA2 · Test first launch, failure and reopening
-`qa` · Parent: STORY-01-01-01 · 5 h · Depends on: TASK-01-01-01-FE2
-- **Build:**
-  - Node tests for bootstrap: creates exactly one user, household, owner
-    membership, default persona and 9 drinks (AC 2); is atomic when a step
-    throws (AC 4); is idempotent on retry and under concurrent calls (AC 4,
-    AC 5).
-  - Session route tests: invalid, expired and valid tokens.
-  - StartScreen play tests for slow and failed with retry (AC 3, AC 4).
-  - A manual check script in the PR description: first launch in a private
-    window, then offline.
-- **Done when:** All tests pass, and each AC 1 to AC 5 maps to at least one
-  test or manual step.
+`qa` · Parent: STORY-01-01-01 · 5 h · Updated (milks) · Depends on: TASK-01-01-01-FE2
+- **Build:** Node tests for bootstrap (one user, household, owner, persona,
+  nine drinks and seven milks; atomic; idempotent and concurrency-safe);
+  session route tests; StartScreen play tests for slow and failed; a manual
+  first-launch script.
+- **Done when:** AC 1 to AC 5 each map to a test or manual step.
 
-#### STORY-01-01-02: Get a starter drink list in my language
+##### STORY-01-01-02: Get a starter drink list in my language
 
-Schema: TASK-01-01-02-BE1.
+Schema: TASK-01-01-02-BE1 (section 6).
 
-##### TASK-01-01-02-BE2 · Seed the starter drinks for each new household
-`backend` · Parent: STORY-01-01-02 · 2 h · Depends on: TASK-01-01-02-BE1
-- **Build:**
-  - `src/domain/starterDrinks.ts`: the nine drinks in S-02 order, each with
-    `name_key` (`drinks.espresso` and so on), `has_milk` and `sort_order`.
-  - `has_milk` is true for cortado, flat white, cappuccino, latte and
-    macchiato. No behaviour uses it yet (EPIC-01-03 open question).
-  - A function that inserts them for a household inside the bootstrap
-    transaction.
-  - `drinks.*` keys in `en.json`.
-- **Done when:** A new household has exactly these nine rows, its own copy,
-  and no stored names (AC 1, AC 4).
+##### TASK-01-01-02-BE2 · Seed the starter drinks, with typical milk amounts, for each new household
+`backend` · Parent: STORY-01-01-02 · 2 h · Updated (typical milk) · Depends on: TASK-01-01-02-BE1
+- **Build:** `src/domain/starterDrinks.ts`: nine drinks in S-02 order with
+  `name_key`, `has_milk`, `typical_milk_ml` (cortado 60, flat white 120,
+  cappuccino 120, latte 200, macchiato 15, others null) and `sort_order`.
+  An insert function used inside the bootstrap transaction. `drinks.*` keys.
+- **Done when:** A new household has these nine rows as its own copy (AC 1,
+  AC 4); milk drinks carry their amount and others none (AC 3).
 
 ##### TASK-01-01-02-FE1 · Add one helper that shows a drink's name
-`frontend` · Parent: STORY-01-01-02 · 2 h · Depends on: TASK-01-01-02-BE2
-- **Build:** `src/domain/drinkName.ts` with
-  `drinkLabel(drink, t) = drink.name ?? t(drink.nameKey)`, plus a typed hook
-  wrapper. Every screen that shows a drink uses it.
-- **Done when:** The helper is used everywhere a drink name appears (searched
-  at review), and stored names win over keys.
+`frontend` · Parent: STORY-01-01-02 · 2 h · Unchanged · Depends on: TASK-01-01-02-BE2
+- **Build:** `src/domain/drinkName.ts` `drinkLabel(drink, t)`: stored name wins
+  over the key.
+- **Done when:** Every drink name in the app goes through it.
 
 ##### TASK-01-01-02-QA1 · Test the starter list, its translation and household separation
-`qa` · Parent: STORY-01-01-02 · 3 h · Depends on: TASK-01-01-02-FE1, TQ-08
-- **Build:**
-  - Node tests: nine drinks in order (AC 1), and two households get separate
-    rows (AC 4).
-  - Story tests that render the drink list with `en` and a test-only messages
-    fixture for a second language (TQ-08): names follow the language, with
-    the same count and IDs (AC 2, AC 3).
-- **Done when:** The tests pass. If TQ-08 picks a shipped second language,
-  the fixture is replaced by its messages file.
+`qa` · Parent: STORY-01-01-02 · 3 h · Updated (typical milk) · Depends on: TASK-01-01-02-FE1, TQ-08
+- **Build:** Node tests: nine drinks in order (AC 1); milk drinks have an
+  amount and espresso none (AC 3); two households separate (AC 4). Story
+  tests with a test-only second language (AC 2).
+- **Done when:** AC 1 to AC 4 are covered.
 
-#### STORY-01-01-03: See and rename my profile
+##### STORY-01-01-03: See and rename my profile
 
 ##### TASK-01-01-03-BE1 · Add profile read and persona rename
-`backend` · Parent: STORY-01-01-03 · 3 h · Depends on: TASK-01-01-04-BE1
-- **Build:**
-  - DAL `getProfile()`: the default persona's name, plus the app version from
-    `package.json` at build time.
-  - Action `renamePersona(name)`: trims the name, stores an empty name as
-    `null`, and only for the household's default persona.
-  - `src/domain/personaLabel.ts`: `name ?? t('profile.defaultName')`.
-- **Done when:**
-  - Empty and whitespace names store null (AC 4).
-  - Another household's persona can't be renamed.
-  - The label helper is the only way a persona name is shown (AC 1, AC 3).
+`backend` · Parent: STORY-01-01-03 · 3 h · Unchanged · Depends on: TASK-01-01-04-BE1
+- **Build:** DAL `getProfile()`; action `renamePersona(name)` (trim, empty to
+  null, default persona only); `src/domain/personaLabel.ts`.
+- **Done when:** Empty names store null (AC 4); another household's persona
+  can't be renamed; the label helper is the only way a name is shown.
 
 ##### TASK-01-01-03-FE1 · Fix the Input placeholder contrast
-`frontend` · Parent: STORY-01-01-03 · 2 h · Depends on: DES-01-01-04
-- **Build:** In `src/components/ui/Input`, replace
-  `placeholder:text-ink-tertiary` (fails contrast at 16 px) with the token
-  DES-01-01-04 picks. Add Input stories for `type="date"`, `type="url"` and
-  `inputMode="decimal"` (design section 3).
-- **Done when:** The Input stories pass axe with a placeholder, and the new
-  type stories exist.
+`frontend` · Parent: STORY-01-01-03 · 2 h · Unchanged · Depends on: DES-01-01-04
+- **Build:** Replace `placeholder:text-ink-tertiary` in `Input` with the token
+  DES-01-01-04 picks; add Input stories for `date`, `url` and decimal.
+- **Done when:** Input stories pass axe with a placeholder.
 
 ##### TASK-01-01-03-FE2 · Build the profile screen (SCR-PROFILE) with its story
-`frontend` · Parent: STORY-01-01-03 · 4 h · Depends on: DES-01-01-04, TASK-01-01-03-FE1, TASK-01-01-06-FE1, PR-3
-- **Build:** `src/components/screens/ProfileScreen`, props-only:
-  - PageHeader with back;
-  - a `profile.name` Input with the role label as its hint, not its
-    placeholder;
-  - the `profile.device` sentence in ink;
-  - `profile.about` with name and version;
-  - a save-failed Notice that keeps the typed value.
-
-  Stories: unnamed, renamed, save failed, RTL.
-- **Done when:**
-  - The stories pass axe.
-  - The device sentence uses no `signal` (AC 5).
-  - Save failed keeps the input (AC 6).
+`frontend` · Parent: STORY-01-01-03 · 4 h · Unchanged · Depends on: DES-01-01-04, TASK-01-01-03-FE1, TASK-01-01-06-FE1, PR-3
+- **Build:** `ProfileScreen`, props-only: PageHeader, `profile.name` Input with
+  the role label as hint, the `profile.device` sentence, `profile.about`, a
+  save-failed Notice. Stories: unnamed, renamed, failed, RTL.
+- **Done when:** Stories pass axe; the device sentence uses no `signal`
+  (AC 5); a failed save keeps the input (AC 6).
 
 ##### TASK-01-01-03-FE3 · Wire the profile route and the persona label on Brew
-`frontend` · Parent: STORY-01-01-03 · 3 h · Depends on: TASK-01-01-03-FE2, TASK-01-01-03-BE1, TASK-01-01-05-FE4
-- **Build:** `src/app/(task)/profile/page.tsx` reads `getProfile()` and saves
-  through `renamePersona` with `useActionState`. The persona label at the top
-  of Brew opens it.
-- **Done when:**
-  - Renaming shows the new name on Brew and Profile (AC 3).
-  - Clearing restores the label (AC 4).
-  - A failure keeps the text and allows retry (AC 6).
+`frontend` · Parent: STORY-01-01-03 · 3 h · Unchanged · Depends on: TASK-01-01-03-FE2, TASK-01-01-03-BE1, TASK-01-01-05-FE4
+- **Build:** `src/app/(task)/profile/page.tsx` with `renamePersona` through
+  `useActionState`; the persona label on Brew opens it.
+- **Done when:** A rename shows on Brew and Profile (AC 3); clearing restores
+  the label (AC 4); failure keeps the text (AC 6).
 
 ##### TASK-01-01-03-QA1 · Test the profile label, rename and failure paths
-`qa` · Parent: STORY-01-01-03 · 3 h · Depends on: TASK-01-01-03-FE3
-- **Build:**
-  - Node tests for `renamePersona`: trim, empty to null, cross-household
-    rejected.
-  - Label helper tests with `en` and the TQ-08 fixture (AC 1 to AC 3).
-  - ProfileScreen play tests for clear-and-save and save failed (AC 4,
-    AC 6).
-  - A content check that the device sentence and version show (AC 5).
-- **Done when:** AC 1 to AC 6 are each covered.
+`qa` · Parent: STORY-01-01-03 · 3 h · Unchanged · Depends on: TASK-01-01-03-FE3
+- **Build:** Node tests for `renamePersona`; label tests in `en` and the test
+  locale; ProfileScreen play tests; content check of the device sentence.
+- **Done when:** AC 1 to AC 6 are covered.
 
-#### STORY-01-01-04: Keep my kitchen private to my household
+##### STORY-01-01-04: Keep my kitchen private to my household
 
 Test infrastructure: TASK-01-01-04-QA1 (section 6).
 
 ##### TASK-01-01-04-BE1 · Enforce household scope in the data access layer and every action
-`backend` · Parent: STORY-01-01-04 · 5 h · Depends on: TASK-01-01-01-BE4
-- **Build:**
-  - `src/server/dal/scope.ts`:
-    - `requireHousehold()`, from the session;
-    - `assertOwned(table, id)` for household-owned rows (units, setups,
-      batches, recipes, shots), with portions checked through their batch;
-    - `visibleCatalog(householdId)`, the catalog visibility predicate (shared
-      entries plus the household's own; detail in TASK-01-06-03-BE1).
-  - A short convention note at the top of `src/server/actions/` saying every
-    action calls these before reading or writing.
-- **Done when:**
-  - Reading or writing a row from another household throws "not found" (not
-    "forbidden", so existence isn't revealed).
-  - New records always get the session's household (AC 1).
+`backend` · Parent: STORY-01-01-04 · 5 h · Unchanged · Depends on: TASK-01-01-01-BE4
+- **Build:** `src/server/dal/scope.ts`: `requireHousehold()`,
+  `assertOwned(table, id)` (portions through their batch) and
+  `visibleCatalog(householdId)`. A convention note in `src/server/actions/`.
+- **Done when:** Another household's row throws "not found"; new records get
+  the session's household (AC 1).
 
 ##### TASK-01-01-04-QA2 · Build the cross-household isolation test suite
-`qa` · Parent: STORY-01-01-04 · 4 h · Depends on: TASK-01-01-04-BE1, TASK-01-01-04-QA1
-- **Build:** `src/server/__tests__/isolation.test.ts`, using two households.
-  For each DAL read and each action it checks that household B can't see or
-  change household A's records (AC 2, AC 3), and that creates are scoped
-  (AC 1). Later backend tasks add their own cases here, as section 5 requires.
-- **Done when:** The suite runs in CI and fails when a scope check is
-  removed (checked by temporarily removing one).
+`qa` · Parent: STORY-01-01-04 · 4 h · Unchanged · Depends on: TASK-01-01-04-BE1, TASK-01-01-04-QA1
+- **Build:** `src/server/__tests__/isolation.test.ts` with two households; each
+  DAL read and action adds its case (section 5).
+- **Done when:** The suite runs in CI and fails when a scope check is removed
+  (AC 1 to AC 3).
 
-#### STORY-01-01-05: Move around the app
+##### STORY-01-01-05: Move around the app
 
 ##### TASK-01-01-05-FE1 · Build the minimal Icon set (NC-14) with its story
-`frontend` · Parent: STORY-01-01-05 · 3 h · Depends on: DES-01-02-05
-- **Build:** `src/components/ui/Icon`: chevron, check, plus and close, drawn
-  like the Logo (round caps, `currentColor`). Icons are decorative by default
-  (`aria-hidden`), and the chevron mirrors in RTL. Stories cover all four,
-  plus RTL.
-- **Done when:** The stories pass axe, and the chevron points to inline-end
-  in both directions.
+`frontend` · Parent: STORY-01-01-05 · 3 h · Unchanged · Depends on: DES-01-02-05
+- **Build:** `src/components/ui/Icon`: chevron, check, plus, close; `currentColor`,
+  decorative by default; the chevron mirrors in RTL. Stories incl. RTL.
+- **Done when:** Stories pass axe; the chevron points to inline-end in both
+  directions.
 
 ##### TASK-01-01-05-FE2 · Build Sheet (NC-05) and the confirm sheet SH-CONFIRM with stories
-`frontend` · Parent: STORY-01-01-05 · 6 h · Depends on: DES-01-02-05, TASK-01-01-05-FE1
-- **Build:** `src/components/ui/Sheet`:
-  - a bottom sheet on phones and a centred dialog on wide screens;
-  - `paper` with a `border-line` top edge and a grabber, an `ink` scrim at low
-    opacity, and no shadow;
-  - a focus trap, focus returned on close, Escape and swipe-down to close,
-    and `role="dialog"` with a label;
-  - motion that respects reduced motion.
+`frontend` · Parent: STORY-01-01-05 · 6 h · Unchanged · Depends on: DES-01-02-05, TASK-01-01-05-FE1
+- **Build:** `src/components/ui/Sheet` (bottom sheet on phones, dialog on wide
+  screens, focus trap and return, Escape, swipe down, reduced motion) and
+  `ConfirmSheet`. Stories: open, long content, confirm, RTL, reduced motion.
+- **Done when:** Stories pass axe; a play test covers the focus trap; one
+  primary button per sheet.
 
-  Also a `ConfirmSheet` (SH-CONFIRM) with a title, one sentence, a primary
-  button and cancel. Stories: open, long content, confirm, RTL, reduced
-  motion.
-- **Done when:**
-  - The stories pass axe.
-  - A play test checks the focus trap and focus return.
-  - There's one primary button per sheet.
+##### TASK-01-01-05-FE7 · Rename PR #3's tabs and message keys to Brew, Journal, Beans and Setup
+`frontend` · Parent: STORY-01-01-05 · 3 h · New · Depends on: PR-3
+- **Build:** In the PR #3 code (TabBar usage, RecentShotsScreen, fixtures,
+  stories and `en.json`), rename `shots.*` to `journal.*`, `pantry.*` to
+  `beans.*`, `nav.shots` to `nav.journal` and `nav.pantry` to `nav.beans`.
+  Check what PR #3 already renamed. Entries stay "shots" in copy.
+- **Done when:** A search finds no `shots.` or `pantry.` key or "Pantry" copy
+  (AC 1); stories still pass; tab labels are the four section names.
+
+##### TASK-01-01-05-FE8 · Add a guard that the four sections never shrink or truncate
+`frontend` · Parent: STORY-01-01-05 · 3 h · New · Depends on: TASK-01-01-05-FE7, TASK-01-01-05-FE3
+- **Build:** TabBar play tests at 320 and 375 px with a long test locale and
+  RTL: four labels visible, untruncated, each at least 44 px tall. A test
+  that the four tab routes keep an interim or real screen (never blank).
+  Interpretation flagged in section 9 (Q-T1).
+- **Done when:** The tests fail if a tab drops, truncates or loses its
+  minimum height (AC 1, AC 2).
 
 ##### TASK-01-01-05-FE3 · Add the app route group with the TabBar and interim tab states
-`frontend` · Parent: STORY-01-01-05 · 4 h · Depends on: PR-3, TASK-01-01-06-FE3, DES-01-01-02, DES-01-01-06
-- **Build:**
-  - `src/app/(app)/layout.tsx` with TabBar (PR #3) linking `/`, `/shots`,
-    `/pantry` and `/setup`, with the active tab from the pathname.
-  - Each tab page starts with its interim EmptyState from DES-01-01-06
-    (no action, or an action only once its target exists).
-  - The placeholder `src/app/page.tsx` is removed.
-- **Done when:**
-  - Each tab is one tap from any tab (AC 1).
-  - No tab is blank or has a dead action (AC 2).
-  - The TabBar respects the safe area.
+`frontend` · Parent: STORY-01-01-05 · 4 h · Updated (four section names) · Depends on: PR-3, TASK-01-01-05-FE7, TASK-01-01-06-FE3, DES-01-01-02, DES-01-01-06
+- **Build:** `src/app/(app)/layout.tsx` with TabBar linking `/`, `/journal`,
+  `/beans` and `/setup`; each tab starts with its interim EmptyState
+  (DES-01-01-06); remove the placeholder `src/app/page.tsx`.
+- **Done when:** Each tab is one tap from any tab (AC 1); no tab is blank or
+  has a dead action (AC 2); safe area respected.
 
 ##### TASK-01-01-05-FE4 · Add the full-screen task frame and the unsaved-changes guard
-`frontend` · Parent: STORY-01-01-05 · 5 h · Depends on: TASK-01-01-05-FE2, PR-3
-- **Build:**
-  - `src/app/(task)/layout.tsx`: no TabBar, PageHeader with ghost
-    `actions.cancel` at the start.
-  - A `useUnsavedChanges(isDirty)` hook that opens SH-CONFIRM once on cancel,
-    back or tab navigation when dirty, and leaves at once when clean. It also
-    handles browser back (`popstate`) and `beforeunload`.
-- **Done when:**
-  - Dirty leave asks once, and clean leave is immediate (AC 3).
-  - The guard is reused by the log, add-bag and add-setup tasks.
+`frontend` · Parent: STORY-01-01-05 · 5 h · Unchanged · Depends on: TASK-01-01-05-FE2, PR-3
+- **Build:** `src/app/(task)/layout.tsx` (no TabBar, ghost cancel) and a
+  `useUnsavedChanges(isDirty)` hook that opens SH-CONFIRM once, handles
+  `popstate` and `beforeunload`, and leaves at once when clean.
+- **Done when:** Dirty leave asks once and clean leave is immediate (AC 3).
 
 ##### TASK-01-01-05-FE5 · Add return-to with draft restore for side tasks
-`frontend` · Parent: STORY-01-01-05 · 6 h · Depends on: TASK-01-01-05-FE4
-- **Build:** `src/lib/returnTo.ts` and `src/lib/drafts.ts`:
-  - Starting a side task saves the current task's draft to sessionStorage
-    (try/catch, falls back to memory) and passes `returnTo` and a draft key.
-  - Finishing the side task navigates to `returnTo` with `selected=<newId>`.
-  - The origin task restores its draft and applies the selection.
-  - Leaving without finishing restores the draft unchanged.
-- **Done when:** In a play test, adding a bag from the log returns to the log
-  with the new portion chosen and dial values kept (AC 4). The same holds for
-  setup from the checklist.
+`frontend` · Parent: STORY-01-01-05 · 6 h · Unchanged · Depends on: TASK-01-01-05-FE4
+- **Build:** `src/lib/returnTo.ts` and `src/lib/drafts.ts` (sessionStorage with
+  a memory fallback). Finishing a side task returns with `selected=<newId>`;
+  leaving restores the draft unchanged.
+- **Done when:** Adding a bag from the log returns with the portion chosen
+  and dial values kept (AC 4); the same for a setup from the checklist.
 
-##### TASK-01-01-05-FE6 · Reopen on the last screen within five minutes
-`frontend` · Parent: STORY-01-01-05 · 2 h · Depends on: TASK-01-01-05-FE3
-- **Build:** A client effect in the `(app)` layout records the tab path and
-  time in localStorage. On cold start, within 5 minutes it routes to that
-  tab, otherwise to Brew. Task routes aren't restored (only tabs).
-- **Done when:** Reopening within 5 minutes lands on the last tab, after that
-  on Brew (AC 5), and a storage failure falls back to Brew.
+##### TASK-01-01-05-QA1 · Test navigation, leaving tasks and return-to
+`qa` · Parent: STORY-01-01-05 · 3 h · Updated (reopen removed) · Depends on: TASK-01-01-05-FE5, TASK-01-01-05-FE8
+- **Build:** TabBar active state and 44 px height (AC 1); interim empty
+  states (AC 2); the unsaved guard dirty versus clean (AC 3); return-to and
+  draft unit tests, including storage unavailable (AC 4); a manual phone
+  back-button check.
+- **Done when:** AC 1 to AC 4 are covered.
 
-##### TASK-01-01-05-QA1 · Test navigation, leaving tasks, return-to and reopen
-`qa` · Parent: STORY-01-01-05 · 4 h · Depends on: TASK-01-01-05-FE5, TASK-01-01-05-FE6
-- **Build:**
-  - Story play tests for the TabBar's active state and a 44 px minimum height
-    (AC 1).
-  - Interim empty states present per tab (AC 2).
-  - The unsaved guard, dirty versus clean (AC 3).
-  - Unit tests for the return-to and draft modules, including storage
-    unavailable (AC 4).
-  - A unit test for the 5-minute rule with fake timers (AC 5).
-  - A manual check of browser back on a phone viewport.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-01-06: See the same loading, empty and error behaviour everywhere
+##### STORY-01-01-06: See the same loading, empty and error behaviour everywhere
 
 ##### TASK-01-01-06-FE1 · Build Notice (NC-10) with neutral and warning tones and its stories
-`frontend` · Parent: STORY-01-01-06 (also 01-05-04) · 5 h · Depends on: DES-01-01-05, DES-01-05-03
-- **Build:** `src/components/ui/Notice`:
-  - Tones: `neutral` (ink on `surface`) and `warning` (`signal` on
-    `signal-subtle`).
-  - Sizes: `block`, and `inline` (one line of `signal` text with no fill, for
-    warnings in rows).
-  - Optional action slot (retry).
-  - The API enforces the shot-warning rule: `tone="warning"` requires
-    `warning: ShotWarningKind` (only `'channelling'` in the MVP), so a
-    neutral message can't use signal.
-  - Errors use `role="alert"` and info uses `status`.
-
-  Stories cover every tone and size, with and without an action, plus RTL.
-- **Done when:**
-  - The stories pass axe, including signal contrast on `signal-subtle`.
-  - A type test shows `tone="warning"` without a warning kind fails to
-    compile.
+`frontend` · Parent: STORY-01-01-06 (also 01-05-04) · 5 h · Unchanged · Depends on: DES-01-01-05, DES-01-05-03
+- **Build:** `src/components/ui/Notice`: neutral and warning tones, block and
+  inline sizes, optional retry action. `tone="warning"` requires
+  `warning: ShotWarningKind` (only `'channelling'`). Roles `alert` and
+  `status`. Stories for each, plus RTL.
+- **Done when:** Stories pass axe including signal on `signal-subtle`; a type
+  test shows a warning without a kind fails to compile.
 
 ##### TASK-01-01-06-FE2 · Build Skeleton (NC-11) with its story
-`frontend` · Parent: STORY-01-01-06 · 3 h · Depends on: DES-01-01-05
-- **Build:** `src/components/ui/Skeleton`: `surface-sunken` blocks with
-  `radius-sm`, a slow pulse that stops under reduced motion, a wrapper that
-  sets `aria-busy`, and preset shapes (row, card, home card). Stories:
-  shapes, reduced motion.
-- **Done when:** The stories pass axe, and there's no spinner (AC 1).
+`frontend` · Parent: STORY-01-01-06 · 3 h · Unchanged · Depends on: DES-01-01-05
+- **Build:** `src/components/ui/Skeleton`: `surface-sunken` blocks, a pulse that
+  stops under reduced motion, `aria-busy` wrapper, preset shapes.
+- **Done when:** Stories pass axe; no spinner (AC 1).
 
 ##### TASK-01-01-06-FE3 · Build EmptyState (NC-12) with its story
-`frontend` · Parent: STORY-01-01-06 · 2 h · Depends on: DES-01-01-05
-- **Build:** `src/components/ui/EmptyState`: a `text-h2` line, one
-  `text-body` sentence and at most one action (API-limited). Stories: with
-  action, without action, RTL.
-- **Done when:** The stories pass axe, and the API allows at most one action
-  (AC 2).
+`frontend` · Parent: STORY-01-01-06 · 2 h · Unchanged · Depends on: DES-01-01-05
+- **Build:** `src/components/ui/EmptyState`: heading, one sentence, at most
+  one action (API-limited). Stories with and without action, RTL.
+- **Done when:** Stories pass axe; at most one action (AC 2).
 
 ##### TASK-01-01-06-FE4 · Add the shared loading, error and retry patterns for routes and actions
-`frontend` · Parent: STORY-01-01-06 · 5 h · Depends on: TASK-01-01-06-FE1, TASK-01-01-06-FE2, TASK-01-01-05-FE3
-- **Build:**
-  - A `loading.tsx` template per tab segment using Skeleton presets.
-  - `error.tsx` boundaries that render Notice (neutral) with `actions.retry`
-    calling `reset()`.
-  - `src/lib/actionResult.ts`, a typed `{ ok, error }` result that actions
-    return instead of throwing for expected failures.
-  - A `useActionForm` pattern on top of `useActionState` that keeps field
-    values after a failure.
-  - `states.*` keys.
-- **Done when:**
-  - A forced failure in each tab shows the Notice with retry, and retry
-    reloads (AC 3).
-  - Form values survive a failed action (AC 3).
-  - No pattern uses signal (AC 4).
+`frontend` · Parent: STORY-01-01-06 · 5 h · Unchanged · Depends on: TASK-01-01-06-FE1, TASK-01-01-06-FE2, TASK-01-01-05-FE3
+- **Build:** a `loading.tsx` per tab, `error.tsx` boundaries with retry,
+  `src/lib/actionResult.ts` (`{ ok, error }`), a `useActionForm` that keeps
+  field values after a failure, and `states.*` keys.
+- **Done when:** A forced failure in each tab shows Notice and retry (AC 3);
+  form values survive a failure; no pattern uses signal (AC 4).
 
 ##### TASK-01-01-06-QA1 · Test the shared states and the signal rule
-`qa` · Parent: STORY-01-01-06 · 4 h · Depends on: TASK-01-01-06-FE4
-- **Build:**
-  - Play tests: skeleton shape and `aria-busy` (AC 1); empty state with one
-    action (AC 2); error with retry, and a form keeping its values after a
-    failed action (AC 3).
-  - A check that no neutral Notice, EmptyState or Skeleton renders with
-    `signal` classes (AC 4).
-  - A lint-style test that greps `src/components` and `src/app` for
-    `signal` outside Notice and fails if found.
-- **Done when:** AC 1 to AC 4 are covered, and the grep test is in CI.
+`qa` · Parent: STORY-01-01-06 · 4 h · Unchanged · Depends on: TASK-01-01-06-FE4
+- **Build:** Play tests for skeleton, empty state, error and retry; a check
+  that no neutral component renders `signal`; a grep test for `signal`
+  outside Notice, in CI.
+- **Done when:** AC 1 to AC 4 are covered.
 
-#### STORY-01-01-07: Get started with a short checklist
+##### STORY-01-01-07: Get started with a short checklist
 
 ##### TASK-01-01-07-FE1 · Build Checklist (NC-12) with its story
-`frontend` · Parent: STORY-01-01-07 · 3 h · Depends on: DES-02-02-04, TASK-01-01-05-FE1
-- **Build:** `src/components/ui/Checklist`: numbered steps with done (check
-  icon, `ink-secondary`), next (the only primary button) and later states,
-  plus an optional detail slot in a step (for the setup offer). Stories:
-  none done, one done, two done, RTL.
-- **Done when:** The stories pass axe, and only the next step has a primary
-  action.
+`frontend` · Parent: STORY-01-01-07 · 3 h · Unchanged · Depends on: DES-02-02-04, TASK-01-01-05-FE1
+- **Build:** `src/components/ui/Checklist`: numbered steps in done, next and
+  later states, an optional detail slot. Stories: none, one, two done, RTL.
+- **Done when:** Stories pass axe; only the next step has a primary action.
 
 ##### TASK-01-01-07-BE1 · Add the setup progress read
-`backend` · Parent: STORY-01-01-07 · 2 h · Depends on: TASK-01-01-04-BE1, TASK-01-03-03-BE1
-- **Build:** DAL `getSetupProgress()`: `hasMachine`, `hasGrinder` (unretired
-  units), `hasSetup`, `hasUnfinishedPortion` and `hasShot`, from
-  household-scoped queries.
-- **Done when:** It returns correct flags for each combination in fixtures.
+`backend` · Parent: STORY-01-01-07 · 2 h · Updated (basket) · Depends on: TASK-01-01-04-BE1, TASK-01-03-03-BE1
+- **Build:** DAL `getSetupProgress()`: `hasMachine`, `hasGrinder`, `hasBasket`,
+  `hasSetup`, `hasUnfinishedPortion`, `hasShot`.
+- **Done when:** Correct flags for each combination in fixtures.
 
 ##### TASK-01-01-07-FE2 · Wire the first-run checklist on Brew
-`frontend` · Parent: STORY-01-01-07 · 4 h · Depends on: TASK-01-01-07-FE1, TASK-01-01-07-BE1, TASK-01-02-05-FE1, TASK-03-01-02-FE2, TASK-01-01-05-FE5
-- **Build:** Brew (`src/app/(app)/page.tsx`, using HomeScreen's first-run
-  state from PR #3) shows Checklist until a shot exists:
-  - step 1 opens `/setup/add` preset to machine, then grinder; with a machine
-    and a grinder but no setup, it shows the setup offer
-    (TASK-01-02-05-FE1);
-  - step 2 opens `/pantry/add`;
-  - step 3 opens `/log`.
-
-  Each step uses `returnTo=/`.
-- **Done when:**
-  - The three steps show with nothing set up (AC 1).
-  - Done steps are marked and the next step is offered (AC 2).
-  - Finishing a step returns to Brew (AC 3).
-  - The setup offer shows in step 1 (AC 4).
-  - With every step done, the checklist is gone (AC 5).
+`frontend` · Parent: STORY-01-01-07 · 4 h · Updated (three parts) · Depends on: TASK-01-01-07-FE1, TASK-01-01-07-BE1, TASK-01-02-05-FE1, TASK-03-01-02-FE2, TASK-01-01-05-FE5
+- **Build:** Brew shows Checklist until a shot exists: step 1 opens
+  `/setup/add-part` preset to machine, then grinder, then basket in one pass;
+  with three parts and no setup it shows the setup offer; step 2 opens
+  `/beans/add`; step 3 opens `/log`. Each uses `returnTo=/`.
+- **Done when:** Three steps show with nothing set up (AC 1); the walk-through
+  covers all three parts (AC 2); done steps are marked (AC 3); the setup offer
+  shows (AC 4); the checklist is gone when all are done (AC 5).
 
 ##### TASK-01-01-07-QA1 · Test the checklist progression
-`qa` · Parent: STORY-01-01-07 · 3 h · Depends on: TASK-01-01-07-FE2
-- **Build:**
-  - Node tests for `getSetupProgress` across states.
-  - Checklist play tests for each progression.
-  - A manual run: from an empty household to the first shot via the
-    checklist, checking the return to Brew after each step.
-- **Done when:** AC 1 to AC 5 are covered, and the ownership question
-  (SQ-16) is noted as unaffected by the code.
+`qa` · Parent: STORY-01-01-07 · 3 h · Unchanged · Depends on: TASK-01-01-07-FE2
+- **Build:** Node tests for `getSetupProgress`; Checklist play tests; a manual
+  run from an empty household to the first shot.
+- **Done when:** AC 1 to AC 5 are covered.
 
-### EPIC-01-02: Describe your setup once
+##### STORY-01-01-08: Get a starter milk list
 
-#### STORY-01-02-01: Find my machine and grinder in the catalog
+Schema: TASK-01-01-08-BE1 (section 6).
 
-Schema: TASK-01-02-01-BE1, TASK-01-02-01-BE2.
+##### TASK-01-01-08-BE2 · Seed the starter milks for each new household
+`backend` · Parent: STORY-01-01-08 · 2 h · New · Depends on: TASK-01-01-08-BE1
+- **Build:** `src/domain/starterMilks.ts`: whole, semi-skimmed, skimmed, oat,
+  soy, almond, lactose-free with `name_key` (`milks.*`), `kind` and
+  `sort_order`; an insert function for the bootstrap transaction.
+- **Done when:** A new household has exactly these seven rows as its own copy
+  (AC 1, AC 3) and there are no brands (AC 4).
+
+##### TASK-01-01-08-FE1 · Add one helper that shows a milk's name
+`frontend` · Parent: STORY-01-01-08 · 2 h · New · Depends on: TASK-01-01-08-BE2
+- **Build:** `src/domain/milkName.ts` `milkLabel(milk, t)` (stored name wins),
+  and the `milks.*` keys in `en.json`.
+- **Done when:** Every milk name goes through it (AC 2).
+
+##### TASK-01-01-08-QA1 · Test the starter milk list
+`qa` · Parent: STORY-01-01-08 · 2 h · New · Depends on: TASK-01-01-08-FE1
+- **Build:** Node tests for the seven milks and household separation; a story
+  test of the labels in `en` and the test locale.
+- **Done when:** AC 1 to AC 4 are covered.
+
+#### EPIC-01-02: Describe your setup once
+
+Retired: STORY-01-02-03, 01-02-06 and 01-02-07 and their tasks.
+
+##### STORY-01-02-01: Find my machine, grinder and basket in the catalog
+
+Schema: TASK-01-02-01-BE1 and BE2 (section 6).
 
 ##### TASK-01-02-01-BE3 · Add the catalog seed loader with the hardware seed list
-`backend` · Parent: STORY-01-02-01 · 5 h · Depends on: TASK-01-02-01-BE2, TASK-01-06-01-BE1, TQ-10
-- **Build:**
-  - `src/db/seed/hardware.json` (makers, models with kind and capabilities,
-    aliases with market, URLs with market) and `src/db/seed/load.ts`.
-  - The loader is an idempotent upsert by stable seed ID, with
-    `source='seed'` and `status='verified'`, and computes `normalized_url`
-    with TASK-01-06-01-BE1's function.
-  - An `npm run db:seed` script, and capabilities validated with
-    `parseCapabilities`. Seeded rows never use the "not sure" values (S-08).
-  - The initial content is a small placeholder list until TQ-10 names a
-    curator.
-- **Done when:**
-  - Running the seed twice changes nothing.
-  - Invalid capabilities, or unknown values in a seeded row, fail the seed
-    with a clear error.
-  - The seed has no personal data.
+`backend` · Parent: STORY-01-02-01 · 5 h · Updated (baskets with dose ranges) · Depends on: TASK-01-02-01-BE2, TASK-01-06-01-BE1, TQ-10
+- **Build:** `src/db/seed/hardware.json` (makers, models of the three kinds
+  with capabilities, aliases, URLs) and an idempotent `src/db/seed/load.ts`
+  (`npm run db:seed`). Every machine maker's stock baskets are included, each
+  with its dose range, curated by the Head of Product as admin. Capabilities
+  are validated; seeded rows never use "not sure". Placeholder content until
+  TQ-10; the Milestone 1 content comes from TASK-01-02-01-BE6.
+- **Done when:** Running twice changes nothing; invalid or unknown values fail
+  the seed; every seeded basket has a dose range; no personal data.
 
 ##### TASK-01-02-01-BE4 · Add hardware catalog search and browse
-`backend` · Parent: STORY-01-02-01 · 6 h · Depends on: TASK-01-02-01-BE5, TASK-01-01-04-BE1
-- **Build:**
-  - DAL `searchHardware({ kind, query })`: case-insensitive match on model
-    name, maker name and aliases; returns surviving models with their maker,
-    plus an `addedByUs` flag; visibility is `visibleCatalog`.
-  - `listMakers({ kind })`: alphabetical, only makers with visible models of
-    that kind.
-  - `listModels({ makerId, kind })`.
-  - Exposed through the Route Handler `GET /api/catalog/search?catalog=hardware`
-    (TQ-03) for typeahead.
-- **Done when:**
-  - An alias query finds its model (AC 1, AC 3).
-  - Merged rows never appear (AC 4).
-  - Another household's unverified rows never appear (AC 5).
-  - An empty result is distinguishable (AC 6).
+`backend` · Parent: STORY-01-02-01 · 6 h · Updated (basket kind, stock baskets first) · Depends on: TASK-01-02-01-BE5, TASK-01-01-04-BE1
+- **Build:** DAL `searchHardware({ kind, query })` over model, maker and alias,
+  `listMakers({ kind })`, `listModels({ makerId, kind })`, behind
+  `GET /api/catalog/search?catalog=hardware`. For kind `basket` with no query,
+  baskets by the household machine's maker come first.
+- **Done when:** An alias finds its model (AC 1, AC 5); makers are
+  alphabetical (AC 2); stock baskets first (AC 3); results carry maker and
+  model (AC 4); merged and private rows are handled (AC 6).
 
 ##### TASK-01-02-01-BE5 · Add the merge-pointer resolver for catalog reads
-`backend` · Parent: STORY-01-02-01 (also 01-06, 02-01-04, 03-01-04) · 2 h · Depends on: TASK-01-02-01-BE2, TASK-03-01-01-BE1
-- **Build:** `src/server/dal/catalogMerge.ts`:
-  - `resolveEntity(type, id)` follows `merged_into_id` to the surviving row,
-    with a cycle and depth guard.
-  - `mergeGroup(type, id)` returns every ID that resolves to the same
-    survivor.
+`backend` · Parent: STORY-01-02-01 (also 01-06, 02-01-04, 03-01-04) · 2 h · Unchanged · Depends on: TASK-01-02-01-BE2, TASK-03-01-01-BE1
+- **Build:** `src/server/dal/catalogMerge.ts` with `resolveEntity` (cycle and
+  depth guard) and `mergeGroup`.
+- **Done when:** Chains, a self-cycle and an unmerged row resolve in tests.
 
-  These are used by every reader that shows or groups catalog references
-  (epics cross-cutting constraint).
-- **Done when:** Chains of two or more, a self-cycle and an unmerged row all
-  resolve correctly in tests.
+##### TASK-01-02-01-BE6 · Prepare the seed catalog data for Milestone 1
+`backend` · Parent: STORY-01-02-01 (also 03-01-01) · 6 h · New · Depends on: TASK-01-02-01-BE3, TASK-03-01-01-BE2, the Head of Product's equipment and coffee list (TQ-10)
+- **Build:** With the Head of Product, write the seed entries in
+  `src/db/seed/hardware.json` and `coffee.json`: their own machine, grinder
+  and baskets (maker, model, kind, capabilities, each basket's dose range,
+  regional aliases and public product links) and a few coffees (roaster,
+  bean, roast level, tasting notes, links). Entries are public catalog
+  facts only: no serial numbers, no owner details, nothing personal.
+  Capabilities use known values only, never "not sure".
+- **Done when:** `npm run db:seed` loads on an empty database; each part is
+  found by search in the picker and each coffee in the coffee picker; every
+  basket has a dose range; the loader's validation passes; the Head of
+  Product confirms the capabilities match the real equipment.
 
 ##### TASK-01-02-01-FE1 · Build the catalog picker screen (SCR-CATALOG-PICK) with its stories
-`frontend` · Parent: STORY-01-02-01 (also 03-01-01) · 6 h · Depends on: DES-01-02-02, PR-3, TASK-01-01-06-FE1, TASK-01-01-06-FE2, TASK-01-01-05-FE1
-- **Build:** `src/components/screens/CatalogPickScreen`, props-only:
-  - a search Input;
-  - browse mode (makers or roasters as ListRows, then a parent's products);
-  - result mode (product primary, parent secondary);
-  - a `catalog.addedByYou` overline marker;
-  - a last row `catalog.cantFind`;
-  - loading skeleton rows;
-  - a no-match Notice that echoes the query, with a secondary
-    `catalog.cantFind`.
-
-  Hardware and coffee variants. Stories for each state, plus RTL.
-- **Done when:**
-  - The stories pass axe.
-  - The unverified marker is text only.
-  - The add-it row always ends the results.
+`frontend` · Parent: STORY-01-02-01 (also 03-01-01) · 6 h · Unchanged · Depends on: DES-01-02-02, PR-3, TASK-01-01-06-FE1, TASK-01-01-06-FE2, TASK-01-01-05-FE1
+- **Build:** `CatalogPickScreen`, props-only: search Input, browse mode, result
+  mode, `catalog.addedByYou` marker, a last `catalog.cantFind` row, skeleton
+  rows, a no-match Notice that echoes the query. Hardware and coffee
+  variants. Stories incl. RTL.
+- **Done when:** Stories pass axe; the unverified marker is text; the add-it
+  row ends the results.
 
 ##### TASK-01-02-01-FE2 · Wire the hardware picker with debounced search and selection return
-`frontend` · Parent: STORY-01-02-01 · 5 h · Depends on: TASK-01-02-01-FE1, TASK-01-02-01-BE4, TASK-01-01-05-FE5
-- **Build:** `src/app/(task)/catalog/pick/page.tsx?catalog=hardware&kind=`:
-  - search debounced at 200 ms with `AbortController`;
-  - browse with no query;
-  - "can't find" opens `/catalog/add` with the query and `returnTo`;
-  - choosing a model returns to the caller with `selected`.
-- **Done when:**
-  - Typing never queues stale results.
-  - The query carries over to add (AC 6).
-  - Selection returns to add-setup.
+`frontend` · Parent: STORY-01-02-01 · 5 h · Unchanged · Depends on: TASK-01-02-01-FE1, TASK-01-02-01-BE4, TASK-01-01-05-FE5
+- **Build:** `/catalog/pick?catalog=hardware&kind=`: 200 ms debounce with
+  `AbortController`, browse with no query, "can't find" to `/catalog/add`,
+  selection returns with `selected`.
+- **Done when:** No stale results; the query carries over (AC 6).
 
 ##### TASK-01-02-01-QA1 · Test hardware search, aliases, merges and privacy
-`qa` · Parent: STORY-01-02-01 · 5 h · Depends on: TASK-01-02-01-FE2
-- **Build:**
-  - Node tests for `searchHardware`: name, maker and alias matches, kind
-    filter (AC 1, AC 3); makers alphabetical, models per maker (AC 2); a
-    merged entry shows only its survivor (AC 4); own unverified entries
-    marked, other households' hidden (AC 5).
-  - Case and accent behaviour documented (risk R-09).
-  - Picker play tests for no match with the query echoed and the add
-    carry-over (AC 6).
-- **Done when:** AC 1 to AC 6 are each covered.
+`qa` · Parent: STORY-01-02-01 · 5 h · Updated (baskets) · Depends on: TASK-01-02-01-FE2
+- **Build:** Node tests for name, maker and alias matches by kind (AC 1, AC 5),
+  alphabetical makers (AC 2), stock baskets first (AC 3), two same-size
+  baskets shown by maker and model (AC 4), merged and private entries
+  (AC 6); picker play tests for no match.
+- **Done when:** AC 1 to AC 6 are covered.
 
-#### STORY-01-02-02: Add the units I own
+##### STORY-01-02-02: Add the parts I own
 
-Schema: TASK-01-02-02-BE1.
+Schema: TASK-01-02-02-BE1 (section 6).
 
-##### TASK-01-02-02-BE2 · Add the add-unit action and the setup read
-`backend` · Parent: STORY-01-02-02 · 4 h · Depends on: TASK-01-02-02-BE1, TASK-01-02-01-BE4
-- **Build:**
-  - Action `addUnit({ hardwareId, nickname?, acquiredAt? })`: the model must
-    be visible to the household; the merge is resolved before storing.
-  - DAL `getSetup()`: setups with machine, grinder and basket names, active
-    units grouped by kind, and retired units.
-- **Done when:**
-  - The unit saves with or without the optional fields (AC 2).
-  - Two units of one model are separate rows (AC 4).
-  - An invisible model is rejected.
+##### TASK-01-02-02-BE2 · Add the add-part action and the Setup tab read
+`backend` · Parent: STORY-01-02-02 · 4 h · Updated (three kinds, setups per part) · Depends on: TASK-01-02-02-BE1, TASK-01-02-01-BE4, TASK-01-02-04-BE2
+- **Build:** Action `addPart({ hardwareId, nickname?, acquiredAt? })` (visible
+  model, merge resolved, kind in the three). DAL `getSetupTab()` (parts
+  grouped by kind) and `getPart(id)` with the setups it is in.
+- **Done when:** Optional fields are optional (AC 2); two parts of one model
+  are separate (AC 4); the setups a part is in are returned (AC 5).
 
-##### TASK-01-02-02-FE1 · Build the add-setup screen (SCR-UNIT-ADD) with its stories
-`frontend` · Parent: STORY-01-02-02 · 5 h · Depends on: DES-01-02-01, PR-3, TASK-01-02-02-FE3
-- **Build:** `src/components/screens/UnitAddScreen`, props-only:
-  - a kind ChipGroup (`setup.kind.*`);
-  - the chosen model with a change link;
-  - nickname and acquired-date Inputs;
-  - the read-only capabilities summary;
-  - save, and a save-failed Notice.
+##### TASK-01-02-02-FE1 · Build the add-part screen (SCR-UNIT-ADD) with its stories
+`frontend` · Parent: STORY-01-02-02 · 5 h · Updated (three kinds) · Depends on: DES-01-02-01, PR-3, TASK-01-02-02-FE3
+- **Build:** `UnitAddScreen`, props-only: a kind ChipGroup of machine, grinder
+  and basket only, the chosen model with a change link, nickname and date
+  Inputs, the read-only capability summary (a basket's dose range), save and
+  a failed Notice. Stories incl. RTL.
+- **Done when:** Stories pass axe; no other kind is offered (AC 1); capabilities
+  show before saving (AC 3).
 
-  Stories: kind preset, model chosen, failed, RTL.
-- **Done when:** The stories pass axe, and capabilities are shown before
-  save (AC 3).
-
-##### TASK-01-02-02-FE2 · Build the setup screen (SCR-KIT) with its stories
-`frontend` · Parent: STORY-01-02-02 (also 01-02-03 to 05) · 6 h · Depends on: DES-01-02-03, PR-3, TASK-01-01-06-FE3, TASK-01-01-06-FE2
-- **Build:** `src/components/screens/SetupScreen`, props-only:
-  - a `setup.setups` section (Cards with name, machine, grinder and basket,
-    plus slots for a retired marker and `setup.needsUnit`);
-  - a setup-offer slot;
-  - `setup.units` grouped by kind (ListRow: nickname or model, with maker and
-    model secondary);
-  - a collapsed `setup.retired`;
-  - EmptyState `setup.empty` with `setup.addMachine`;
-  - a loading skeleton.
-
-  Stories for each state, plus RTL.
-- **Done when:** The stories pass axe, and units are grouped by kind (AC 1).
+##### TASK-01-02-02-FE2 · Build the Setup tab screen (SCR-KIT) with its stories
+`frontend` · Parent: STORY-01-02-02 (also 01-02-09) · 6 h · Updated (setups and parts) · Depends on: DES-01-02-03, PR-3, TASK-01-01-06-FE3, TASK-01-01-06-FE2
+- **Build:** `SetupScreen`, props-only: a setups section (slots for current,
+  actions, older), a setup-offer slot, the parts section grouped by kind, an
+  EmptyState with `setup.addMachine`, a loading skeleton. Check PR #3's
+  fixtures for existing parts.
+- **Done when:** Stories pass axe; parts are grouped by kind (AC 1); one
+  primary button in every state (AC 6).
 
 ##### TASK-01-02-02-FE3 · Compose the capabilities summary from message keys
-`frontend` · Parent: STORY-01-02-02 (also 01-02-03, 01-06-09) · 3 h · Depends on: TASK-01-02-01-BE1
-- **Build:** `src/components/ui/CapabilitySummary` (or a domain formatter
-  with a component). It turns `capabilities` into lines such as temperature
-  exact with its range, using `unit.cap.*` keys and `formatValueParts` for
-  numbers, and shows "not sure" with `unit.capNotSure`.
-- **Done when:**
-  - The summary has stories for none, steps, exact °C and °F, manual with a
-    gauge, stepped and stepless grinders, and every unknown.
-  - No number is concatenated with a unit by hand.
+`frontend` · Parent: STORY-01-02-02 (also 01-06-09) · 3 h · Updated (basket dose range) · Depends on: TASK-01-02-01-BE1
+- **Build:** `CapabilitySummary` turns `capabilities` into lines using
+  `unit.cap.*` and `formatValueParts`, including a basket's dose range and
+  every "not sure" (`unit.capNotSure`).
+- **Done when:** Stories cover none, steps, exact °C and °F, manual, stepped,
+  stepless, basket range and unknowns; no hand-joined number and unit.
 
-##### TASK-01-02-02-FE4 · Wire the setup tab and the add-setup flow
-`frontend` · Parent: STORY-01-02-02 · 4 h · Depends on: TASK-01-02-02-FE1, TASK-01-02-02-FE2, TASK-01-02-02-BE2, TASK-01-02-01-FE2, TASK-01-01-05-FE4
-- **Build:**
-  - `src/app/(app)/setup/page.tsx` reads `getSetup()`.
-  - `src/app/(task)/setup/add/page.tsx`: kind, then the picker, then details,
-    then save. `?kind=machine` presets the kind, and from the checklist it
-    continues to grinder.
-  - It ends on the setup offer when the second required unit is added
-    (TASK-01-02-05-FE1), otherwise on Setup or `returnTo`.
-- **Done when:**
-  - An added unit appears on Setup grouped by kind (AC 1).
-  - An empty Setup offers the machine (AC 5).
-  - The unsaved guard applies.
+##### TASK-01-02-02-FE4 · Wire the Setup tab and the add-part flow
+`frontend` · Parent: STORY-01-02-02 · 4 h · Updated (basket) · Depends on: TASK-01-02-02-FE1, TASK-01-02-02-FE2, TASK-01-02-02-BE2, TASK-01-02-01-FE2, TASK-01-01-05-FE4
+- **Build:** `src/app/(app)/setup/page.tsx` and
+  `src/app/(task)/setup/add-part/page.tsx`: kind, picker, details, save.
+  `?kind=` presets; from the checklist it continues machine, grinder, basket.
+  It ends on the setup offer after the third required part.
+- **Done when:** An added part appears grouped by kind (AC 1); an empty Setup
+  offers the machine (AC 6); the unsaved guard applies.
 
-##### TASK-01-02-02-QA1 · Test adding units
-`qa` · Parent: STORY-01-02-02 · 4 h · Depends on: TASK-01-02-02-FE4
-- **Build:**
-  - Node tests for `addUnit`: optional fields, two units of one model, an
-    invisible model rejected, isolation cases added (AC 2, AC 4).
-  - `getSetup` grouping (AC 1).
-  - Story checks for the capabilities summary (AC 3) and the empty Setup
-    (AC 5).
-- **Done when:** AC 1 to AC 5 are each covered.
+##### TASK-01-02-02-FE5 · Build the part screen (SCR-UNIT) with its stories
+`frontend` · Parent: STORY-01-02-02 (also 01-06-09, 04-01) · 5 h · New · Depends on: DES-01-02-03, PR-3, TASK-01-02-02-FE3
+- **Build:** `UnitScreen`, props-only: model and maker, nickname, acquired
+  date, CapabilitySummary with an "answer later" slot, `unit.inSetups`, and
+  slots for maintenance and the grind-period line. No retire anywhere.
+  Stories: machine, grinder, basket, in two setups, RTL.
+- **Done when:** Stories pass axe; the setups a part is in are listed (AC 5);
+  there is no retire control.
 
-#### STORY-01-02-03: Retire a unit and keep its history
+##### TASK-01-02-02-FE6 · Wire the part route
+`frontend` · Parent: STORY-01-02-02 · 3 h · New · Depends on: TASK-01-02-02-FE5, TASK-01-02-02-BE2
+- **Build:** `src/app/(app)/setup/parts/[unitId]/page.tsx` with `getPart`;
+  part rows on Setup link to it.
+- **Done when:** A part opens from Setup and shows its setups (AC 5).
 
-##### TASK-01-02-03-BE1 · Add retiring a unit and the setup "needs a unit" state
-`backend` · Parent: STORY-01-02-03 · 3 h · Depends on: TASK-01-02-02-BE2
-- **Build:**
-  - Action `retireUnit(id)` sets `retired_at`.
-  - `getSetup` and setup reads mark retired components and compute
-    `needsMachine` and `needsGrinder` when a setup's only one is retired.
-  - The setup editor's unit options exclude retired units.
-  - Shot reads keep joining units by ID, so they're unaffected.
-- **Done when:**
-  - A retired unit is listed under retired (AC 4) and not offered in the
-    editor (AC 2).
-  - Setups show the state (AC 5).
+##### TASK-01-02-02-QA1 · Test adding parts
+`qa` · Parent: STORY-01-02-02 · 4 h · Updated (three kinds) · Depends on: TASK-01-02-02-FE4, TASK-01-02-02-FE6
+- **Build:** Node tests for `addPart` (optional fields, two of one model,
+  invisible model and a fourth kind rejected, isolation) and `getPart`
+  setups; story checks for the summary and empty Setup.
+- **Done when:** AC 1 to AC 6 are covered.
 
-##### TASK-01-02-03-FE1 · Build the unit screen (SCR-UNIT) with its stories
-`frontend` · Parent: STORY-01-02-03 (also 01-06-09, 04-01) · 5 h · Depends on: DES-01-02-03, PR-3, TASK-01-02-02-FE3, TASK-01-01-05-FE2
-- **Build:** `src/components/screens/UnitScreen`, props-only:
-  - model and maker, nickname and acquired date;
-  - CapabilitySummary, with a slot for "answer later" (TASK-01-06-09-FE1);
-  - slots for the maintenance section and the current-period line
-    (EPIC-04-01);
-  - the retired marker;
-  - a secondary `unit.retire` at the end, opening ConfirmSheet.
+##### STORY-01-02-04: Put my machine, grinder and basket together as a setup
 
-  Stories: active, retired, RTL.
-- **Done when:** The stories pass axe, and the retire confirmation says past
-  shots keep showing the unit (AC 1).
+Schema: TASK-01-02-04-BE2 (section 6).
 
-##### TASK-01-02-03-FE2 · Wire the unit route and retiring
-`frontend` · Parent: STORY-01-02-03 · 3 h · Depends on: TASK-01-02-03-FE1, TASK-01-02-03-BE1
-- **Build:** `src/app/(app)/setup/units/[unitId]/page.tsx` with `retireUnit`
-  through ConfirmSheet. The Setup retired section and setup cards render the
-  retired states.
-- **Done when:** Confirming retires the unit and returns to Setup. Cancel does
-  nothing (AC 1).
+##### TASK-01-02-04-BE1 · Add finding or making a setup, with its rules
+`backend` · Parent: STORY-01-02-04 · 4 h · Updated (fixed setups) · Depends on: TASK-01-02-04-BE2, TASK-01-02-02-BE2
+- **Build:** `src/domain/setup.ts` `validateParts` (one machine, one grinder,
+  one basket; names the missing one). DAL `previewSetup(ids)` returns
+  `existing` (name, recipe count) or `new`. Action `resolveSetup(ids, name?)`
+  uses `findOrCreateSetup` (unique-index insert, read on conflict), then
+  makes it current (TASK-01-02-09-BE1).
+- **Done when:** A missing part names itself and saves nothing (AC 5); the
+  same combination reuses its setup (AC 3); a new one is made with an
+  optional name (AC 4); two quick calls make one setup; the preview matches
+  (AC 2); it becomes current (AC 6).
 
-##### TASK-01-02-03-QA1 · Test retiring and history
-`qa` · Parent: STORY-01-02-03 · 3 h · Depends on: TASK-01-02-03-FE2, TASK-01-03-03-BE2
-- **Build:**
-  - Node tests: retired units are excluded from editor options (AC 2) and
-    still listed (AC 4).
-  - Shots with a retired unit still show it (AC 3, via fixtures).
-  - Setup `needsGrinder` (AC 5).
-  - ConfirmSheet play test (AC 1).
-- **Done when:** AC 1 to AC 5 are each covered.
+##### TASK-01-02-04-FE1 · Build the setup builder (SCR-TOOLKIT) with its stories
+`frontend` · Parent: STORY-01-02-04 (also 01-02-08) · 5 h · Updated (builder) · Depends on: DES-01-02-04, PR-3, TASK-01-01-06-FE1
+- **Build:** `SetupBuilderScreen`, props-only: three SelectField rows (machine,
+  grinder, basket) each ending in `setup.addPart`, a live match line
+  (`setup.matchFound`, `setup.newSetup`, `setup.closest`), a name disclosure,
+  primary `setup.useThis` or `setup.makeThis`, and a neutral missing-part
+  Notice. Stories: existing, new with a closest setup, missing part, RTL.
+- **Done when:** Stories pass axe; the match line is in a polite live region;
+  the rule is explained, not a disabled button.
 
-#### STORY-01-02-04: Group my setup into a setup
+##### TASK-01-02-04-FE2 · Wire the setup builder
+`frontend` · Parent: STORY-01-02-04 · 3 h · Updated · Depends on: TASK-01-02-04-FE1, TASK-01-02-04-BE1, TASK-01-02-02-FE4
+- **Build:** `src/app/(task)/setup/builder/page.tsx` with `previewSetup` and
+  `resolveSetup`, `returnTo` support and add-part with return-to.
+- **Done when:** Missing context in the log can add a setup and return
+  (AC 1); the resulting setup is current on return (AC 6).
 
-##### TASK-01-02-04-BE1 · Add creating a setup with its rules
-`backend` · Parent: STORY-01-02-04 · 4 h · Depends on: TASK-01-02-02-BE2
-- **Build:**
-  - `src/domain/setup.ts`: `validateSetup({ name, units })` returns the
-    missing parts (`name`, `machine`, `grinder`, `tooManyMachines`,
-    `tooManyGrinders`).
-  - Action `createSetup`: units must be owned, unretired and of known kind,
-    and units may be shared across setups.
-  - DAL `getSetup(id)` and `listSetups()`.
-- **Done when:**
-  - A missing name or the wrong machine or grinder count returns the
-    specific problem and saves nothing (AC 3, AC 4).
-  - The same unit in two setups works (AC 2).
+##### TASK-01-02-04-QA1 · Test setup creation and matching
+`qa` · Parent: STORY-01-02-04 · 3 h · Updated · Depends on: TASK-01-02-04-FE2
+- **Build:** Unit tests for `validateParts`; Node tests for reuse, new, race,
+  missing part and isolation; play test that the Notice names the part.
+- **Done when:** AC 1 to AC 6 are covered.
 
-##### TASK-01-02-04-FE1 · Build the setup screen (SCR-TOOLKIT) with its stories
-`frontend` · Parent: STORY-01-02-04 (also 01-02-06, 07) · 5 h · Depends on: DES-01-02-04, PR-3, TASK-01-01-06-FE1
-- **Build:** `src/components/screens/SetupScreen`, props-only, in create
-  and edit modes:
-  - a `setup.name` Input;
-  - a radio list of machines and of grinders;
-  - checkbox lists of baskets and accessories;
-  - save always enabled, with a neutral Notice naming what's missing;
-  - an edit note slot.
-
-  Stories: create, missing grinder, edit, RTL.
-- **Done when:** The stories pass axe, and the rule is explained at save,
-  not by a disabled button.
-
-##### TASK-01-02-04-FE2 · Wire creating a setup and the setup cards
-`frontend` · Parent: STORY-01-02-04 · 3 h · Depends on: TASK-01-02-04-FE1, TASK-01-02-04-BE1, TASK-01-02-02-FE4
-- **Build:** `src/app/(task)/setup/setups/new/page.tsx` with `createSetup`
-  and `returnTo` support, so the log's missing-setup path returns to the
-  log. Setup shows setup cards with machine, grinder and basket.
-- **Done when:**
-  - A saved setup appears on Setup (AC 5) and can be picked in the log
-    (AC 1, checked once TASK-01-03-01-FE2 lands).
-
-##### TASK-01-02-04-QA1 · Test setup creation rules
-`qa` · Parent: STORY-01-02-04 · 3 h · Depends on: TASK-01-02-04-FE2
-- **Build:**
-  - Unit tests for `validateSetup` over every combination.
-  - Node tests for `createSetup`: rejected cases save nothing, shared unit,
-    retired unit rejected.
-  - Play test that the missing-part Notice names the part (AC 4).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-02-05: Make my first setup in one tap
+##### STORY-01-02-05: Make my first setup in one tap
 
 ##### TASK-01-02-05-BE1 · Add the first-setup suggestion and one-tap creation
-`backend` · Parent: STORY-01-02-05 · 3 h · Depends on: TASK-01-02-04-BE1
-- **Build:**
-  - DAL `getSetupSuggestion()`: null if any setup exists; otherwise the
-    machine and grinder (exactly one each, so `oneTap: true`; else the most
-    recently added of each).
-  - Action `createDefaultSetup()`: stores the translated
-    `setup.defaultName` in the user's language at creation (DQ-01) and
-    returns the setup ID.
-- **Done when:**
-  - One machine and one grinder create a setup with no input (AC 1).
-  - More than one returns the preselection (AC 2).
-  - The suggestion is null once a setup exists (AC 5).
+`backend` · Parent: STORY-01-02-05 · 3 h · Updated (three parts, no default name) · Depends on: TASK-01-02-04-BE1
+- **Build:** DAL `getSetupSuggestion()`: null if any setup exists; otherwise
+  the three parts (`oneTap` when exactly one of each, else the most recently
+  added of each). Action `createFirstSetup()` calls `resolveSetup` with no name.
+- **Done when:** One of each makes a setup with no input (AC 1); more than one
+  returns the preselection (AC 2); null once a setup exists (AC 5).
 
-##### TASK-01-02-05-FE1 · Add the setup offer card and the end-of-add-setup offer
-`frontend` · Parent: STORY-01-02-05 · 4 h · Depends on: TASK-01-02-05-BE1, DES-01-02-06, TASK-01-02-04-FE2
-- **Build:**
-  - A `SetupOffer` Card naming the machine and grinder (with story), shown
-    on Setup and in checklist step 1.
-  - One tap calls `createDefaultSetup` and shows a short confirmation with
-    a ghost `setup.rename`, or opens SCR-TOOLKIT prefilled when `oneTap` is
-    false.
-  - The add-setup flow ends on this offer after the second required unit.
-- **Done when:**
-  - The offer names both units (AC 4).
-  - It appears right after the second unit is saved (AC 3).
-  - The setup is one tap away with no typing (AC 1).
+##### TASK-01-02-05-FE1 · Add the setup offer card and the end-of-add-part offer
+`frontend` · Parent: STORY-01-02-05 · 4 h · Updated · Depends on: TASK-01-02-05-BE1, DES-01-02-06, TASK-01-02-04-FE2
+- **Build:** `SetupOffer` Card naming the three parts, with story, on Setup and
+  in checklist step 1. One tap calls `createFirstSetup`, or opens the builder
+  prefilled when `oneTap` is false. The add-part flow ends on it.
+- **Done when:** The offer names three parts (AC 4); it appears after the last
+  required part (AC 3); one tap with no typing (AC 1).
 
 ##### TASK-01-02-05-QA1 · Test the setup shortcut
-`qa` · Parent: STORY-01-02-05 · 3 h · Depends on: TASK-01-02-05-FE1
-- **Build:**
-  - Node tests for the suggestion cases and the stored default name in `en`.
-  - SetupOffer play tests for one tap and the prefill path.
-  - A manual tap count from Brew to a saved setup (design target: 12 taps
-    at most).
-- **Done when:** AC 1 to AC 5 are each covered, and the tap count is recorded
-  in the PR.
+`qa` · Parent: STORY-01-02-05 · 3 h · Updated · Depends on: TASK-01-02-05-FE1
+- **Build:** Node tests for the suggestion cases; SetupOffer play tests; a
+  tap count from Brew to a saved setup (design target: 16).
+- **Done when:** AC 1 to AC 5 are covered.
 
-#### STORY-01-02-06: Edit a setup
+##### STORY-01-02-08: Change a part and get the right setup
 
-##### TASK-01-02-06-BE1 · Add updating a setup
-`backend` · Parent: STORY-01-02-06 · 3 h · Depends on: TASK-01-02-04-BE1
-- **Build:** Action `updateSetup(id, changes)` with the same validation as
-  create. `getSetup` includes `hasShots`. A machine or grinder swap goes
-  through TASK-01-02-07-BE1's check first.
-- **Done when:**
-  - A rename or a basket or accessory change saves directly (AC 1).
-  - An invalid result changes nothing (AC 4).
-  - Shots keep their own `grinder_id` and `machine_id` (AC 3).
+##### TASK-01-02-08-BE1 · Add the change-a-part starting points
+`backend` · Parent: STORY-01-02-08 · 3 h · New · Depends on: TASK-01-02-04-BE1, TASK-01-02-09-BE1
+- **Build:** DAL `getChangePartStart({ setupId, newPartId? })`: the setup's
+  three parts, or the current setup with the new part swapped in for the
+  same kind. No action edits a setup; changes go through `resolveSetup`.
+- **Done when:** A swap keeps the other two parts (AC 1); there's no update
+  path for a setup's parts (AC 6).
 
-##### TASK-01-02-06-FE1 · Wire the setup edit mode with its note
-`frontend` · Parent: STORY-01-02-06 · 3 h · Depends on: TASK-01-02-06-BE1, TASK-01-02-04-FE1
-- **Build:** `src/app/(task)/setup/setups/[setupId]/page.tsx`, with title
-  `setup.editTitle` and `setup.editNote` when `hasShots`, opened from the
-  setup card.
-- **Done when:** The note shows only with shots (AC 2), and invalid saves
-  show the Notice (AC 4).
+##### TASK-01-02-08-FE1 · Add change-a-part mode and the "use the new part?" prompt
+`frontend` · Parent: STORY-01-02-08 · 4 h · New · Depends on: TASK-01-02-08-BE1, TASK-01-02-04-FE2, TASK-01-01-05-FE2
+- **Build:** `setup.changePart` on Setup cards opens the builder prefilled
+  from that setup. After adding a part while a setup exists, a ConfirmSheet
+  asks whether to use it: yes opens the builder with the part swapped in,
+  no changes nothing.
+- **Done when:** Only the changed row differs (AC 1); a known combination
+  brings its setup back (AC 2); a new one becomes current and the old is
+  kept (AC 3, AC 5); no in-place edit is offered (AC 6).
 
-##### TASK-01-02-06-QA1 · Test setup editing keeps history
-`qa` · Parent: STORY-01-02-06 · 2 h · Depends on: TASK-01-02-06-FE1, TASK-01-03-03-BE2
-- **Build:** Node tests: edit, then read older shots, which still have their
-  original grinder and machine (AC 3); an invalid edit is rejected (AC 4);
-  a rename doesn't prompt (AC 1). Play test for the note (AC 2).
-- **Done when:** AC 1 to AC 4 are covered.
+##### TASK-01-02-08-QA1 · Test changing a part
+`qa` · Parent: STORY-01-02-08 · 3 h · New · Depends on: TASK-01-02-08-FE1
+- **Build:** Node tests: return to a previous combination reuses its setup
+  and recipes (AC 2); a new combination keeps the old setup (AC 3); old shots
+  still show their setup (AC 4); "no" changes nothing (AC 5). Play test of
+  the prompt.
+- **Done when:** AC 1 to AC 6 are covered.
 
-#### STORY-01-02-07: Be warned before swapping a setup's machine or grinder
+##### STORY-01-02-09: See my setups and know which one is current
 
-##### TASK-01-02-07-BE1 · Count recipes affected by a machine or grinder swap
-`backend` · Parent: STORY-01-02-07 · 3 h · Depends on: TASK-01-02-06-BE1, TASK-02-01-01-BE1
-- **Build:**
-  - DAL `swapImpact(setupId, newMachineId, newGrinderId)` counts current
-    recipes (latest per key) on that setup whose `grinder_id` or
-    `machine_id` is the outgoing unit.
-  - `updateSetup` requires a `confirmSwap` flag when the count is above
-    zero.
-  - Recipes are never changed: the needs-re-dial rule reads the setup
-    (TASK-02-01-05-BE1).
-- **Done when:**
-  - A swap with recipes is refused without confirmation (AC 1).
-  - A confirmed swap keeps the recipes unchanged (AC 2).
-  - A swap with no affected recipes needs no flag (AC 4).
+##### TASK-01-02-09-BE1 · Add the current-setup rule and the setups read
+`backend` · Parent: STORY-01-02-09 · 4 h · New · Depends on: TASK-01-02-04-BE2, TASK-01-03-03-BE1
+- **Build:** `src/domain/currentSetup.ts`: the setup of the persona's latest
+  shot, unless the `currentSetup` cookie (setup ID and time) is newer; with
+  no shot, the newest setup (DQ-18, TQ-16). Action `useSetup(id)` writes the
+  cookie. DAL `getSetups()` returns each setup with parts, recipe count
+  (latest per key), last used and an `older` flag (90 days).
+- **Done when:** A later shot overrides an earlier choice and the reverse
+  (AC 1, AC 3); no shots gives the newest setup (AC 2); counts and dates are
+  right (AC 4).
 
-##### TASK-01-02-07-FE1 · Add the swap confirmation to setup edit
-`frontend` · Parent: STORY-01-02-07 · 3 h · Depends on: TASK-01-02-07-BE1, DES-01-02-06, TASK-01-01-05-FE2
-- **Build:** On save of a swap, SetupScreen shows ConfirmSheet with
-  `setup.swapTitle` (the count, formatted with ICU plural) and the reason,
-  with primary `setup.swapConfirm` and `actions.cancel`.
-- **Done when:**
-  - The count and reason show (AC 1).
-  - Cancel leaves the form and database unchanged (AC 3).
-  - There's no sheet when the count is zero (AC 4).
+##### TASK-01-02-09-BE2 · Add naming and renaming a setup
+`backend` · Parent: STORY-01-02-09 · 2 h · New · Depends on: TASK-01-02-04-BE2
+- **Build:** Action `renameSetup(id, name)` (trim, empty to null) and
+  `src/domain/setupName.ts` `setupLabel` (name, else the parts name, adding
+  the basket when another setup shares machine and grinder).
+- **Done when:** Only the name changes (AC 5); two setups sharing machine
+  and grinder never look alike (AC 6).
 
-##### TASK-01-02-07-QA1 · Test the swap warning
-`qa` · Parent: STORY-01-02-07 · 2 h · Depends on: TASK-01-02-07-FE1
-- **Build:**
-  - Node tests: `swapImpact` counts only current recipes on the outgoing unit
-    (AC 1); confirm keeps the recipes (AC 2); no flag needed at zero (AC 4).
-  - Play test: cancel restores (AC 3).
-  - Once TASK-02-01-05-BE1 lands, an extra case checks that confirmed-swap
-    recipes report `needsRedial` (AC 2).
-- **Done when:** AC 1 to AC 4 are covered.
+##### TASK-01-02-09-FE1 · Wire setup cards on the Setup tab: current, use, rename, older
+`frontend` · Parent: STORY-01-02-09 · 5 h · New · Depends on: TASK-01-02-09-BE1, TASK-01-02-09-BE2, TASK-01-02-02-FE2, DES-01-02-03
+- **Build:** Setup cards with the current one first and marked, `setup.useThis`,
+  a rename sheet, `setup.older` collapse, recipe count and last used. Add
+  a `setup.rename` sheet story.
+- **Done when:** AC 1 to AC 6 are visible on the Setup tab; choosing
+  "use this" makes it current at once (AC 3).
 
-### EPIC-01-03: Log a shot in seconds
+##### TASK-01-02-09-QA1 · Test current setup and setup cards
+`qa` · Parent: STORY-01-02-09 · 4 h · New · Depends on: TASK-01-02-09-FE1
+- **Build:** Unit tests for the rule with fixed clocks; Node tests for the
+  read, rename and isolation; play tests for the cards.
+- **Done when:** AC 1 to AC 6 are covered.
 
-#### STORY-01-03-01: Start a shot with what I'm brewing already chosen
+#### EPIC-01-03: Log a shot in seconds
+
+##### STORY-01-03-01: Start a shot with what I'm brewing already chosen
 
 ##### TASK-01-03-01-BE1 · Add the shot log context read
-`backend` · Parent: STORY-01-03-01 · 4 h · Depends on: TASK-01-03-03-BE1, TASK-03-02-04-BE1, TASK-01-02-04-BE1
-- **Build:** DAL `getLogContext({ drinkId?, portionId? })` returns:
-  - the household's setups, with the default being the one on this user's
-    latest shot, else the first;
-  - the visible drinks;
-  - the unfinished portions, unopened included (DQ-06), each with bean (merge
-    resolved), bag and state;
-  - `missingSetup` and `missingCoffee` flags.
-
-  Finished portions are excluded (INIT-03 Q3).
-- **Done when:** Defaults follow the last-used setup (AC 1), the options
-  are complete (AC 2, AC 3) and the missing flags are correct (AC 4).
+`backend` · Parent: STORY-01-03-01 · 4 h · Updated (current setup, frozen portions) · Depends on: TASK-01-03-03-BE1, TASK-03-02-04-BE1, TASK-01-02-09-BE1
+- **Build:** DAL `getLogContext({ drinkId?, portionId? })`: the household's
+  setups with the current one as default, visible drinks and milks, and
+  unfinished portions (unopened included, frozen last and flagged), each
+  with bean, bag, state and opened clock; `missingSetup` and
+  `missingCoffee` flags.
+- **Done when:** The default setup is current (AC 1); options are complete
+  and ordered (AC 2, AC 3); a frozen pick is flagged (AC 4); flags are
+  correct (AC 5).
 
 ##### TASK-01-03-01-FE1 · Build the select sheet (SH-SELECT) with its story
-`frontend` · Parent: STORY-01-03-01 (also 02-02-06) · 3 h · Depends on: TASK-01-01-05-FE2, PR-3
-- **Build:** `src/components/ui/SelectSheet`: Sheet plus a single-choice
-  ListRow list, a selected check, an optional overline marker per option
-  (used for `home.usual`), an optional secondary line and an optional footer
-  action. It opens from SelectField (PR #3). Stories: drinks, portions with
-  secondary lines, the usual marker, RTL.
-- **Done when:** The stories pass axe, and keyboard selection works.
+`frontend` · Parent: STORY-01-03-01 (also 02-02-06, 02-02-07, 02-06-04) · 3 h · Unchanged · Depends on: TASK-01-01-05-FE2, PR-3
+- **Build:** `SelectSheet`: Sheet plus a single-choice ListRow list, a check,
+  an optional overline marker and secondary line, an optional footer row.
+  Stories: drinks, portions, usual marker, RTL.
+- **Done when:** Stories pass axe; keyboard selection works.
 
 ##### TASK-01-03-01-FE2 · Wire the log's context fields and the missing-context paths
-`frontend` · Parent: STORY-01-03-01 · 5 h · Depends on: TASK-01-03-01-BE1, TASK-01-03-01-FE1, TASK-01-01-05-FE5, PR-3
-- **Build:**
-  - `src/app/(task)/log/page.tsx` (new mode) renders ShotLogScreen (PR #3)
-    with three SelectFields: setup, drink, coffee.
-  - Defaults come from Home's current drink and coffee (query params) and
-    the last-used setup.
-  - `log.missingSetup` and `log.missingCoffee` open `/setup/setups/new` or
-    `/pantry/add` with return-to. Dial values are kept as a draft.
-- **Done when:**
-  - Context arrives pre-chosen (AC 1) and changes through SH-SELECT (AC 2).
-  - Unopened portions are offered (AC 3).
-  - A missing item can be added and returns chosen with values kept (AC 4).
+`frontend` · Parent: STORY-01-03-01 · 5 h · Updated · Depends on: TASK-01-03-01-BE1, TASK-01-03-01-FE1, TASK-01-01-05-FE5, PR-3
+- **Build:** `src/app/(task)/log/page.tsx` renders ShotLogScreen (PR #3) with
+  setup, drink and coffee fields; defaults from Brew's drink and coffee and
+  the current setup; frozen portions show `portion.frozen`; missing setup or
+  coffee open the builder or add-bag with return-to, keeping dial values.
+- **Done when:** Context arrives pre-chosen (AC 1); changes go through
+  SH-SELECT (AC 2, AC 3); a frozen pick is saved as from frozen (AC 4); a
+  missing item returns chosen with values kept (AC 5).
 
 ##### TASK-01-03-01-QA1 · Test shot log context and missing context
-`qa` · Parent: STORY-01-03-01 · 4 h · Depends on: TASK-01-03-01-FE2
-- **Build:**
-  - Node tests for `getLogContext`: last-used setup, visible drinks,
-    unfinished portions including unopened, finished excluded, isolation
-    cases.
-  - Play tests on ShotLogScreen for missing setup and missing coffee.
-  - Return-to with values kept (AC 4).
-- **Done when:** AC 1 to AC 4 are each covered.
+`qa` · Parent: STORY-01-03-01 · 4 h · Updated · Depends on: TASK-01-03-01-FE2
+- **Build:** Node tests for the context read (current setup, frozen last,
+  finished excluded, isolation); play tests for the missing paths.
+- **Done when:** AC 1 to AC 5 are covered.
 
-#### STORY-01-03-02: Set grind, dose, yield and time by touch
-
-##### TASK-01-03-02-BE1 · Add the starting values for a blank log
-`backend` · Parent: STORY-01-03-02 · 2 h · Depends on: TASK-01-03-03-BE1, TASK-01-03-02-FE2
-- **Build:** DAL `getStartingValues(setupId)` returns the latest measured
-  shot on that setup, else the DQ-07 defaults: dose 18 g, yield 36 g, time
-  28 000 ms, and grind at the middle of the grinder's effective range
-  (TASK-01-03-02-FE2).
-- **Done when:** Both branches are tested, and one-tap shots are ignored.
+##### STORY-01-03-02: Set grind, dose, yield and time by touch
 
 ##### TASK-01-03-02-FE1 · Add finer and coarser end captions to NumberWheel
-`frontend` · Parent: STORY-01-03-02 · 4 h · Depends on: DES-01-03-03
-- **Build:** An optional `endCaptions: { min: string; max: string }` on
-  `src/components/ui/NumberWheel`, rendered under the ruler's ends
-  (inline-start for min, inline-end for max, so they mirror) in
-  `text-label` `ink-secondary`. The caller places finer and coarser using the
-  grinder's `coarser` direction. Stories: `coarser: higher`,
-  `coarser: lower`, none, RTL.
-- **Done when:** The captions point the right way in both directions and in
-  RTL (design acceptance criteria), and the stories pass axe.
+`frontend` · Parent: STORY-01-03-02 · 4 h · Unchanged · Depends on: DES-01-03-03
+- **Build:** Optional `endCaptions` on NumberWheel, mirrored by inline
+  position; stories for `higher`, `lower`, none and RTL.
+- **Done when:** Captions point the right way in both directions and RTL.
 
 ##### TASK-01-03-02-FE2 · Add the grind scale config from grinder capabilities
-`frontend` · Parent: STORY-01-03-02 (also 01-06-08) · 3 h · Depends on: TASK-01-02-01-BE1
-- **Build:** `src/domain/grind.ts`: `grindWheelConfig(capabilities)` returns
-  `{ min, max, step, captions: 'higherCoarser' | 'lowerCoarser' | null }`.
-  Stepped grinders use their step, stepless ones their finest increment.
-  Unknowns are delegated to the fallback function (TASK-01-06-08-FE1), with
-  a stub until then.
+`frontend` · Parent: STORY-01-03-02 (also 01-06-08) · 3 h · Unchanged · Depends on: TASK-01-02-01-BE1
+- **Build:** `src/domain/grind.ts` `grindWheelConfig(capabilities)`; unknowns
+  go to the fallback function (TASK-01-06-08-FE1).
 - **Done when:** Unit tests cover stepped, stepless and both directions.
 
-##### TASK-01-03-02-FE3 · Wire ShotDial in the shot log with live ratio and units
-`frontend` · Parent: STORY-01-03-02 · 5 h · Depends on: TASK-01-03-02-FE1, TASK-01-03-02-FE2, TASK-01-03-02-BE1, TASK-01-03-01-FE2, PR-3, TQ-14
-- **Build:** ShotLogScreen's ShotDial (PR #3) gets:
-  - grind from `grindWheelConfig`, with captions when known;
-  - dose and yield in grams, step 0.1;
-  - time in seconds, step 0.1, converted with `secondsToMs` and
-    `msToSeconds`;
-  - the ratio (`shot.ratio`) updated live and formatted with `Intl`.
+##### TASK-01-03-02-BE1 · Add the starting values for a blank log
+`backend` · Parent: STORY-01-03-02 · 2 h · Updated (setup's grinder) · Depends on: TASK-01-03-03-BE1, TASK-01-03-02-FE2
+- **Build:** DAL `getStartingValues(setupId)`: the latest measured shot on that
+  setup, else DQ-07 defaults (18 g, 36 g, 28 000 ms, middle of the grinder's
+  range).
+- **Done when:** Both branches are tested; one-tap shots are ignored (AC 2).
 
-  Ranges follow TQ-14. The first tab is selected on open.
-- **Done when:**
-  - All four values are visible at once on 375 × 667 (AC 1).
-  - Starting values apply (AC 2).
-  - The grind respects its steps and range (AC 3) and shows its direction
-    (AC 4).
-  - The ratio updates (AC 5).
-  - Time shows one decimal (AC 6).
+##### TASK-01-03-02-FE3 · Wire ShotDial in the shot log with live ratio and units
+`frontend` · Parent: STORY-01-03-02 · 5 h · Unchanged · Depends on: TASK-01-03-02-FE1, TASK-01-03-02-FE2, TASK-01-03-02-BE1, TASK-01-03-01-FE2, PR-3, TQ-14
+- **Build:** ShotDial gets grind from `grindWheelConfig`, dose and yield in
+  grams, time in seconds converted with `secondsToMs`, and a live ratio via
+  `Intl`. Ranges follow TQ-14.
+- **Done when:** AC 1 to AC 6 hold on 375 × 667.
 
 ##### TASK-01-03-02-QA1 · Test the shot values controls
-`qa` · Parent: STORY-01-03-02 · 4 h · Depends on: TASK-01-03-02-FE3
-- **Build:**
-  - ShotDial play tests on a 375 × 667 viewport: four tabs visible, one wheel,
-    drag and keyboard change, typed entry only on tapping the number (AC 1).
-  - Grind snapping to steps for a stepped fixture and 0.1 for stepless
-    (AC 3).
-  - Captions for both directions and RTL (AC 4).
-  - Ratio live (AC 5).
-  - 27.6 s shown and 27 600 ms emitted (AC 6).
-  - Node test for starting values (AC 2).
-- **Done when:** AC 1 to AC 6 are each covered.
+`qa` · Parent: STORY-01-03-02 · 4 h · Unchanged · Depends on: TASK-01-03-02-FE3
+- **Build:** ShotDial play tests (four tabs, drag and keyboard, typed entry),
+  grind snapping, captions both ways and RTL, live ratio, 27.6 s and
+  27 600 ms; a Node test of starting values.
+- **Done when:** AC 1 to AC 6 are covered.
 
-#### STORY-01-03-03: Save the shot as I measured it
+##### STORY-01-03-03: Save the shot as I measured it
 
-Schema: TASK-01-03-03-BE1.
+Schema: TASK-01-03-03-BE1 (section 6).
 
 ##### TASK-01-03-03-BE2 · Add saving a measured shot
-`backend` · Parent: STORY-01-03-03 (also 01-03-04, 03-01-03, 03-02-03) · 5 h · Depends on: TASK-01-03-03-BE1, TASK-01-01-04-BE1, TASK-01-03-01-BE1
-- **Build:** Action `saveMeasuredShot(input)`:
-  - checks that the setup, portion and drink are owned and visible, and
-    the portion isn't finished;
-  - copies the setup's current machine and grinder into `machine_id` and
-    `grinder_id`;
-  - sets `persona_id` to the default persona, `logged_by_user_id` from the
-    session, and `entry_mode='measured'`;
-  - stores `yield_time` as integer ms, plus `sweetened`;
-  - leaves `is_network_eligible` false (X-3);
-  - in the same transaction, sets the portion's `opened_at` to the shot time
-    if it was unopened (DQ-06);
-  - returns `{ ok, shotId }` or a typed error.
-- **Done when:**
-  - The fields are as AC 1 and AC 2 require.
-  - The unit snapshot survives setup changes (AC 3).
-  - A failure writes nothing (AC 5).
+`backend` · Parent: STORY-01-03-03 (also 01-03-04, 06, 07, 03-01-03, 03-02-03) · 5 h · Updated (setup only) · Depends on: TASK-01-03-03-BE1, TASK-01-01-04-BE1, TASK-01-03-01-BE1
+- **Build:** Action `saveMeasuredShot(input)`: checks setup, portion and drink
+  are owned and the portion isn't finished; stores `setup_id` (no machine or
+  grinder columns), the default persona, the session user, `entry_mode =
+  'measured'`, `yield_time` in ms, sweetened, prep and milk (validated by
+  later tasks). A frozen portion's dates don't change. An unopened, not
+  frozen portion gets `opened_at` in the same transaction.
+- **Done when:** Fields are as AC 1 requires; the setup survives later
+  changes (AC 2); a failure writes nothing (AC 4).
 
 ##### TASK-01-03-03-FE1 · Wire saving the shot and the failure state
-`frontend` · Parent: STORY-01-03-03 · 3 h · Depends on: TASK-01-03-03-BE2, TASK-01-01-06-FE4
-- **Build:** Save (`log.save`, pinned above the safe area) calls the action
-  with a pending state. On success it goes to `/taste/[shotId]`; until
-  TASK-01-05-01-FE3 lands, it goes to Brew. On failure it shows Notice
-  `log.saveFailed` with retry and keeps the values. The draft is cleared on
-  success.
-- **Done when:**
-  - Success leads to the tasting offer (AC 4).
-  - A failure stays with values kept and no shot saved (AC 5).
+`frontend` · Parent: STORY-01-03-03 · 3 h · Unchanged · Depends on: TASK-01-03-03-BE2, TASK-01-01-06-FE4
+- **Build:** `log.save` calls the action with a pending state; success goes
+  to `/taste/[shotId]` (to Brew until tasting lands); failure shows
+  `log.saveFailed` with retry and keeps values.
+- **Done when:** Success leads to the tasting offer (AC 3); a failure keeps
+  values and saves nothing (AC 4).
 
 ##### TASK-01-03-03-QA1 · Test saving shots
-`qa` · Parent: STORY-01-03-03 · 4 h · Depends on: TASK-01-03-03-FE1
-- **Build:**
-  - Node tests for `saveMeasuredShot`:
-    - every stored field (AC 1);
-    - the unit snapshot, with a setup edit afterwards (AC 2, AC 3);
-    - an unopened portion opened that day;
-    - a finished portion rejected;
-    - rollback on a forced error (AC 5);
-    - isolation cases.
-  - Play test for the save-failed state (AC 5).
-- **Done when:** AC 1 to AC 5 are covered (AC 4 together with
-  TASK-01-05-01-QA1).
+`qa` · Parent: STORY-01-03-03 · 4 h · Updated · Depends on: TASK-01-03-03-FE1
+- **Build:** Node tests for every stored field, the setup snapshot after a
+  setup change, opening an unopened portion, finished rejected, rollback and
+  isolation; a play test for the failed state.
+- **Done when:** AC 1 to AC 4 are covered (AC 3 with TASK-01-05-01-QA1).
 
-#### STORY-01-03-04: Mark a shot as sweetened
+##### STORY-01-03-04: Mark a shot as sweetened
 
 ##### TASK-01-03-04-FE1 · Add the sweetened toggle to the shot log
-`frontend` · Parent: STORY-01-03-04 · 2 h · Depends on: TASK-01-03-03-FE1, PR-3
-- **Build:** Toggle (PR #3) `log.sweetened` under ShotDial, for every drink
-  type, defaulting off and passed to `saveMeasuredShot`.
-- **Done when:** The toggle shows for every drink (AC 3), and its value is
-  saved (AC 1, AC 2).
+`frontend` · Parent: STORY-01-03-04 · 2 h · Unchanged · Depends on: TASK-01-03-03-FE1, PR-3
+- **Build:** Toggle `log.sweetened` under ShotDial for every drink, starting
+  off, passed to `saveMeasuredShot`.
+- **Done when:** It shows for every drink (AC 3) and its value is saved
+  (AC 1, AC 2).
 
 ##### TASK-01-03-04-QA1 · Test the sweetened mark
-`qa` · Parent: STORY-01-03-04 · 2 h · Depends on: TASK-01-03-04-FE1
-- **Build:** Node tests: sweetened true and false are stored, and the default
-  is false (AC 1, AC 2). Play test: the toggle appears for a milk drink and an
-  espresso fixture (AC 3).
+`qa` · Parent: STORY-01-03-04 · 2 h · Unchanged · Depends on: TASK-01-03-04-FE1
+- **Build:** Node tests for true, false and default; a play test for milk and
+  espresso fixtures.
 - **Done when:** AC 1 to AC 3 are covered.
 
-#### STORY-01-03-05: Enter and read numbers in my local format
+##### STORY-01-03-05: Enter and read numbers in my local format
 
 ##### TASK-01-03-05-FE1 · Route every shown number through the shared formatters
-`frontend` · Parent: STORY-01-03-05 · 3 h · Depends on: TASK-01-03-02-FE3, PR-3
-- **Build:**
-  - Audit ShotDial, ShotValues (PR #3) and the log for direct `toFixed` or
-    string joins, and replace them with `formatValueParts`, `useFormatter` or
-    `Intl`.
-  - Add `formatGrams`, `formatSeconds` and `formatRatio` helpers in
-    `src/lib/units.ts` if PR #3 doesn't have them.
-- **Done when:** A search finds no hand-joined number and unit in
-  `src/components` or `src/app`.
+`frontend` · Parent: STORY-01-03-05 · 3 h · Unchanged · Depends on: TASK-01-03-02-FE3, PR-3
+- **Build:** Audit ShotDial, ShotValues and the log for hand-built numbers and
+  replace them with `formatValueParts`, `useFormatter` or `Intl`.
+- **Done when:** A search finds no hand-joined number and unit.
 
 ##### TASK-01-03-05-QA1 · Test decimal comma and point, and canonical storage
-`qa` · Parent: STORY-01-03-05 · 3 h · Depends on: TASK-01-03-05-FE1, TQ-08
-- **Build:**
-  - Story tests that render ShotDial and ShotValues with `de-DE` and `en-US`
-    (comma versus point) (AC 1, AC 2).
-  - Typed entry with a comma emits the canonical number.
-  - Unit tests for `parseDecimal` and `sanitizeDecimal` round-trips.
-  - A Node test: a value saved under one locale reads back identical
-    (AC 3).
+`qa` · Parent: STORY-01-03-05 · 3 h · Unchanged · Depends on: TASK-01-03-05-FE1, TQ-08
+- **Build:** Stories with `de-DE` and `en-US`; typed comma entry emits the
+  canonical number; `parseDecimal` round-trips; a Node cross-locale test.
 - **Done when:** AC 1 to AC 3 are covered.
 
-### EPIC-01-04: Record temperature and pressure when your machine has them
+##### STORY-01-03-06: Record whether I used WDT or a puck screen
 
-#### STORY-01-04-01: Record temperature in the way my machine sets it
+##### TASK-01-03-06-BE1 · Add the puck prep starting rule and save prep on shots
+`backend` · Parent: STORY-01-03-06 · 3 h · New · Depends on: TASK-01-03-03-BE2
+- **Build:** `src/domain/prep.ts` `prepStart({ recipe?, lastShotOnSetup? })`:
+  the recipe's ticks in recipe-based modes, else the last shot on this
+  setup, else both off. DAL returns it for a setup. `saveMeasuredShot`
+  stores `usedWdt` and `usedPuckScreen`; they never change the setup.
+- **Done when:** The rule is unit-tested (AC 2, AC 3); a saved shot has both
+  ticks (AC 1) and the same setup (AC 5).
+
+##### TASK-01-03-06-FE1 · Add the WDT and puck screen toggles to the shot log
+`frontend` · Parent: STORY-01-03-06 · 3 h · New · Depends on: TASK-01-03-06-BE1, TASK-01-03-04-FE1, DES-01-03-01
+- **Build:** Extend PR #3's ShotLogScreen with two Toggles under a `log.prep`
+  label, before sweetened. Untouched ticks follow the rule when the setup
+  changes; a touched tick keeps its value.
+- **Done when:** Each tick is one tap (AC 1); starting values follow
+  the rule (AC 2, AC 3); touched ticks survive a setup change (AC 4).
+
+##### TASK-01-03-06-QA1 · Test puck prep
+`qa` · Parent: STORY-01-03-06 · 3 h · New · Depends on: TASK-01-03-06-FE1
+- **Build:** Unit tests for `prepStart`; Node tests for storage; play tests for
+  the setup-change rule.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-01-03-07: Record the milk in a milk drink
+
+##### TASK-01-03-07-BE1 · Add the milk starting rule and validate milk on save
+`backend` · Parent: STORY-01-03-07 · 3 h · New · Depends on: TASK-01-03-03-BE2, TASK-01-01-08-BE2
+- **Build:** `src/domain/milk.ts` `milkStart({ drink, recipe?, lastShotOfDrink?,
+  milks })` (recipe, else last milk of this drink or the first visible milk,
+  with the drink's typical amount) and `validateMilk` (0 to 500 ml, step 10;
+  only for a drink with milk; milk visible to the household).
+  `saveMeasuredShot` stores `milk_type_id` and `milk_ml`.
+- **Done when:** Starting rules and a drink switch are unit-tested (AC 3 to
+  AC 5); a non-milk drink stores none (AC 2); the shot records milk (AC 6).
+
+##### TASK-01-03-07-FE1 · Add the millilitre unit and milk line formatting
+`frontend` · Parent: STORY-01-03-07 · 3 h · New · Depends on: DES-01-03-06, DES-01-03-03
+- **Build:** `milliliter` in `CanonicalUnit` in `src/lib/units.ts` with
+  `Intl` unit formatting; a NumberWheel millilitre story; a `milkLine`
+  formatter ("Oat, 150 ml") used by ShotValues.
+- **Done when:** Unit tests pass; the story passes axe; no hand-joined value.
+
+##### TASK-01-03-07-FE2 · Add the milk field and amount tab to the shot log
+`frontend` · Parent: STORY-01-03-07 · 5 h · New · Depends on: TASK-01-03-07-BE1, TASK-01-03-07-FE1, TASK-01-03-06-FE1, DES-01-03-06
+- **Build:** Extend ShotLogScreen and ShotDial (PR #3) with a `log.milk`
+  SelectField under the drink and a milk amount tab. Both hide for a drink
+  without milk; untouched values follow the rule on drink change. Check
+  PR #3 first.
+- **Done when:** Milk is chosen and set by dragging, no keyboard (AC 1);
+  none for espresso (AC 2); recipe and drink starts (AC 3, AC 4); a
+  drink switch behaves (AC 5).
+
+##### TASK-01-03-07-QA1 · Test milk in the log
+`qa` · Parent: STORY-01-03-07 · 3 h · New · Depends on: TASK-01-03-07-FE2
+- **Build:** Unit tests for the rule; Node tests for storage and rejection;
+  play tests for the field, tab and drink switch.
+- **Done when:** AC 1 to AC 6 are covered.
+
+#### EPIC-01-04: Record temperature and pressure when your machine has them
+
+##### STORY-01-04-01: Record temperature in the way my machine sets it
 
 ##### TASK-01-04-01-FE1 · Add Fahrenheit display support to the units helpers and NumberWheel
-`frontend` · Parent: STORY-01-04-01 · 3 h · Depends on: DES-01-03-03
-- **Build:**
-  - Add `fahrenheit` to `CanonicalUnit` in `src/lib/units.ts`.
-  - Add `celsiusToFahrenheit` and `fahrenheitToCelsius`, keeping full
-    precision on store and snapping to the machine's step on display, so a
-    stored value reads back as the same °F.
-  - A NumberWheel Fahrenheit story.
-- **Done when:** Unit tests show the round-trip for every whole °F from 180
-  to 212 returns the same displayed °F (risk R-08).
+`frontend` · Parent: STORY-01-04-01 · 3 h · Unchanged · Depends on: DES-01-03-03
+- **Build:** `fahrenheit` in `CanonicalUnit`, conversion helpers that snap to
+  the machine's step, and a story.
+- **Done when:** Every whole °F from 180 to 212 round-trips (risk R-08).
 
 ##### TASK-01-04-01-FE2 · Extend ShotDial with optional value tabs and step chips
-`frontend` · Parent: STORY-01-04-01 (also 01-04-02, 01-06-08) · 6 h · Depends on: PR-3, DES-01-04-01, DES-01-04-02
-- **Build:** Check what PR #3's ShotDial already does, then add what's
-  missing:
-  - optional tabs after the core four (temperature, then pressure);
-  - an unset state shown as an em dash;
-  - a panel with secondary `log.addTemperature` or `log.addPressure`, which
-    reveals the control at the last used value;
-  - a ghost `log.clear`;
-  - a steps panel using ChipGroup's numbered scale;
-  - an exact panel using NumberWheel;
-  - a `labelOverride` for `log.peakPressure`;
-  - the tab row fitting six tabs on 375 px, scrolling horizontally beyond
-    that.
-
-  Stories for every machine capability combination, plus RTL.
-- **Done when:**
-  - The stories pass axe.
-  - Unset is visibly different from set.
-  - Six tabs fit at 375 px.
+`frontend` · Parent: STORY-01-04-01 (also 01-04-02, 01-06-08) · 6 h · Updated (milk tab, scrolling) · Depends on: PR-3, DES-01-04-01, DES-01-04-02
+- **Build:** Check what PR #3's ShotDial covers, then add optional tabs
+  (temperature, pressure) with an unset em dash, add and clear controls,
+  steps and exact panels, a `labelOverride`, and horizontal scrolling when
+  tabs exceed 375 px (up to seven with milk). Stories per capability, RTL.
+- **Done when:** Stories pass axe; unset differs from set; the tab row scrolls
+  rather than clips.
 
 ##### TASK-01-04-01-FE3 · Show temperature in the log per the machine's capability
-`frontend` · Parent: STORY-01-04-01 · 3 h · Depends on: TASK-01-04-01-FE1, TASK-01-04-01-FE2, TASK-01-03-02-FE3
-- **Build:**
-  - `src/domain/brewControls.ts` maps the setup machine's `temperature`
-    capability to the tab config: none means no tab; steps means chips 1 to
-    n; exact means a wheel in the machine's unit, range and step.
-  - New shots start unset. Prefilled modes (recipe, edit) start set when the
-    source has a value.
-  - Values convert from °F to °C before save.
-- **Done when:**
-  - A fixed machine shows no tab (AC 1).
-  - A new shot starts unset and can be cleared (AC 2).
-  - Steps show no degrees (AC 3), and exact respects range and step (AC 4).
-  - °F displays as °F (AC 5).
-  - Prefill is set (AC 6).
+`frontend` · Parent: STORY-01-04-01 · 3 h · Unchanged · Depends on: TASK-01-04-01-FE1, TASK-01-04-01-FE2, TASK-01-03-02-FE3
+- **Build:** `src/domain/brewControls.ts` maps the setup machine's
+  temperature capability to tab config; new shots start unset; °F converts
+  to °C before save.
+- **Done when:** AC 1 to AC 6 hold.
 
 ##### TASK-01-04-01-BE1 · Validate temperature and pressure pairs on save
-`backend` · Parent: STORY-01-04-01 (also 01-04-02, 02-01) · 3 h · Depends on: TASK-01-03-03-BE2
-- **Build:**
-  - `src/domain/brewControls.ts` `validateBrewControls(capabilities, input)`:
-    at most one of `brew_temp_c` or `brew_temp_step`, and one of
-    `pressure_bar` or `pressure_step`; the field must match the machine's
-    capability; steps must be within 1 to n; exact values within range;
-    `brew_temp_c` is always °C.
-  - Used by `saveMeasuredShot`, and later by the update and pin actions.
-- **Done when:**
-  - A step on an exact machine is rejected, as are both columns set and an
-    out-of-range value.
-  - Unset is allowed.
+`backend` · Parent: STORY-01-04-01 (also 01-04-02, 02-01) · 3 h · Unchanged · Depends on: TASK-01-03-03-BE2
+- **Build:** `validateBrewControls(capabilities, input)`: one of each pair, the
+  field matches the capability, steps in 1..n, exact in range.
+- **Done when:** A step on an exact machine, both columns and out-of-range
+  are rejected; unset is allowed.
 
 ##### TASK-01-04-01-QA1 · Test temperature recording
-`qa` · Parent: STORY-01-04-01 · 4 h · Depends on: TASK-01-04-01-FE3, TASK-01-04-01-BE1
-- **Build:**
-  - Story tests for each machine fixture: fixed shows no tab (AC 1); unset,
-    add and clear (AC 2); steps chips with no unit (AC 3); exact range and
-    step (AC 4); °F shown and °C stored (AC 5); prefilled set (AC 6).
-  - Node tests for `validateBrewControls`, temperature cases.
-- **Done when:** AC 1 to AC 6 are each covered.
+`qa` · Parent: STORY-01-04-01 · 4 h · Unchanged · Depends on: TASK-01-04-01-FE3, TASK-01-04-01-BE1
+- **Build:** Story tests per machine fixture; Node tests for temperature cases.
+- **Done when:** AC 1 to AC 6 are covered.
 
-#### STORY-01-04-02: Record pressure in the way my machine sets it
+##### STORY-01-04-02: Record pressure in the way my machine sets it
 
 ##### TASK-01-04-02-BE1 · Cover pressure in brew-control validation
-`backend` · Parent: STORY-01-04-02 · 2 h · Depends on: TASK-01-04-01-BE1
-- **Build:** Extend `validateBrewControls` for pressure:
-  - none, and manual without a gauge, accept nothing;
-  - manual with a gauge accepts `pressure_bar` (peak);
-  - steps accept `pressure_step` within 1 to n;
-  - exact accepts bar within range.
+`backend` · Parent: STORY-01-04-02 · 2 h · Unchanged · Depends on: TASK-01-04-01-BE1
+- **Build:** Extend `validateBrewControls` for pressure (none, manual with or
+  without gauge, steps, exact).
 - **Done when:** Each case is unit-tested.
 
 ##### TASK-01-04-02-FE1 · Show pressure in the log per the machine's capability
-`frontend` · Parent: STORY-01-04-02 · 3 h · Depends on: TASK-01-04-01-FE3
-- **Build:** `brewControls` maps `pressure`:
-  - none, or manual without a gauge: no tab;
-  - manual with a gauge: a wheel in bar labelled `log.peakPressure`;
-  - steps: chips;
-  - exact: a wheel in bar, with the `shot.units.bar` label.
-
-  It follows the same unset and prefill rules as temperature.
-- **Done when:**
-  - A gaugeless manual machine shows no tab (AC 1).
-  - Unset and clear work (AC 2).
-  - Steps show no bar (AC 3), and exact is in range (AC 4).
-  - Peak is labelled (AC 5).
-  - Prefill is set (AC 6).
+`frontend` · Parent: STORY-01-04-02 · 3 h · Unchanged · Depends on: TASK-01-04-01-FE3
+- **Build:** `brewControls` maps pressure: no tab, peak wheel `log.peakPressure`,
+  steps chips or an exact bar wheel; same unset and prefill rules.
+- **Done when:** AC 1 to AC 6 hold.
 
 ##### TASK-01-04-02-QA1 · Test pressure recording
-`qa` · Parent: STORY-01-04-02 · 3 h · Depends on: TASK-01-04-02-FE1, TASK-01-04-02-BE1
-- **Build:** Story tests per machine fixture for AC 1 to AC 6, plus Node
-  tests for the pressure cases in `validateBrewControls`.
-- **Done when:** AC 1 to AC 6 are each covered.
+`qa` · Parent: STORY-01-04-02 · 3 h · Unchanged · Depends on: TASK-01-04-02-FE1, TASK-01-04-02-BE1
+- **Build:** Story tests per machine fixture and Node tests for the pressure
+  cases.
+- **Done when:** AC 1 to AC 6 are covered.
 
-### EPIC-01-05: Say how it tasted
+#### EPIC-01-05: Say how it tasted
 
-#### STORY-01-05-01: Rate a shot overall
+##### STORY-01-05-01: Rate a shot overall
 
 ##### TASK-01-05-01-FE1 · Add the numbered-scale ChipGroup variant with tap-again to clear
-`frontend` · Parent: STORY-01-05-01 (also 01-05-02, 01-04) · 3 h · Depends on: PR-3, DES-01-05-02
-- **Build:** Check PR #3's ChipGroup for a numbered 1-to-n scale and add
-  what's missing:
-  - a radio-group role with its label;
-  - arrow keys to move, Space or Enter to select;
-  - tapping the selected chip clears it (`allowDeselect`);
-  - optional low and high end words.
-
-  Stories: scale 1 to 5 with end words, deselect, RTL.
-- **Done when:** The stories pass axe, and a keyboard play test covers move,
-  select and deselect.
+`frontend` · Parent: STORY-01-05-01 · 3 h · Unchanged · Depends on: PR-3, DES-01-05-02
+- **Build:** Check PR #3's ChipGroup, then add a radio group with arrow keys,
+  `allowDeselect` and optional end words. Stories incl. RTL.
+- **Done when:** Stories pass axe; a keyboard play test covers move, select
+  and deselect.
 
 ##### TASK-01-05-01-FE2 · Build the tasting screen (SCR-TASTE) with its stories
-`frontend` · Parent: STORY-01-05-01 (also 01-05-02 to 04, 02-01-01, 02-03-02) · 5 h · Depends on: DES-01-05-01, PR-3, TASK-01-05-01-FE1, TASK-01-01-06-FE1
-- **Build:** `src/components/screens/TasteScreen`, props-only:
-  - `taste.title` with compact ShotValues;
-  - the overall rating scale;
-  - four sensory scales;
-  - a defects multi-choice;
-  - a warning slot under the defects;
-  - actions: `taste.done` primary with `recipe.pin` secondary, swapped in
-    fix and dial-in modes;
-  - a save-failed Notice that keeps the choices.
-
-  Stories: normal, fix mode, dial-in mode, failed, 375 × 667, RTL.
-- **Done when:**
-  - The stories pass axe.
-  - Done stays visible at 375 × 667.
-  - The shot's values are visible while rating (AC 1).
+`frontend` · Parent: STORY-01-05-01 (also 01-05-02 to 04, 02-01-01, 02-03-05, 02-03-07) · 8 h · Updated (just-right model) · Depends on: DES-01-05-01, PR-3, TASK-01-05-01-FE1, TASK-01-01-06-FE1
+- **Build:** `TasteScreen`, props-only: compact ShotValues, the rating scale,
+  slots for the four just-right rows with `taste.allJustRight`, the six tags
+  and the block warning, a SuggestionCard slot, adaptive actions (`suggest.tryIt`,
+  `taste.done`, `recipe.pin`), and a save-failed Notice with
+  `taste.leaveWithout`. Stories: normal, suggestion showing, fix mode,
+  failed, 375 × 667, RTL.
+- **Done when:** Stories pass axe; the primary stays visible at 375 × 667;
+  values are visible while rating (AC 1).
 
 ##### TASK-01-05-01-BE1 · Add saving the tasting
-`backend` · Parent: STORY-01-05-01 (also 01-05-02, 01-05-03) · 3 h · Depends on: TASK-01-03-03-BE2, TASK-01-05-03-BE1
-- **Build:** Action `saveTasting(shotId, { rating?, sweetness?, acidity?,
-  bitterness?, body?, defects? })`:
-  - the shot must be owned and measured (one-tap shots use reactions);
-  - integers from 1 to 5, or null;
-  - defects validated against the defect list (TASK-01-05-03-BE1);
-  - only the fields provided are written.
-- **Done when:**
-  - Out-of-range values are rejected.
-  - Nothing chosen means no write.
-  - The shot exists before tasting, so the shot itself is never at risk
-    (AC 4).
+`backend` · Parent: STORY-01-05-01 (also 01-05-02, 01-05-03, 02-03-04) · 4 h · Updated (just-right fields) · Depends on: TASK-01-03-03-BE2, TASK-01-05-03-BE1
+- **Build:** Action `saveTasting(shotId, { rating?, balance?, strength?, body?,
+  sweetness?, tags? })`. Owned shots only. Rating 1 to 5 and only on measured
+  shots; balance, strength and body -2..2; sweetness -2..0; tags from the
+  six; only provided fields are written. A second variant
+  `saveOffAnswers` for one-tap shots (no rating).
+- **Done when:** Out-of-range values and a rating on a one-tap shot are
+  rejected; nothing chosen means no write; an untouched question stays null
+  (STORY-01-05-02 AC 3).
 
-##### TASK-01-05-01-FE3 · Wire the tasting route
-`frontend` · Parent: STORY-01-05-01 · 3 h · Depends on: TASK-01-05-01-FE2, TASK-01-05-01-BE1, TASK-01-03-03-FE1
-- **Build:** `src/app/(task)/taste/[shotId]/page.tsx`. Choices stay in local
-  state and are saved on Done. Leaving by tab or back counts as Done without
-  changes and needs no confirmation. With nothing chosen, no request is made.
-  Retry on failure.
-- **Done when:**
-  - Done and leave both save the choices (AC 3).
-  - A failure keeps the choices and allows retry (AC 4).
-  - The rating shows later on the shot (AC 5, with TASK-02-06-03-FE1).
+##### TASK-01-05-01-FE3 · Wire the tasting route, leaving saves
+`frontend` · Parent: STORY-01-05-01 · 3 h · Updated (leaving saves, failure choice) · Depends on: TASK-01-05-01-FE2, TASK-01-05-01-BE1, TASK-01-03-03-FE1
+- **Build:** `src/app/(task)/taste/[shotId]/page.tsx`. Done, back, system back
+  and pin save the choices first, with no prompt; nothing chosen means no
+  request. A failed save keeps the screen with retry and "leave without
+  saving tasting".
+- **Done when:** Every way out saves (AC 3); a failure keeps the choices and
+  offers both options (AC 4); the rating shows later (AC 5).
 
 ##### TASK-01-05-01-QA1 · Test rating a shot
-`qa` · Parent: STORY-01-05-01 · 3 h · Depends on: TASK-01-05-01-FE3
-- **Build:**
-  - Play tests: values visible (AC 1); tap again to unrate (AC 2); Done with
-    nothing saves nothing (AC 3); failure keeps the choices (AC 4).
-  - Node tests for `saveTasting` validation, measured only, isolation cases.
-  - A check that the rating is returned in the shot detail read (AC 5).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-05-02: Score sweetness, acidity, bitterness and body
-
-##### TASK-01-05-02-FE1 · Add the four sensory scales to the tasting screen
-`frontend` · Parent: STORY-01-05-02 · 2 h · Depends on: TASK-01-05-01-FE2
-- **Build:** Four numbered ChipGroups with `taste.sweetness`,
-  `taste.acidity`, `taste.bitterness` and `taste.body`, end words
-  `taste.low` and `taste.high`, and deselect allowed, saved together on Done.
-- **Done when:** Each scale is operable by touch and keyboard (AC 4) and
-  partial scores save only those chosen (AC 2).
-
-##### TASK-01-05-02-QA1 · Test sensory scores
-`qa` · Parent: STORY-01-05-02 · 2 h · Depends on: TASK-01-05-02-FE1
-- **Build:** Play tests: whole numbers 1 to 5 with end words (AC 1), partial
-  save (AC 2), deselect (AC 3), keyboard (AC 4). Node test: unscored values
-  stay null.
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-01-05-03: Tag what went wrong
-
-##### TASK-01-05-03-BE1 · Define the defect list
-`backend` · Parent: STORY-01-05-03 · 2 h · Depends on: DQ-08
-- **Build:** `src/domain/defects.ts`: a fixed `DefectKind` list, including
-  `channelling` and `defects.*` keys. Until DQ-08 is answered it holds only
-  `channelling`, plus the designer's DES-01-05-04 proposal if approved. It
-  also provides `isDefect` validation and a mapping to shot warnings
-  (`channelling` maps to the channelling warning).
-- **Done when:** The list is the single source for UI options and
-  validation, and adding a defect needs one edit plus its message key.
-
-##### TASK-01-05-03-FE1 · Add the defect choices to the tasting screen
-`frontend` · Parent: STORY-01-05-03 · 2 h · Depends on: TASK-01-05-03-BE1, TASK-01-05-01-FE2
-- **Build:** A multi-choice ChipGroup from `defects.ts`. Chips stay
-  monochrome when selected. The choices are saved as a JSON array on Done.
-- **Done when:** Selecting several, none, and untagging all work.
-
-##### TASK-01-05-03-QA1 · Test defect tagging
-`qa` · Parent: STORY-01-05-03 · 2 h · Depends on: TASK-01-05-03-FE1
-- **Build:** Play tests for several defects (AC 1), none (AC 2) and untag
-  (AC 3). Node tests: an unknown defect is rejected, and saved defects are
-  returned by the shot read (AC 4).
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-01-05-04: See a warning when a shot channelled
-
-##### TASK-01-05-04-FE1 · Add the shared ShotWarnings component
-`frontend` · Parent: STORY-01-05-04 (also 02-06-01, 02-06-02, 02-06-03) · 3 h · Depends on: TASK-01-01-06-FE1, TASK-01-05-03-BE1, DES-01-05-05
-- **Build:**
-  - `src/domain/shotWarnings.ts`: `shotWarnings(shot)` returns
-    `['channelling']` when tagged. "Ran fast" is out (DQ-09).
-  - `src/components/ui/ShotWarnings` renders a block or inline Notice in the
-    warning tone with `shot.warnings.channelling`. Text is always present.
-
-  Stories: block, inline, none, RTL.
-- **Done when:**
-  - The stories pass axe.
-  - It's the only component that renders shot warnings.
-  - With no channelling it renders nothing.
-
-##### TASK-01-05-04-FE2 · Show the warning live on the tasting screen
-`frontend` · Parent: STORY-01-05-04 · 2 h · Depends on: TASK-01-05-04-FE1, TASK-01-05-03-FE1
-- **Build:** A block ShotWarnings directly under the defects group, driven by
-  the current local selection. It appears on tagging and goes on untagging,
-  with no layout jump above the defects.
-- **Done when:** The warning toggles with the channelling chip (AC 1).
-
-##### TASK-01-05-04-QA1 · Test the channelling warning and the signal rule
-`qa` · Parent: STORY-01-05-04 · 3 h · Depends on: TASK-01-05-04-FE2
-- **Build:**
-  - Play test: tag and untag on the tasting screen (AC 1).
-  - Story checks that the text alone carries the meaning, with a
-    contrast-only run (AC 3).
-  - Unit test for `shotWarnings`.
-  - The signal grep test (TASK-01-01-06-QA1) still passes (AC 4).
-  - Recent shots, detail and edit are covered by their QA tasks
-    (TASK-02-06-01-QA1, TASK-02-06-03-QA1, TASK-02-06-02-QA1) (AC 2).
-- **Done when:** AC 1, AC 3 and AC 4 are covered here, and AC 2 is linked to
-  those tasks.
-
-### EPIC-01-06: Add what's missing from the catalog
-
-The epic suggests a split if it runs long. Coffee additions and the duplicate
-check (STORY-01-06-01 to 05) can ship before the capability stories
-(STORY-01-06-06 to 09). The build order allows that.
-
-#### STORY-01-06-01: Add a missing machine, grinder or other setup
-
-##### TASK-01-06-01-BE1 · Add URL normalisation
-`backend` · Parent: STORY-01-06-01 (also 01-06-04, 01-06-05, 01-02-01) · 5 h · Depends on: TASK-01-01-04-QA1
-- **Build:** `src/domain/url.ts` `normalizeUrl(raw)`:
-  - requires http or https;
-  - lowercases the host and strips `www.`;
-  - drops the fragment;
-  - strips tracking parameters (`utm_*`, `gclid`, `fbclid`, `mc_*`, `ref`,
-    `srsltid` and similar) and sorts the remaining parameters;
-  - strips regional path segments (locale and country segments such as
-    `/en-gb/`, `/en_us/`, `/uk/`, `/us/`, `/de-de/`) using one rules list;
-  - removes a trailing slash.
-
-  It returns null when the input isn't a URL. The rules live in one place,
-  so the per-market maintenance question stays open.
-- **Done when:** A test table of at least 30 cases passes, including the
-  regional variants of one product page and pages that must stay distinct.
-
-##### TASK-01-06-01-BE2 · Add creating a hardware entry
-`backend` · Parent: STORY-01-06-01 · 5 h · Depends on: TASK-01-06-01-BE1, TASK-01-02-01-BE2, TASK-01-01-04-BE1
-- **Build:** Action `createHardwareEntry({ maker: { id } | { name, url },
-  model: { name, kind, url, capabilities? } })`. In one transaction it:
-  - creates the maker if it's new, with its own URL;
-  - creates the model with `source='user'`, `status='unverified'` and
-    `created_by_household_id`;
-  - writes `catalog_urls` rows with `normalized_url`.
-
-  The URL is required for each new row. The duplicate check
-  (TASK-01-06-04-BE1) reruns before insert. It returns the new model ID.
-- **Done when:**
-  - A missing URL is rejected with nothing saved (AC 4).
-  - A new maker plus model is atomic (AC 3).
-  - Rows are marked user-added and unverified (AC 5).
-
-##### TASK-01-06-01-FE1 · Build the catalog add screen (SCR-CATALOG-ADD) for hardware, with stories
-`frontend` · Parent: STORY-01-06-01 (also 01-06-02, 04 to 07) · 6 h · Depends on: DES-01-06-01, PR-3, TASK-01-01-06-FE1
-- **Build:** `src/components/screens/CatalogAddScreen`, props-only:
-  - the `catalog.url` Input (`type="url"`, required) first, with a hint;
-  - a `catalog.checking` line;
-  - a duplicate slot and a check-failed Notice;
-  - maker SelectField or `catalog.newMaker` (name and URL);
-  - model name, with the kind preset;
-  - a capabilities slot;
-  - a `catalog.more` disclosure slot;
-  - `catalog.save`;
-  - a missing-link error in ink, and a save-failed Notice.
-
-  Stories for each state, plus RTL.
-- **Done when:** The stories pass axe, and the link is the first field.
-
-##### TASK-01-06-01-FE2 · Wire adding hardware from the picker and return with it chosen
-`frontend` · Parent: STORY-01-06-01 · 4 h · Depends on: TASK-01-06-01-FE1, TASK-01-06-01-BE2, TASK-01-02-01-FE2
-- **Build:** `src/app/(task)/catalog/add/page.tsx?catalog=hardware&kind=&q=`:
-  - the search text prefills the name;
-  - save calls the action and returns to `returnTo` (add-setup) with
-    `selected`;
-  - a failure keeps everything;
-  - the unsaved guard applies.
-- **Done when:**
-  - The name is prefilled (AC 1).
-  - Saving returns to add-setup with the model chosen (AC 2).
-  - A failure keeps all fields (AC 6).
-
-##### TASK-01-06-01-QA1 · Test adding hardware
-`qa` · Parent: STORY-01-06-01 · 4 h · Depends on: TASK-01-06-01-FE2
-- **Build:**
-  - Node tests for `createHardwareEntry`: required URL (AC 4); maker plus
-    model atomic (AC 3); flags (AC 5); returns the ID used by add-setup (AC 2).
-  - Play tests: the name prefill (AC 1) and failure keeps fields (AC 6).
-  - The new entry appears in search marked as added by us (AC 5).
-- **Done when:** AC 1 to AC 6 are each covered.
-
-#### STORY-01-06-02: Add a missing roaster or coffee
-
-##### TASK-01-06-02-BE1 · Add creating a coffee entry
-`backend` · Parent: STORY-01-06-02 · 4 h · Depends on: TASK-01-06-01-BE1, TASK-03-01-01-BE1, TASK-01-02-01-BE2
-- **Build:** Action `createCoffeeEntry({ roaster: { id } | { name, url },
-  bean: { name, url, roastLevel?, tastingNotes? } })`, with the same rules as
-  hardware:
-  - `roastLevel` must be one of the S-09 list (`src/domain/roastLevels.ts`
-    with `bean.roast.*` keys);
-  - tasting notes are an array of trimmed strings, at most 4 (S-09);
-  - one transaction, plus URL rows.
-- **Done when:**
-  - A missing URL is rejected (AC 4).
-  - A new roaster plus bean is atomic (AC 2).
-  - The optional fields can be empty (AC 3).
-  - The rows are flagged (AC 5).
-
-##### TASK-01-06-02-FE1 · Add the coffee variant of catalog add
-`frontend` · Parent: STORY-01-06-02 · 4 h · Depends on: TASK-01-06-02-BE1, TASK-01-06-01-FE2, TASK-03-01-01-FE1
-- **Build:** CatalogAddScreen's coffee variant: roaster SelectField or new
-  roaster, bean name, a roast level ChipGroup (deselectable) and a
-  tasting-notes Input. Wired with `catalog=coffee`, it returns to add-bag
-  with the bean chosen. Stories.
-- **Done when:** Saving returns to add-bag with the bean chosen (AC 1), and
-  the stories pass axe.
-
-##### TASK-01-06-02-QA1 · Test adding coffee
-`qa` · Parent: STORY-01-06-02 · 3 h · Depends on: TASK-01-06-02-FE1
-- **Build:** Node tests for AC 2 to AC 5 (roast level validation, at most four
-  notes, required URL, flags). Play test for the return to add-bag with
-  selection (AC 1).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-06-03: Keep what I add private until it's verified
-
-##### TASK-01-06-03-BE1 · Apply catalog visibility to every read and every ID passed to an action
-`backend` · Parent: STORY-01-06-03 · 3 h · Depends on: TASK-01-02-01-BE4, TASK-01-06-02-BE1
-- **Build:**
-  - `visibleCatalog(householdId)` is `status='verified' OR
-    created_by_household_id = :household`.
-  - It's applied in search, browse, the duplicate check and
-    `assertVisibleCatalog(type, id)`, which every action that stores a
-    catalog reference calls (add unit, add bag, the creates).
-  - Verification is a manual admin update of `status` (TQ-10). No code
-    changes when it happens.
-- **Done when:**
-  - Another household's unverified ID is rejected by actions as not found.
-  - A verified entry is visible to all.
-
-##### TASK-01-06-03-QA1 · Test catalog privacy and verification
-`qa` · Parent: STORY-01-06-03 · 4 h · Depends on: TASK-01-06-03-BE1
-- **Build:** Node tests with two households:
-  - B can't find or use A's unverified maker, model, roaster or bean (AC 1);
-  - A sees and uses its own, marked (AC 2);
-  - after setting `status='verified'` directly in the test database, B
-    finds it, and A's existing units, bags and shots are unchanged (AC 3).
-
-  Plus isolation suite cases.
-- **Done when:** AC 1 to AC 3 are covered.
-
-#### STORY-01-06-04: Get pointed to an entry that already exists
-
-##### TASK-01-06-04-BE1 · Add the duplicate URL check
-`backend` · Parent: STORY-01-06-04 · 4 h · Depends on: TASK-01-06-01-BE1, TASK-01-06-03-BE1
-- **Build:**
-  - DAL `findByNormalizedUrl(catalog, url)` matches `catalog_urls` whose
-    entity is visible (verified or own household only) and resolves merges.
-  - Exposed as the Route Handler `GET /api/catalog/check-url` (TQ-03), and
-    rerun inside both create actions.
-  - It returns the existing entry (name, parent, kind) or none.
-- **Done when:**
-  - A regional variant matches (AC 2).
-  - Another household's unverified match is not reported (AC 3).
-  - The check runs before save and again at save (AC 5).
-
-##### TASK-01-06-04-FE1 · Show the duplicate-found and check-failed states in catalog add
-`frontend` · Parent: STORY-01-06-04 · 4 h · Depends on: TASK-01-06-04-BE1, TASK-01-06-01-FE2, DES-01-06-02, DQ-10
-- **Build:**
-  - On leaving the URL field, the check runs (aborting a stale one) with
-    `catalog.checking`.
-  - On a match: Notice `catalog.duplicateFound` naming the entry, with
-    primary `catalog.useExisting`, which returns to the caller with that
-    entry selected and creates nothing.
-  - A ghost `catalog.addAnyway` sits behind a flag, off until DQ-10 allows
-    it.
-  - A network failure shows a neutral Notice, and save stays allowed.
-- **Done when:**
-  - A match is offered before other fields are filled (AC 1).
-  - Accepting it returns with the entry chosen (AC 4).
-  - Check failed still allows save (AC 5).
-
-##### TASK-01-06-04-QA1 · Test duplicate detection
-`qa` · Parent: STORY-01-06-04 · 4 h · Depends on: TASK-01-06-04-FE1
-- **Build:**
-  - Node tests: a verified match and an own-household match (AC 1); regional
-    and tracking variants (AC 2); another household's unverified entry not
-    reported (AC 3); the save-time recheck blocks a duplicate created during
-    a network failure (AC 5).
-  - Play tests: use-existing returns with selection and no row created
-    (AC 4); check failed then save (AC 5).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-06-05: Add regional links and names to an entry
-
-##### TASK-01-06-05-BE1 · Accept extra URLs and aliases on catalog creates
-`backend` · Parent: STORY-01-06-05 · 3 h · Depends on: TASK-01-06-04-BE1, TQ-12
-- **Build:** Both create actions accept `urls: { url, market | null }[]` and
-  `aliases: { name, market | null }[]`. Each URL is normalised and checked
-  for duplicates, rejecting with the matched entry. Aliases are trimmed and
-  deduplicated. Markets are validated against the TQ-12 list.
-- **Done when:**
-  - Extra URLs save with their markets (AC 1), and aliases save (AC 2).
-  - A duplicate extra URL is reported like the first one (AC 4).
-
-##### TASK-01-06-05-FE1 · Add the repeatable links and other-names rows
-`frontend` · Parent: STORY-01-06-05 · 4 h · Depends on: TASK-01-06-05-BE1, DES-01-06-04, TASK-01-06-04-FE1
-- **Build:** Under `catalog.more`:
-  - repeatable rows of URL Input plus market SelectField (names from
-    `Intl.DisplayNames`, so no country names in messages);
-  - repeatable rows of name plus market;
-  - add and remove row buttons with accessible labels;
-  - each extra URL checked on blur, like the first.
-
-  Stories.
-- **Done when:** The stories pass axe, and rows can be added and removed by
-  keyboard.
-
-##### TASK-01-06-05-QA1 · Test regional links and aliases
-`qa` · Parent: STORY-01-06-05 · 3 h · Depends on: TASK-01-06-05-FE1
-- **Build:** Node tests:
-  - URLs with and without a market (AC 1);
-  - aliases with and without a market (AC 2);
-  - search by a new alias finds the entry for the adding household only
-    while unverified (AC 3);
-  - a duplicate extra URL is reported (AC 4).
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-01-06-06: Describe a machine I added in my own words
-
-##### TASK-01-06-06-BE1 · Map the machine answers to capabilities
-`backend` · Parent: STORY-01-06-06 · 3 h · Depends on: TASK-01-02-01-BE1
-- **Build:** `src/domain/capabilityQuestions.ts`:
-  - `machineAnswersToCapabilities(answers)` and the reverse
-    (`capabilitiesToMachineAnswers`, for answering later);
-  - every unanswered or "not sure" answer maps to S-08's unknown values;
-  - "no" maps to `control: 'none'`;
-  - lever, paddle or valve maps to `manual`, with the gauge as yes, no or
-    unknown (null);
-  - settings map to `steps` with count or null;
-  - exact maps to the unit (°C, °F or null) and an optional min and max.
-
-  `createHardwareEntry` stores the result.
-- **Done when:**
-  - Unit tests cover every row of the design's machine question table.
-  - The reverse mapping is lossless.
-
-##### TASK-01-06-06-FE1 · Build the machine capability questions with follow-ups
-`frontend` · Parent: STORY-01-06-06 · 5 h · Depends on: TASK-01-06-06-BE1, TASK-01-06-01-FE1, DES-01-06-03
-- **Build:** `src/components/screens/CatalogAddScreen/MachineQuestions`:
-  - `catalog.cap.title` with one sentence;
-  - the temperature question, with follow-ups (how many, or unit then lowest
-    and highest);
-  - the pressure question, with follow-ups (gauge, how many, or lowest and
-    highest bar);
-  - every ChipGroup ends with `catalog.cap.notSure`;
-  - follow-ups appear only when needed;
-  - `catalog.cap.skipHint` says that unanswered means not sure.
-
-  Stories: none-none (two taps), every follow-up, all skipped, RTL.
-- **Done when:**
-  - The stories pass axe, and the wording uses no schema terms.
-  - A machine with no controls takes two answers (AC 3).
-
-##### TASK-01-06-06-QA1 · Test the machine capability questions
-`qa` · Parent: STORY-01-06-06 · 3 h · Depends on: TASK-01-06-06-FE1
-- **Build:**
-  - Play tests: the two questions with not sure (AC 1); follow-ups appear only
-    as needed (AC 2); no-control is two taps (AC 3); the skip hint shows and
-    unanswered saves as unknown (AC 4).
-  - A Node test that a saved machine's capabilities drive the log's
-    temperature and pressure config (AC 5, through `brewControls`).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-06-07: Describe a grinder I added in my own words
-
-##### TASK-01-06-07-BE1 · Map the grinder answers to capabilities
-`backend` · Parent: STORY-01-06-07 · 2 h · Depends on: TASK-01-06-06-BE1
-- **Build:** `grinderAnswersToCapabilities` and the reverse:
-  - clicks, smooth or unknown maps to `type` (`stepped`, `stepless` or
-    `unknown`);
-  - the lowest and highest numbers map to `min` and `max`, or null;
-  - the step applies only for clicks, else null;
-  - coarser maps to `higher`, `lower` or `unknown`.
-- **Done when:** Unit tests cover each combination, and the reverse is
-  lossless.
-
-##### TASK-01-06-07-FE1 · Build the grinder capability questions
-`frontend` · Parent: STORY-01-06-07 · 4 h · Depends on: TASK-01-06-07-BE1, TASK-01-06-06-FE1
-- **Build:** `GrinderQuestions`: the dial question, two decimal Inputs for
-  lowest and highest (optional), the step Input shown only for clicks, and
-  the coarser question, each with not sure. Stories: clicks, smooth, all
-  skipped, RTL.
-- **Done when:** The stories pass axe, and the step question is hidden for
-  smooth (AC 2).
-
-##### TASK-01-06-07-QA1 · Test the grinder capability questions
-`qa` · Parent: STORY-01-06-07 · 3 h · Depends on: TASK-01-06-07-FE1, TASK-01-03-02-FE2
-- **Build:**
-  - Play tests for AC 1 to AC 3.
-  - A unit test that the saved capabilities produce the expected
-    `grindWheelConfig` (range, step and direction captions) (AC 4).
-- **Done when:** AC 1 to AC 4 are each covered.
-
-#### STORY-01-06-08: Log shots even when I'm not sure about my setup
-
-##### TASK-01-06-08-FE1 · Add the "not sure" fallbacks for the shot log
-`frontend` · Parent: STORY-01-06-08 · 3 h · Depends on: TASK-01-03-02-FE2, TASK-01-04-01-FE3, TASK-01-04-02-FE1, DQ-11
-- **Build:** `src/domain/capabilityFallbacks.ts` `effectiveCapabilities(caps)`
-  applies the DQ-11 table:
-  - unknown temperature or pressure control means no tab;
-  - an unknown count means steps 1 to 5;
-  - an unknown unit means °C;
-  - an unknown exact range means 80 to 100 °C at step 0.5, or 0 to 12 bar at
-    step 0.5;
-  - an unknown gauge means no tab;
-  - unknown clicks or smooth means step 0.1;
-  - an unknown dial range means 0 to 100;
-  - an unknown click step means 1;
-  - an unknown coarser direction means no captions.
-
-  The values live in one constants object, so DQ-11 changes are one edit.
-  `grindWheelConfig` and `brewControls` read through it.
-- **Done when:** Unit tests cover every row, and nothing produces a warning or
-  uses signal (AC 2).
-
-##### TASK-01-06-08-FE2 · Add the quiet "tell us about your setup" link in the log
-`frontend` · Parent: STORY-01-06-08 · 2 h · Depends on: TASK-01-06-08-FE1, TASK-01-02-03-FE2
-- **Build:** When any part of the setup's setup is unknown, a ghost link
-  `log.capUnknown` appears once per screen, under the affected wheel, and
-  opens that unit's capabilities on SCR-UNIT with return-to. It's not a
-  Notice, and it disappears once nothing is unknown.
-- **Done when:** It shows at most once per screen, and not at all when
-  everything is known (AC 5).
-
-##### TASK-01-06-08-QA1 · Test logging with unknown capabilities
-`qa` · Parent: STORY-01-06-08 · 3 h · Depends on: TASK-01-06-08-FE2, DES-01-06-05
-- **Build:**
-  - ShotDial stories for a fully "not sure" grinder and machine: no
-    temperature or pressure tab (AC 1); default steps and range (AC 2); wide
-    grind range (AC 3); no direction captions (AC 4); one link (AC 5).
-  - A Node test that a shot saves with these fallbacks.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-01-06-09: Answer capability questions later
-
-##### TASK-01-06-09-BE1 · Add updating capabilities of the household's own unverified models
-`backend` · Parent: STORY-01-06-09 · 3 h · Depends on: TASK-01-06-07-BE1, TASK-01-06-03-BE1
-- **Build:** Action `updateModelCapabilities(hardwareId, answers)`: only when
-  `source='user'`, `status='unverified'` and `created_by_household_id` is the
-  session's household. It's rejected otherwise. It writes the mapped JSON and
-  touches no shot.
-- **Done when:**
-  - Seeded, verified or another household's models are rejected (AC 5).
-  - Old shots are untouched (AC 3).
-
-##### TASK-01-06-09-FE1 · Show "not sure" answers on the unit screen and reopen the questions
-`frontend` · Parent: STORY-01-06-09 · 4 h · Depends on: TASK-01-06-09-BE1, TASK-01-02-03-FE2, TASK-01-06-07-FE1
-- **Build:** On SCR-UNIT, CapabilitySummary marks unknowns with
-  `unit.capNotSure`. When editable, `unit.editCapabilities` opens the same
-  Machine or Grinder questions prefilled through the reverse mapping, then
-  saves. Seeded or verified models show the summary read-only.
-- **Done when:**
-  - Unknowns are marked and editable for own unverified models (AC 1).
-  - Others are read-only (AC 5).
-  - The next log follows the new answer (AC 2).
-
-##### TASK-01-06-09-FE2 · Widen a wheel's range in edit mode to show an old value
-`frontend` · Parent: STORY-01-06-09 · 2 h · Depends on: TASK-02-06-02-FE1
-- **Build:** In SCR-LOG edit mode, if a stored grind, temperature or pressure
-  value falls outside the current range, the wheel's min or max widens to
-  include it, so it's shown as saved and never clamped silently.
-- **Done when:** A stored value outside the new range is shown unchanged and
-  saves unchanged when not touched (AC 4).
-
-##### TASK-01-06-09-QA1 · Test answering later
-`qa` · Parent: STORY-01-06-09 · 3 h · Depends on: TASK-01-06-09-FE1, TASK-01-06-09-FE2
-- **Build:**
-  - Node tests: own unverified model editable (AC 1); new log config follows
-    (AC 2); old shots' stored values are unchanged (AC 3); seeded and
-    verified models are rejected (AC 5).
-  - Play test: edit an old shot outside the narrowed range (AC 4).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-### EPIC-02-01: Pin the recipe that worked
-
-#### STORY-02-01-01: Pin a recipe from a shot I liked
-
-Schema: TASK-02-01-01-BE1.
-
-##### TASK-02-01-01-BE2 · Add current-recipe resolution
-`backend` · Parent: STORY-02-01-01 (also 02-01-03 to 05, 02-02, 02-03) · 3 h · Depends on: TASK-02-01-01-BE1, TASK-01-02-01-BE5
-- **Build:** `src/server/dal/recipes.ts`:
-  - `getCurrentRecipe({ beanId, personaId, setupId, drinkTypeId })` returns
-    the latest `pinned_at` with `batch_id IS NULL` across the bean's merge
-    group, with a stable tie-break on ID;
-  - `listCurrentRecipesForBean(beanId, personaId)` returns one per drink and
-    setup.
-
-  This is the single "which recipe applies now" function (epic overlap
-  flag). No drift or offset is applied (INIT-04).
-- **Done when:** The latest pin wins, older ones are ignored, and a merged
-  bean finds recipes pinned on either ID.
-
-##### TASK-02-01-01-BE3 · Add pinning from a measured shot
-`backend` · Parent: STORY-02-01-01 · 4 h · Depends on: TASK-02-01-01-BE2, TASK-01-04-01-BE1
-- **Build:**
-  - Action `pinFromShot(shotId)`:
-    - the shot must be owned and `measured` (one-tap is rejected);
-    - it copies the values, temperature and pressure pairs, grinder,
-      machine, setup, drink and persona;
-    - it takes the bean from the shot's portion's batch, resolved;
-    - it sets `source_extraction_id` and `pinned_at`.
-  - DAL `pinPreview(shotId)` returns the drink, coffee and setup, the new
-    values and the current recipe it replaces.
-- **Done when:**
-  - The preview shows what the pin replaces (AC 1).
-  - The saved recipe has every field (AC 2, AC 3).
-  - One-tap is rejected (AC 4).
-  - Later shot edits don't touch the recipe (AC 5).
-  - A failure saves nothing (AC 6).
-
-##### TASK-02-01-01-FE1 · Build the pin sheet (SH-PIN) with its stories
-`frontend` · Parent: STORY-02-01-01 (also 02-01-02) · 4 h · Depends on: DES-02-01-01, TASK-01-01-05-FE2, PR-3
-- **Build:** `src/components/ui/PinSheet` (or a screens sheet):
-  - `recipe.pinTitle` naming drink, coffee and setup;
-  - compact ShotValues of the new values;
-  - when one exists, the current recipe above in `ink-secondary` with
-    `recipe.replaces`;
-  - primary `recipe.confirmPin`;
-  - a pin-failed Notice that keeps the sheet open.
-
-  Stories: new, replaces, failed, RTL.
-- **Done when:** The stories pass axe, and there's one primary button.
-
-##### TASK-02-01-01-FE2 · Wire pinning from the tasting and shot detail screens
-`frontend` · Parent: STORY-02-01-01 · 3 h · Depends on: TASK-02-01-01-FE1, TASK-02-01-01-BE3, TASK-01-05-01-FE3, TASK-02-06-03-FE2
-- **Build:** `recipe.pin` on TasteScreen and ShotDetailScreen (measured only)
-  opens PinSheet with `pinPreview`. Confirm calls `pinFromShot`, announces
-  `recipe.pinned` in a polite live region and refreshes.
-- **Done when:**
-  - Pin is reachable from both screens (AC 1) and confirmed in place (AC 2).
-  - It's absent on one-tap shots (AC 4).
-  - Failure retries (AC 6).
-
-##### TASK-02-01-01-QA1 · Test pinning from a shot
-`qa` · Parent: STORY-02-01-01 · 4 h · Depends on: TASK-02-01-01-FE2
-- **Build:**
-  - Node tests for `pinFromShot` and `pinPreview`: fields copied, including
-    the temperature and pressure form (AC 2, AC 3); replaces shown (AC 1);
-    one-tap rejected (AC 4); edit the source shot and the recipe is unchanged
-    (AC 5); forced failure leaves no row (AC 6); isolation cases.
-  - Play tests for the sheet states.
-- **Done when:** AC 1 to AC 6 are each covered.
-
-#### STORY-02-01-02: Pin a recipe by entering the values
-
-##### TASK-02-01-02-BE1 · Add pinning entered values
-`backend` · Parent: STORY-02-01-02 · 3 h · Depends on: TASK-02-01-01-BE2, TASK-01-04-01-BE1
-- **Build:** Action `pinEnteredRecipe({ batchId (for the bean), setupId,
-  drinkTypeId, values })`: the bean comes from the batch (resolved); the
-  persona is the default; machine and grinder come from the setup now;
-  `validateBrewControls` applies; `source_extraction_id` is null; no shot is
-  written. Plus `pinPreview` for entered values.
-- **Done when:** A recipe saves with no source and no extraction row
-  (AC 3), and temperature and pressure follow the machine (AC 2).
-
-##### TASK-02-01-02-FE1 · Add the recipe mode of the shot log
-`frontend` · Parent: STORY-02-01-02 · 4 h · Depends on: TASK-02-01-02-BE1, TASK-02-01-01-FE1, TASK-01-04-02-FE1, DES-02-01-03
-- **Build:** `/log?mode=recipe&batchId=`:
-  - title `log.titleRecipe`;
-  - context is drink and setup only (the coffee is fixed to the bag's
-    bean);
-  - ShotDial with temperature and pressure;
-  - primary `recipe.pinThis` opens PinSheet, with no sweetened toggle and no
-    tasting;
-  - start values come from the current recipe or the defaults.
-- **Done when:**
-  - The title and button make clear it's pinning a recipe (AC 4).
-  - The values are set as on the log (AC 1, AC 2).
-
-##### TASK-02-01-02-QA1 · Test pinning by entering values
-`qa` · Parent: STORY-02-01-02 · 3 h · Depends on: TASK-02-01-02-FE1
-- **Build:** Node tests: no extraction written and no source (AC 3);
-  temperature and pressure validated (AC 2). Play tests: recipe mode title,
-  button, no save-shot path (AC 1, AC 4).
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-02-01-03: Pin a better recipe and keep the old one
-
-##### TASK-02-01-03-QA1 · Test that the newest pin wins and older pins are kept
-`qa` · Parent: STORY-02-01-03 · 3 h · Depends on: TASK-02-01-01-BE3, TASK-02-01-02-BE1
-- **Build:** Node tests:
-  - pin twice for one key: the second is current (AC 1, AC 2);
-  - every reader (home read, pre-fill, bag recipes) uses
-    `getCurrentRecipe`, checked by a test per reader as each lands (AC 3);
-  - the older row still exists unchanged (AC 4);
-  - same-millisecond pins resolve deterministically.
-
-  No code task is needed: resolution is TASK-02-01-01-BE2.
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-02-01-04: See the recipes for a coffee
-
-##### TASK-02-01-04-BE1 · Add the recipes read for a bag
-`backend` · Parent: STORY-02-01-04 · 3 h · Depends on: TASK-02-01-01-BE2, TASK-03-01-04-BE1
-- **Build:** DAL `getBagRecipes(batchId)` calls `listCurrentRecipesForBean`
-  for the bag's resolved bean and the default persona, returning drink,
-  setup, values, `pinned_at` and `needsRedial`
-  (TASK-02-01-05-BE1). Recipes pinned for the bean show on every bag of it.
-- **Done when:**
-  - One row per drink and setup (AC 1).
-  - A new bag of the same bean gets the same recipes (AC 2).
-  - The merge group is included (AC 5).
-
-##### TASK-02-01-04-FE1 · Show the recipes section on the bag screen
-`frontend` · Parent: STORY-02-01-04 · 4 h · Depends on: TASK-02-01-04-BE1, TASK-03-01-04-FE3, TASK-02-01-02-FE1, DES-02-01-02
-- **Build:** On BagScreen's `bag.recipes` section, one ListRow per recipe
-  with compact ShotValues and the formatted date. Tapping a row opens a
-  SelectSheet-style action sheet: `recipe.dialIn` (opens `/log?mode=dialIn`,
-  TASK-02-03-03-FE1) and `recipe.edit` (recipe mode). The empty state is
-  `bag.noRecipes` with secondary `recipe.add`. Stories.
-- **Done when:**
-  - The rows show values and date (AC 1).
-  - Dial in and change are available (AC 3).
-  - The empty state offers add (AC 4).
-
-##### TASK-02-01-04-QA1 · Test bag recipes
-`qa` · Parent: STORY-02-01-04 · 3 h · Depends on: TASK-02-01-04-FE1
-- **Build:** Node tests for AC 1, AC 2 and AC 5 (two bags of one bean, a
-  merged bean). Play tests for the actions (AC 3) and the empty state
-  (AC 4).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-02-01-05: Re-dial a recipe whose setup left its setup
-
-##### TASK-02-01-05-BE1 · Mark recipes whose machine or grinder left their setup
-`backend` · Parent: STORY-02-01-05 · 2 h · Depends on: TASK-02-01-01-BE2, TASK-01-02-06-BE1
-- **Build:** `src/domain/recipes.ts` `needsRedial(recipe, setup)` is true
-  when `recipe.grinderId` or `recipe.machineId` isn't in the setup's
-  current components. Retired units are handled per the open question
-  (section 9.2, question 3). It's included in every recipe read. The pull
-  action refuses when it's true.
-- **Done when:**
-  - A swapped setup's recipe reports `needsRedial`.
-  - Pinning a new recipe on the new unit makes the current one pullable
-    (AC 3).
-
-##### TASK-02-01-05-FE1 · Show the needs-re-dial state on Brew
-`frontend` · Parent: STORY-02-01-05 · 3 h · Depends on: TASK-02-01-05-BE1, TASK-02-02-01-FE1, TASK-02-03-03-FE1
-- **Build:** In the HomeScreen state for a recipe on a unit no longer in its
-  setup:
-  - values in `ink-secondary` with `home.needsRedial`;
-  - primary `home.dialIn`, prefilled from the recipe with the setup's
-    current setup;
-  - no pull button.
-
-  Bag recipes show the same marker.
-- **Done when:**
-  - The values are marked and no pull is offered (AC 1).
-  - Dial in opens prefilled (AC 2).
-  - The recipe is still listed on the bag (AC 4).
-
-##### TASK-02-01-05-QA1 · Test re-dialing after a swap
-`qa` · Parent: STORY-02-01-05 · 3 h · Depends on: TASK-02-01-05-FE1, TASK-02-02-02-BE1
-- **Build:**
-  - Node tests: swap a grinder, and the recipe needs a re-dial and is still
-    listed (AC 1, AC 4); the pull is refused (STORY-02-02-02 AC 6); pin a new
-    shot and it's pullable again (AC 3).
-  - Play test on the Home state (AC 1, AC 2).
-- **Done when:** AC 1 to AC 4 are each covered.
-
-### EPIC-02-02: Pull your daily shot in one tap
-
-#### STORY-02-02-01: See my daily shot on the home screen
-
-##### TASK-02-02-01-BE1 · Add the home defaults: time-of-day drink, coffee and recipe
-`backend` · Parent: STORY-02-02-01 · 6 h · Depends on: TASK-02-01-01-BE2, TASK-02-06-01-BE2, TASK-03-02-04-BE1
-- **Build:**
-  - `src/domain/homeDefaults.ts`, pure and testable with an injected "now"
-    and time zone:
-    - `pickDrink(shots, visibleDrinks, now, tz)`: the most recent drink with
-      a shot within ±90 minutes of now's local time on any of the last 14
-      days, else the most recent drink, else the first visible drink (DQ-02);
-    - `pickCoffee(portions, recipes, lastPulled, drinkId)`: the coffee of the
-      last pull for this persona and drink while it has an unfinished
-      portion (DQ-17); else the earliest-opened open portion with a recipe;
-      else the earliest-opened open portion; else the newest unopened
-      (DQ-03).
-  - DAL `getHome({ drinkId?, beanId? })` returns the drink, coffee (bean,
-    roaster, portion in use), recipe (with `needsRedial`), setup name, a
-    finished-coffee state and the persona label.
-
-  Age and remaining are added by EPIC-03-03 and 03-04 and hidden until then.
-- **Done when:** Unit tests cover:
-  - morning versus afternoon (AC 2);
-  - the ±90-minute boundary;
-  - no history at this time of day, and no history at all (AC 3);
-  - each coffee fallback (AC 4);
-  - a finished recipe coffee (AC 5);
-  - a DST change day.
-
-##### TASK-02-02-01-FE1 · Wire Brew with the daily shot and its states
-`frontend` · Parent: STORY-02-02-01 · 6 h · Depends on: TASK-02-02-01-BE1, TASK-01-01-07-FE2, TASK-01-01-06-FE4, PR-3, DES-02-02-01
-- **Build:** `src/app/(app)/page.tsx` renders HomeScreen (PR #3) with
-  `getHome()`:
-  - the persona label, drink title, coffee line, large ShotValues (with
-    temperature and pressure), setup line, `home.pull` and ghost
-    `home.dialIn`;
-  - the states: loading (Skeleton home card), first run (checklist), no
-    recipe, finished coffee (`home.coffeeFinished` with
-    `home.chooseCoffee` and `home.addBag`), and load failed.
-
-  Check that PR #3's HomeScreen props cover each state, and extend them if
-  not.
-- **Done when:**
-  - The drink, coffee, values and setup show (AC 1).
-  - The finished state offers choose and add (AC 5).
-  - There's one primary button in every state.
-
-##### TASK-02-02-01-QA1 · Test the home screen defaults and states
-`qa` · Parent: STORY-02-02-01 · 5 h · Depends on: TASK-02-02-01-FE1
-- **Build:**
-  - Unit tests in `homeDefaults.test.ts` for AC 2 to AC 4 with fixed clocks
-    and time zones.
-  - Node test for `getHome` with fixtures (AC 1, AC 5).
-  - HomeScreen stories for each state, with axe and one primary button.
-  - A manual check on a phone viewport.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-02-02-02: Pull this shot in one tap
-
-##### TASK-02-02-02-BE1 · Add the one-tap pull
-`backend` · Parent: STORY-02-02-02 · 5 h · Depends on: TASK-02-02-01-BE1, TASK-02-01-05-BE1, TASK-01-03-03-BE2, TQ-11
-- **Build:** Action `pullShot({ clientId, drinkId, beanId, portionId? })`:
-  - re-resolves the current recipe server-side and refuses if there's none or
-    it needs a re-dial;
-  - picks the earliest-opened open portion of the bean, or uses the given
-    one (TASK-02-02-03-BE1);
-  - inserts an extraction with `id = clientId` (idempotent: a second call
-    returns the same shot) and `entry_mode='one-tap'`, copying the recipe's
-    values, temperature and pressure, setup, grinder and machine, with the
-    drink and coffee shown, the default persona and the session user;
-  - sets the portion's `opened_at` if this shot opened it, with the exact
-    same timestamp as the shot, for undo;
-  - returns `{ shotId, openedPortion: boolean }`.
-- **Done when:**
-  - The fields are as AC 1 and AC 2 require.
-  - The earliest-opened portion is used (AC 3).
-  - A duplicate `clientId` writes once (AC 4).
-  - A failure writes nothing (AC 5).
-  - A needs-re-dial recipe is refused (AC 6).
-
-##### TASK-02-02-02-FE1 · Extract PulledState (NC-07) into a component with its story
-`frontend` · Parent: STORY-02-02-02 (also 02-02-04, 02-03-01) · 4 h · Depends on: PR-3, DES-02-02-02, TASK-01-01-06-FE1
-- **Build:** Move the inline pulled state out of HomeScreen into
-  `src/components/ui/PulledState`, props-only:
-  - `home.pulled` in `text-h3` in a polite live region;
-  - a ghost undo, visible while `undoAvailable` and then faded, with no
-    countdown;
-  - good and off chips (ChipGroup);
-  - an optional neutral Notice.
-
-  It occupies the same space as the buttons. HomeScreen uses it. Stories:
-  just pulled, after the undo window, good selected, reaction failed,
-  reduced motion, RTL.
-- **Done when:**
-  - The stories pass axe.
-  - HomeScreen's existing stories still pass.
-  - The live region is announced (checked in a play test).
-
-##### TASK-02-02-02-FE2 · Wire the pull with optimistic feedback and double-tap protection
-`frontend` · Parent: STORY-02-02-02 · 4 h · Depends on: TASK-02-02-02-BE1, TASK-02-02-02-FE1, TASK-02-02-01-FE1
-- **Build:**
-  - `home.pull` generates a `clientId` and switches to PulledState at once
-    (`useOptimistic`, under 100 ms), then calls `pullShot`.
-  - The button is gone after the first tap, so a second tap can't pull.
-  - On failure it reverts to the normal card with Notice `home.pullFailed`
-    and `actions.retry`, reusing the same `clientId`.
-  - After 30 seconds, or on leaving, the normal card returns.
-- **Done when:**
-  - The shot is recorded and confirmed (AC 1).
-  - A double tap records one shot (AC 4).
-  - A failure shows retry with no shot (AC 5).
-  - A re-dial recipe offers no pull (AC 6).
-
-##### TASK-02-02-02-QA1 · Test the one-tap pull
-`qa` · Parent: STORY-02-02-02 · 4 h · Depends on: TASK-02-02-02-FE2
-- **Build:**
-  - Node tests for `pullShot`: copied fields and mode (AC 1, AC 2); the
-    earliest-opened of several open portions (AC 3); idempotent `clientId`
-    (AC 4); a forced failure writes nothing (AC 5); a needs-re-dial refusal
-    (AC 6); `is_network_eligible` false; isolation cases.
-  - Play tests: optimistic state, double tap, failure and retry.
-  - A manual check of the timing on a phone.
-- **Done when:** AC 1 to AC 6 are each covered.
-
-#### STORY-02-02-03: Choose a bag when none is open
-
-##### TASK-02-02-03-BE1 · Add the portion choice for a pull
-`backend` · Parent: STORY-02-02-03 · 2 h · Depends on: TASK-02-02-02-BE1
-- **Build:**
-  - DAL `listUnfinishedPortions(beanId)` returns bag, state, age and
-    remaining (age and remaining once EPIC-03-03 and 03-04 land).
-  - `pullShot` returns `needsPortion` when no portion is open and none was
-    given, or `noneLeft` when no unfinished portion exists.
-  - With an explicit `portionId`, it marks that portion opened at the shot
-    time (DQ-06).
-- **Done when:**
-  - The choice is required only when none is open (AC 1).
-  - The chosen portion is opened (AC 2).
-  - `noneLeft` records nothing (AC 3).
-
-##### TASK-02-02-03-FE1 · Build the portion sheet (SH-PORTION) with its stories
-`frontend` · Parent: STORY-02-02-03 · 3 h · Depends on: DES-02-02-03, TASK-01-03-01-FE1
-- **Build:** `PortionSheet`: `portion.chooseTitle` with ListRows of
-  unfinished portions (bag, state, age, remaining), or `portion.noneLeft`
-  with secondary `home.addBag`. Cancel records nothing. Stories: choose,
-  none left, RTL.
-- **Done when:** The stories pass axe.
-
-##### TASK-02-02-03-FE2 · Wire the portion sheet into the pull
-`frontend` · Parent: STORY-02-02-03 · 2 h · Depends on: TASK-02-02-03-FE1, TASK-02-02-03-BE1, TASK-02-02-02-FE2
-- **Build:** On `needsPortion` or `noneLeft`, the optimistic state is
-  withheld and PortionSheet opens. Choosing re-calls `pullShot` with the
-  portion (same `clientId`). Add bag goes to `/pantry/add` with
-  `returnTo=/`.
-- **Done when:**
-  - Choose records against the chosen portion (AC 2).
-  - Cancel and none-left record nothing (AC 3, AC 4).
-
-##### TASK-02-02-03-QA1 · Test choosing a bag when none is open
-`qa` · Parent: STORY-02-02-03 · 3 h · Depends on: TASK-02-02-03-FE2
-- **Build:** Node tests for AC 1 to AC 3 (needs portion, opened that day,
-  none left). Play tests for the sheet with cancel (AC 4).
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-02-02-04: Undo a shot I didn't mean to pull
-
-##### TASK-02-02-04-BE1 · Add undoing a one-tap pull
-`backend` · Parent: STORY-02-02-04 · 3 h · Depends on: TASK-02-02-02-BE1, TQ-15
-- **Build:** Action `undoPull(shotId)`, accepted only when all of these hold:
-  - the shot is `one-tap`;
-  - it was logged by the session user;
-  - it's within 13 seconds of `created_at`.
-
-  In one transaction it deletes the extraction. If the portion's `opened_at`
-  equals the shot's `created_at` and the portion has no other shots, it
-  clears `opened_at`.
-- **Done when:**
-  - Undo removes the shot (AC 1) and restores unopened (AC 2).
-  - Reads no longer count it (AC 3).
-  - After the window it's rejected and the shot stays (AC 4).
-
-##### TASK-02-02-04-FE1 · Add undo to PulledState on Brew
-`frontend` · Parent: STORY-02-02-04 · 2 h · Depends on: TASK-02-02-04-BE1, TASK-02-02-02-FE2
-- **Build:** The undo ghost is shown for 8 seconds, then fades with no
-  countdown. Undo calls `undoPull`, announces `home.undone`, returns to the
-  normal card and refreshes.
-- **Done when:**
-  - The undo window is 8 seconds (DQ-04).
-  - The undone shot is gone from the lists (AC 3).
-  - After the window, undo is hidden (AC 4).
-
-##### TASK-02-02-04-QA1 · Test undo
-`qa` · Parent: STORY-02-02-04 · 3 h · Depends on: TASK-02-02-04-FE1
-- **Build:**
-  - Node tests: undo deletes (AC 1); `opened_at` is restored only when this
-    shot set it (AC 2); remaining and recent shots exclude it (AC 3); after
-    13 seconds it's rejected, and a measured shot or another user's shot is
-    rejected (AC 4).
-  - Play test with fake timers for the fade and no countdown.
-- **Done when:** AC 1 to AC 4 are each covered.
-
-#### STORY-02-02-05: Dial in when there's no recipe yet
-
-##### TASK-02-02-05-FE1 · Open the shot log from the no-recipe state
-`frontend` · Parent: STORY-02-02-05 · 2 h · Depends on: TASK-02-02-01-FE1, TASK-01-03-02-FE3
-- **Build:** HomeScreen's no-recipe state shows `home.noRecipe` with primary
-  `home.dialIn`, which opens `/log` (new mode) with `drinkId`, `portionId`
-  and the setup preselected. After a pin, Brew refreshes to the pull.
-- **Done when:**
-  - The no-recipe state shows dial in (AC 1).
-  - The log opens with context chosen and the starting values (AC 2).
-  - After a pin, the pull is offered (AC 3).
-
-##### TASK-02-02-05-QA1 · Test dialing in with no recipe
-`qa` · Parent: STORY-02-02-05 · 2 h · Depends on: TASK-02-02-05-FE1, TASK-02-01-01-FE2
-- **Build:** HomeScreen story for the no-recipe state (AC 1). A Node test
-  that `getHome` returns no recipe, then a recipe after a pin (AC 3). A
-  manual run from Brew to log to pin and back (AC 2, AC 3).
-- **Done when:** AC 1 to AC 3 are covered.
-
-#### STORY-02-02-06: Change the drink or coffee before pulling
-
-##### TASK-02-02-06-BE1 · Add the coffee options and recipe lookup for a changed choice
-`backend` · Parent: STORY-02-02-06 · 3 h · Depends on: TASK-02-02-01-BE1
-- **Build:**
-  - DAL `getHomeOptions(drinkId)` returns the visible drinks and the beans
-    with an unfinished portion (those with a recipe for this drink first),
-    each marked as `usual` when it's the default.
-  - `getHome({ drinkId, beanId })` returns the recipe for a changed choice.
-
-  The DQ-17 last-pulled-coffee rule is in `pickCoffee`. Nothing is stored as
-  a setting.
-- **Done when:**
-  - The ordering and usual markers are correct (AC 1).
-  - No settings table or column is written (AC 5).
-
-##### TASK-02-02-06-FE1 · Add changing the drink and coffee in place on Brew
-`frontend` · Parent: STORY-02-02-06 · 5 h · Depends on: TASK-02-02-06-BE1, TASK-01-03-01-FE1, TASK-02-02-01-FE1, DES-02-02-05
-- **Build:**
-  - The drink title and coffee line are quiet SelectFields opening
-    SelectSheet with `home.usual` markers.
-  - Choosing fetches `getHome` for the new pair through a Server Action, and
-    updates the card in place with a 200 ms cross-fade of the values only.
-    The buttons don't move.
-  - A choice with no recipe switches to the no-recipe state.
-  - The pull uses the chosen pair.
-- **Done when:**
-  - The options and usual markers show (AC 1).
-  - The card updates without navigation (AC 2).
-  - The pull uses the choice (AC 3).
-  - No recipe offers dial in (AC 4).
-
-##### TASK-02-02-06-FE2 · Reset an unpulled change after 30 minutes away
-`frontend` · Parent: STORY-02-02-06 · 2 h · Depends on: TASK-02-02-06-FE1
-- **Build:**
-  - The current drink and coffee choice is kept in sessionStorage with a
-    timestamp (try/catch).
-  - On return to Brew after 30 minutes away, the choice resets to the
-    defaults.
-  - A pull clears it, since history now decides (DQ-17).
-  - Changing the drink while PulledState shows ends PulledState.
-- **Done when:**
-  - The next default follows the pulled choice (AC 5).
-  - An unpulled change resets after 30 minutes (AC 6).
-
-##### TASK-02-02-06-QA1 · Test changing drink and coffee
-`qa` · Parent: STORY-02-02-06 · 4 h · Depends on: TASK-02-02-06-FE2
-- **Build:**
-  - Node tests: option order and usual (AC 1); after a pull with a changed
-    coffee, `pickCoffee` returns it while unfinished (AC 5); no settings
-    written (AC 5).
-  - Play tests: in-place update with buttons fixed (AC 2); the pull uses the
-    choice (AC 3); no-recipe switch (AC 4); a fake-timer reset after 30
-    minutes (AC 6).
-- **Done when:** AC 1 to AC 6 are each covered.
-
-### EPIC-02-03: Fix a bad shot from your recipe
-
-#### STORY-02-03-01: Say whether a one-tap shot was good or off
-
-##### TASK-02-03-01-BE1 · Add setting the reaction on a one-tap shot
-`backend` · Parent: STORY-02-03-01 · 2 h · Depends on: TASK-02-02-02-BE1
-- **Build:** Action `setReaction(shotId, 'good' | 'off' | null)`, for owned
-  one-tap shots only, at any time (DQ-05).
-- **Done when:** A measured shot is rejected, null clears the reaction, and
-  isolation cases are added.
-
-##### TASK-02-03-01-FE1 · Wire good and off in PulledState
-`frontend` · Parent: STORY-02-03-01 · 3 h · Depends on: TASK-02-03-01-BE1, TASK-02-02-02-FE2
-- **Build:**
-  - Good saves and shows the chip selected, with nothing else.
-  - Off saves, then opens `/log?mode=fix&shotId=`. The fix opens even if the
-    save failed.
-  - On failure the chip returns to unselected with a neutral Notice in
-    PulledState.
-  - No reaction means nothing is asked again.
-- **Done when:**
-  - Good is recorded (AC 1).
-  - Silence leads to no prompt (AC 2).
-  - Off is recorded and opens the fix (AC 3).
-  - A failure is handled as described (AC 5).
-
-##### TASK-02-03-01-FE2 · Add the reaction chips to the one-tap shot detail
-`frontend` · Parent: STORY-02-03-01 · 2 h · Depends on: TASK-02-03-01-BE1, TASK-02-06-03-FE2
-- **Build:** On ShotDetailScreen for one-tap shots, good and off chips
-  (deselectable) call `setReaction`.
-- **Done when:** A reaction can be given or changed later (AC 4).
-
-##### TASK-02-03-01-QA1 · Test reactions
-`qa` · Parent: STORY-02-03-01 · 3 h · Depends on: TASK-02-03-01-FE1, TASK-02-03-01-FE2
-- **Build:** Node tests for `setReaction` (one-tap only, change, clear).
-  Play tests for AC 1 to AC 3 and AC 5 in PulledState, and AC 4 on shot
-  detail.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-02-03-02: Fix an off shot from my recipe
-
-##### TASK-02-03-02-FE1 · Add the fix mode of the shot log with "was" values
-`frontend` · Parent: STORY-02-03-02 · 4 h · Depends on: TASK-02-03-01-FE1, TASK-02-01-01-BE2, TASK-01-04-02-FE1, DES-02-03-01, DES-02-03-02
-- **Build:** `/log?mode=fix&shotId=`:
-  - title `log.titleFix`;
-  - context is the one-tap shot's portion, drink and setup, read-only;
-  - values come from the current recipe;
-  - a `log.fromRecipe` line;
-  - ShotDial shows `log.was` under changed tabs only. Check PR #3's ShotDial
-    "was" support and add it if missing.
-
-  Save calls `saveMeasuredShot`, which creates a new shot (DQ-12, two
-  records). Leaving without saving keeps the off reaction.
-- **Done when:**
-  - The log is prefilled with the same portion and the note (AC 1).
-  - "was" shows on changed values only (AC 2).
-  - A new measured shot is saved, and the one-tap shot keeps off (AC 3).
-  - Leaving saves nothing (AC 5).
-
-##### TASK-02-03-02-FE2 · Make pinning the primary action after a fix or dial-in
-`frontend` · Parent: STORY-02-03-02 (also 02-03-03) · 2 h · Depends on: TASK-02-03-02-FE1, TASK-02-01-01-FE2
-- **Build:** `/taste/[shotId]?from=fix|dialIn` swaps the actions: primary
-  `recipe.pin` and secondary `taste.done` (TasteScreen mode prop).
-- **Done when:** Pin is the suggested next step after a fix (AC 4).
-
-##### TASK-02-03-02-QA1 · Test fixing an off shot
-`qa` · Parent: STORY-02-03-02 · 3 h · Depends on: TASK-02-03-02-FE2
-- **Build:**
-  - Node tests: after the fix there are two records, the one-tap shot with
-    off and the new measured one (AC 3); the doses of both count, per SQ-14
-    pending, noted in the test name.
-  - Play tests: prefill and note (AC 1); "was" on changed values only (AC 2);
-    pin primary (AC 4); leave keeps off (AC 5).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-02-03-03: Dial in from my recipe
-
-##### TASK-02-03-03-FE1 · Add the dial-in mode of the shot log
-`frontend` · Parent: STORY-02-03-03 · 3 h · Depends on: TASK-02-03-02-FE1, TASK-02-02-01-FE1
-- **Build:** `/log?mode=dialIn&recipeId=` (from Brew's `home.dialIn`
-  secondary and from bag recipes):
-  - title `log.titleDialIn`;
-  - values from the recipe, including temperature and pressure;
-  - the recipe's setup and drink;
-  - the portion picked by the one-tap rule (earliest-opened open portion);
-  - "was" values.
-
-  Save creates a measured shot, then tasting with pin primary. No one-tap
-  shot is recorded.
-- **Done when:**
-  - The log is prefilled from the recipe (AC 1), with "was" on changes
-    (AC 2).
-  - Save makes a measured shot only, then pin is suggested (AC 3).
-
-##### TASK-02-03-03-QA1 · Test dialing in from a recipe
-`qa` · Parent: STORY-02-03-03 · 2 h · Depends on: TASK-02-03-03-FE1
-- **Build:** Play tests for AC 1 and AC 2. A Node test: a measured shot and no
-  one-tap row (AC 3). A check that the portion follows the one-tap rule.
-- **Done when:** AC 1 to AC 3 are covered.
-
-### EPIC-02-06: See your recent shots
-
-#### STORY-02-06-01: See my recent shots
-
-##### TASK-02-06-01-BE2 · Capture the device time zone for local-day calculations
-`backend` · Parent: STORY-02-06-01 (also 02-02-01, 03-02, 03-03) · 2 h · Depends on: TASK-01-01-01-FE2
-- **Build:** Implements the TQ-07 decision (device time zone in a cookie,
-  nothing stored):
-  - The client writes `Intl.DateTimeFormat().resolvedOptions().timeZone`
-    to a `tz` cookie at start and when it changes.
-  - `src/server/time.ts` `getTimeZone()` validates the cookie, falling back
-    to UTC.
-  - `src/domain/localDay.ts`: `localDayKey(ms, tz)`, `startOfLocalDay` and
-    `localNoon(dateString, tz)` for back-dated dates.
-- **Done when:**
-  - Unit tests pass across a DST change and an invalid cookie.
-  - No time zone is written to the database.
-
-##### TASK-02-06-01-BE1 · Add the recent shots read
-`backend` · Parent: STORY-02-06-01 · 4 h · Depends on: TASK-02-06-01-BE2, TASK-01-03-03-BE1
-- **Build:** DAL `listRecentShots({ before?, limit })`:
-  - the household's shots newest first, the last 30 days (DQ-13), then
-    older pages by a cursor on `(created_at, id)`, using millisecond
-    timestamps;
-  - each with drink, time, coffee (resolved bean), values, entry mode,
-    reaction, defects (for warnings) and grinder ID (for dividers);
-  - a `fromFrozen` flag added by TASK-03-03-03-BE1;
-  - day grouping keys from `localDayKey`.
-- **Done when:**
-  - The order and window are right, and the cursor has no gaps or duplicates.
-  - The query uses the `(household_id, created_at)` index.
-
-##### TASK-02-06-01-FE1 · Wire the shots tab with day groups, markers and older shots
-`frontend` · Parent: STORY-02-06-01 · 5 h · Depends on: TASK-02-06-01-BE1, TASK-01-05-04-FE1, PR-3, DES-02-06-01
-- **Build:** `src/app/(app)/shots/page.tsx` renders RecentShotsScreen
-  (PR #3):
-  - day headings (`shots.today`, `shots.yesterday`, formatted dates);
-  - rows with drink and time, coffee, and compact ShotValues;
-  - markers `shots.oneTap`, `shots.good` and `shots.off`;
-  - inline ShotWarnings;
-  - a slot for the frozen marker and dividers;
-  - `shots.showOlder` loading more with skeleton rows;
-  - an EmptyState with `home.dialIn`;
-  - a load-failed Notice.
-
-  Rows open `/shots/[id]`.
-- **Done when:**
-  - The rows show every field (AC 1).
-  - Markers are in words, and the warning is inline (AC 2).
-  - Show older works (AC 3).
-  - The empty state offers dial in (AC 4).
-  - A row opens the detail (AC 5).
-
-##### TASK-02-06-01-QA1 · Test the recent shots list
-`qa` · Parent: STORY-02-06-01 · 4 h · Depends on: TASK-02-06-01-FE1
-- **Build:**
-  - Node tests: order, grouping by local day across midnight and DST
-    (AC 1); the 30-day window and cursor (AC 3); isolation cases.
-  - Story tests: one-tap versus measured in words, reaction, inline
-    channelling warning (AC 2 and STORY-01-05-04 AC 2); empty (AC 4); values
-    aligned in LTR and RTL.
-  - Play test: a row opens the detail (AC 5).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-02-06-02: Fix a shot after the fact
-
-##### TASK-02-06-02-BE1 · Add updating a shot's values, sweetened mark and taste
-`backend` · Parent: STORY-02-06-02 · 4 h · Depends on: TASK-01-05-01-BE1, TASK-01-04-01-BE1
-- **Build:** Action `updateShot(shotId, { values?, brewControls?,
-  sweetened?, taste? })`:
-  - the shot must be owned;
-  - the context (portion, drink, setup, units, persona, logger and entry
-    mode) can't be changed and is rejected if sent;
-  - one-tap stays one-tap (open question);
-  - brew controls are validated against the shot's own machine
-    capabilities, allowing a stored out-of-range value to be kept unchanged;
-  - recipes are never touched.
-- **Done when:**
-  - Only the allowed fields change (AC 1 to AC 3).
-  - A dose change shows in remaining (AC 4, via reads).
-  - The recipe is unchanged (AC 5).
-
-##### TASK-02-06-02-FE1 · Add the edit mode of the shot log with taste on the same screen
-`frontend` · Parent: STORY-02-06-02 · 5 h · Depends on: TASK-02-06-02-BE1, TASK-01-05-02-FE1, TASK-01-05-03-FE1, TASK-01-05-04-FE1, DES-02-06-03
-- **Build:** `/log?mode=edit&shotId=`:
-  - title `log.titleEdit`;
-  - read-only context lines;
-  - ShotDial with the saved values;
-  - the sweetened toggle;
-  - the tasting controls below, with the block warning under the defects;
-  - `log.saveChanges`;
-  - the unsaved guard with SH-CONFIRM.
-- **Done when:**
-  - Saved values and taste show together (AC 1).
-  - The context isn't editable (AC 2).
-  - Changes persist (AC 3).
-  - Leave and confirm leaves the shot unchanged (AC 6).
-
-##### TASK-02-06-02-QA1 · Test editing a shot
-`qa` · Parent: STORY-02-06-02 · 4 h · Depends on: TASK-02-06-02-FE1
-- **Build:**
-  - Node tests: allowed and forbidden fields (AC 1 to AC 3); persona and
-    logger unchanged (AC 3); one-tap stays one-tap; remaining follows the new
-    dose once TASK-03-04-01-BE1 lands (AC 4); the source recipe is unchanged
-    (AC 5).
-  - Play tests: the edit layout and warning (STORY-01-05-04 AC 2); discard
-    (AC 6).
-- **Done when:** AC 1 to AC 6 are each covered.
-
-#### STORY-02-06-03: See a shot's details
-
-##### TASK-02-06-03-BE1 · Add the shot detail read
-`backend` · Parent: STORY-02-06-03 · 2 h · Depends on: TASK-01-03-03-BE1, TASK-01-02-01-BE5
-- **Build:** DAL `getShot(id)` returns the values, drink, coffee (resolved),
-  setup name, the grinder and machine the shot was pulled with (even if
-  retired), date and time, sweetened, taste and defects, entry mode and
-  reaction.
-- **Done when:** Every field in AC 1 is returned, and another household's ID
-  returns not found.
-
-##### TASK-02-06-03-FE1 · Build the shot detail screen (SCR-SHOT) with its stories
-`frontend` · Parent: STORY-02-06-03 · 5 h · Depends on: DES-02-06-02, PR-3, TASK-01-05-04-FE1
-- **Build:** `src/components/screens/ShotDetailScreen`, props-only:
-  - large ShotValues, the context lines, date and time, sweetened, and
-    scores and defects if any;
-  - the block warning under the values;
-  - measured shots: primary `recipe.pin` and secondary `actions.edit`;
-  - one-tap shots: `shot.copiedFromRecipe`, primary edit, and a slot for the
-    reaction chips, with no pin.
-
-  Stories: measured, one-tap, channelling, retired unit, RTL.
-- **Done when:** The stories pass axe, and pin is absent for one-tap shots.
-
-##### TASK-02-06-03-FE2 · Wire the shot detail route
-`frontend` · Parent: STORY-02-06-03 · 2 h · Depends on: TASK-02-06-03-FE1, TASK-02-06-03-BE1
-- **Build:** `src/app/(app)/shots/[shotId]/page.tsx` with `getShot`. Edit
-  opens `/log?mode=edit`, and pin opens PinSheet once TASK-02-01-01-FE2
-  lands.
-- **Done when:** Edit is at most two taps from the Shots tab (design
-  acceptance criteria).
-
-##### TASK-02-06-03-QA1 · Test shot details
-`qa` · Parent: STORY-02-06-03 · 3 h · Depends on: TASK-02-06-03-FE2
-- **Build:** Node test for `getShot` fields, including a retired unit (AC 1).
-  Story tests: measured actions (AC 2); one-tap note, edit and no pin
-  (AC 3); warning (AC 4).
-- **Done when:** AC 1 to AC 4 are each covered.
-
-### EPIC-03-01: Add a bag to your pantry
-
-#### STORY-03-01-01: Find my coffee in the catalog
-
-Schema: TASK-03-01-01-BE1.
-
-##### TASK-03-01-01-BE2 · Add the coffee seed list
-`backend` · Parent: STORY-03-01-01 · 3 h · Depends on: TASK-01-02-01-BE3, TASK-03-01-01-BE1, TQ-10
-- **Build:** `src/db/seed/coffee.json` (roasters, beans with roast level and
-  notes, aliases, URLs), loaded by the same idempotent loader. The content is
-  a placeholder until TQ-10 names a curator.
-- **Done when:** The seed is idempotent and has no personal data.
-
-##### TASK-03-01-01-BE3 · Add coffee catalog search with recent purchases first
-`backend` · Parent: STORY-03-01-01 · 4 h · Depends on: TASK-03-01-01-BE2, TASK-01-02-01-BE4, TASK-03-01-02-BE1
-- **Build:** DAL `searchCoffee({ query })` matches bean names, roaster names
-  and aliases with visibility and merges, like hardware. With an empty query
-  it lists the beans of this household's recent batches first (by
-  `purchased_at` or `created_at`), then browses roasters. It's exposed
-  through the same search Route Handler.
-- **Done when:**
-  - Results show bean with roaster (AC 1).
-  - Recent purchases come first when the query is empty (AC 2).
-  - Aliases match (AC 3).
-  - Merged and private entries are handled (AC 4, AC 5).
-
-##### TASK-03-01-01-FE1 · Wire the coffee picker
-`frontend` · Parent: STORY-03-01-01 · 3 h · Depends on: TASK-03-01-01-BE3, TASK-01-02-01-FE2
-- **Build:** `/catalog/pick?catalog=coffee` uses CatalogPickScreen's coffee
-  variant. "Can't find" goes to `/catalog/add?catalog=coffee` with the query.
-  Selection returns to add-bag.
-- **Done when:**
-  - The flow returns a bean to add-bag.
-  - The no-match offer is present (AC 6).
-
-##### TASK-03-01-01-QA1 · Test coffee search
-`qa` · Parent: STORY-03-01-01 · 4 h · Depends on: TASK-03-01-01-FE1
-- **Build:** Node tests for AC 1 to AC 5 (names, recent first, alias, merged,
-  private, isolation cases). Play test for no match with add (AC 6).
-- **Done when:** AC 1 to AC 6 are each covered.
-
-#### STORY-03-01-02: Add a bag with its dates and weight
-
-Schema: TASK-03-01-02-BE1.
-
-##### TASK-03-01-02-BE2 · Add creating a bag with one whole-bag portion
-`backend` · Parent: STORY-03-01-02 (also 03-01-03) · 4 h · Depends on: TASK-03-01-02-BE1, TASK-03-01-01-BE3, TASK-02-06-01-BE2
-- **Build:** Action `addBag({ beanId, bagWeight, roastDate?, bestBefore?,
-  lotCode?, purchasedAt? })`:
-  - the bean must be visible (resolved);
-  - the weight is required and above zero, in grams;
-  - only one of roast date or best-before may be set;
-  - dates are stored as local noon in the device's time zone (TQ-07);
-  - `purchasedAt` defaults to today.
-
-  In one transaction it inserts the batch and one portion with
-  `weight = bagWeight`, unopened. It returns the batch ID.
-- **Done when:**
-  - The bag has one whole portion (AC 1).
-  - Neither date is required (AC 2), and optional fields save (AC 3).
-  - No weight means nothing saved (AC 4).
-  - Two bags of one bean are separate (AC 5).
-
-##### TASK-03-01-02-FE1 · Build the add-bag screen (SCR-BAG-ADD) with its stories
-`frontend` · Parent: STORY-03-01-02 · 5 h · Depends on: DES-03-01-01, PR-3, TASK-01-01-03-FE1
-- **Build:** `src/components/screens/BagAddScreen`, props-only:
-  - the chosen coffee with a change link;
-  - a `bag.weight` ChipGroup (250, 340, 500 and 1000 g formatted) plus
-    `bag.otherWeight`, which reveals a grams Input;
-  - a `bag.roastDate` date Input, with the `bag.onlyBestBefore` Toggle
-    swapping it for `bag.bestBefore`, and a hint that age needs one of them;
-  - a `bag.more` disclosure with lot and purchased date (default today);
-  - the weight error in ink, and a save-failed Notice.
-
-  Stories for each state, plus RTL.
-- **Done when:** The stories pass axe, and no date blocks saving.
-
-##### TASK-03-01-02-FE2 · Wire the add-bag flow
-`frontend` · Parent: STORY-03-01-02 · 3 h · Depends on: TASK-03-01-02-FE1, TASK-03-01-02-BE2, TASK-03-01-01-FE1, TASK-01-01-05-FE5
-- **Build:** `src/app/(task)/pantry/add/page.tsx`: the coffee picker, then
-  details, then `addBag`. It lands on `/pantry/[batchId]`, or on `returnTo`
-  with the new portion selected (for example back to the log). The unsaved
-  guard applies.
-- **Done when:**
-  - The bag is added and shown with its portion (AC 1).
-  - From the log, it returns with the portion chosen.
-
-##### TASK-03-01-02-QA1 · Test adding a bag
-`qa` · Parent: STORY-03-01-02 · 4 h · Depends on: TASK-03-01-02-FE2
-- **Build:**
-  - Node tests for `addBag` (AC 1 to AC 5): weight required, both dates
-    optional, only one date stored, purchased defaults to today in the time
-    zone, separate batches, isolation cases.
-  - Play tests for size presets and other weight, the best-before toggle and
-    hint, and the missing-weight error.
-  - A manual timing check (design target: under 20 seconds).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-03-01-03: Start with the whole bag ready to brew
-
-##### TASK-03-01-03-QA1 · Test that a new bag is ready to brew and opens on the first shot
-`qa` · Parent: STORY-03-01-03 · 3 h · Depends on: TASK-03-01-02-BE2, TASK-01-03-03-BE2, TASK-03-02-01-BE1
-- **Build:** Node tests:
-  - a new bag has one unopened portion of the full weight (AC 1);
-  - the portion is offered in `getLogContext` (AC 2);
-  - the first measured shot sets `opened_at` that day (AC 3);
-  - after a split it's still one batch with one roast date and lot (AC 4).
-
-  No code task is needed: the behaviour is in TASK-03-01-02-BE2 and
-  TASK-01-03-03-BE2.
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-03-01-04: See what's in my pantry
-
-##### TASK-03-01-04-BE1 · Add the pantry and bag reads
-`backend` · Parent: STORY-03-01-04 · 4 h · Depends on: TASK-03-01-02-BE2, TASK-03-02-04-BE1, TASK-01-02-01-BE5
-- **Build:**
-  - DAL `getPantry()` returns the unfinished bags with their bean and
-    roaster (resolved) and portions with state, in pantry order: an open
-    portion first (earliest opened first), then unopened, then freezer-only.
-    It also returns a finished group. The order uses
-    `src/domain/pantryOrder.ts`, shared with the one-tap rule.
-  - `getBag(batchId)` returns the facts and portions.
-  - Age and remaining are added by later tasks.
-- **Done when:** The order matches the one-tap rule in tests, and merged
-  beans show the survivor (AC 5).
-
-##### TASK-03-01-04-FE1 · Build the pantry screen (SCR-PANTRY) with its stories
-`frontend` · Parent: STORY-03-01-04 · 5 h · Depends on: DES-03-01-02, PR-3, TASK-01-01-06-FE3, TASK-01-01-06-FE2
-- **Build:** `src/components/screens/PantryScreen`, props-only:
-  - a header with `pantry.addBag`;
-  - one Card per bag (bean `text-h3`, roaster `text-label`) with portion
-    ListRows showing state, age and remaining slots;
-  - a collapsed `pantry.finished` section;
-  - an EmptyState with `pantry.addBag`;
-  - two skeleton cards for loading.
-
-  Stories for each state, plus RTL.
-- **Done when:** The stories pass axe.
-
-##### TASK-03-01-04-FE2 · Build the bag screen (SCR-BAG) with its stories
-`frontend` · Parent: STORY-03-01-04 (also 02-01-04, 03-02, 03-03, 03-04) · 5 h · Depends on: DES-03-01-03, PR-3
-- **Build:** `src/components/screens/BagScreen`, props-only:
-  - the facts once at the top (roast or best-before date, lot, purchased,
-    bag weight, an explanation slot for age);
-  - portion ListRows that open the actions slot;
-  - a `bag.recipes` section slot.
-
-  Stories: one portion, split portions, finished, RTL.
-- **Done when:** The stories pass axe, and the bag facts aren't repeated per
-  portion.
-
-##### TASK-03-01-04-FE3 · Wire the pantry tab and bag route
-`frontend` · Parent: STORY-03-01-04 · 3 h · Depends on: TASK-03-01-04-FE1, TASK-03-01-04-FE2, TASK-03-01-04-BE1
-- **Build:** `src/app/(app)/pantry/page.tsx` (`getPantry`) and
-  `src/app/(app)/pantry/[batchId]/page.tsx` (`getBag`), with links between
-  them.
-- **Done when:**
-  - The bags and portions show (AC 1) in order (AC 2), with the finished
-    group (AC 3).
-  - The empty state offers add (AC 4).
-
-##### TASK-03-01-04-QA1 · Test the pantry list
-`qa` · Parent: STORY-03-01-04 · 4 h · Depends on: TASK-03-01-04-FE3
-- **Build:** Node tests for `getPantry`:
-  - the fields (AC 1);
-  - the order with open, unopened and freezer-only mixed, plus a tie-break
-    (AC 2);
-  - the finished group (AC 3);
-  - a merged bean shows the survivor (AC 5);
-  - isolation cases.
-
-  Story test for empty (AC 4).
-- **Done when:** AC 1 to AC 5 are each covered.
-
-### EPIC-03-02: Split and freeze a bag
-
-#### STORY-03-02-01: Split a bag into portions
-
-##### TASK-03-02-01-BE1 · Add splitting a portion by weight
-`backend` · Parent: STORY-03-02-01 · 4 h · Depends on: TASK-03-04-01-BE1, TASK-03-02-02-BE1, TQ-13
-- **Build:** Action `splitPortion(portionId, takeGrams, freezeNew = true)`:
-  - `takeGrams` must be above zero and at most the current remaining
-    (`remainingWeight`);
-  - the source portion's `weight` is reduced by `takeGrams`;
-  - per TQ-13, if the source has a stock check, a new stock check is written
-    at `remaining − takeGrams`;
-  - a new portion is created in the same batch with `weight = takeGrams`,
-    `frozen_at` now if `freezeNew`, and `opened_at` null;
-  - all in one transaction.
-- **Done when:**
-  - The new portion has the weight, and the remainder is correct (AC 1).
-  - Freeze defaults on (AC 2).
-  - Taking more than is left is rejected (AC 3).
-  - Repeated splits work (AC 4).
-  - The batch facts and old shots are unchanged (AC 5).
-
-##### TASK-03-02-01-FE1 · Build the split sheet (SH-SPLIT) and wire it
-`frontend` · Parent: STORY-03-02-01 · 4 h · Depends on: DES-03-02-02, TASK-03-02-01-BE1, TASK-03-02-02-FE1
-- **Build:** `SplitSheet`:
-  - a "take out" NumberWheel in grams, step 1, from 1 to the remaining
-    amount;
-  - a live `portion.splitRemainder` text;
-  - the `portion.freezeNew` Toggle, on by default;
-  - a primary confirm.
-
-  Opened from the portion actions. Stories, plus RTL.
-- **Done when:**
-  - The stories pass axe.
-  - The remainder updates live (AC 1).
-  - The wheel can't exceed the remaining amount (AC 3).
-
-##### TASK-03-02-01-QA1 · Test splitting
-`qa` · Parent: STORY-03-02-01 · 4 h · Depends on: TASK-03-02-01-FE1
-- **Build:** Node tests for AC 1 to AC 5:
-  - the weights add up;
-  - freeze defaults on;
-  - over-take rejected;
-  - three-way split by repetition;
-  - the batch roast date and lot unchanged;
-  - old shots still on the source;
-  - the stock-check case per TQ-13.
-
-  Play test for the live remainder.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-03-02-02: Record freezing and thawing
-
-##### TASK-03-02-02-BE1 · Add the portion lifecycle rules and freeze and thaw
-`backend` · Parent: STORY-03-02-02 (also 03-02-03) · 4 h · Depends on: TASK-03-02-04-BE1, TASK-02-06-01-BE2
-- **Build:**
-  - `src/domain/portionActions.ts` `allowedActions(portion)` follows the
-    design's state table:
-    - unopened: open, freeze, split;
-    - counter: weigh, split, freeze, finish;
-    - frozen: thaw, split;
-    - thawed: open, weigh, finish.
-  - Actions `freezePortion(id, date?)` and `thawPortion(id, date?)`:
-    - the date is today by default, or an earlier local date (stored as
-      local noon);
-    - future dates are rejected;
-    - thaw before freeze is rejected;
-    - no second freeze after a thaw.
-- **Done when:**
-  - Today is the default and backdating works (AC 1, AC 2).
-  - Refreezing isn't allowed (AC 3), and a thaw before the freeze date is
-    rejected (AC 4).
-  - Only the valid actions are offered (AC 5).
-
-##### TASK-03-02-02-FE1 · Build the portion actions sheet and date sheet (SH-PORTION-ACTIONS, SH-DATE) with stories
-`frontend` · Parent: STORY-03-02-02 (also 03-02-01, 03, 03-04-02) · 5 h · Depends on: DES-03-02-01, DES-03-02-03, TASK-01-01-05-FE2, TASK-01-01-03-FE1
-- **Build:**
-  - `PortionActionsSheet` lists only the given actions, each as a ListRow.
-  - `DateSheet` (SH-DATE) has a date Input defaulting to today, an error in
-    ink, and a primary confirm, so "today" is one tap.
-
-  Stories for each portion state, a date error, and RTL.
-- **Done when:** The stories pass axe, and each state shows only its actions.
-
-##### TASK-03-02-02-FE2 · Wire portion actions from the bag and pantry rows
-`frontend` · Parent: STORY-03-02-02 · 2 h · Depends on: TASK-03-02-02-FE1, TASK-03-02-02-BE1, TASK-03-01-04-FE3
-- **Build:** Tapping a portion row opens PortionActionsSheet with
-  `allowedActions`. Dated actions go through DateSheet to their action. A
-  failure keeps the sheet open with a Notice and retry. The page refreshes on
-  success.
-- **Done when:** Freezing and thawing work from both screens, and failures
-  retry.
-
-##### TASK-03-02-02-QA1 · Test freezing and thawing
-`qa` · Parent: STORY-03-02-02 · 3 h · Depends on: TASK-03-02-02-FE2
-- **Build:**
-  - Unit tests for `allowedActions` per state (AC 3, AC 5).
-  - Node tests: default today, backdate, future rejected (AC 1, AC 2); thaw
-    before freeze rejected (AC 4); isolation cases.
-  - Play test for the DateSheet error.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-03-02-03: Record opening and finishing a portion
-
-##### TASK-03-02-03-BE1 · Add opening and finishing a portion
-`backend` · Parent: STORY-03-02-03 · 2 h · Depends on: TASK-03-02-02-BE1
-- **Build:** Actions `openPortion(id, date?)` (allowed for unopened and
-  thawed) and `finishPortion(id, date?)` (allowed for counter and thawed),
-  with the same date rules. A finished portion is excluded from log and pull
-  options (already true in those reads). Automatic opening on the first shot
-  is in TASK-01-03-03-BE2 and TASK-02-02-02-BE1.
-- **Done when:**
-  - Open and finish save their dates (AC 1, AC 3).
-  - A finished portion isn't offered.
-  - A bag with every portion finished is in the finished group (AC 3).
-
-##### TASK-03-02-03-QA1 · Test opening and finishing
-`qa` · Parent: STORY-03-02-03 · 3 h · Depends on: TASK-03-02-03-BE1, TASK-03-02-02-FE2
-- **Build:** Node tests:
-  - manual open with a backdate (AC 1);
-  - auto-open on the first measured and one-tap shot (AC 2);
-  - finish excludes the portion from options, and the last finish moves the
-    bag to finished (AC 3);
-  - a finished portion's shots are still listed (AC 4).
-
-  Play test for the actions from a row.
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-03-02-04: See where each portion is
-
-##### TASK-03-02-04-BE1 · Add the calculated portion state
-`backend` · Parent: STORY-03-02-04 (also 03-01-04, 01-03-01, 02-02) · 2 h · Depends on: TASK-03-01-02-BE1
-- **Build:** `src/domain/portionState.ts` `portionState(portion)` returns
-  `finished`, `frozen` (frozen and not thawed), `thawed`, `counter` (opened
-  and not frozen) or `unopened`, from the dates only. It's never stored.
-- **Done when:** Unit tests cover every date combination, including the order
-  of precedence.
-
-##### TASK-03-02-04-FE1 · Show the portion state in words everywhere a portion appears
-`frontend` · Parent: STORY-03-02-04 · 2 h · Depends on: TASK-03-02-04-BE1, TASK-03-01-04-FE3
-- **Build:** `portion.unopened`, `portion.counter`, `portion.frozen`,
-  `portion.thawed` and `portion.finished` keys, used on pantry and bag rows,
-  log coffee options and PortionSheet through one `portionStateLabel` helper.
-- **Done when:** Every portion row shows its state as text (design acceptance
-  criteria).
-
-##### TASK-03-02-04-QA1 · Test portion states
-`qa` · Parent: STORY-03-02-04 · 2 h · Depends on: TASK-03-02-04-FE1
-- **Build:** Unit tests for AC 1 to AC 4. A Node test that changing dates
-  changes the state (AC 5). Story check of the labels.
+`qa` · Parent: STORY-01-05-01 · 3 h · Updated · Depends on: TASK-01-05-01-FE3
+- **Build:** Play tests for visible values, unrate, leaving saves and the
+  failure choice; Node tests for validation and isolation.
 - **Done when:** AC 1 to AC 5 are covered.
 
-### EPIC-03-03: Know how fresh your beans really are
+##### STORY-01-05-02: Say what was off, against my own taste
 
-#### STORY-03-03-01: See how old my beans are
+##### TASK-01-05-02-FE1 · Add the just-right scale variant to ChipGroup
+`frontend` · Parent: STORY-01-05-02 · 4 h · Updated (was four sensory scales) · Depends on: TASK-01-05-01-FE1, DES-01-05-02
+- **Build:** Extend ChipGroup with five (or three, one-sided) compact chips, a
+  stronger centre, end words that mirror, and accessible names "a bit" and
+  "much". Tap again clears. Stories: five-point, one-sided, RTL.
+- **Done when:** Stories pass axe; arrow keys move and space selects (AC 5); a
+  row fits one line at 375 px.
 
-##### TASK-03-03-01-BE1 · Add the bean age calculation
-`backend` · Parent: STORY-03-03-01 (also 03-03-02, 02-02-01) · 4 h · Depends on: TASK-03-02-04-BE1, TASK-02-06-01-BE2, INIT-03 Q2
-- **Build:** `src/domain/beanAge.ts`
-  `beanAge(batch, portion, now, tz)` returns one of:
-  - `{ kind: 'exact', days }`: local calendar days from the roast date to
-    now, minus frozen days (freeze to thaw, or to now if still frozen);
-  - `{ kind: 'estimated', days }`: from best-before, using the
-    `ASSUMED_ROAST_TO_BEST_BEFORE_DAYS` constant (INIT-03 Q2, open);
-  - `{ kind: 'unknown' }`;
-  - `{ kind: 'paused', days }` while frozen.
+##### TASK-01-05-02-FE2 · Add the four just-right rows and "all just right" to the tasting screen
+`frontend` · Parent: STORY-01-05-02 · 3 h · New · Depends on: TASK-01-05-02-FE1, TASK-01-05-01-FE2, DES-01-05-04
+- **Build:** Balance, strength (milk wording for milk drinks), body and
+  sweetness rows, plus a ghost `taste.allJustRight` that sets all four in
+  one tap. Reused by SH-OFF and edit mode.
+- **Done when:** Rows and end words are as AC 1 and AC 2; untouched saves
+  nothing (AC 3); all just right is one tap and editable (AC 4); a good shot
+  takes three taps (AC 6).
 
-  It also returns `frozenDays`. It's calculated, never stored, and added to
-  the pantry, bag, home and log reads. Days are counted in the device's time
-  zone (TQ-07).
-- **Done when:**
-  - Unit tests cover all four kinds.
-  - A day rollover adds one (AC 5).
-  - The DST and time-zone edges pass.
+##### TASK-01-05-02-QA1 · Test the just-right questions
+`qa` · Parent: STORY-01-05-02 · 3 h · Updated · Depends on: TASK-01-05-02-FE2
+- **Build:** Play tests for each row, milk wording, untouched, all just right,
+  clear and keyboard; a Node test that untouched stays null.
+- **Done when:** AC 1 to AC 6 are covered.
 
-##### TASK-03-03-01-FE1 · Show the bean age phrases on portions, Brew and the bag
-`frontend` · Parent: STORY-03-03-01 · 4 h · Depends on: TASK-03-03-01-BE1, DES-03-03-01, TASK-03-01-04-FE3, TASK-02-02-01-FE1
-- **Build:**
-  - `portion.age`, `portion.ageEstimated`, `portion.ageUnknown` and
-    `portion.agePaused` (ICU plurals) through one `beanAgeLabel` helper,
-    shown on pantry and bag rows and on Brew's coffee line (`home.age`).
-  - SCR-BAG explains the estimate, and offers `bag.addRoastDate` when the age
-    is unknown, which needs a small `updateBagDates` action, included here.
-  - No colour.
-- **Done when:**
-  - Exact, estimated, unknown and paused are worded differently (AC 1 to
-    AC 4).
-  - Unknown offers to add a date (AC 3).
+##### STORY-01-05-03: Note what I noticed
 
-##### TASK-03-03-01-QA1 · Test bean age
-`qa` · Parent: STORY-03-03-01 · 4 h · Depends on: TASK-03-03-01-FE1
-- **Build:** Unit tests for AC 1 to AC 5 with fixed clocks. Story tests for
-  each phrase, with no colour classes. A Node test for `updateBagDates` and
-  isolation.
-- **Done when:** AC 1 to AC 5 are each covered.
+##### TASK-01-05-03-BE1 · Define the taste tag list
+`backend` · Parent: STORY-01-05-03 · 2 h · Updated (replaces the defect list) · Depends on: none
+- **Build:** `src/domain/tasteTags.ts`: the six keys (`sourAndBitter`,
+  `dryFinish`, `flat`, `burnt`, `littleCrema`, `channelling`) with
+  `taste.tags.*` keys, `isTasteTag`, and the set that points to puck prep.
+- **Done when:** It's the single source for options and validation; DQ-08 is
+  closed by S-02.
 
-#### STORY-03-03-02: Freezing pauses aging
+##### TASK-01-05-03-FE1 · Add the tag choices to the tasting screen
+`frontend` · Parent: STORY-01-05-03 · 2 h · Updated · Depends on: TASK-01-05-03-BE1, TASK-01-05-01-FE2
+- **Build:** A multi-choice ChipGroup under `taste.observed`, monochrome when
+  selected, saved as an array.
+- **Done when:** Several, none and untick work (AC 1 to AC 3).
 
-##### TASK-03-03-02-FE1 · Show the uncounted frozen days on the bag screen
-`frontend` · Parent: STORY-03-03-02 · 2 h · Depends on: TASK-03-03-01-FE1
-- **Build:** On SCR-BAG's portion detail line, `portion.frozenDays` (a plural)
-  shows when `frozenDays` is above zero.
-- **Done when:** A frozen-then-thawed portion shows its uncounted days
-  (AC 4).
-
-##### TASK-03-03-02-QA1 · Test that freezing pauses aging
-`qa` · Parent: STORY-03-03-02 · 3 h · Depends on: TASK-03-03-02-FE1
-- **Build:** Unit tests:
-  - frozen on day 10 and still frozen stays at 10 (AC 1);
-  - thawed, it resumes from 10 (AC 2);
-  - two portions of one bag differ (AC 3).
-
-  Story check for the frozen-days line (AC 4).
+##### TASK-01-05-03-QA1 · Test tags
+`qa` · Parent: STORY-01-05-03 · 2 h · Updated · Depends on: TASK-01-05-03-FE1
+- **Build:** Play tests for several, none and untick; Node tests: unknown tag
+  rejected, saved tags returned by the shot read (AC 4).
 - **Done when:** AC 1 to AC 4 are covered.
 
-#### STORY-03-03-03: See bean age when logging, and spot frozen-ground shots
+##### STORY-01-05-04: See a warning when a shot channelled
 
-##### TASK-03-03-03-BE1 · Add the "ground from frozen" flag to shot reads
-`backend` · Parent: STORY-03-03-03 · 2 h · Depends on: TASK-02-06-01-BE1, TASK-02-06-03-BE1
-- **Build:** `src/domain/frozen.ts` `isFromFrozen(shotAt, portion)` is true
-  when `frozen_at ≤ shotAt` and (`thawed_at` is null or `shotAt < thawed_at`),
-  compared in milliseconds. It's computed at read time in `listRecentShots`
-  and `getShot`, so corrected dates apply immediately.
-- **Done when:** Unit tests cover before freeze, while frozen, after thaw,
-  never frozen and a thaw on the same day as a shot.
+##### TASK-01-05-04-FE1 · Add the shared ShotWarnings component
+`frontend` · Parent: STORY-01-05-04 (also 02-06-01 to 03, 02-03-04) · 3 h · Updated (driven by the tag) · Depends on: TASK-01-01-06-FE1, TASK-01-05-03-BE1, DES-01-05-05
+- **Build:** `src/domain/shotWarnings.ts` returns `['channelling']` when the tag
+  is set; `ShotWarnings` renders a block or inline warning Notice. "Ran fast"
+  is out (DQ-09).
+- **Done when:** Stories pass axe; it's the only component rendering shot
+  warnings; nothing renders without the tag.
 
-##### TASK-03-03-03-FE1 · Show the bean age and frozen marker in the log, rows and detail
-`frontend` · Parent: STORY-03-03-03 · 2 h · Depends on: TASK-03-03-03-BE1, TASK-03-03-01-FE1, TASK-02-06-01-FE1
-- **Build:** The log's coffee field shows the portion's age, plus
-  `bag.fromFrozen` when the portion is frozen. Shot rows and the detail show
-  the `bag.fromFrozen` overline marker.
-- **Done when:** The marker is text and identical on rows and detail (design
-  acceptance criteria).
+##### TASK-01-05-04-FE2 · Show the warning live on the tasting screen
+`frontend` · Parent: STORY-01-05-04 · 2 h · Unchanged · Depends on: TASK-01-05-04-FE1, TASK-01-05-03-FE1
+- **Build:** A block ShotWarnings under the tags from the local selection,
+  with no layout jump above.
+- **Done when:** It toggles with the channelling tag (AC 1).
 
-##### TASK-03-03-03-QA1 · Test the frozen marker
-`qa` · Parent: STORY-03-03-03 · 3 h · Depends on: TASK-03-03-03-FE1
-- **Build:** Story tests: the log coffee field with age and the frozen
-  marker (AC 1). Node tests: a shot while frozen is marked (AC 2); after thaw
-  or never frozen it isn't (AC 3); correcting the freeze or thaw date moves
-  the mark (AC 4).
+##### TASK-01-05-04-QA1 · Test the channelling warning and the signal rule
+`qa` · Parent: STORY-01-05-04 · 3 h · Updated · Depends on: TASK-01-05-04-FE2
+- **Build:** Play test for tag and untag; contrast-only check that the words
+  carry the meaning (AC 3); unit test for `shotWarnings` including that other
+  tags never warn (AC 4); the signal grep test still passes; other places
+  covered by TASK-02-06-01-QA1, 02-06-03-QA1, 02-06-02-QA1 and 02-03-04-QA1
+  (AC 2).
+- **Done when:** AC 1, 3 and 4 are covered here and AC 2 is linked.
+
+#### EPIC-01-06: Add what's missing from the catalog
+
+The epic can split: coffee additions and the duplicate check (STORY-01-06-01
+to 05) can ship before the capability stories (06 to 09). In Milestone 1 only
+TASK-01-06-01-BE1 (URL normalisation) is built, because the seed loader needs
+it.
+
+##### STORY-01-06-01: Add a missing machine, grinder or basket
+
+##### TASK-01-06-01-BE1 · Add URL normalisation
+`backend` · Parent: STORY-01-06-01 (also 04, 05, 01-02-01) · 5 h · Unchanged · Depends on: TASK-01-01-04-QA1
+- **Build:** `src/domain/url.ts` `normalizeUrl(raw)`: http(s) only, lowercase
+  host, strip `www.`, fragment, tracking parameters and regional path
+  segments, sort the rest, strip a trailing slash; null for non-URLs. One
+  rules list.
+- **Done when:** A table of at least 30 cases passes, including regional
+  variants and pages that must stay distinct.
+
+##### TASK-01-06-01-BE2 · Add creating a hardware entry
+`backend` · Parent: STORY-01-06-01 · 5 h · Updated (baskets, dose range) · Depends on: TASK-01-06-01-BE1, TASK-01-02-01-BE2, TASK-01-01-04-BE1, TASK-01-06-04-BE1
+- **Build:** Action `createHardwareEntry({ maker, model: { name, kind, url,
+  capabilities? } })`: kind is one of the three; one transaction for maker,
+  model and `catalog_urls`; `source='user'`, `status='unverified'`; the
+  duplicate check reruns before insert (declared per review m5: build
+  TASK-01-06-04-BE1 first); a basket's capabilities carry only `dose`.
+- **Done when:** No link means nothing saved (AC 5); a maker and model are
+  atomic (AC 2, AC 3); rows are marked user-added (AC 6).
+
+##### TASK-01-06-01-FE1 · Build the catalog add screen (SCR-CATALOG-ADD) for hardware, with stories
+`frontend` · Parent: STORY-01-06-01 (also 01-06-02, 04 to 07) · 6 h · Updated (basket kind) · Depends on: DES-01-06-01, PR-3, TASK-01-01-06-FE1
+- **Build:** `CatalogAddScreen`, props-only: link Input first, checking line,
+  duplicate slot, maker select or new maker, model name with preset kind
+  (machine, grinder, basket), a capabilities slot, a `catalog.more` slot,
+  save, missing-link error in ink, failed Notice. Stories incl. RTL.
+- **Done when:** Stories pass axe; the link is the first field.
+
+##### TASK-01-06-01-FE2 · Wire adding hardware from the picker and return with it chosen
+`frontend` · Parent: STORY-01-06-01 · 4 h · Unchanged · Depends on: TASK-01-06-01-FE1, TASK-01-06-01-BE2, TASK-01-02-01-FE2
+- **Build:** `/catalog/add?catalog=hardware&kind=&q=`: the query prefills the
+  name, save returns with `selected`, failure keeps fields, unsaved guard.
+- **Done when:** AC 1, AC 2 and AC 6 hold.
+
+##### TASK-01-06-01-FE3 · Add the basket dose-range question
+`frontend` · Parent: STORY-01-06-01 (also 01-06-09) · 4 h · New · Depends on: TASK-01-06-01-FE1, TASK-01-02-01-BE1, DES-01-06-03
+- **Build:** `BasketQuestions` in CatalogAddScreen: `catalog.cap.doseQ` as a
+  ChipGroup (14 to 16 g, 17 to 19 g, 20 to 22 g, other, not sure; ranges
+  formatted with `Intl`), "other" reveals two decimal Inputs. Maps to
+  `dose { min, max }` or unknown in `capabilityQuestions.ts`, with the
+  reverse for answering later. No machine or grinder questions on a basket.
+- **Done when:** Stories pass axe, incl. RTL; "not sure" and unanswered save
+  as unknown (AC 4); the mapping is lossless.
+
+##### TASK-01-06-01-QA1 · Test adding hardware
+`qa` · Parent: STORY-01-06-01 · 4 h · Updated · Depends on: TASK-01-06-01-FE2, TASK-01-06-01-FE3
+- **Build:** Node tests for required link, atomic maker plus model, flags and
+  the returned ID; basket dose range stored and "not sure" unknown; play
+  tests for prefill and failure.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-01-06-02: Add a missing roaster or coffee
+
+##### TASK-01-06-02-BE1 · Add creating a coffee entry
+`backend` · Parent: STORY-01-06-02 · 4 h · Unchanged · Depends on: TASK-01-06-01-BE1, TASK-03-01-01-BE1, TASK-01-02-01-BE2
+- **Build:** Action `createCoffeeEntry` with the hardware rules; roast level
+  from the S-09 list (`src/domain/roastLevels.ts`); at most four trimmed
+  tasting notes.
+- **Done when:** AC 2 to AC 5 hold.
+
+##### TASK-01-06-02-FE1 · Add the coffee variant of catalog add
+`frontend` · Parent: STORY-01-06-02 · 4 h · Unchanged · Depends on: TASK-01-06-02-BE1, TASK-01-06-01-FE2, TASK-03-01-01-FE1
+- **Build:** Coffee variant of CatalogAddScreen: roaster, bean name, roast level
+  ChipGroup, tasting notes; returns to add-bag with the bean chosen.
+- **Done when:** Saving returns with the bean chosen (AC 1); stories pass axe.
+
+##### TASK-01-06-02-QA1 · Test adding coffee
+`qa` · Parent: STORY-01-06-02 · 3 h · Unchanged · Depends on: TASK-01-06-02-FE1
+- **Build:** Node tests for AC 2 to AC 5; a play test for the return.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-01-06-03: Keep what I add private until it's verified
+
+##### TASK-01-06-03-BE1 · Apply catalog visibility to every read and every ID passed to an action
+`backend` · Parent: STORY-01-06-03 · 3 h · Unchanged · Depends on: TASK-01-02-01-BE4, TASK-01-06-02-BE1
+- **Build:** `visibleCatalog` in search, browse and the duplicate check, and
+  `assertVisibleCatalog(type, id)` in every action storing a catalog
+  reference.
+- **Done when:** Another household's unverified ID is rejected as not found;
+  a verified entry is visible to all.
+
+##### TASK-01-06-03-QA1 · Test catalog privacy and verification
+`qa` · Parent: STORY-01-06-03 · 4 h · Unchanged · Depends on: TASK-01-06-03-BE1
+- **Build:** Two-household Node tests for AC 1 to AC 3, including setting
+  `status='verified'` directly, plus isolation cases.
+- **Done when:** AC 1 to AC 3 are covered.
+
+##### STORY-01-06-04: Get pointed to an entry that already exists
+
+##### TASK-01-06-04-BE1 · Add the duplicate URL check
+`backend` · Parent: STORY-01-06-04 · 4 h · Unchanged · Depends on: TASK-01-06-01-BE1, TASK-01-06-03-BE1
+- **Build:** DAL `findByNormalizedUrl(catalog, url)` over visible entities with
+  merges resolved, as `GET /api/catalog/check-url`, and rerun in both
+  create actions.
+- **Done when:** A regional variant matches (AC 2); another household's
+  unverified match is not reported (AC 3); it runs before and at save (AC 5).
+
+##### TASK-01-06-04-FE1 · Show the duplicate-found and check-failed states in catalog add
+`frontend` · Parent: STORY-01-06-04 · 4 h · Unchanged · Depends on: TASK-01-06-04-BE1, TASK-01-06-01-FE2, DES-01-06-02, DQ-10
+- **Build:** The check runs on leaving the URL field; a match shows
+  `catalog.duplicateFound` with `catalog.useExisting`; "add anyway" is
+  behind a flag, off; a failed check allows save.
+- **Done when:** AC 1, AC 4 and AC 5 hold.
+
+##### TASK-01-06-04-QA1 · Test duplicate detection
+`qa` · Parent: STORY-01-06-04 · 4 h · Unchanged · Depends on: TASK-01-06-04-FE1
+- **Build:** Node tests for AC 1 to AC 3 and the save-time recheck; play tests
+  for use-existing and check-failed.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-01-06-05: Add regional links and names to an entry
+
+##### TASK-01-06-05-BE1 · Accept extra URLs and aliases on catalog creates
+`backend` · Parent: STORY-01-06-05 · 3 h · Unchanged · Depends on: TASK-01-06-04-BE1, TQ-12
+- **Build:** Create actions accept `urls` and `aliases` with markets (TQ-12),
+  normalised, duplicate-checked, deduplicated.
+- **Done when:** AC 1, AC 2 and AC 4 hold.
+
+##### TASK-01-06-05-FE1 · Add the repeatable links and other-names rows
+`frontend` · Parent: STORY-01-06-05 · 4 h · Unchanged · Depends on: TASK-01-06-05-BE1, DES-01-06-04, TASK-01-06-04-FE1
+- **Build:** Repeatable rows of URL plus market and of name plus market under
+  `catalog.more`, with accessible add and remove buttons.
+- **Done when:** Stories pass axe; rows work by keyboard.
+
+##### TASK-01-06-05-QA1 · Test regional links and aliases
+`qa` · Parent: STORY-01-06-05 · 3 h · Unchanged · Depends on: TASK-01-06-05-FE1
+- **Build:** Node tests for AC 1 to AC 4, including alias search only for the
+  adding household while unverified.
 - **Done when:** AC 1 to AC 4 are covered.
 
-### EPIC-03-04: See how much coffee is left
+##### STORY-01-06-06: Describe a machine I added in my own words
 
-#### STORY-03-04-01: See how much is left
+##### TASK-01-06-06-BE1 · Map the machine answers to capabilities
+`backend` · Parent: STORY-01-06-06 · 3 h · Unchanged · Depends on: TASK-01-02-01-BE1
+- **Build:** `src/domain/capabilityQuestions.ts` `machineAnswersToCapabilities`
+  and the reverse; unanswered and "not sure" map to S-08 unknowns.
+- **Done when:** Every row of the design's machine table is unit-tested; the
+  reverse is lossless.
 
-##### TASK-03-04-01-BE1 · Add the remaining weight calculation
-`backend` · Parent: STORY-03-04-01 (also 03-02-01, 02-02-03) · 4 h · Depends on: TASK-01-03-03-BE1, TASK-03-01-02-BE1
-- **Build:**
-  - `src/domain/remaining.ts` `remainingWeight({ weight, latestCheck, doses })`
-    returns the latest stock check (else `weight`) minus the doses of every
-    shot after it, measured and one-tap alike, clamped at 0, with
-    `overLogged: boolean`.
-  - A DAL aggregate per portion and per bag (a sum over portions), in SQL:
-    one query, not one per row.
-  - Added to the pantry, bag, home and portion-sheet reads.
-- **Done when:**
-  - Unit tests pass, including no shots, a check, and doses after the check.
-  - The result is never negative.
-  - The aggregate matches the domain function on fixtures.
+##### TASK-01-06-06-FE1 · Build the machine capability questions with follow-ups
+`frontend` · Parent: STORY-01-06-06 · 5 h · Unchanged · Depends on: TASK-01-06-06-BE1, TASK-01-06-01-FE1, DES-01-06-03
+- **Build:** `MachineQuestions`: temperature and pressure questions with
+  follow-ups only when needed, each ending in `catalog.cap.notSure`, and
+  `catalog.cap.skipHint`. Stories incl. none-none, all follow-ups, skipped, RTL.
+- **Done when:** Stories pass axe; no schema words; two answers suffice for a
+  machine with no controls (AC 3).
 
-##### TASK-03-04-01-FE1 · Build Meter (NC-15) with its story
-`frontend` · Parent: STORY-03-04-01 · 3 h · Depends on: DES-03-04-03
-- **Build:** `src/components/ui/Meter`: a 2 px `line` track with an `ink`
-  fill, `role="meter"` with `aria-valuenow`, `aria-valuemax` and a text
-  `aria-valuetext` passed in. The fill grows from inline-start. Stories: 0,
-  partial, full, RTL.
-- **Done when:** The stories pass axe, and it mirrors in RTL.
+##### TASK-01-06-06-QA1 · Test the machine capability questions
+`qa` · Parent: STORY-01-06-06 · 3 h · Unchanged · Depends on: TASK-01-06-06-FE1
+- **Build:** Play tests for AC 1 to AC 4; a Node test that saved capabilities
+  drive the log's config (AC 5).
+- **Done when:** AC 1 to AC 5 are covered.
 
-##### TASK-03-04-01-FE2 · Show remaining coffee on rows, bags and Brew, with the over-logged notice
-`frontend` · Parent: STORY-03-04-01 · 4 h · Depends on: TASK-03-04-01-BE1, TASK-03-04-01-FE1, TASK-03-01-04-FE3, TASK-02-02-01-FE1, DES-03-04-01
-- **Build:**
-  - Portion rows show `portion.remaining` (formatted grams) and a Meter.
-  - Bag cards show the total.
-  - Brew's footnote shows `home.remaining`, hidden when unknown.
-  - An over-logged portion shows 0 g and a neutral Notice
-    `portion.overLogged` with `portion.weigh`.
-- **Done when:**
-  - Grams show on portions (AC 1).
-  - The bag total and Brew portion show (AC 2).
-  - Over-logged shows zero and offers to weigh (AC 4).
+##### STORY-01-06-07: Describe a grinder I added in my own words
 
-##### TASK-03-04-01-QA1 · Test remaining coffee
-`qa` · Parent: STORY-03-04-01 · 4 h · Depends on: TASK-03-04-01-FE2, TASK-02-02-04-BE1, TASK-02-06-02-BE1
-- **Build:**
-  - Node tests: measured and one-tap doses (AC 1); bag totals (AC 2); undo
-    and edit of a dose change the result (AC 3); over-logged clamps and sets
-    the flag (AC 4); isolation cases.
-  - Story tests for the Meter text and the neutral Notice, with no signal.
-- **Done when:** AC 1 to AC 4 are each covered.
+##### TASK-01-06-07-BE1 · Map the grinder answers to capabilities
+`backend` · Parent: STORY-01-06-07 · 2 h · Unchanged · Depends on: TASK-01-06-06-BE1
+- **Build:** `grinderAnswersToCapabilities` and the reverse.
+- **Done when:** Each combination is unit-tested; the reverse is lossless.
 
-#### STORY-03-04-02: Weigh what's left
+##### TASK-01-06-07-FE1 · Build the grinder capability questions
+`frontend` · Parent: STORY-01-06-07 · 4 h · Unchanged · Depends on: TASK-01-06-07-BE1, TASK-01-06-06-FE1
+- **Build:** `GrinderQuestions`: dial type, lowest and highest, the step shown
+  only for clicks, and coarser, each with not sure. Stories incl. RTL.
+- **Done when:** Stories pass axe; the step is hidden for smooth (AC 2).
 
-##### TASK-03-04-02-BE1 · Add recording a stock check
-`backend` · Parent: STORY-03-04-02 · 2 h · Depends on: TASK-03-04-01-BE1, TASK-03-02-02-BE1
-- **Build:** Action `addStockCheck(portionId, grams)`, allowed for counter
-  and thawed portions. The weight must be zero or more. `checked_at` is now.
-- **Done when:** The latest check wins in `remainingWeight` (AC 3), and later
-  doses subtract from it (AC 2).
-
-##### TASK-03-04-02-FE1 · Build the stock sheet (SH-STOCK) and wire it
-`frontend` · Parent: STORY-03-04-02 · 3 h · Depends on: TASK-03-04-02-BE1, DES-03-04-02, TASK-03-02-02-FE2
-- **Build:** `StockSheet`: a grams NumberWheel (typed entry encouraged) and
-  primary `portion.saveWeight`. A failure keeps the sheet with a Notice and
-  retry. It opens from `portion.weigh` in the actions and from the
-  over-logged Notice. Stories.
-- **Done when:**
-  - The stories pass axe.
-  - Saving updates what's left (AC 1).
-  - A failure retries (AC 4).
-
-##### TASK-03-04-02-QA1 · Test weighing what's left
-`qa` · Parent: STORY-03-04-02 · 2 h · Depends on: TASK-03-04-02-FE1
-- **Build:** Node tests for AC 1 to AC 3 (set, doses after, latest of
-  several). Play test for the failure and retry (AC 4).
+##### TASK-01-06-07-QA1 · Test the grinder capability questions
+`qa` · Parent: STORY-01-06-07 · 3 h · Unchanged · Depends on: TASK-01-06-07-FE1, TASK-01-03-02-FE2
+- **Build:** Play tests for AC 1 to AC 3; a unit test that saved capabilities
+  give the expected `grindWheelConfig` (AC 4).
 - **Done when:** AC 1 to AC 4 are covered.
 
-#### STORY-03-04-03: See which bags are open or finished
+##### STORY-01-06-08: Log shots even when I'm not sure about my equipment
 
-##### TASK-03-04-03-BE1 · Add the calculated bag status
-`backend` · Parent: STORY-03-04-03 · 2 h · Depends on: TASK-03-02-04-BE1
-- **Build:** `src/domain/bagStatus.ts` `bagStatus(portions)` returns
-  `finished` when every portion is finished, `open` when any portion is
-  opened and not finished, else `null` (not yet open; shown through portion
-  states, SQ-10). It's used by `getPantry` grouping and order.
-- **Done when:** Unit tests cover each combination.
+##### TASK-01-06-08-FE1 · Add the "not sure" fallbacks for the shot log
+`frontend` · Parent: STORY-01-06-08 · 3 h · Updated (basket dose) · Depends on: TASK-01-03-02-FE2, TASK-01-04-01-FE3, TASK-01-04-02-FE1, DQ-11
+- **Build:** `src/domain/capabilityFallbacks.ts` `effectiveCapabilities`
+  (DQ-11 table in one constants object). It also exposes `doseBound(basket)`
+  that returns null for an unknown range, which the suggestion rules read.
+- **Done when:** Every row is unit-tested; nothing warns or uses signal
+  (AC 2); an unknown dose range gives no bound (AC 5).
 
-##### TASK-03-04-03-FE1 · Show the bag status on pantry cards and the bag screen
-`frontend` · Parent: STORY-03-04-03 · 2 h · Depends on: TASK-03-04-03-BE1, TASK-03-01-04-FE3
-- **Build:** `bag.statusOpen` and `bag.statusFinished` text on cards and
-  SCR-BAG. Finished bags appear only in `pantry.finished`.
-- **Done when:** The status is shown as text, and finished bags are grouped.
+##### TASK-01-06-08-FE2 · Add the quiet "tell us about your equipment" link in the log
+`frontend` · Parent: STORY-01-06-08 · 2 h · Updated (links to the part screen) · Depends on: TASK-01-06-08-FE1, TASK-01-02-02-FE6
+- **Build:** A ghost link `log.capUnknown` once per screen when any part of
+  the setup is unknown; it opens that part's screen with return-to.
+- **Done when:** At most once; not at all when everything is known (AC 6).
 
-##### TASK-03-04-03-QA1 · Test bag status
-`qa` · Parent: STORY-03-04-03 · 2 h · Depends on: TASK-03-04-03-FE1
-- **Build:** Unit tests for AC 1 to AC 3. A Node test that changing a
-  portion's dates changes the status and grouping (AC 4).
-- **Done when:** AC 1 to AC 4 are covered.
+##### TASK-01-06-08-QA1 · Test logging with unknown capabilities
+`qa` · Parent: STORY-01-06-08 · 3 h · Updated · Depends on: TASK-01-06-08-FE2, DES-01-06-05
+- **Build:** ShotDial stories for an all-"not sure" setup (AC 1 to AC 4, AC 6),
+  a Node test that a shot saves, and a unit test that an unknown basket range
+  gives no dose bound (AC 5).
+- **Done when:** AC 1 to AC 6 are covered.
 
-### EPIC-04-01: Record maintenance on your setup
+##### STORY-01-06-09: Answer capability questions later
 
-#### STORY-04-01-01: Log maintenance on a piece of setup
+##### TASK-01-06-09-BE1 · Add updating capabilities of the household's own unverified models
+`backend` · Parent: STORY-01-06-09 · 3 h · Updated (baskets) · Depends on: TASK-01-06-07-BE1, TASK-01-06-03-BE1, TASK-01-06-01-FE3
+- **Build:** Action `updateModelCapabilities(hardwareId, answers)` for
+  `source='user'`, `status='unverified'` models of the session household,
+  including a basket's dose range; shots are untouched.
+- **Done when:** Seeded, verified or other households' models are rejected
+  (AC 5); old shots are untouched (AC 3).
 
-Schema: TASK-04-01-01-BE1.
+##### TASK-01-06-09-FE1 · Show "not sure" answers on the part screen and reopen the questions
+`frontend` · Parent: STORY-01-06-09 · 4 h · Updated (part screen) · Depends on: TASK-01-06-09-BE1, TASK-01-02-02-FE6, TASK-01-06-07-FE1
+- **Build:** On the part screen, unknowns are marked; `unit.editCapabilities`
+  reopens the machine, grinder or basket questions prefilled; seeded and
+  verified models are read-only.
+- **Done when:** Own unverified parts are editable (AC 1); others are
+  read-only (AC 5); the next log follows (AC 2).
 
-##### TASK-04-01-01-BE2 · Add recording maintenance and the unit's event list
-`backend` · Parent: STORY-04-01-01 · 3 h · Depends on: TASK-04-01-01-BE1, TASK-02-06-01-BE2
-- **Build:**
-  - Action `addMaintenance(unitId, { kind, date?, note?, isRecalibration? })`:
-    - the kind is one of burrs, clean, rezero, repair or other;
-    - the date is today by default, or an earlier local date;
-    - retired units are allowed.
-  - DAL `listMaintenance(unitId)`, newest first.
-  - No offsets are written (EPIC-04-03).
-- **Done when:**
-  - The event saves with its kind, date and note (AC 1).
-  - The date defaults to today (AC 2).
-  - The list is newest first (AC 3).
-  - Retired units are listed (AC 5).
+##### TASK-01-06-09-FE2 · Widen a wheel's range in edit mode to show an old value
+`frontend` · Parent: STORY-01-06-09 · 2 h · Unchanged · Depends on: TASK-02-06-02-FE1
+- **Build:** In edit mode a stored out-of-range grind, temperature or pressure
+  widens the wheel to include it; it's never clamped silently.
+- **Done when:** The stored value shows and saves unchanged (AC 4).
 
-##### TASK-04-01-01-FE1 · Build the maintenance sheet (SH-MAINTENANCE) with its stories
-`frontend` · Parent: STORY-04-01-01 (also 04-01-02) · 4 h · Depends on: DES-04-01-01, TASK-01-01-05-FE2, PR-3
-- **Build:** `MaintenanceSheet`: a kind ChipGroup (`maintenance.kind.*`), a
-  date defaulting to today, an optional note Input, a slot for the
-  recalibration Toggle, primary `maintenance.save`, and a failure Notice.
-  Stories: grinder, machine, failed, RTL.
-- **Done when:** The stories pass axe, and a re-zero today is three taps.
-
-##### TASK-04-01-01-FE2 · Add the maintenance section to the unit screen
-`frontend` · Parent: STORY-04-01-01 · 3 h · Depends on: TASK-04-01-01-FE1, TASK-04-01-01-BE2, TASK-01-02-03-FE2
-- **Build:** SCR-UNIT `maintenance.title`: event ListRows (kind, date, note
-  excerpt, recalibration marker), `maintenance.none` with secondary
-  `maintenance.add`, and `maintenance.add` opening the sheet.
-- **Done when:**
-  - The events show (AC 3).
-  - The empty state offers add (AC 4).
-  - Retired units show their events (AC 5).
-
-##### TASK-04-01-01-QA1 · Test logging maintenance
-`qa` · Parent: STORY-04-01-01 · 3 h · Depends on: TASK-04-01-01-FE2
-- **Build:** Node tests:
-  - the kinds, default date, backdate and future rejected (AC 1, AC 2);
-  - list order (AC 3);
-  - a retired unit (AC 5);
-  - isolation cases.
-
-  Story tests for empty (AC 4) and a three-tap re-zero.
-- **Done when:** AC 1 to AC 5 are each covered.
-
-#### STORY-04-01-02: Mark a recalibration
-
-##### TASK-04-01-02-BE1 · Store the recalibration flag with its defaults
-`backend` · Parent: STORY-04-01-02 · 2 h · Depends on: TASK-04-01-01-BE2
-- **Build:** `addMaintenance` writes S-08's `is_recalibration` (TQ-05). It
-  defaults to true for burrs and rezero on grinders, and false otherwise.
-  It's always false, and rejected if sent true, for non-grinder units
-  (DQ-15).
-- **Done when:**
-  - Grinder events can be marked (AC 1).
-  - Burrs and re-zero default on (AC 2).
-  - Machines can't be marked (AC 4).
-
-##### TASK-04-01-02-FE1 · Add the recalibration toggle and marker
-`frontend` · Parent: STORY-04-01-02 · 2 h · Depends on: TASK-04-01-02-BE1, TASK-04-01-01-FE2
-- **Build:** In MaintenanceSheet, Toggle `maintenance.isRecalibration` for
-  grinders only. It follows the kind's default until the user touches it.
-  The `maintenance.recalibration` text marker shows on event rows (and
-  dividers, TASK-04-01-04-FE1).
-- **Done when:**
-  - The default follows the kind (AC 2).
-  - The marker is text (AC 3).
-  - There's no toggle for a machine (AC 4).
-
-##### TASK-04-01-02-QA1 · Test recalibration marking
-`qa` · Parent: STORY-04-01-02 · 2 h · Depends on: TASK-04-01-02-FE1
-- **Build:** Node tests for the defaults and the non-grinder rejection
-  (AC 1, AC 2, AC 4). Story tests for the toggle by kind and the marker in
-  words (AC 3).
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-04-01-03: Know my grinder's current grind period
-
-##### TASK-04-01-03-BE1 · Add the current grind period calculation
-`backend` · Parent: STORY-04-01-03 (also 04-01-04) · 2 h · Depends on: TASK-04-01-01-BE2, TASK-01-03-03-BE1
-- **Build:** `src/domain/grindPeriods.ts` `currentPeriod(events, now)` gives
-  the latest grinder event at or before now. DAL
-  `getGrindPeriod(grinderUnitId)` returns `{ since | null, shotCount }`,
-  where the count is shots with that `grinder_id` and `created_at ≥ since`.
-  It's derived from dates and never stored. Machine events are ignored.
-- **Done when:**
-  - Unit tests cover no events, several events and a backdated event.
-  - Machine events don't affect it.
-
-##### TASK-04-01-03-FE1 · Show the current period line on the grinder's unit screen
-`frontend` · Parent: STORY-04-01-03 · 2 h · Depends on: TASK-04-01-03-BE1, TASK-04-01-01-FE2
-- **Build:** Above the maintenance list on grinder units:
-  `maintenance.periodSince` (formatted date) with `maintenance.periodShots`
-  (plural), or `maintenance.periodAll` with no events. Machines show
-  nothing.
-- **Done when:**
-  - The start and count are visible without opening anything (AC 1).
-  - No events shows the all-in-one line (AC 2).
-
-##### TASK-04-01-03-QA1 · Test grind periods
-`qa` · Parent: STORY-04-01-03 · 2 h · Depends on: TASK-04-01-03-FE1
-- **Build:** Node tests:
-  - period start and count (AC 1);
-  - no events (AC 2);
-  - adding or backdating an event updates the result with no shot rows
-    changed (AC 3);
-  - a machine event has no effect (AC 4).
-- **Done when:** AC 1 to AC 4 are covered.
-
-#### STORY-04-01-04: See maintenance in my recent shots
-
-##### TASK-04-01-04-BE1 · Merge grinder events into the recent shots feed
-`backend` · Parent: STORY-04-01-04 · 3 h · Depends on: TASK-04-01-03-BE1, TASK-02-06-01-BE1
-- **Build:** `listRecentShots` returns a merged feed of shots and divider
-  items, sorted by time. A divider is included only when all of these hold:
-  - it's a grinder event;
-  - it's inside the listed time range;
-  - that grinder has at least one shot in the list.
-
-  Each divider carries the grinder name (nickname, else model), kind, date
-  and recalibration flag, and gets the same day key as the shots, so it sits
-  among that day's rows.
-- **Done when:**
-  - Two grinders show only the relevant dividers.
-  - An event on a shot day sorts by time.
-  - Paging older shots doesn't duplicate dividers.
-
-##### TASK-04-01-04-FE1 · Build the grind period divider and show it in recent shots
-`frontend` · Parent: STORY-04-01-04 · 4 h · Depends on: TASK-04-01-04-BE1, TASK-02-06-01-FE1, DES-04-01-02
-- **Build:** `src/components/ui/PeriodDivider`:
-  - a `line-strong` hairline with one `text-overline` `ink-secondary` line
-    `shots.maintenance` (grinder, kind, date) plus
-    `maintenance.recalibration`;
-  - a list item with readable text (not a decorative `hr`) that links to the
-    grinder's SCR-UNIT.
-
-  Rendered in RecentShotsScreen between rows. Stories: plain,
-  recalibration, among a day's rows, RTL.
-- **Done when:**
-  - The stories pass axe, and the divider is announced as a list item.
-  - It's quieter than a shot row.
-
-##### TASK-04-01-04-QA1 · Test maintenance dividers
-`qa` · Parent: STORY-04-01-04 · 3 h · Depends on: TASK-04-01-04-FE1
-- **Build:**
-  - Node tests: the divider's content (AC 1); placement within a shot day
-    (AC 2); no divider for machine events or grinders without listed shots
-    (AC 3); a backdated event moves its divider and no shot changes (AC 4).
-  - Play test: the divider opens the grinder (AC 5).
-  - Screen reader text check.
-- **Done when:** AC 1 to AC 5 are each covered.
+##### TASK-01-06-09-QA1 · Test answering later
+`qa` · Parent: STORY-01-06-09 · 3 h · Updated · Depends on: TASK-01-06-09-FE1, TASK-01-06-09-FE2
+- **Build:** Node tests for AC 1, 2, 3 and 5 (including a basket's range and
+  its effect on dose suggestions later); a play test for AC 4.
+- **Done when:** AC 1 to AC 5 are covered.
 
 ---
 
-## 8. Build order
+### INIT-02: Every new bag starts from what you already learned
 
-**Confirmed by the Head of Product.** Dependencies come first. Within that,
-the order follows the epics' MVP build order, with these changes at task
-level:
+#### EPIC-02-01: Pin the recipe that worked
 
-- **EPIC-01-05 (tasting) moves up, to just after EPIC-01-04.** Saving a shot
-  lands on the tasting screen (STORY-01-03-03 AC 4), and pinning starts there
-  (STORY-02-01-01).
-- **Four shared tasks move earlier, without their screens.**
-  - Portion state (TASK-03-02-04-BE1) moves up for the pantry and the log.
-  - Time zone (TASK-02-06-01-BE2) moves before adding a bag.
-  - URL normalisation (TASK-01-06-01-BE1) moves before the seed loader.
-  - Remaining weight (TASK-03-04-01-BE1) moves before splitting.
-- **EPIC-01-06 runs in parallel** with EPIC-01-03 to EPIC-01-05, as the epics
-  allow. Its capability stories (06 to 09) can trail its coffee and duplicate
-  stories (01 to 05).
+Retired: STORY-02-01-05 and its tasks, replaced by STORY-02-01-06.
+
+##### STORY-02-01-01: Pin a recipe from a shot I liked
+
+Schema: TASK-02-01-01-BE1 (section 6).
+
+##### TASK-02-01-01-BE2 · Add current-recipe resolution
+`backend` · Parent: STORY-02-01-01 (also 02-01-03, 04, 06, 02-02, 02-03, 03-06-03) · 3 h · Updated (setup scoped, milk not in the key) · Depends on: TASK-02-01-01-BE1, TASK-01-02-01-BE5
+- **Build:** `src/server/dal/recipes.ts`: `getCurrentRecipe({ beanId,
+  personaId, setupId, drinkTypeId })` returns the latest `pinned_at` with
+  `batch_id IS NULL` across the bean's merge group, stable tie-break on ID;
+  `listCurrentRecipesForBean(beanId, personaId)` returns one per setup and
+  drink. Milk and prep are never part of the key. This is the single
+  "which recipe applies now" function (review m10).
+- **Done when:** The latest pin wins, only on the given setup (AC 4); a merged
+  bean finds recipes pinned on either ID; a pin with different milk replaces
+  the same key (AC 3).
+
+##### TASK-02-01-01-BE3 · Add pinning from a measured shot
+`backend` · Parent: STORY-02-01-01 · 4 h · Updated (prep, milk, setup) · Depends on: TASK-02-01-01-BE2, TASK-01-04-01-BE1
+- **Build:** Action `pinFromShot(shotId)`: owned and measured only; copies
+  values, temperature and pressure, prep ticks, milk, setup, drink and
+  persona; bean from the portion's batch (resolved); sets
+  `source_extraction_id` and `pinned_at`. DAL `pinPreview(shotId)` returns
+  what is pinned and the recipe it replaces, with differences.
+- **Done when:** The preview shows the replaced recipe and differences
+  (AC 1); the recipe has every field (AC 2); one-tap is rejected (AC 5); later
+  shot edits don't touch it and a failure saves nothing (AC 6).
+
+##### TASK-02-01-01-FE1 · Build the pin sheet (SH-PIN) with its stories
+`frontend` · Parent: STORY-02-01-01 (also 02-01-02) · 4 h · Updated (prep and milk lines) · Depends on: DES-02-01-01, TASK-01-01-05-FE2, PR-3
+- **Build:** `PinSheet`: `recipe.pinTitle` naming drink, coffee and setup,
+  compact ShotValues with prep and milk lines, the replaced recipe above in
+  `ink-secondary` with differences, primary `recipe.confirmPin`, a failed
+  Notice. Stories: new, replaces, failed, RTL.
+- **Done when:** Stories pass axe; one primary button.
+
+##### TASK-02-01-01-FE2 · Wire pinning from the tasting and shot detail screens
+`frontend` · Parent: STORY-02-01-01 · 3 h · Unchanged · Depends on: TASK-02-01-01-FE1, TASK-02-01-01-BE3, TASK-01-05-01-FE3, TASK-02-06-03-FE2
+- **Build:** `recipe.pin` on TasteScreen and ShotDetailScreen (measured only)
+  opens PinSheet; confirm calls `pinFromShot`, announces `recipe.pinned`.
+  On the tasting screen the choices are saved first.
+- **Done when:** Pin is reachable from both (AC 1); absent on one-tap (AC 5);
+  failure retries (AC 6).
+
+##### TASK-02-01-01-QA1 · Test pinning from a shot
+`qa` · Parent: STORY-02-01-01 · 4 h · Updated · Depends on: TASK-02-01-01-FE2
+- **Build:** Node tests: fields copied including prep and milk (AC 2); replace
+  across different milk (AC 3); resolution only on the setup (AC 4); one-tap
+  rejected (AC 5); edit does not change the recipe, forced failure leaves no
+  row (AC 6); isolation; sheet play tests (AC 1).
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-01-02: Pin a recipe by entering the values
+
+##### TASK-02-01-02-BE1 · Add pinning entered values
+`backend` · Parent: STORY-02-01-02 · 3 h · Updated (prep, milk) · Depends on: TASK-02-01-01-BE2, TASK-01-04-01-BE1, TASK-01-03-07-BE1
+- **Build:** Action `pinEnteredRecipe({ batchId, setupId, drinkTypeId, values })`:
+  bean from the batch, default persona, `validateBrewControls` and
+  `validateMilk` apply, prep ticks stored, `source_extraction_id` null, no
+  shot written. Plus `pinPreview` for entered values.
+- **Done when:** A recipe saves with no source and no extraction (AC 3);
+  temperature, pressure, milk and prep follow the setup and drink (AC 2).
+
+##### TASK-02-01-02-FE1 · Add the recipe mode of the shot log
+`frontend` · Parent: STORY-02-01-02 · 4 h · Updated · Depends on: TASK-02-01-02-BE1, TASK-02-01-01-FE1, TASK-01-04-02-FE1, TASK-01-03-07-FE2, DES-02-01-03
+- **Build:** `/log?mode=recipe&batchId=`: title `log.titleRecipe`, context is
+  drink and setup, ShotDial with temperature, pressure and milk, prep
+  toggles, primary `recipe.pinThis` opening PinSheet, no sweetened toggle and
+  no tasting. Starts from the current recipe or defaults.
+- **Done when:** It is clearly pinning, not logging (AC 4); values as on the
+  log (AC 1, AC 2).
+
+##### TASK-02-01-02-QA1 · Test pinning by entering values
+`qa` · Parent: STORY-02-01-02 · 3 h · Updated · Depends on: TASK-02-01-02-FE1
+- **Build:** Node tests for no extraction and no source (AC 3) and validation
+  (AC 2); play tests for the title, button and no save-shot path (AC 1, AC 4).
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-01-03: Pin a better recipe and keep the old one
+
+##### TASK-02-01-03-QA1 · Test that the newest pin wins and older pins are kept
+`qa` · Parent: STORY-02-01-03 · 3 h · Unchanged · Depends on: TASK-02-01-01-BE3, TASK-02-01-02-BE1
+- **Build:** Node tests: two pins for a key, the second is current (AC 1, AC 2);
+  each reader (Brew, pre-fill, bag and coffee recipes) uses
+  `getCurrentRecipe` (AC 3); the older row is unchanged (AC 4);
+  same-millisecond pins resolve deterministically. No code task.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-01-04: See the recipes for a coffee
+
+##### TASK-02-01-04-BE1 · Add the recipes read for a bag and a coffee
+`backend` · Parent: STORY-02-01-04 (also 03-06-03) · 3 h · Updated (prep, milk, per setup) · Depends on: TASK-02-01-01-BE2, TASK-03-01-04-BE1
+- **Build:** DAL `getBagRecipes(batchId)` and `getCoffeeRecipes(beanId)` call
+  `listCurrentRecipesForBean`, returning drink, setup label, values, prep,
+  milk and `pinned_at`. Recipes show on every bag of the bean.
+- **Done when:** One row per drink and setup (AC 1); a new bag of the same
+  bean gets the same recipes (AC 2); the merge group is included (AC 5).
+
+##### TASK-02-01-04-FE1 · Show the recipes section on the bag screen
+`frontend` · Parent: STORY-02-01-04 · 4 h · Updated · Depends on: TASK-02-01-04-BE1, TASK-03-01-04-FE3, TASK-02-01-02-FE1, DES-02-01-02
+- **Build:** A shared `RecipeRows` component (ListRows with compact ShotValues,
+  prep and milk, date) used on the bag and coffee screens. Tapping opens
+  an action sheet: `recipe.dialIn` (`/log?mode=dialIn`) and `recipe.edit`.
+  Empty state `bag.noRecipes` with `recipe.add`. Stories.
+- **Done when:** Rows show values and date (AC 1); dial in and change are
+  available (AC 3); the empty state offers add (AC 4).
+
+##### TASK-02-01-04-QA1 · Test bag recipes
+`qa` · Parent: STORY-02-01-04 · 3 h · Unchanged · Depends on: TASK-02-01-04-FE1
+- **Build:** Node tests for AC 1, 2 and 5 (two bags of one bean, a merged
+  bean); play tests for the actions and the empty state.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-01-06: Dial in on a new setup from my closest setup's recipe
+
+##### TASK-02-01-06-BE1 · Add the closest-setup rule
+`backend` · Parent: STORY-02-01-06 (also 01-02-04) · 3 h · New · Depends on: TASK-01-02-04-BE2, TASK-02-01-01-BE2
+- **Build:** `src/domain/closestSetup.ts` `closestSetup(current, others,
+  hasRecipe, lastUsed)`: the setup with a recipe for this bean and drink that
+  shares the most parts with the current one (0 to 2); ties to the one used
+  most recently. The builder's `setup.closest` line uses it too.
+- **Done when:** Unit tests cover sharing counts, ties and no candidate
+  (AC 2).
+
+##### TASK-02-01-06-BE2 · Add the dial-in start from the closest setup
+`backend` · Parent: STORY-02-01-06 · 4 h · New · Depends on: TASK-02-01-06-BE1, TASK-01-03-02-BE1, TASK-01-03-06-BE1, TASK-01-03-07-BE1
+- **Build:** DAL `getDialInStart({ beanId, drinkId, setupId })`: with no recipe
+  on the setup, the closest setup's recipe. Dose, yield, time, prep and milk
+  carry over. Grind carries only if the grinder is the same; else the
+  grinder's last measured value, else the middle of its range, flagged
+  `grindNotCarried` (DQ-20). Temperature and pressure carry only if the
+  machine is the same, else unset.
+- **Done when:** Each carry-over rule is unit-tested (AC 3, AC 4, AC 5); no
+  recipe anywhere gives the blank start (AC 6).
+
+##### TASK-02-01-06-FE1 · Show the no-recipe-on-this-setup state on Brew
+`frontend` · Parent: STORY-02-01-06 · 3 h · New · Depends on: TASK-02-01-06-BE2, TASK-02-02-01-FE1, DES-02-01-05
+- **Build:** HomeScreen state: `home.noRecipeOnSetup`, `home.startsFrom`
+  naming the closest setup, and only `home.dialIn` as primary, never a
+  pull. Check PR #3's HomeScreen props first.
+- **Done when:** The state shows with the setup named and no pull (AC 1).
+
+##### TASK-02-01-06-FE2 · Open the log from the closest setup with its notes
+`frontend` · Parent: STORY-02-01-06 · 3 h · New · Depends on: TASK-02-01-06-BE2, TASK-02-03-03-FE1
+- **Build:** In dial-in mode, the log reads `getDialInStart`, shows the
+  `log.fromRecipeOn` note naming the setup and `log.grindNotCarried` when
+  needed. Saving and pinning gives this setup its own recipe.
+- **Done when:** The notes show (AC 3, AC 4); after a pin Brew offers a pull
+  (AC 6).
+
+##### TASK-02-01-06-QA1 · Test dialing in from the closest setup
+`qa` · Parent: STORY-02-01-06 · 4 h · New · Depends on: TASK-02-01-06-FE2
+- **Build:** Node tests for choice, ties, same and different grinder and
+  machine, carry-over of prep and milk, and no pull offered; play tests of
+  both states.
+- **Done when:** AC 1 to AC 6 are covered.
+
+#### EPIC-02-02: Pull your daily shot in one tap
+
+##### STORY-02-02-01: See my daily shot on Brew
+
+##### TASK-02-02-01-BE1 · Add the home defaults: time-of-day drink, coffee and recipe
+`backend` · Parent: STORY-02-02-01 · 7 h · Updated (current setup, isOpen, prep and milk, states) · Depends on: TASK-02-01-01-BE2, TASK-02-06-01-BE2, TASK-03-02-04-BE1, TASK-01-02-09-BE1
+- **Build:** `src/domain/homeDefaults.ts`, pure with an injected clock and time
+  zone: `pickDrink` (within ±90 minutes over 14 days, else latest, else
+  first) and `pickCoffee` (last pull's coffee while unfinished; else the
+  earliest-opened open portion with a recipe for this drink on this setup;
+  else the earliest-opened open portion; else the newest unopened not
+  frozen; else frozen), all using `isOpen`. DAL `getHome` returns drink,
+  coffee, current setup, recipe with prep and milk, the three no-recipe
+  cases, a finished-coffee state, the clocks and remaining (hidden until
+  their epics land).
+- **Done when:** Unit tests cover AC 2 to AC 5 and a DST day, including a
+  portion opened then frozen (AC 5); the finished state (AC 6).
+
+##### TASK-02-02-01-FE1 · Wire Brew with the daily shot and its states
+`frontend` · Parent: STORY-02-02-01 · 6 h · Updated (clocks line, prep and milk) · Depends on: TASK-02-02-01-BE1, TASK-01-01-07-FE2, TASK-01-01-06-FE4, PR-3, DES-02-02-01
+- **Build:** `src/app/(app)/page.tsx` renders HomeScreen (PR #3) with
+  `getHome()`: drink title, coffee line with both clocks, large ShotValues
+  with prep and milk lines, setup line, `home.pull`, ghost `home.dialIn`;
+  states: loading, first run, no recipe, finished coffee, load failed.
+  Extend HomeScreen props where PR #3 lacks a state.
+- **Done when:** The drink, coffee, values, prep, milk and setup show (AC 1);
+  clocks show as AC 2 says once TASK-03-03-04 lands; the finished state offers
+  choose and add (AC 6); one primary button in every state.
+
+##### TASK-02-02-01-QA1 · Test the home screen defaults and states
+`qa` · Parent: STORY-02-02-01 · 5 h · Updated · Depends on: TASK-02-02-01-FE1
+- **Build:** Unit tests in `homeDefaults.test.ts` for AC 2 to AC 5 with fixed
+  clocks; a Node test for `getHome`; HomeScreen stories for each state with
+  axe; a manual phone check.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-02-02: Pull this shot in one tap
+
+##### TASK-02-02-02-BE1 · Add the one-tap pull
+`backend` · Parent: STORY-02-02-02 · 5 h · Updated (prep, milk, frozen never used) · Depends on: TASK-02-02-01-BE1, TASK-02-01-06-BE1, TASK-01-03-03-BE2, TQ-11
+- **Build:** Action `pullShot({ clientId, drinkId, beanId, portionId? })`:
+  re-resolves the recipe on the current setup server-side and refuses if
+  there's none; picks the earliest-opened open portion (`isOpen`, so never
+  frozen) or the one given; inserts an extraction with `id = clientId`
+  (idempotent), `entry_mode = 'one-tap'`, copying values, temperature and
+  pressure, prep and milk, with the recipe's setup; sets `opened_at` as the
+  shot time for an unopened, not frozen portion. Returns
+  `{ shotId, openedPortion }`.
+- **Done when:** Fields as AC 1 and AC 2; the earliest-opened open portion,
+  never frozen (AC 3); a duplicate `clientId` writes once (AC 4); a failure
+  writes nothing (AC 5).
+
+##### TASK-02-02-02-FE1 · Extract PulledState (NC-07) into a component with its story
+`frontend` · Parent: STORY-02-02-02 (also 02-02-04, 02-03-01) · 4 h · Unchanged · Depends on: PR-3, DES-02-02-02, TASK-01-01-06-FE1
+- **Build:** Move the pulled state out of HomeScreen into
+  `src/components/ui/PulledState`: `home.pulled` live region, ghost undo
+  while available, good and off chips, optional Notice. Stories: just
+  pulled, after the window, good, reaction failed, reduced motion, RTL.
+- **Done when:** Stories pass axe; HomeScreen stories still pass.
+
+##### TASK-02-02-02-FE2 · Wire the pull with optimistic feedback and double-tap protection
+`frontend` · Parent: STORY-02-02-02 · 4 h · Unchanged · Depends on: TASK-02-02-02-BE1, TASK-02-02-02-FE1, TASK-02-02-01-FE1
+- **Build:** `home.pull` generates a `clientId`, switches to PulledState with
+  `useOptimistic`, then calls `pullShot`; the button is gone after the first
+  tap; failure reverts with `home.pullFailed` and retry using the same
+  `clientId`; the card returns after 30 s.
+- **Done when:** The shot is recorded and confirmed (AC 1); a double tap makes
+  one shot (AC 4); a failure shows retry with no shot (AC 5).
+
+##### TASK-02-02-02-QA1 · Test the one-tap pull
+`qa` · Parent: STORY-02-02-02 · 4 h · Updated (prep, milk, frozen) · Depends on: TASK-02-02-02-FE2
+- **Build:** Node tests: copied fields incl. prep and milk and setup (AC 1,
+  AC 2); earliest-opened of several open portions and a portion opened then
+  frozen never used (AC 3); idempotent `clientId` (AC 4); forced failure
+  (AC 5); `is_network_eligible` false; isolation. Play tests for the
+  optimistic state, double tap, failure and retry.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-02-03: Choose a bag when none is open
+
+##### TASK-02-02-03-BE1 · Add the portion choice for a pull
+`backend` · Parent: STORY-02-02-03 (also 02-03-03, 02-06-06) · 3 h · Updated (frozen) · Depends on: TASK-02-02-02-BE1
+- **Build:** DAL `listUnfinishedPortions(beanId)` (counter first, frozen last
+  and flagged; bag, state, clocks, remaining once those epics land).
+  `pullShot` returns `needsPortion` when none is open and none given, or
+  `noneLeft`. An explicit unopened or thawed portion is opened at the shot
+  time; a frozen one is used with no date changed, marking the shot from
+  frozen.
+- **Done when:** The choice is required only when none is open (AC 1); opened
+  portions as AC 2; a frozen pick changes no dates (AC 3); `noneLeft`
+  records nothing (AC 4).
+
+##### TASK-02-02-03-FE1 · Build the portion sheet (SH-PORTION) with its stories
+`frontend` · Parent: STORY-02-02-03 · 3 h · Updated (frozen last) · Depends on: DES-02-02-03, TASK-01-03-01-FE1
+- **Build:** `PortionSheet`: `portion.chooseTitle` with ListRows (bag, state,
+  freshness, left), frozen ones last marked as ground from the freezer, or
+  `portion.noneLeft` with `home.addBag`. Stories: choose, with frozen,
+  none left, RTL.
+- **Done when:** Stories pass axe.
+
+##### TASK-02-02-03-FE2 · Wire the portion sheet into the pull
+`frontend` · Parent: STORY-02-02-03 · 2 h · Unchanged · Depends on: TASK-02-02-03-FE1, TASK-02-02-03-BE1, TASK-02-02-02-FE2
+- **Build:** On `needsPortion` or `noneLeft`, withhold the optimistic state and
+  open PortionSheet; choosing re-calls `pullShot` with the same `clientId`;
+  add bag goes to `/beans/add` with `returnTo=/`.
+- **Done when:** Choose records against the portion (AC 2, AC 3); cancel and
+  none-left record nothing (AC 4, AC 5).
+
+##### TASK-02-02-03-QA1 · Test choosing a bag when none is open
+`qa` · Parent: STORY-02-02-03 · 3 h · Updated · Depends on: TASK-02-02-03-FE2
+- **Build:** Node tests for AC 1 to AC 4 including a frozen pick that leaves
+  the dates alone; play tests for the sheet and cancel (AC 5).
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-02-04: Undo a shot I didn't mean to pull
+
+##### TASK-02-02-04-BE1 · Add undoing a one-tap pull
+`backend` · Parent: STORY-02-02-04 · 3 h · Unchanged · Depends on: TASK-02-02-02-BE1, TQ-15
+- **Build:** Action `undoPull(shotId)` for a one-tap shot by the session user
+  within 13 s; deletes it and clears `opened_at` when this shot set it and
+  there are no other shots.
+- **Done when:** Undo removes the shot (AC 1) and restores unopened (AC 2);
+  reads no longer count it (AC 3); late undo is rejected (AC 4).
+
+##### TASK-02-02-04-FE1 · Add undo to PulledState on Brew
+`frontend` · Parent: STORY-02-02-04 · 2 h · Unchanged · Depends on: TASK-02-02-04-BE1, TASK-02-02-02-FE2
+- **Build:** Undo shows for 8 s, then fades with no countdown; it calls
+  `undoPull`, announces `home.undone` and refreshes.
+- **Done when:** The window is 8 s (DQ-04); the undone shot is gone from the
+  lists (AC 3); undo is hidden afterwards (AC 4).
+
+##### TASK-02-02-04-QA1 · Test undo
+`qa` · Parent: STORY-02-02-04 · 3 h · Unchanged · Depends on: TASK-02-02-04-FE1
+- **Build:** Node tests for AC 1 to AC 4 (opened_at only when this shot set
+  it; measured and other users' shots rejected); a fake-timer play test.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-02-05: Dial in when there's no recipe on this setup
+
+##### TASK-02-02-05-FE1 · Open the shot log from the no-recipe state
+`frontend` · Parent: STORY-02-02-05 · 2 h · Updated (two no-recipe cases) · Depends on: TASK-02-02-01-FE1, TASK-01-03-02-FE3
+- **Build:** HomeScreen's no-recipe state shows `home.noRecipe` with primary
+  `home.dialIn`, opening `/log` with drink, portion and current setup chosen.
+  When another setup has a recipe the closest-setup state applies
+  (TASK-02-01-06-FE1). After a pin, Brew offers the pull.
+- **Done when:** AC 1 to AC 4 hold.
+
+##### TASK-02-02-05-QA1 · Test dialing in with no recipe
+`qa` · Parent: STORY-02-02-05 · 2 h · Updated · Depends on: TASK-02-02-05-FE1, TASK-02-01-01-FE2
+- **Build:** HomeScreen story for the state; Node tests that `getHome` returns
+  no recipe, the closest-setup case, and a recipe after a pin; a manual run.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-02-06: Change the drink or coffee before pulling
+
+##### TASK-02-02-06-BE1 · Add the coffee options and recipe lookup for a changed choice
+`backend` · Parent: STORY-02-02-06 · 3 h · Updated (frozen-only coffees last, setup) · Depends on: TASK-02-02-01-BE1
+- **Build:** DAL `getHomeOptions(drinkId)`: visible drinks and beans with an
+  unfinished portion (a recipe for this drink on this setup first,
+  frozen-only last and flagged), each marked `usual`. `getHome({ drinkId,
+  beanId })` returns the recipe for the changed choice. Nothing is stored.
+- **Done when:** Ordering and usual markers are right (AC 1); no settings
+  written (AC 5).
+
+##### TASK-02-02-06-FE1 · Add changing the drink and coffee in place on Brew
+`frontend` · Parent: STORY-02-02-06 · 5 h · Unchanged · Depends on: TASK-02-02-06-BE1, TASK-01-03-01-FE1, TASK-02-02-01-FE1, DES-02-02-05
+- **Build:** Quiet SelectFields open SelectSheet with `home.usual` markers;
+  choosing fetches `getHome` via an action and updates the card in place
+  with a 200 ms cross-fade; no recipe switches to the no-recipe states; the
+  pull uses the chosen pair. The chosen drink and coffee are kept for the
+  Journal link (STORY-02-06-05).
+- **Done when:** AC 1 to AC 4 hold.
+
+##### TASK-02-02-06-FE2 · Reset an unpulled change after 30 minutes away
+`frontend` · Parent: STORY-02-02-06 · 2 h · Unchanged · Depends on: TASK-02-02-06-FE1
+- **Build:** Keep the choice in sessionStorage with a timestamp; reset after
+  30 minutes away; a pull clears it; changing the drink ends PulledState.
+- **Done when:** The next default follows the pull (AC 5); an unpulled change
+  resets after 30 minutes (AC 6).
+
+##### TASK-02-02-06-QA1 · Test changing drink and coffee
+`qa` · Parent: STORY-02-02-06 · 4 h · Updated · Depends on: TASK-02-02-06-FE2
+- **Build:** Node tests for order, usual, frozen-only last and no settings
+  written; play tests for in-place update, the pull, no-recipe switch and the
+  30-minute reset.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-02-07: Switch setup on Brew and in the shot log
+
+##### TASK-02-02-07-FE1 · Add the setup select on Brew with change-a-part
+`frontend` · Parent: STORY-02-02-07 · 4 h · New · Depends on: TASK-01-02-09-BE1, TASK-01-03-01-FE1, TASK-02-02-01-FE1, TASK-01-02-08-FE1, DES-01-02-06
+- **Build:** The setup line on Brew is a quiet SelectField opening SelectSheet
+  with the household's setups (current first, `setup.current`) and a last
+  `setup.changePart` row opening the builder with return-to. Choosing
+  calls `useSetup` and updates the card in place.
+- **Done when:** AC 1 to AC 3 hold; the shown recipe is always on the current
+  setup.
+
+##### TASK-02-02-07-FE2 · Switch setup inside the shot log with the carry-over rules
+`frontend` · Parent: STORY-02-02-07 · 4 h · New · Depends on: TASK-02-02-07-FE1, TASK-01-03-06-FE1, TASK-01-03-02-FE3
+- **Build:** In the log's setup field, the same select. On a change, dose,
+  yield and time stay; grind stays only with the same grinder, else the
+  grinder's last measured value or the middle of its range; untouched prep
+  ticks re-apply the rule for the new setup. The chosen setup becomes
+  current on save.
+- **Done when:** AC 4 and AC 5 hold.
+
+##### TASK-02-02-07-QA1 · Test switching setup
+`qa` · Parent: STORY-02-02-07 · 3 h · New · Depends on: TASK-02-02-07-FE2
+- **Build:** Unit tests for the carry-over rules; play tests for the select on
+  Brew and the log, and the return from change-a-part.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-02-03: Fix a bad shot from your recipe
+
+##### STORY-02-03-01: Say whether a one-tap shot was good or off
+
+##### TASK-02-03-01-BE1 · Add setting the reaction on a one-tap shot
+`backend` · Parent: STORY-02-03-01 · 2 h · Unchanged · Depends on: TASK-02-02-02-BE1
+- **Build:** Action `setReaction(shotId, 'good' | 'off' | null)` for owned
+  one-tap shots, at any time (DQ-05).
+- **Done when:** A measured shot is rejected, null clears, isolation cases
+  added.
+
+##### TASK-02-03-01-FE1 · Wire good and off in PulledState
+`frontend` · Parent: STORY-02-03-01 · 3 h · Updated (off opens SH-OFF) · Depends on: TASK-02-03-01-BE1, TASK-02-02-02-FE2, TASK-02-03-04-FE2
+- **Build:** Good saves and shows selected, nothing else. Off saves, then opens
+  SH-OFF; the fix still opens if the save failed. On failure the chip
+  returns with a neutral Notice. No reaction means nothing is asked again.
+- **Done when:** AC 1 to AC 3 and AC 5 hold.
+
+##### TASK-02-03-01-FE2 · Add the reaction chips to the one-tap shot detail
+`frontend` · Parent: STORY-02-03-01 · 2 h · Unchanged · Depends on: TASK-02-03-01-BE1, TASK-02-06-03-FE2
+- **Build:** Deselectable good and off chips on ShotDetailScreen for one-tap
+  shots calling `setReaction`.
+- **Done when:** A reaction can be given or changed later (AC 4).
+
+##### TASK-02-03-01-QA1 · Test reactions
+`qa` · Parent: STORY-02-03-01 · 3 h · Updated · Depends on: TASK-02-03-01-FE1, TASK-02-03-01-FE2
+- **Build:** Node tests for `setReaction`; play tests for AC 1 to AC 3 and
+  AC 5 in PulledState (off opens SH-OFF) and AC 4 on detail.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-03-02: Fix an off shot from my recipe
+
+##### TASK-02-03-02-FE1 · Add the fix mode of the shot log with "was" values
+`frontend` · Parent: STORY-02-03-02 · 5 h · Updated (suggestion, prep, milk) · Depends on: TASK-02-03-01-FE1, TASK-02-01-01-BE2, TASK-01-04-02-FE1, TASK-02-03-07-BE1, DES-02-03-01, DES-02-03-02
+- **Build:** `/log?mode=fix&shotId=`: title `log.titleFix`, read-only
+  portion, drink and setup; values, prep and milk from the current recipe;
+  with a chosen suggestion, the change already applied and the
+  `log.fromSuggestion` note, else `log.fromRecipe`. ShotDial shows `log.was`
+  under changed tabs (check PR #3). Save calls `saveMeasuredShot` (two
+  records, DQ-12).
+- **Done when:** The log is prefilled (AC 1, AC 2); "was" on changed values
+  only (AC 3); a new measured shot is saved and the one-tap shot keeps off
+  and its answers (AC 4); leaving saves nothing (AC 5).
+
+##### TASK-02-03-02-FE2 · Make pinning the primary action after a fix or dial-in
+`frontend` · Parent: STORY-02-03-02 (also 02-03-03) · 2 h · Unchanged · Depends on: TASK-02-03-02-FE1, TASK-02-01-01-FE2
+- **Build:** `/taste/[shotId]?from=fix|dialIn` swaps the actions: primary
+  `recipe.pin` when no suggestion shows.
+- **Done when:** Pin is the suggested next step after a fix (AC 4).
+
+##### TASK-02-03-02-QA1 · Test fixing an off shot
+`qa` · Parent: STORY-02-03-02 · 3 h · Updated (SQ-14 closed) · Depends on: TASK-02-03-02-FE2
+- **Build:** Node tests: two records after the fix, the one-tap shot keeping
+  off and answers, and both doses counting toward coffee used (answer 6);
+  play tests for prefill, suggestion note, "was", pin primary and leaving.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-03-03: Dial in from my recipe
+
+##### TASK-02-03-03-FE1 · Add the dial-in mode of the shot log
+`frontend` · Parent: STORY-02-03-03 · 4 h · Updated (suggestion, portion sheet, none left) · Depends on: TASK-02-03-02-FE1, TASK-02-02-01-FE1, TASK-02-02-03-FE2, TASK-02-03-07-BE1
+- **Build:** `/log?mode=dialIn&recipeId=` from Brew's `home.dialIn` and from
+  recipe rows: title `log.titleDialIn`, values, temperature, pressure, prep
+  and milk from the recipe, with a pending suggestion already applied. When
+  no portion is open it asks which bag first (SH-PORTION, cancel opens
+  nothing); with none left it shows the missing-coffee state. Save makes a
+  measured shot, then the tasting screen with pin primary. No one-tap shot.
+- **Done when:** AC 1 to AC 5 hold.
+
+##### TASK-02-03-03-QA1 · Test dialing in from a recipe
+`qa` · Parent: STORY-02-03-03 · 3 h · Updated · Depends on: TASK-02-03-03-FE1
+- **Build:** Play tests for AC 1, AC 2, AC 4 and AC 5; a Node test for a
+  measured shot and no one-tap row (AC 3).
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-03-04: Say what was off about a one-tap shot
+
+##### TASK-02-03-04-BE1 · Add the SH-OFF read and the off-answers save
+`backend` · Parent: STORY-02-03-04 · 3 h · New · Depends on: TASK-01-05-01-BE1, TASK-02-03-01-BE1
+- **Build:** DAL `getOffContext(shotId)`: the one-tap shot, its recipe, setup
+  capabilities, dose bound and clocks, for the suggestion rules. The
+  `saveOffAnswers` variant is only for the household's one-tap shots that
+  are marked off, and never accepts a rating.
+- **Done when:** Answers are stored on the one-tap shot (AC 2); a rating or a
+  measured shot is rejected; isolation cases.
+
+##### TASK-02-03-04-FE1 · Build the off sheet (SH-OFF) with its stories
+`frontend` · Parent: STORY-02-03-04 · 5 h · New · Depends on: DES-02-03-03, TASK-01-01-05-FE2, TASK-01-05-02-FE2, TASK-01-05-03-FE1, TASK-01-05-04-FE1, TASK-02-03-05-FE1
+- **Build:** `OffSheet`, props-only: `off.title`, the four just-right rows and
+  six tags (no rating), the warning Notice under the tags, a SuggestionCard
+  slot, primary `suggest.tryIt` or `off.fix`, ghost `off.skip`, a save-failed
+  Notice with retry. Stories: no answer, with suggestion, channelling,
+  failed, RTL.
+- **Done when:** Stories pass axe; one primary button; the sheet reuses the
+  tasting screen's rows (AC 1, AC 5).
+
+##### TASK-02-03-04-FE2 · Wire SH-OFF into Brew and the fix flow
+`frontend` · Parent: STORY-02-03-04 · 3 h · New · Depends on: TASK-02-03-04-FE1, TASK-02-03-04-BE1, TASK-02-03-05-FE2
+- **Build:** Off in PulledState opens OffSheet over Brew; answers save on any
+  way out; fix opens the log with the suggested change, skip with the
+  recipe only; a failed save shows retry and skip still opens the fix.
+- **Done when:** AC 2 to AC 4 and AC 6 hold.
+
+##### TASK-02-03-04-QA1 · Test the off path
+`qa` · Parent: STORY-02-03-04 · 3 h · New · Depends on: TASK-02-03-04-FE2
+- **Build:** Node tests for storage on the one-tap shot and rejections; play
+  tests for answers, live suggestion, fix, skip, failed save and the
+  channelling warning.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-03-05: See one suggested change, with its reason
+
+##### TASK-02-03-05-BE1 · Add the suggestion engine skeleton, reasons and freshness explanations
+`backend` · Parent: STORY-02-03-05 (also 06, 07) · 5 h · New · Depends on: TASK-01-05-03-BE1, TASK-01-06-08-FE1
+- **Build:** `src/domain/suggest/`: input types (shot, answers, tags, recipe,
+  setup capabilities, dose bound, clocks), the result type (one change or
+  none, reason parts, freshness line), `constants.ts` (step sizes from
+  answer 1; DQ-24 thresholds: under 5 days, over 35 days since roast or
+  packing, over 21 days open, freezer time excluded), the reason builder
+  (shot time as a diagnostic only) and the freshness explanation. No lever
+  logic yet.
+- **Done when:** Only-rated and all-just-right input gives no change (AC 3);
+  freshness is returned alone or with a change, never as a change (AC 4);
+  nothing is stored; unit tests pass.
+
+##### TASK-02-03-05-FE1 · Build SuggestionCard (NC-16) with its stories
+`frontend` · Parent: STORY-02-03-05 · 4 h · New · Depends on: DES-02-03-04, DES-02-03-05, PR-3
+- **Build:** `src/components/ui/SuggestionCard`: outline Card, overline, the
+  change as a sentence with dial values ("15 → 13", arrow mirrors), a
+  one-line reason, an optional freshness line, ghost dismiss, polite live
+  region. Ink only. Stories: each lever, direction unknown, freshness only,
+  RTL.
+- **Done when:** Stories pass axe; no `signal` (AC 5).
+
+##### TASK-02-03-05-FE2 · Show the live suggestion on the tasting screen and SH-OFF
+`frontend` · Parent: STORY-02-03-05 · 3 h · New · Depends on: TASK-02-03-05-FE1, TASK-02-03-05-BE1, TASK-01-05-02-FE2
+- **Build:** A client hook runs the engine on every answer or tag change; the
+  card updates at once; no card with nothing to say.
+- **Done when:** One change with a reason shows (AC 1, AC 2); it updates as
+  answers change (AC 6).
+
+##### TASK-02-03-05-QA1 · Test the suggestion card and its states
+`qa` · Parent: STORY-02-03-05 · 3 h · New · Depends on: TASK-02-03-05-FE2
+- **Build:** Unit tests for no-change cases and freshness thresholds; play
+  tests for the live update and no `signal`.
+- **Done when:** AC 1 to AC 6 are covered (levers by TASK-02-03-06-QA1).
+
+##### STORY-02-03-06: Get the right change for what was off
+
+##### TASK-02-03-06-BE1 · Add the puck prep and grind rules
+`backend` · Parent: STORY-02-03-06 · 6 h · New · Depends on: TASK-02-03-05-BE1, TASK-01-03-02-FE2
+- **Build:** `src/domain/suggest/prep.ts` and `grind.ts`. Channelling signs:
+  WDT, then puck screen, else the check-distribution message. Balance off
+  with no signs: grind in the grinder's own direction, 1 step for "a bit"
+  and 2 for "much", clamped to its range; with an unknown direction only
+  "finer" or "coarser" with the tell-us-more link.
+- **Done when:** The examples hold (AC 1, AC 2: 15 to 13 for much too sour);
+  unknown direction gives no numbers (AC 6).
+
+##### TASK-02-03-06-BE2 · Add the yield, dose, milk and temperature rules
+`backend` · Parent: STORY-02-03-06 · 6 h · New · Depends on: TASK-02-03-06-BE1
+- **Build:** `yield.ts` (2 g, shorter for weak), `dose.ts` (0.5 g within the
+  basket's range; skipped at the limit or with an unknown range; milk
+  drinks "lost in the milk": dose first, then about 30 ml less milk) and
+  `temperature.ts` (1 °C, only when grind is at its limit or a grind change
+  didn't help, and only on a machine that can set it). Lever order in one
+  place.
+- **Done when:** AC 3 to AC 6 examples hold, incl. 18 g in 16 to 20 g giving
+  18.5 g and 20 g moving to the next lever.
+
+##### TASK-02-03-06-QA1 · Write the suggestion scenario test suite
+`qa` · Parent: STORY-02-03-06 · 8 h · New · Depends on: TASK-02-03-06-BE2
+- **Build:** A table of at least 40 scenarios under `src/domain/suggest/__tests__`
+  covering every lever and direction, both step sizes, limits, "not sure"
+  cases, milk drinks, lever ordering and no-change cases. A scenario passes
+  when it gets the expected lever and direction. No LLM; the suite must
+  pass before release.
+- **Done when:** All scenarios pass; each AC 1 to AC 6 has at least two.
+
+##### STORY-02-03-07: Try the suggested change, or dismiss it
+
+##### TASK-02-03-07-BE1 · Add the pending suggestion read and the device dismissal store
+`backend` · Parent: STORY-02-03-07 (also 02-03-02, 03) · 3 h · New · Depends on: TASK-02-03-05-BE1, TASK-02-01-01-BE2
+- **Build:** DAL `getPendingSuggestion({ beanId, setupId, drinkId })` runs the
+  engine on the latest shot of that key. `src/lib/dismissals.ts` stores
+  dismissals in localStorage by shot ID, with a session fallback.
+- **Done when:** A dismissal lasts until the next shot on that key (AC 4,
+  AC 5); with storage unavailable it lasts the session.
+
+##### TASK-02-03-07-FE1 · Wire try-it, dismiss and the Brew label
+`frontend` · Parent: STORY-02-03-07 · 4 h · New · Depends on: TASK-02-03-07-BE1, TASK-02-03-05-FE2, TASK-02-03-03-FE1, TASK-02-02-01-FE1
+- **Build:** `suggest.tryIt` saves the tasting, then opens the log in dial-in
+  mode with the shot's values plus the change (changed tab shows "was");
+  leaving saves nothing. Brew's ghost reads `home.dialInSuggested` while a
+  suggestion is pending and not dismissed.
+- **Done when:** AC 1 to AC 4 hold.
+
+##### TASK-02-03-07-QA1 · Test trying and dismissing
+`qa` · Parent: STORY-02-03-07 · 3 h · New · Depends on: TASK-02-03-07-FE1
+- **Build:** Unit tests for the dismissal lifetime; play tests for try, leave,
+  Brew label and dismiss.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-02-06: Look back in your journal
+
+##### STORY-02-06-01: See my journal of shots
+
+##### TASK-02-06-01-BE2 · Capture the device time zone for local-day calculations
+`backend` · Parent: STORY-02-06-01 (also 02-02-01, 03-02, 03-03) · 2 h · Unchanged · Depends on: TASK-01-01-01-FE2
+- **Build:** The client writes the IANA zone to a `tz` cookie; `src/server/time.ts`
+  `getTimeZone()` validates it (UTC fallback); `src/domain/localDay.ts` has
+  `localDayKey`, `startOfLocalDay` and `localNoon`.
+- **Done when:** Unit tests pass across a DST change and a bad cookie; nothing
+  is stored.
+
+##### TASK-02-06-01-BE1 · Add the journal read
+`backend` · Parent: STORY-02-06-01 · 4 h · Updated (milk, tags, setup) · Depends on: TASK-02-06-01-BE2, TASK-01-03-03-BE1
+- **Build:** DAL `listJournal({ before?, limit, filters? })`: newest first, the
+  last 30 days then pages by a cursor on `(created_at, id)`; each with
+  drink, time, coffee (resolved), milk line, values, entry mode, reaction,
+  tags (for the warning), `fromFrozen` and the grinder for dividers; day
+  keys from `localDayKey`. Filters are added by TASK-02-06-04-BE1.
+- **Done when:** Order, window and cursor are right with no gaps or
+  duplicates; the query uses the `(household_id, created_at)` index.
+
+##### TASK-02-06-01-FE1 · Wire the Journal tab with day groups, markers and older shots
+`frontend` · Parent: STORY-02-06-01 · 5 h · Updated (Journal, milk) · Depends on: TASK-02-06-01-BE1, TASK-01-05-04-FE1, TASK-01-01-05-FE7, PR-3, DES-02-06-01
+- **Build:** `src/app/(app)/journal/page.tsx` renders RecentShotsScreen
+  (PR #3, renamed): day headings, rows with drink and time, coffee and milk,
+  compact ShotValues, markers, inline warning, frozen marker and divider
+  slots, `journal.showOlder` with skeleton rows, an EmptyState with
+  `home.dialIn`, a load-failed Notice. Rows open `/journal/[shotId]`.
+- **Done when:** AC 1 to AC 5 hold.
+
+##### TASK-02-06-01-QA1 · Test the journal list
+`qa` · Parent: STORY-02-06-01 · 4 h · Updated · Depends on: TASK-02-06-01-FE1
+- **Build:** Node tests for order, local-day grouping across midnight and DST,
+  the window and cursor, isolation; story tests for markers in words,
+  reaction, inline warning, empty and alignment in LTR and RTL; a row opens
+  the detail.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-06-02: Fix a shot after the fact
+
+##### TASK-02-06-02-BE1 · Add updating a shot's values, milk, prep, sweetened mark and taste
+`backend` · Parent: STORY-02-06-02 · 4 h · Updated (prep, milk, taste model) · Depends on: TASK-01-05-01-BE1, TASK-01-04-01-BE1, TASK-01-03-07-BE1
+- **Build:** Action `updateShot(shotId, { values?, brewControls?, milk?, prep?,
+  sweetened?, taste? })`: owned shots; context (portion, drink, setup,
+  persona, logger, entry mode) can't change; a one-tap shot gets answers
+  and tags but no rating and keeps its reaction and mode; a stored
+  out-of-range value may stay; recipes untouched.
+- **Done when:** Only allowed fields change (AC 1 to AC 4); a dose change
+  shows in remaining (AC 5); the recipe is unchanged (AC 5).
+
+##### TASK-02-06-02-FE1 · Add the edit mode of the shot log with taste on the same screen
+`frontend` · Parent: STORY-02-06-02 · 6 h · Updated · Depends on: TASK-02-06-02-BE1, TASK-01-05-02-FE2, TASK-01-05-03-FE1, TASK-01-05-04-FE1, TASK-01-03-07-FE2, DES-02-06-03
+- **Build:** `/log?mode=edit&shotId=`: title `log.titleEdit`, read-only
+  context, ShotDial with saved values, prep, milk, sweetened, and the
+  tasting controls below (no rating for one-tap), the warning under the tags,
+  `log.saveChanges`, the unsaved guard.
+- **Done when:** Values and taste show together (AC 1, AC 2); context is
+  read-only (AC 3); changes persist (AC 4); leave and confirm leaves the shot
+  unchanged (AC 6).
+
+##### TASK-02-06-02-QA1 · Test editing a shot
+`qa` · Parent: STORY-02-06-02 · 4 h · Updated · Depends on: TASK-02-06-02-FE1
+- **Build:** Node tests for allowed and forbidden fields, one-tap staying
+  one-tap with no rating, and remaining following the new dose; play tests
+  for layout, warning and discard.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-06-03: See a shot's details
+
+##### TASK-02-06-03-BE1 · Add the shot detail read
+`backend` · Parent: STORY-02-06-03 · 3 h · Updated (parts, prep, milk, taste) · Depends on: TASK-01-03-03-BE1, TASK-01-02-01-BE5
+- **Build:** DAL `getShot(id)`: values, drink, coffee (resolved), the setup with
+  machine, grinder and basket by maker and model, date and time, milk, prep,
+  sweetened, rating, answers, tags, entry mode and reaction.
+- **Done when:** Every field in AC 1 and AC 2 is returned; another
+  household's ID is not found.
+
+##### TASK-02-06-03-FE1 · Build the shot detail screen (SCR-SHOT) with its stories
+`frontend` · Parent: STORY-02-06-03 · 5 h · Updated · Depends on: DES-02-06-02, PR-3, TASK-01-05-04-FE1
+- **Build:** `ShotDetailScreen`, props-only: large ShotValues, context with
+  parts, date, milk, prep when used, taste phrases ("a bit sour") and tags,
+  the block warning. Measured: `recipe.pin` primary, `shot.dialInFromThis`,
+  edit. One-tap: `shot.copiedFromRecipe`, edit primary, dial in, reaction
+  slot, no pin. Stories: measured, one-tap, channelling, RTL.
+- **Done when:** Stories pass axe; pin is absent for one-tap.
+
+##### TASK-02-06-03-FE2 · Wire the shot detail route
+`frontend` · Parent: STORY-02-06-03 · 2 h · Unchanged · Depends on: TASK-02-06-03-FE1, TASK-02-06-03-BE1
+- **Build:** `src/app/(app)/journal/[shotId]/page.tsx` with `getShot`; edit
+  opens `/log?mode=edit`; pin opens PinSheet.
+- **Done when:** Edit is at most two taps from the Journal tab.
+
+##### TASK-02-06-03-QA1 · Test shot details
+`qa` · Parent: STORY-02-06-03 · 3 h · Updated · Depends on: TASK-02-06-03-FE2
+- **Build:** Node test for `getShot` fields; story tests for the measured and
+  one-tap actions, taste phrases and the warning.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-06-04: Filter my journal by drink, coffee and setup
+
+##### TASK-02-06-04-BE1 · Add journal filters to the read and the filter options
+`backend` · Parent: STORY-02-06-04 · 3 h · New · Depends on: TASK-02-06-01-BE1
+- **Build:** `listJournal` accepts `drinkId`, `beanId` (merge group) and
+  `setupId`; DAL `getJournalFilterOptions()` returns drinks, coffees with
+  shots and setups, and whether there is more than one setup.
+- **Done when:** Filters combine, apply to older pages (AC 3); the setup filter
+  is offered only with several setups (AC 1).
+
+##### TASK-02-06-04-FE1 · Add the filter variant of ChipGroup and the Journal filter row
+`frontend` · Parent: STORY-02-06-04 · 4 h · New · Depends on: PR-3, TASK-01-01-05-FE1, TASK-01-03-01-FE1, DES-02-06-01
+- **Build:** ChipGroup filter variant (shows its value, opens a select, filled
+  with a close Icon when active, accessible name with value and "remove") and
+  a `JournalFilters` row with the leading `journal.filterAll` chip.
+  Stories incl. RTL.
+- **Done when:** Stories pass axe; each active filter is removable alone and
+  "All" clears them (AC 2, AC 5).
+
+##### TASK-02-06-04-FE2 · Wire the filters into the Journal with URL params and the filtered empty state
+`frontend` · Parent: STORY-02-06-04 · 4 h · New · Depends on: TASK-02-06-04-FE1, TASK-02-06-04-BE1, TASK-02-06-01-FE1
+- **Build:** Filters live in search params; show older keeps them; the
+  filtered empty state `journal.emptyFiltered` names the filters with
+  `journal.clearFilters` while the chips stay visible.
+- **Done when:** AC 1 to AC 4 hold; the back button keeps the filters.
+
+##### TASK-02-06-04-QA1 · Test journal filters
+`qa` · Parent: STORY-02-06-04 · 3 h · New · Depends on: TASK-02-06-04-FE2
+- **Build:** Node tests for each filter, combinations, older pages and the
+  setup option; play tests for keyboard, announcement, "All" and the empty
+  state.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-06-05: Open the journal on what I'm brewing
+
+##### TASK-02-06-05-FE1 · Pre-filter the Journal from Brew and from a coffee
+`frontend` · Parent: STORY-02-06-05 · 3 h · New · Depends on: TASK-02-06-04-FE2, TASK-02-02-06-FE1
+- **Build:** The tab bar's Journal link adds `drinkId` and `beanId` from Brew's
+  current choice (client state); none on first run; a coffee's "all shots"
+  link sets the coffee only. Returning from a shot keeps the URL's filters.
+- **Done when:** AC 1 to AC 4 hold; the setup is never pre-set.
+
+##### TASK-02-06-05-QA1 · Test the default filters
+`qa` · Parent: STORY-02-06-05 · 2 h · New · Depends on: TASK-02-06-05-FE1
+- **Build:** Play tests for the link with a selection, first run, back from a
+  shot and from a coffee screen.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-06-06: Dial in from a past shot
+
+##### TASK-02-06-06-BE1 · Add the dial-in start from a past shot
+`backend` · Parent: STORY-02-06-06 · 3 h · New · Depends on: TASK-02-06-03-BE1, TASK-02-02-03-BE1
+- **Build:** DAL `getDialInFromShot(shotId)`: values, prep, milk, the shot's
+  setup, drink and coffee, and portion state: the one-tap-rule portion,
+  `needsPortion`, or `finished`. Saving a new shot on another setup makes it
+  current through `saveMeasuredShot`.
+- **Done when:** AC 1 to AC 3 data is right; AC 4 holds after a save; the
+  source shot is never written (AC 5).
+
+##### TASK-02-06-06-FE1 · Add "dial in from this" to shot detail and the log note
+`frontend` · Parent: STORY-02-06-06 · 4 h · New · Depends on: TASK-02-06-06-BE1, TASK-02-06-03-FE2, TASK-02-03-03-FE1, TASK-02-02-03-FE2
+- **Build:** `shot.dialInFromThis` opens the log in dial-in mode with the
+  `log.fromShot` note; SH-PORTION first when no portion is open; a
+  missing-coffee state when finished.
+- **Done when:** AC 1 to AC 4 hold; it is two taps from the list.
+
+##### TASK-02-06-06-QA1 · Test dialing in from a past shot
+`qa` · Parent: STORY-02-06-06 · 3 h · New · Depends on: TASK-02-06-06-FE1
+- **Build:** Node tests for the read, current-setup change on save and the
+  untouched source; play tests for the sheet and finished coffee.
+- **Done when:** AC 1 to AC 5 are covered.
+
+---
+
+### INIT-03: Always know what beans you have and how old they are
+
+#### EPIC-03-01: Add a bag of beans
+
+##### STORY-03-01-01: Find my coffee in the catalog
+
+Schema: TASK-03-01-01-BE1 (section 6).
+
+##### TASK-03-01-01-BE2 · Add the coffee seed list
+`backend` · Parent: STORY-03-01-01 · 3 h · Unchanged · Depends on: TASK-01-02-01-BE3, TASK-03-01-01-BE1, TQ-10
+- **Build:** `src/db/seed/coffee.json` (roasters, beans with roast level and
+  notes, aliases, URLs) loaded by the same idempotent loader. Placeholder
+  content until TQ-10; Milestone 1 content comes from TASK-01-02-01-BE6.
+- **Done when:** The seed is idempotent and has no personal data.
+
+##### TASK-03-01-01-BE3 · Add coffee catalog search with recent purchases first
+`backend` · Parent: STORY-03-01-01 · 4 h · Unchanged · Depends on: TASK-03-01-01-BE2, TASK-01-02-01-BE4, TASK-03-01-02-BE1
+- **Build:** DAL `searchCoffee({ query })` over bean, roaster and alias with
+  visibility and merges, behind the same search handler. With an empty query
+  it lists beans of the household's recent batches first, then browses
+  roasters.
+- **Done when:** Results show bean with roaster (AC 1); recent purchases
+  first (AC 2); aliases match (AC 3); merged and private entries are handled
+  (AC 4, AC 5).
+
+##### TASK-03-01-01-FE1 · Wire the coffee picker
+`frontend` · Parent: STORY-03-01-01 · 3 h · Unchanged · Depends on: TASK-03-01-01-BE3, TASK-01-02-01-FE2
+- **Build:** `/catalog/pick?catalog=coffee` uses CatalogPickScreen's coffee
+  variant; "can't find" goes to `/catalog/add?catalog=coffee`; selection
+  returns to add-bag.
+- **Done when:** The flow returns a bean to add-bag; the no-match offer is
+  present (AC 6).
+
+##### TASK-03-01-01-QA1 · Test coffee search
+`qa` · Parent: STORY-03-01-01 · 4 h · Unchanged · Depends on: TASK-03-01-01-FE1
+- **Build:** Node tests for AC 1 to AC 5 incl. isolation; a play test for no
+  match with add (AC 6).
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-03-01-02: Add a bag with its dates and weight
+
+Schema: TASK-03-01-02-BE1 (section 6).
+
+##### TASK-03-01-02-BE2 · Add creating a bag with one whole-bag portion
+`backend` · Parent: STORY-03-01-02 (also 03-01-03) · 4 h · Updated (packing date) · Depends on: TASK-03-01-02-BE1, TASK-03-01-01-BE3, TASK-02-06-01-BE2
+- **Build:** Action `addBag({ beanId, bagWeight, roastDate?, packedAt?,
+  bestBefore?, lotCode?, purchasedAt? })`: visible bean (resolved), weight
+  above zero in grams, all three dates optional and each stored as local
+  noon in the device zone, `purchasedAt` defaults to today. One transaction
+  inserts the batch and one unopened portion of the full weight.
+- **Done when:** One whole portion (AC 1); the three dates optional (AC 2);
+  lot and purchase date optional (AC 4); no weight saves nothing (AC 5); two
+  bags of one bean are separate (AC 6).
+
+##### TASK-03-01-02-FE1 · Build the add-bag screen (SCR-BAG-ADD) with its stories
+`frontend` · Parent: STORY-03-01-02 · 5 h · Updated (other dates disclosure) · Depends on: DES-03-01-01, PR-3, TASK-01-01-03-FE1
+- **Build:** `BagAddScreen`, props-only: the chosen coffee with a change link,
+  a `bag.weight` ChipGroup (250, 340, 500, 1000 g formatted) plus
+  `bag.otherWeight`, the `bag.roastDate` Input, a `bag.otherDates`
+  disclosure with packed and best-before dates, the `bag.datesHint`
+  (roast date, else packing date, best-before shows time left), a
+  `bag.more` disclosure (lot, purchased), a weight error in ink and a failed
+  Notice. Stories incl. RTL.
+- **Done when:** Stories pass axe; no date blocks saving; the hint is shown
+  (AC 3).
+
+##### TASK-03-01-02-FE2 · Wire the add-bag flow
+`frontend` · Parent: STORY-03-01-02 · 3 h · Updated (route, start from a coffee) · Depends on: TASK-03-01-02-FE1, TASK-03-01-02-BE2, TASK-03-01-01-FE1, TASK-01-01-05-FE5
+- **Build:** `src/app/(task)/beans/add/page.tsx`: the coffee picker, then
+  details, or details directly with `?beanId=`; lands on `/beans/[batchId]` or
+  on `returnTo` with the portion selected. Unsaved guard.
+- **Done when:** The bag is added with its one portion (AC 1); a start from a
+  coffee skips the picker; from the log it returns with the portion chosen.
+
+##### TASK-03-01-02-QA1 · Test adding a bag
+`qa` · Parent: STORY-03-01-02 · 4 h · Updated · Depends on: TASK-03-01-02-FE2
+- **Build:** Node tests for `addBag` (AC 1 to AC 6): weight required, three
+  optional dates, purchase date today in the zone, separate batches,
+  isolation; play tests for presets, the dates disclosure and the weight
+  error; a timing check (under 20 seconds).
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-03-01-03: Start with the whole bag ready to brew
+
+##### TASK-03-01-03-QA1 · Test that a new bag is ready to brew and opens on the first shot
+`qa` · Parent: STORY-03-01-03 · 3 h · Unchanged · Depends on: TASK-03-01-02-BE2, TASK-01-03-03-BE2, TASK-03-02-01-BE1
+- **Build:** Node tests: one unopened portion of the full weight (AC 1);
+  offered in `getLogContext` (AC 2); the first measured shot sets
+  `opened_at` that day (AC 3); after a split it is still one bag with one
+  roast date and lot (AC 4). No code task.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-03-01-04: See what's on hand
+
+##### TASK-03-01-04-BE1 · Add the Beans and bag reads
+`backend` · Parent: STORY-03-01-04 · 4 h · Updated (On hand, finished bags leave) · Depends on: TASK-03-01-02-BE2, TASK-03-02-04-BE1, TASK-01-02-01-BE5
+- **Build:** DAL `getOnHand()`: unfinished bags with bean and roaster
+  (resolved), roasting clock slot and portions with state, opened clock
+  and remaining slots; a bag with every portion finished is left out.
+  `getBag(batchId)`: facts and portions. Grouping is added by
+  TASK-03-02-05-BE1.
+- **Done when:** Only unfinished bags are returned (AC 1, AC 3); merged
+  beans show the survivor (AC 6).
+
+##### TASK-03-01-04-FE1 · Build the Beans screen (SCR-PANTRY) with its stories
+`frontend` · Parent: STORY-03-01-04 (also 03-02-05, 03-06-01) · 6 h · Updated (Beans, On hand and Tried) · Depends on: DES-03-01-02, PR-3, TASK-01-01-06-FE3, TASK-01-01-06-FE2, TASK-01-01-05-FE7
+- **Build:** `BeansScreen`, props-only: title `beans.title`, an On hand
+  section with a group slot and bag Cards with portion ListRows (state,
+  opened clock, remaining), a Tried section slot, header `beans.addBag` only
+  when bags are on hand, three empty states (first run, nothing on hand with
+  Tried below, bags but nothing tried) each with one primary, and a loading
+  skeleton. Stories for each, plus RTL.
+- **Done when:** Stories pass axe; exactly one primary button in every
+  state (AC 4, AC 5).
+
+##### TASK-03-01-04-FE2 · Build the bag screen (SCR-BAG) with its stories
+`frontend` · Parent: STORY-03-01-04 (also 02-01-04, 03-02, 03-03, 03-04) · 5 h · Updated · Depends on: DES-03-01-03, PR-3
+- **Build:** `BagScreen`, props-only: facts once at the top (roast, packed and
+  best-before dates, lot, purchased, weight, an explanation slot for the
+  clocks), portion ListRows opening the actions slot, a `bag.recipes`
+  section slot. Stories: one portion, split portions, finished, RTL.
+- **Done when:** Stories pass axe; facts aren't repeated per portion.
+
+##### TASK-03-01-04-FE3 · Wire the Beans tab and bag route
+`frontend` · Parent: STORY-03-01-04 · 3 h · Updated · Depends on: TASK-03-01-04-FE1, TASK-03-01-04-FE2, TASK-03-01-04-BE1
+- **Build:** `src/app/(app)/beans/page.tsx` (`getOnHand`) and
+  `src/app/(app)/beans/[batchId]/page.tsx` (`getBag`), linked to each other.
+- **Done when:** Bags and portions show (AC 1); a bag opens its screen (AC 2);
+  the empty states offer add (AC 4, AC 5).
+
+##### TASK-03-01-04-QA1 · Test the Beans list
+`qa` · Parent: STORY-03-01-04 · 4 h · Updated · Depends on: TASK-03-01-04-FE3
+- **Build:** Node tests for the On hand fields, finished bags leaving (AC 3),
+  merged beans (AC 6) and isolation; story tests for the empty states.
+- **Done when:** AC 1 to AC 6 are covered.
+
+#### EPIC-03-02: Split and freeze a bag
+
+##### STORY-03-02-01: Split a bag into portions
+
+##### TASK-03-02-01-BE1 · Add splitting a portion by weight
+`backend` · Parent: STORY-03-02-01 · 4 h · Unchanged · Depends on: TASK-03-04-01-BE1, TASK-03-02-02-BE1, TQ-13
+- **Build:** Action `splitPortion(portionId, takeGrams, freezeNew = true)`:
+  grams above zero and at most what's left; reduces the source weight;
+  writes a stock check at `remaining − takeGrams` when the source has one
+  (TQ-13); creates the new portion in the same batch (`frozen_at` now if
+  `freezeNew`); one transaction.
+- **Done when:** Weights add up (AC 1); freeze defaults on (AC 2); over-take
+  is rejected (AC 3); repeated splits work (AC 4); batch facts and old
+  shots unchanged (AC 5).
+
+##### TASK-03-02-01-FE1 · Build the split sheet (SH-SPLIT) and wire it
+`frontend` · Parent: STORY-03-02-01 · 4 h · Unchanged · Depends on: DES-03-02-02, TASK-03-02-01-BE1, TASK-03-02-02-FE1
+- **Build:** `SplitSheet`: a "take out" grams NumberWheel (step 1, up to the
+  remaining), a live `portion.splitRemainder`, the `portion.freezeNew`
+  Toggle on by default, a primary confirm. Stories incl. RTL.
+- **Done when:** Stories pass axe; the remainder updates live (AC 1); the wheel
+  can't exceed what's left (AC 3).
+
+##### TASK-03-02-01-QA1 · Test splitting
+`qa` · Parent: STORY-03-02-01 · 4 h · Unchanged · Depends on: TASK-03-02-01-FE1
+- **Build:** Node tests for AC 1 to AC 5 incl. the stock-check case; a play
+  test for the live remainder.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-02-02: Record freezing and thawing
+
+##### TASK-03-02-02-BE1 · Add the portion lifecycle rules and freeze and thaw
+`backend` · Parent: STORY-03-02-02 (also 03-02-03) · 4 h · Updated (no date edits, review M4) · Depends on: TASK-03-02-04-BE1, TASK-02-06-01-BE2
+- **Build:** `src/domain/portionActions.ts` `allowedActions(portion)`
+  (unopened: open, freeze, split; counter: weigh, split, freeze, finish;
+  frozen: thaw, split; thawed: open, weigh, finish). Actions
+  `freezePortion(id, date?)` and `thawPortion(id, date?)`: today by default
+  or an earlier local date (local noon), no future dates, thaw not before
+  freeze, no second freeze. There is no action that changes a date already
+  set.
+- **Done when:** Default today and back-dating (AC 1, AC 2); no refreeze
+  (AC 3); thaw before freeze rejected (AC 4); only valid actions offered and
+  no date-edit action exists (AC 5).
+
+##### TASK-03-02-02-FE1 · Build the portion actions sheet and date sheet (SH-PORTION-ACTIONS, SH-DATE) with stories
+`frontend` · Parent: STORY-03-02-02 (also 03-02-01, 03, 03-04-02) · 5 h · Unchanged · Depends on: DES-03-02-01, DES-03-02-03, TASK-01-01-05-FE2, TASK-01-01-03-FE1
+- **Build:** `PortionActionsSheet` lists only the given actions; `DateSheet`
+  has a date Input defaulting to today, an error in ink and a primary
+  confirm. Stories for each portion state, a date error, RTL.
+- **Done when:** Stories pass axe; each state shows only its actions.
+
+##### TASK-03-02-02-FE2 · Wire portion actions from the bag and Beans rows
+`frontend` · Parent: STORY-03-02-02 · 2 h · Unchanged · Depends on: TASK-03-02-02-FE1, TASK-03-02-02-BE1, TASK-03-01-04-FE3
+- **Build:** Tapping a portion row opens PortionActionsSheet with
+  `allowedActions`; dated actions go through DateSheet; a failure keeps the
+  sheet open with a Notice and retry.
+- **Done when:** Freezing and thawing work from both screens; failures retry.
+
+##### TASK-03-02-02-QA1 · Test freezing and thawing
+`qa` · Parent: STORY-03-02-02 · 3 h · Updated · Depends on: TASK-03-02-02-FE2
+- **Build:** Unit tests for `allowedActions`; Node tests for default today,
+  back-dating, future rejected, thaw before freeze and isolation; a play
+  test for the date error.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-02-03: Record opening and finishing a portion
+
+##### TASK-03-02-03-BE1 · Add opening and finishing a portion
+`backend` · Parent: STORY-03-02-03 · 3 h · Updated (frozen shots don't open) · Depends on: TASK-03-02-02-BE1
+- **Build:** Actions `openPortion(id, date?)` (unopened and thawed) and
+  `finishPortion(id, date?)` (counter and thawed), with the same date rules.
+  A shot against a frozen portion neither opens nor thaws it (checked in
+  `saveMeasuredShot` and `pullShot`). A finished portion is excluded from
+  options.
+- **Done when:** Open and finish save their dates (AC 1, AC 4); a frozen
+  portion's shot changes no date (AC 3); the last finish moves the bag out
+  of On hand (AC 4).
+
+##### TASK-03-02-03-QA1 · Test opening and finishing
+`qa` · Parent: STORY-03-02-03 · 3 h · Updated · Depends on: TASK-03-02-03-BE1, TASK-03-02-02-FE2
+- **Build:** Node tests: manual open with back-date (AC 1); auto-open on the
+  first measured and one-tap shot (AC 2); a frozen portion's shot leaves
+  dates alone (AC 3); finish excludes the portion and the last finish
+  leaves On hand (AC 4); a finished portion's shots remain (AC 5); a play
+  test for the actions.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-02-04: See where each portion is
+
+##### TASK-03-02-04-BE1 · Add the calculated portion state and the single isOpen rule
+`backend` · Parent: STORY-03-02-04 (also 03-01-04, 01-03-01, 02-02, 03-02-05) · 3 h · Updated (isOpen) · Depends on: TASK-03-01-02-BE1
+- **Build:** `src/domain/portionState.ts` `portionState(portion)` returns
+  `finished`, `frozen` (frozen and not thawed, even if opened before),
+  `thawed`, `counter` or `unopened` from dates only, and `isOpen(portion)`:
+  opened, not finished, not frozen. Every "open" in the app uses `isOpen`
+  (review M5).
+- **Done when:** Unit tests cover every date combination and precedence, incl.
+  opened then frozen then thawed (AC 3).
+
+##### TASK-03-02-04-FE1 · Show the portion state in words everywhere a portion appears
+`frontend` · Parent: STORY-03-02-04 · 2 h · Unchanged · Depends on: TASK-03-02-04-BE1, TASK-03-01-04-FE3
+- **Build:** `portion.*` keys used on Beans and bag rows, log coffee options and
+  PortionSheet through one `portionStateLabel` helper.
+- **Done when:** Every portion row shows its state as text.
+
+##### TASK-03-02-04-QA1 · Test portion states
+`qa` · Parent: STORY-03-02-04 · 2 h · Updated · Depends on: TASK-03-02-04-FE1
+- **Build:** Unit tests for AC 1 to AC 4; a Node test that dates change the
+  state (AC 5); a story check of the labels.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-02-05: See what's on hand grouped by state
+
+##### TASK-03-02-05-BE1 · Add the On hand grouping
+`backend` · Parent: STORY-03-02-05 · 3 h · New · Depends on: TASK-03-02-04-BE1, TASK-03-01-04-BE1
+- **Build:** `src/domain/onHandGroups.ts`: a bag goes once into the first group
+  it qualifies for: open (any `isOpen` portion, earliest opened first,
+  same order as the one-tap rule through a shared `pantryOrder`), unopened
+  (no open portion, at least one unopened or thawed-unopened on the
+  counter), frozen (everything left in the freezer). Empty groups are left
+  out. `getOnHand` returns groups.
+- **Done when:** A half-open, half-frozen bag appears once under open with
+  both portions (AC 4); order matches the pull (AC 1); groups per AC 2 and
+  AC 3; empty groups omitted (AC 5).
+
+##### TASK-03-02-05-FE1 · Show the three groups on the Beans screen
+`frontend` · Parent: STORY-03-02-05 · 3 h · New · Depends on: TASK-03-02-05-BE1, TASK-03-01-04-FE3
+- **Build:** `beans.groupOpen`, `beans.groupUnopened` and `beans.groupFrozen`
+  subheadings in the On hand section; groups with no bags are not rendered.
+- **Done when:** Groups show in order with one Card per bag (AC 1 to AC 5).
+
+##### TASK-03-02-05-QA1 · Test On hand grouping
+`qa` · Parent: STORY-03-02-05 · 2 h · New · Depends on: TASK-03-02-05-FE1
+- **Build:** Unit tests for each case incl. tie-breaks and thawed-unopened;
+  a story check of omitted groups.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-03-03: Know how fresh your beans really are
+
+##### STORY-03-03-01: See how long since my coffee was roasted
+
+##### TASK-03-03-01-BE1 · Add the roasting clock
+`backend` · Parent: STORY-03-03-01 (also 03-03-02, 02-02-01, 02-03-05) · 4 h · Updated (no estimate, packing date, time left) · Depends on: TASK-03-02-04-BE1, TASK-02-06-01-BE2
+- **Build:** `src/domain/roastingClock.ts` `roastingClock(batch, portion, now,
+  tz)` returns `{ kind: 'roasted', days }` from the roast date, `{ kind:
+  'packed', days }` from the packing date, `{ kind: 'bestBefore', daysLeft }`
+  (negative when passed), or `{ kind: 'unknown' }`; frozen days (freeze to
+  thaw, or to now while frozen) are subtracted, and `frozenDays` is
+  returned. Calculated, never stored. No assumed roast-to-best-before gap.
+- **Done when:** Unit tests cover all four kinds, a rollover (AC 5), DST edges
+  and a still-frozen portion.
+
+##### TASK-03-03-01-FE1 · Show the roasting clock phrases on portions, Brew and the bag
+`frontend` · Parent: STORY-03-03-01 · 4 h · Updated · Depends on: TASK-03-03-01-BE1, DES-03-03-01, TASK-03-01-04-FE3, TASK-02-02-01-FE1
+- **Build:** `bag.daysSinceRoast`, `bag.daysSincePacked`, `bag.bestBeforeIn`,
+  `bag.bestBeforePassed` and `bag.ageUnknown` (ICU plurals) through one
+  `roastingClockLabel` helper on Beans and bag cards and Brew's coffee line.
+  Unknown offers `bag.addRoastDate`, with a small `updateBagDates` action.
+  No colour.
+- **Done when:** Each kind is worded differently (AC 1 to AC 3); unknown
+  offers to add a date (AC 4).
+
+##### TASK-03-03-01-QA1 · Test the roasting clock
+`qa` · Parent: STORY-03-03-01 · 4 h · Updated · Depends on: TASK-03-03-01-FE1
+- **Build:** Unit tests for AC 1 to AC 5 with fixed clocks; story tests for
+  each phrase with no colour classes; a Node test for `updateBagDates` and
+  isolation.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-03-02: Freezing pauses both clocks
+
+##### TASK-03-03-02-FE1 · Show paused clocks and the uncounted freezer days on the bag screen
+`frontend` · Parent: STORY-03-03-02 · 2 h · Updated (both clocks) · Depends on: TASK-03-03-01-FE1, TASK-03-03-04-FE1
+- **Build:** A frozen portion shows `portion.agePaused` in place of the opened
+  clock; the bag screen's portion line shows `portion.frozenDays` (plural)
+  when above zero.
+- **Done when:** The paused and uncounted states show (AC 1, AC 4).
+
+##### TASK-03-03-02-QA1 · Test that freezing pauses both clocks
+`qa` · Parent: STORY-03-03-02 · 3 h · Updated · Depends on: TASK-03-03-02-FE1
+- **Build:** Unit tests: frozen on day 10 stays at 10 (AC 1); opened 3 days,
+  frozen, thawed shows 3 and rises (AC 2); two portions of one bag differ
+  (AC 3); a story check of the frozen-days line (AC 4).
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-03-03-03: See freshness when logging, and spot frozen-ground shots
+
+##### TASK-03-03-03-BE1 · Add the "ground from frozen" flag to shot reads
+`backend` · Parent: STORY-03-03-03 · 2 h · Unchanged · Depends on: TASK-02-06-01-BE1, TASK-02-06-03-BE1
+- **Build:** `src/domain/frozen.ts` `isFromFrozen(shotAt, portion)`: true when
+  `frozen_at ≤ shotAt` and (`thawed_at` is null or `shotAt < thawed_at`);
+  computed at read time in `listJournal` and `getShot`.
+- **Done when:** Unit tests cover before freeze, while frozen, after thaw,
+  never frozen and a same-day thaw.
+
+##### TASK-03-03-03-FE1 · Show the opened clock and frozen marker in the log, rows and detail
+`frontend` · Parent: STORY-03-03-03 · 2 h · Updated (opened clock) · Depends on: TASK-03-03-03-BE1, TASK-03-03-04-FE1, TASK-02-06-01-FE1
+- **Build:** The log's coffee field shows how long the portion has been open
+  and `bag.fromFrozen` when it is frozen; Journal rows and the detail show
+  the same `bag.fromFrozen` marker.
+- **Done when:** The marker is text and identical in all three places
+  (AC 1, AC 2).
+
+##### TASK-03-03-03-QA1 · Test the frozen marker
+`qa` · Parent: STORY-03-03-03 · 3 h · Updated · Depends on: TASK-03-03-03-FE1
+- **Build:** Story tests for the log field; Node tests for marked while
+  frozen (AC 2), not after thaw or never frozen (AC 3), and following the
+  dates once set, incl. back-dated (AC 4).
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-03-03-04: See how long each portion has been open
+
+##### TASK-03-03-04-BE1 · Add the opened clock
+`backend` · Parent: STORY-03-03-04 · 3 h · New · Depends on: TASK-03-02-04-BE1, TASK-02-06-01-BE2
+- **Build:** `src/domain/openedClock.ts` `openedClock(portion, now, tz)`:
+  `{ kind: 'open', days }` (0 means opened today) from `opened_at`, less
+  freezer days; `{ kind: 'paused' }` while frozen; `{ kind: 'notOpened' }`.
+  Added to the Beans, bag, Brew and log reads. Calculated, never stored.
+- **Done when:** Unit tests cover opened today, rollover (AC 5), opened then
+  frozen then thawed (AC 1), unopened (AC 2) and DST edges.
+
+##### TASK-03-03-04-FE1 · Show the opened clock on portions, the bag and Brew
+`frontend` · Parent: STORY-03-03-04 · 3 h · New · Depends on: TASK-03-03-04-BE1, TASK-03-03-01-FE1, DES-03-03-01
+- **Build:** `portion.openFor` / `portion.openedToday` / `portion.notOpened`
+  through an `openedClockLabel` helper on every portion row; Brew's coffee
+  line uses `home.coffeeClocks` (pattern over the two clocks, so the order
+  and separator belong to the locale); unopened shows the roasting clock
+  alone.
+- **Done when:** Each portion shows its own clock and the bag one roasting
+  clock (AC 3); Brew shows both on one line, worded so they can't be
+  confused (AC 4).
+
+##### TASK-03-03-04-QA1 · Test the opened clock
+`qa` · Parent: STORY-03-03-04 · 3 h · New · Depends on: TASK-03-03-04-FE1
+- **Build:** Unit tests for AC 1, 2, 3 and 5; a story test of Brew's combined
+  line in `en` and the test locale.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-03-04: See how much coffee is left
+
+##### STORY-03-04-01: See how much is left
+
+##### TASK-03-04-01-BE1 · Add the remaining weight calculation
+`backend` · Parent: STORY-03-04-01 (also 03-02-01, 02-02-03) · 4 h · Unchanged · Depends on: TASK-01-03-03-BE1, TASK-03-01-02-BE1
+- **Build:** `src/domain/remaining.ts` `remainingWeight({ weight, latestCheck,
+  doses })`: the latest stock check (else `weight`) minus the doses of every
+  shot after it, measured, one-tap, an off shot and its fix alike (answer 6),
+  clamped at 0 with `overLogged`. A one-query SQL aggregate per portion and
+  bag; added to the Beans, bag, Brew and portion-sheet reads.
+- **Done when:** Unit tests cover no shots, a check and doses after it; never
+  negative; the aggregate matches the domain function.
+
+##### TASK-03-04-01-FE1 · Build Meter (NC-15) with its story
+`frontend` · Parent: STORY-03-04-01 · 3 h · Unchanged · Depends on: DES-03-04-03
+- **Build:** `src/components/ui/Meter`: a 2 px `line` track with an `ink` fill,
+  `role="meter"` with a text `aria-valuetext`; the fill grows from inline
+  start. Stories: 0, partial, full, RTL.
+- **Done when:** Stories pass axe; it mirrors in RTL.
+
+##### TASK-03-04-01-FE2 · Show remaining coffee on rows, bags and Brew, with the over-logged notice
+`frontend` · Parent: STORY-03-04-01 · 4 h · Unchanged · Depends on: TASK-03-04-01-BE1, TASK-03-04-01-FE1, TASK-03-01-04-FE3, TASK-02-02-01-FE1, DES-03-04-01
+- **Build:** Portion rows show `portion.remaining` and a Meter; bag cards the
+  total; Brew's footnote `home.remaining`, hidden when unknown; an
+  over-logged portion shows 0 g and a neutral Notice with `portion.weigh`.
+- **Done when:** AC 1, AC 2 and AC 4 hold.
+
+##### TASK-03-04-01-QA1 · Test remaining coffee
+`qa` · Parent: STORY-03-04-01 · 4 h · Unchanged · Depends on: TASK-03-04-01-FE2, TASK-02-02-04-BE1, TASK-02-06-02-BE1
+- **Build:** Node tests for measured and one-tap doses, bag totals, undo and
+  edit changing the result, over-logged clamp and isolation; story tests for
+  the Meter text and neutral Notice.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-03-04-02: Weigh what's left
+
+##### TASK-03-04-02-BE1 · Add recording a stock check
+`backend` · Parent: STORY-03-04-02 · 2 h · Unchanged · Depends on: TASK-03-04-01-BE1, TASK-03-02-02-BE1
+- **Build:** Action `addStockCheck(portionId, grams)` for counter and thawed
+  portions, zero or more, `checked_at` now.
+- **Done when:** The latest check wins (AC 3); later doses subtract (AC 2).
+
+##### TASK-03-04-02-FE1 · Build the stock sheet (SH-STOCK) and wire it
+`frontend` · Parent: STORY-03-04-02 · 3 h · Unchanged · Depends on: TASK-03-04-02-BE1, DES-03-04-02, TASK-03-02-02-FE2
+- **Build:** `StockSheet`: a grams NumberWheel and primary
+  `portion.saveWeight`; a failure keeps the sheet with retry; opens from
+  the actions and the over-logged Notice. Stories.
+- **Done when:** Saving updates what's left (AC 1); a failure retries (AC 4).
+
+##### TASK-03-04-02-QA1 · Test weighing what's left
+`qa` · Parent: STORY-03-04-02 · 2 h · Unchanged · Depends on: TASK-03-04-02-FE1
+- **Build:** Node tests for AC 1 to AC 3; a play test for failure and retry.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-03-04-03: See which bags are open or finished
+
+##### TASK-03-04-03-BE1 · Add the calculated bag status
+`backend` · Parent: STORY-03-04-03 · 2 h · Updated (isOpen) · Depends on: TASK-03-02-04-BE1
+- **Build:** `src/domain/bagStatus.ts` `bagStatus(portions)`: `finished` when
+  every portion is finished; `open` when any portion `isOpen`; else null.
+- **Done when:** Unit tests cover each combination, incl. opened then frozen
+  (AC 1, AC 3).
+
+##### TASK-03-04-03-FE1 · Show the bag status on Beans cards and the bag screen
+`frontend` · Parent: STORY-03-04-03 · 2 h · Updated · Depends on: TASK-03-04-03-BE1, TASK-03-01-04-FE3
+- **Build:** `bag.statusOpen` and `bag.statusFinished` text on cards and the bag
+  screen. Finished bags are not in On hand; they are listed on the coffee
+  screen.
+- **Done when:** The status is text; finished bags leave On hand (AC 2).
+
+##### TASK-03-04-03-QA1 · Test bag status
+`qa` · Parent: STORY-03-04-03 · 2 h · Updated · Depends on: TASK-03-04-03-FE1
+- **Build:** Unit tests for AC 1 to AC 3; a Node test that changing dates
+  changes status and grouping (AC 4).
+- **Done when:** AC 1 to AC 4 are covered.
+
+#### EPIC-03-06: See every coffee you've tried
+
+New MVP epic. The screens extend the Beans tab (TASK-03-01-04-FE1) and use
+the recipe rows of TASK-02-01-04-FE1.
+
+##### STORY-03-06-01: See every coffee I've tried
+
+##### TASK-03-06-01-BE1 · Add the Tried read
+`backend` · Parent: STORY-03-06-01 (also 03-06-02) · 4 h · New · Depends on: TASK-03-01-04-BE1, TASK-01-02-01-BE5, TASK-02-06-01-BE2
+- **Build:** DAL `getTried()`: one row per coffee with at least one shot,
+  measured or one-tap (DQ-27), grouped by merge survivor; last had (newest
+  shot, relative formatting at the screen), bag count (finished or not),
+  newest-had first. A coffee with bags but no shot is excluded. Calculated
+  in one query, never stored.
+- **Done when:** Rows, order, bag count and exclusion are as AC 1 to AC 3;
+  two merged entries are one row (AC 4).
+
+##### TASK-03-06-01-FE1 · Add the Tried section to the Beans screen
+`frontend` · Parent: STORY-03-06-01 · 4 h · New · Depends on: TASK-03-06-01-BE1, TASK-03-01-04-FE3, DES-03-01-02
+- **Build:** Under On hand, a `beans.tried` heading and ListRows: bean,
+  roaster, `beans.lastHad`, `beans.bagCount`, and a summary slot; tapping
+  opens the coffee screen. `beans.triedEmpty` when bags but no shots.
+  Stories.
+- **Done when:** AC 1, AC 2, AC 5 and AC 6 hold; the heading stays reachable
+  with many bags.
+
+##### TASK-03-06-01-QA1 · Test the Tried list
+`qa` · Parent: STORY-03-06-01 · 3 h · New · Depends on: TASK-03-06-01-FE1
+- **Build:** Node tests for inclusion, order, bag count, merged entries,
+  isolation; story tests for the empty line.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-03-06-02: See how a coffee's shots went, in words
+
+##### TASK-03-06-02-BE1 · Add the Tried summary rule
+`backend` · Parent: STORY-03-06-02 · 3 h · New · Depends on: TASK-03-06-01-BE1
+- **Build:** `src/domain/triedSummary.ts`: three or more rated shots: "mostly
+  good" when most are 4 or 5, "mostly off" when most are 1 or 2, else
+  "mixed"; one or two: `lastRated` with the newest rating; none: good or off
+  reactions give "mostly good" or "mostly off"; else "no ratings yet".
+  Ties count as "mixed". Personas are ignored in the MVP (answer 5).
+- **Done when:** Every branch and tie is unit-tested (AC 1 to AC 4).
+
+##### TASK-03-06-02-FE1 · Show the summary line on Tried rows
+`frontend` · Parent: STORY-03-06-02 · 2 h · New · Depends on: TASK-03-06-02-BE1, TASK-03-06-01-FE1
+- **Build:** `beans.summary.*` keys in `text-label` `ink-secondary`; words
+  only, no colour or badge. It describes the shots, not the coffee.
+- **Done when:** AC 5 holds in a story with each phrase.
+
+##### TASK-03-06-02-QA1 · Test the Tried summary
+`qa` · Parent: STORY-03-06-02 · 2 h · New · Depends on: TASK-03-06-02-FE1
+- **Build:** Unit tests for the table of rating and reaction mixes; a story
+  check that no colour class is used.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-06-03: Open a coffee's own screen
+
+##### TASK-03-06-03-BE1 · Add the coffee read
+`backend` · Parent: STORY-03-06-03 · 3 h · New · Depends on: TASK-03-06-02-BE1, TASK-02-01-04-BE1, TASK-02-06-01-BE1
+- **Build:** DAL `getCoffee(beanId)`: name, roaster, roast level and tasting
+  notes, the summary, current recipes (`getCoffeeRecipes`), up to five recent
+  shots (Journal rows) and the coffee's bags on hand and finished with
+  date, state and weight; merge group resolved; household scoped.
+- **Done when:** Each section's data is right, incl. empty sections (AC 1 to
+  AC 5); another household's coffee is not found.
+
+##### TASK-03-06-03-FE1 · Build the coffee screen (SCR-COFFEE) with its stories
+`frontend` · Parent: STORY-03-06-03 · 5 h · New · Depends on: DES-03-01-04, TASK-02-01-04-FE1, TASK-01-01-06-FE1, TASK-01-01-06-FE2
+- **Build:** `CoffeeScreen`, props-only: header, summary line, recipes via
+  `RecipeRows`, `coffee.recentShots` with `coffee.allShots`, `coffee.bags`,
+  one-line empty states per section, a loading skeleton and a load-failed
+  Notice with retry. Stories incl. RTL.
+- **Done when:** Stories pass axe; each empty section says so in one line
+  (AC 5); failure offers retry (AC 6).
+
+##### TASK-03-06-03-FE2 · Wire the coffee route
+`frontend` · Parent: STORY-03-06-03 · 3 h · New · Depends on: TASK-03-06-03-FE1, TASK-03-06-03-BE1, TASK-02-06-05-FE1
+- **Build:** `src/app/(app)/beans/coffee/[beanId]/page.tsx` with `getCoffee`;
+  "all shots" opens the Journal filtered to this coffee only; recipes open
+  dial in or edit; bags open the bag screen; opens from Tried and from a
+  bag on hand.
+- **Done when:** AC 1 to AC 4 hold.
+
+##### TASK-03-06-03-QA1 · Test the coffee screen
+`qa` · Parent: STORY-03-06-03 · 3 h · New · Depends on: TASK-03-06-03-FE2
+- **Build:** Node tests for `getCoffee` sections and isolation; play tests for
+  the links, empty sections and failure.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-03-06-04: Add a bag of a coffee I've tried
+
+##### TASK-03-06-04-FE1 · Add "add a bag of this" to the coffee screen
+`frontend` · Parent: STORY-03-06-04 · 2 h · New · Depends on: TASK-03-06-03-FE2, TASK-03-01-02-FE2
+- **Build:** `coffee.addBag` opens `/beans/add?beanId=` with the coffee chosen
+  and no picker; primary when no bag is on hand, secondary otherwise; the new
+  bag then appears under On hand and on the coffee screen.
+- **Done when:** AC 1 to AC 3 hold; Tried row to saved bag is three taps plus
+  save.
+
+##### TASK-03-06-04-QA1 · Test adding a bag from a coffee
+`qa` · Parent: STORY-03-06-04 · 2 h · New · Depends on: TASK-03-06-04-FE1
+- **Build:** Play tests for the primary and secondary states and the preset
+  coffee; a Node check that the bag lands on the coffee.
+- **Done when:** AC 1 to AC 3 are covered.
+
+---
+
+### INIT-04: Grind settings stay meaningful through maintenance and time
+
+#### EPIC-04-01: Record maintenance on your equipment
+
+##### STORY-04-01-01: Log maintenance on a part
+
+Schema: TASK-04-01-01-BE1 (section 6).
+
+##### TASK-04-01-01-BE2 · Add recording maintenance and the part's event list
+`backend` · Parent: STORY-04-01-01 · 3 h · Updated (parts, no retire) · Depends on: TASK-04-01-01-BE1, TASK-02-06-01-BE2
+- **Build:** Action `addMaintenance(partId, { kind, date?, note?,
+  isRecalibration? })`: the kind is burrs, clean, rezero, repair or other;
+  the date is today by default or an earlier local date (local noon); any
+  of the household's three part kinds. DAL `listMaintenance(partId)`, newest
+  first. No setup is touched: servicing never makes a new setup. No offsets
+  are written.
+- **Done when:** The event saves with kind, date and note (AC 1); the date
+  defaults to today (AC 2); the list is newest first (AC 3); the part is in
+  the same setups afterwards (AC 4).
+
+##### TASK-04-01-01-FE1 · Build the maintenance sheet (SH-MAINTENANCE) with its stories
+`frontend` · Parent: STORY-04-01-01 (also 04-01-02) · 4 h · Unchanged · Depends on: DES-04-01-01, TASK-01-01-05-FE2, PR-3
+- **Build:** `MaintenanceSheet`: a kind ChipGroup (`maintenance.kind.*`), a
+  date defaulting to today, an optional note Input, a slot for the
+  recalibration Toggle, primary `maintenance.save`, a failure Notice.
+  Stories: grinder, machine, failed, RTL.
+- **Done when:** Stories pass axe; a re-zero today is three taps.
+
+##### TASK-04-01-01-FE2 · Add the maintenance section to the part screen
+`frontend` · Parent: STORY-04-01-01 · 3 h · Updated (part screen) · Depends on: TASK-04-01-01-FE1, TASK-04-01-01-BE2, TASK-01-02-02-FE6
+- **Build:** On the part screen, `maintenance.title` with event ListRows
+  (kind, date, note excerpt, recalibration marker), `maintenance.none` with
+  secondary `maintenance.add`, and `maintenance.add` opening the sheet.
+- **Done when:** Events show (AC 3); the empty state offers add (AC 5); the
+  part's setups are unchanged (AC 4).
+
+##### TASK-04-01-01-QA1 · Test logging maintenance
+`qa` · Parent: STORY-04-01-01 · 3 h · Updated · Depends on: TASK-04-01-01-FE2
+- **Build:** Node tests: kinds, default date, back-date, future rejected
+  (AC 1, AC 2); order (AC 3); the part's setups and their recipes unchanged
+  (AC 4); isolation; a story test for empty (AC 5) and a three-tap re-zero.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-04-01-02: Mark a recalibration
+
+##### TASK-04-01-02-BE1 · Store the recalibration flag with its defaults
+`backend` · Parent: STORY-04-01-02 · 2 h · Unchanged · Depends on: TASK-04-01-01-BE2
+- **Build:** `addMaintenance` writes `is_recalibration` (TQ-05): default true
+  for burrs and rezero on grinders, false otherwise; always false and
+  rejected if sent true for machines and baskets (DQ-15).
+- **Done when:** Grinder events can be marked (AC 1); burrs and re-zero
+  default on (AC 2); machines and baskets can't be marked (AC 4).
+
+##### TASK-04-01-02-FE1 · Add the recalibration toggle and marker
+`frontend` · Parent: STORY-04-01-02 · 2 h · Updated (Journal dividers) · Depends on: TASK-04-01-02-BE1, TASK-04-01-01-FE2
+- **Build:** In MaintenanceSheet, Toggle `maintenance.isRecalibration` for
+  grinders only, following the kind's default until touched. The
+  `maintenance.recalibration` text marker shows on event rows and on Journal
+  dividers (TASK-04-01-04-FE1).
+- **Done when:** The default follows the kind (AC 2); the marker is text
+  (AC 3); no toggle for machines or baskets (AC 4).
+
+##### TASK-04-01-02-QA1 · Test recalibration marking
+`qa` · Parent: STORY-04-01-02 · 2 h · Unchanged · Depends on: TASK-04-01-02-FE1
+- **Build:** Node tests for defaults and non-grinder rejection (AC 1, AC 2,
+  AC 4); story tests for the toggle by kind and the marker in words (AC 3).
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-04-01-03: Know my grinder's current grind period
+
+##### TASK-04-01-03-BE1 · Add the current grind period calculation
+`backend` · Parent: STORY-04-01-03 (also 04-01-04) · 3 h · Updated (shots reach a grinder through their setup) · Depends on: TASK-04-01-01-BE2, TASK-01-03-03-BE1, TASK-01-02-04-BE2
+- **Build:** `src/domain/grindPeriods.ts` `currentPeriod(events, now)`: the
+  latest grinder event at or before now. DAL `getGrindPeriod(grinderPartId)`
+  returns `{ since | null, shotCount }`, where the count is shots on any
+  setup containing that grinder (through `setup_parts`) with `created_at ≥
+  since`. Derived from dates, never stored. Machine and basket events are
+  ignored.
+- **Done when:** Unit tests cover no events, several, a back-dated one, a
+  grinder in two setups; machine events don't affect it (AC 4).
+
+##### TASK-04-01-03-FE1 · Show the current period line on the grinder's part screen
+`frontend` · Parent: STORY-04-01-03 · 2 h · Unchanged · Depends on: TASK-04-01-03-BE1, TASK-04-01-01-FE2
+- **Build:** Above the maintenance list on grinders: `maintenance.periodSince`
+  (formatted date) with `maintenance.periodShots` (plural), or
+  `maintenance.periodAll` with no events. Machines and baskets show nothing.
+- **Done when:** Start and count are visible without opening anything (AC 1);
+  no events shows the all-in-one line (AC 2).
+
+##### TASK-04-01-03-QA1 · Test grind periods
+`qa` · Parent: STORY-04-01-03 · 2 h · Updated · Depends on: TASK-04-01-03-FE1
+- **Build:** Node tests: start and count with shots through a setup (AC 1); no
+  events (AC 2); adding or back-dating an event changes the result and no
+  shot row (AC 3); a machine or basket event has no effect (AC 4).
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-04-01-04: See maintenance in my journal
+
+##### TASK-04-01-04-BE1 · Merge grinder events into the Journal feed
+`backend` · Parent: STORY-04-01-04 · 3 h · Updated (Journal, filtered lists) · Depends on: TASK-04-01-03-BE1, TASK-02-06-04-BE1
+- **Build:** `listJournal` returns shots and divider items sorted by time. A
+  divider is included only for a grinder event inside the listed range whose
+  grinder (through the setup) has at least one shot in the list, so
+  filtered lists show dividers only for the grinders of the shots listed. It
+  carries the grinder name (nickname, else model), kind, date and
+  recalibration flag, and the shots' day key.
+- **Done when:** Two grinders show only relevant dividers (AC 3); an event on
+  a shot day sorts by time (AC 2); no divider for machine, basket or
+  shotless grinder events (AC 4); older pages don't duplicate dividers.
+
+##### TASK-04-01-04-FE1 · Build the grind period divider and show it in the Journal
+`frontend` · Parent: STORY-04-01-04 · 4 h · Updated · Depends on: TASK-04-01-04-BE1, TASK-02-06-01-FE1, DES-04-01-02
+- **Build:** `src/components/ui/PeriodDivider`: a `line-strong` hairline with one
+  `text-overline` `ink-secondary` line `journal.maintenance` (grinder, kind,
+  date) plus `maintenance.recalibration`; a list item with readable text
+  linking to the grinder's part screen. Rendered in RecentShotsScreen
+  between rows. Stories: plain, recalibration, among a day's rows, RTL.
+- **Done when:** Stories pass axe; the divider is announced as a list item and
+  is quieter than a shot row (AC 1).
+
+##### TASK-04-01-04-QA1 · Test maintenance dividers
+`qa` · Parent: STORY-04-01-04 · 3 h · Updated · Depends on: TASK-04-01-04-FE1
+- **Build:** Node tests for content (AC 1), placement within a day (AC 2),
+  filtered lists and no divider cases (AC 3, AC 4), and a back-dated event
+  moving its divider with no shot changed (AC 5); a play test that the divider
+  opens the grinder; a screen-reader text check.
+- **Done when:** AC 1 to AC 5 are covered.
+
+---
+
+## 8. Build order, Milestone 1 and design schedule
+
+Dependencies come first. Within that, the order follows the epics' MVP
+build order. **Milestone 1 comes first** (section 8.1), then the rest of the
+MVP in waves (section 8.3). Design tasks are scheduled in section 8.2.
+
+### 8.1 Milestone 1: the lean walking skeleton
+
+S-02 defines Milestone 1: start brewing, describe your setup (one setup, from
+a seeded catalog), add a bag of beans, log a shot, and look back at shots in
+the Journal.
+
+**Prerequisites (not tasks):**
+
+- **A Firebase project**, with its service-account keys stored as deployment
+  secrets outside the repo. Needed before TASK-01-01-01-BE4 can be tested
+  against a real token.
+- **PR #3 merged** (`PR-3`).
+- **The Head of Product's equipment and coffee details**, for
+  TASK-01-02-01-BE6.
+
+**Totals: 113 tasks, 422 hours.** The Head of Product's rough estimate was
+300 to 340 hours, so the real number is about 80 to 120 hours above it.
+Reasons:
+
+- The five epics in full are 135 tasks and 493 hours. Milestone 1 defers 26
+  tasks and 83 hours, which is a 17% cut, not the one-third that
+  "two-thirds" implies.
+- The schema is built whole in Milestone 1 (13 tasks, 38 hours), so the
+  later features add no migrations.
+- Four tasks from other epics are pulled in (12 hours), and one new task
+  (TASK-01-02-01-BE6, 6 hours) prepares the seed data.
+- Hours of trimmed tasks are kept at full size (see "Trims" below), so the
+  total is slightly conservative.
+
+| Epic | Tasks | Hours |
+|---|---|---|
+| EPIC-01-01 Start brewing without setting anything up | 39 | 142 |
+| EPIC-01-02 Describe your setup once | 26 | 106 |
+| EPIC-01-03 Log a shot in seconds | 17 | 60 |
+| EPIC-03-01 Add a bag of beans | 16 | 60 |
+| EPIC-02-06 Look back in your journal | 11 | 42 |
+| Pulled in from other epics | 4 | 12 |
+| **Milestone 1** | **113** | **422** |
+
+Design work for Milestone 1 is about 148 hours (section 8.2).
+
+#### In Milestone 1
+
+**EPIC-01-01 (39 tasks, 142 h)**
+
+- STORY-01-01-01: BE1, BE2, QA1 (schema), BE3, BE4, BE5, FE1, FE2, QA2.
+- STORY-01-01-02: BE1, BE2, FE1, QA1.
+- STORY-01-01-03: BE1, FE1, FE2, FE3, QA1.
+- STORY-01-01-04: QA1 (test project), BE1, QA2.
+- STORY-01-01-05: FE1, FE2, FE3, FE4, FE5, FE7, FE8, QA1.
+- STORY-01-01-06: FE1, FE2, FE3, FE4, QA1.
+- STORY-01-01-07: FE1, BE1, FE2, QA1.
+- STORY-01-01-08: BE1 only (the milk table, because the shots table refers to
+  it).
+
+**EPIC-01-02 (26 tasks, 106 h)**
+
+- STORY-01-02-01: BE1, BE2 (schema), BE3, BE4, BE5, BE6 (new), FE1, FE2, QA1.
+- STORY-01-02-02: BE1 (schema), BE2, FE1, FE2, FE3, FE4, FE5, FE6, QA1.
+- STORY-01-02-04: BE2 (schema), BE1, FE1, FE2, QA1.
+- STORY-01-02-05: BE1, FE1, QA1.
+
+**EPIC-01-03 (17 tasks, 60 h)**
+
+- STORY-01-03-01: BE1, FE1, FE2, QA1.
+- STORY-01-03-02: FE1, FE2, BE1, FE3, QA1.
+- STORY-01-03-03: BE1 (schema), BE2, FE1, QA1.
+- STORY-01-03-04: FE1, QA1.
+- STORY-01-03-05: FE1, QA1.
+
+**EPIC-03-01 (16 tasks, 60 h)**
+
+- STORY-03-01-01: BE1 (schema), BE2, BE3, FE1, QA1.
+- STORY-03-01-02: BE1 (schema), BE2, FE1, FE2, QA1.
+- STORY-03-01-03: QA1.
+- STORY-03-01-04: BE1, FE1, FE2, FE3, QA1.
+
+**EPIC-02-06 (11 tasks, 42 h)**
+
+- STORY-02-06-01: BE2, BE1, FE1, QA1.
+- STORY-02-06-02: BE1, FE1, QA1 (the edit mode).
+- STORY-02-06-03: BE1, FE1, FE2, QA1.
+
+**Pulled in from other epics (4 tasks, 12 h)**
+
+| Task | Hours | Why Milestone 1 needs it |
+|---|---|---|
+| TASK-01-06-01-BE1 (URL normalisation) | 5 | The seed loader computes `normalized_url` |
+| TASK-02-01-01-BE1 (pinned recipes table) | 2 | The schema is built whole and `TASK-01-01-01-QA1` checks all of it |
+| TASK-04-01-01-BE1 (maintenance events table) | 2 | Same |
+| TASK-03-02-04-BE1 (portion state and `isOpen`) | 3 | Beans, the shot log and the Journal read portion state |
+
+#### Trims inside Milestone 1
+
+Each trimmed task keeps its full hours, as above.
+
+- **One setup.** "Current setup" is the household's only setup. The current
+  setup rule and cookie (TASK-01-02-09-BE1) aren't built, and
+  TASK-01-02-04-BE1, TASK-01-03-01-BE1 and TASK-01-03-01-FE2 skip the
+  current-setup step. The setup builder (TASK-01-02-04-*) and the one-tap
+  first setup (TASK-01-02-05-*) are kept, because the first setup has to be
+  made. The Setup tab shows one setup Card with no current marker.
+- **Seeded catalog.** The picker's "can't find" row (TASK-01-02-01-FE1,
+  TASK-03-01-01-FE1) isn't shown, and the picker shows its no-match Notice
+  without an add action. `catalog.addedByYou` markers are not needed.
+- **No milk.** TASK-01-01-01-BE5 creates the user, household, persona and
+  nine drinks, but no milks. TASK-01-01-01-QA2 drops the milk checks.
+  Starter drinks keep their typical milk amounts, which nothing reads yet.
+  The log, Journal and detail show no milk.
+- **No puck prep.** The log has no prep toggles, and
+  TASK-01-03-03-BE2 doesn't read them (the columns exist and default to
+  false).
+- **No tasting.** Saving a shot (TASK-01-03-03-FE1) returns to Brew. The
+  Journal rows and shot detail (TASK-02-06-01-FE1, TASK-02-06-03-FE1) leave
+  out the channelling warning, the reaction and the pin action. The edit mode
+  (TASK-02-06-02-*) covers values and the sweetened mark only; the taste
+  controls join it when EPIC-01-05 lands.
+- **Brew is the interim screen.** EPIC-02-02 isn't in Milestone 1. Brew shows
+  the first-run checklist (TASK-01-01-07-FE2) and, once a shot exists, the
+  interim empty state with one "log a shot" action from TASK-01-01-05-FE3.
+  STORY-01-01-07 AC 5 ("my daily shot shows instead") completes with
+  TASK-02-02-01-FE1.
+- **No clocks, grouping or remaining coffee.** Beans shows bags and portions
+  with their state, but no clocks, groups or remaining weight. The
+  `isOpen` rule is in place from the start.
+- **TASK-03-01-03-QA1** covers AC 1 to AC 3; AC 4 (after a split) is checked
+  when splitting lands. Its dependency on TASK-03-02-01-BE1 moves to that
+  point.
+- **TASK-01-02-01-BE3** loads the seed from TASK-01-02-01-BE6's content.
+
+#### Deferred after Milestone 1, inside the five epics (26 tasks, 83 h)
+
+| Epic | Story | Tasks | Hours |
+|---|---|---|---|
+| EPIC-01-01 | STORY-01-01-08 (milk list) | BE2, FE1, QA1 | 6 |
+| EPIC-01-02 | STORY-01-02-08 (change a part) | BE1, FE1, QA1 | 10 |
+| EPIC-01-02 | STORY-01-02-09 (current setup, setup cards) | BE1, BE2, FE1, QA1 | 15 |
+| EPIC-01-03 | STORY-01-03-06 (puck prep) | BE1, FE1, QA1 | 9 |
+| EPIC-01-03 | STORY-01-03-07 (milk in the log) | BE1, FE1, FE2, QA1 | 14 |
+| EPIC-02-06 | STORY-02-06-04 (Journal filters) | BE1, FE1, FE2, QA1 | 14 |
+| EPIC-02-06 | STORY-02-06-05 (open the Journal on what I'm brewing) | FE1, QA1 | 5 |
+| EPIC-02-06 | STORY-02-06-06 (dial in from a past shot) | BE1, FE1, QA1 | 10 |
+| **Total** | | **26 tasks** | **83 h** |
+
+EPIC-03-01 has nothing deferred. Everything else in the MVP (the other 11
+epics, and EPIC-01-06's catalog additions) follows in section 8.3.
+
+#### Levers to bring Milestone 1 toward 340 hours
+
+If 300 to 340 hours is a hard target, these can move out of Milestone 1
+without breaking the loop. Together they save about 70 hours, which leaves
+about 350:
+
+| Lever | Tasks | Saves |
+|---|---|---|
+| Profile and rename | STORY-01-01-03 (5 tasks) | 15 h |
+| One-tap first setup and builder polish: keep the offer, drop the builder's name field and match line | part of STORY-01-02-04 | about 4 h |
+| Edit mode for a shot | STORY-02-06-02 (3 tasks) | 14 h |
+| Part screen and its route | TASK-01-02-02-FE5, FE6 | 8 h |
+| Section-shrink guard | TASK-01-01-05-FE8 | 3 h |
+| Local number format work | STORY-01-03-05 (2 tasks) | 6 h |
+| Bag-ready check | TASK-03-01-03-QA1 | 3 h |
+| The first-run checklist, replaced by plain empty states | STORY-01-01-07 (4 tasks) | 12 h |
+| Sweetened mark | STORY-01-03-04 (2 tasks) | 4 h |
+
+These are options for the Head of Product's call (question 1 in section 9.2).
+This plan doesn't apply them, because each changes a story's scope.
+
+### 8.2 Design schedule (review M7)
+
+Design tasks (328 h for the MVP, 61 tasks, from design section 9) are slotted
+ahead of the build waves that need them. Tasks PR #3 already delivers are
+marked "likely done"; check them before scheduling.
+
+| Needed before | Design tasks | Hours |
+|---|---|---|
+| Wave 1 (Milestone 1) | DES-01-01-01 (4), 02 (8), 03 (4, likely done), 04 (4), 05 (8), 06 (2) | 30 |
+| Wave 2 | DES-01-02-01 (6), 02 (8), 03 (5), 04 (6), 05 (8), 06 (6) | 39 |
+| Wave 3 | DES-03-01-01 (4), 02 (10), 03 (6), DES-02-02-04 (4, checklist) | 24 |
+| Wave 4 | DES-01-03-01 (10), 02 (12, likely done), 03 (4), 04 (5, likely done), 05 (4) | 35 |
+| Wave 5 | DES-02-06-01 (9), 02 (7), 03 (4, edit mode) | 20 |
+| **Milestone 1 total** | | **148** |
+| Wave 7 | DES-01-06-01 (8), 02 (4), 03 (7), 04 (3), 05 (7) | 29 |
+| Wave 8 | DES-01-04-01 (6), 02 (4) | 10 |
+| Wave 9 | DES-01-05-01 (10), 02 (6), 03 (4), 04 (3), 05 (3) | 26 |
+| Wave 10 | DES-03-02-01 (4), 02 (3), 03 (2), DES-03-03-01 (4), DES-03-04-01 (3), 02 (3), 03 (2) | 21 |
+| Wave 11 | DES-02-01-01 (5), 02 (4), 03 (3), 04 (5), 05 (4), DES-02-02-01 (11), 02 (6), 03 (3), 05 (4) | 45 |
+| Wave 12 | DES-02-03-01 (5), 02 (3), 03 (6), 04 (8), 05 (5) | 27 |
+| Wave 13 | DES-01-03-06 (8, milk) | 8 |
+| Wave 15 | DES-03-01-04 (6, coffee screen) | 6 |
+| Wave 16 | DES-04-01-01 (4), 02 (4) | 8 |
+| **MVP total** | | **328** |
+
+Notes:
+
+- Wave 3's DES-03-01-02 includes Beans' Tried section and grouping, even
+  though Milestone 1 builds only On hand. The designer does the whole screen
+  once.
+- DES-01-02-06 (setup select) is used from wave 13 for switching; its
+  first-setup shortcut part is needed in wave 2.
+- With one designer, design runs about one wave ahead of the developers. The
+  critical design path for Milestone 1 is DES-01-02-* and DES-01-03-* (74 h).
+
+### 8.3 Waves
 
 **Wave 0: before any task.**
-- PR #3 is merged (`PR-3`).
-- The DES-* tasks named in each task are delivered. Several, such as
-  DES-01-01-03, DES-01-03-02, DES-01-03-04 and DES-02-01-04, are likely
-  covered by PR #3.
-- A Firebase project exists, with its service-account keys stored as
-  deployment secrets outside the repo (TQ-01, decided). This is needed before
-  TASK-01-01-01-BE4 can be tested against a real token.
-- No technical decision blocks wave 1 any more.
 
-**Wave 1: schema, migrations and test harness.** These are sequential.
-1. TASK-01-01-01-BE1
-2. TASK-01-01-04-QA1
-3. TASK-01-01-01-BE2
-4. TASK-01-01-02-BE1
-5. TASK-01-02-01-BE1
-6. TASK-03-01-01-BE1
-7. TASK-01-02-01-BE2
-8. TASK-01-02-02-BE1
-9. TASK-03-01-02-BE1
-10. TASK-01-03-03-BE1
-11. TASK-02-01-01-BE1
-12. TASK-04-01-01-BE1
-13. TASK-01-01-01-QA1
+- PR #3 is merged.
+- A Firebase project exists, with its keys stored as deployment secrets.
+- The Head of Product's equipment and coffee list for the seed is ready.
+- The first design tasks from section 8.2 are delivered.
 
-**Wave 2: accounts, privacy and the app shell.** The two tracks run in
-parallel, each in the order given.
-- Backend:
-  1. TASK-01-01-01-BE3
-  2. TASK-01-01-01-BE4
-  3. TASK-01-01-02-BE2
-  4. TASK-01-01-01-BE5
-  5. TASK-01-01-04-BE1
-  6. TASK-01-01-04-QA2
-  7. TASK-01-01-03-BE1
-  8. TASK-03-02-04-BE1
-  9. TASK-01-06-01-BE1
-  10. TASK-02-06-01-BE2, after the frontend's TASK-01-01-01-FE2
-- Frontend:
-  1. TASK-01-01-05-FE1
-  2. TASK-01-01-06-FE1
-  3. TASK-01-01-06-FE2
-  4. TASK-01-01-06-FE3
-  5. TASK-01-01-05-FE2
-  6. TASK-01-01-01-FE1
-  7. TASK-01-01-05-FE3
-  8. TASK-01-01-01-FE2, after the backend's TASK-01-01-01-BE5
-  9. TASK-01-01-01-QA2
-  10. TASK-01-01-02-FE1
-  11. TASK-01-01-02-QA1
-  12. TASK-01-01-05-FE4
-  13. TASK-01-01-05-FE5
-  14. TASK-01-01-05-FE6
-  15. TASK-01-01-05-QA1
-  16. TASK-01-01-06-FE4
-  17. TASK-01-01-06-QA1
-  18. TASK-01-01-03-FE1
-  19. TASK-01-01-03-FE2
-  20. TASK-01-01-03-FE3
-  21. TASK-01-01-03-QA1
-  22. TASK-01-01-07-FE1
+**Milestone 1**
 
-**Wave 3: EPIC-01-02 (setup).**
-1. Catalog search: TASK-01-02-01-BE5, TASK-01-02-01-BE3, TASK-01-02-01-BE4,
-   TASK-01-02-01-FE1, TASK-01-02-01-FE2 and TASK-01-02-01-QA1.
-2. Units: TASK-01-02-02-BE2, TASK-01-02-02-FE3, TASK-01-02-02-FE1,
-   TASK-01-02-02-FE2, TASK-01-02-02-FE4 and TASK-01-02-02-QA1.
-3. Retiring: TASK-01-02-03-BE1, TASK-01-02-03-FE1 and TASK-01-02-03-FE2.
-   Its QA, TASK-01-02-03-QA1, moves to wave 5, after TASK-01-03-03-BE2.
-4. Setups: TASK-01-02-04-BE1, TASK-01-02-04-FE1, TASK-01-02-04-FE2 and
-   TASK-01-02-04-QA1.
-5. Setup shortcut: TASK-01-02-05-BE1, TASK-01-02-05-FE1 and
-   TASK-01-02-05-QA1.
-6. Setup editing: TASK-01-02-06-BE1 and TASK-01-02-06-FE1. Its QA,
-   TASK-01-02-06-QA1, moves to wave 5.
-7. Swap warning: TASK-01-02-07-BE1, TASK-01-02-07-FE1 and TASK-01-02-07-QA1.
+**Wave 1: schema, test harness and accounts.**
 
-**Wave 4: EPIC-03-01 (pantry) and the checklist.**
-1. Coffee search: TASK-03-01-01-BE2, TASK-03-01-01-BE3, TASK-03-01-01-FE1
-   and TASK-03-01-01-QA1.
-2. Adding a bag: TASK-03-01-02-BE2, TASK-03-01-02-FE1, TASK-03-01-02-FE2 and
-   TASK-03-01-02-QA1.
-3. Pantry list: TASK-03-01-04-BE1, TASK-03-01-04-FE1, TASK-03-01-04-FE2,
-   TASK-03-01-04-FE3 and TASK-03-01-04-QA1.
-4. Checklist: TASK-01-01-07-BE1, TASK-01-01-07-FE2 and TASK-01-01-07-QA1.
-   The checklist's third step works fully only once wave 5 lands.
+1. TASK-01-01-01-BE1, TASK-01-01-04-QA1, TASK-01-01-01-BE2,
+   TASK-01-01-02-BE1, TASK-01-01-08-BE1, TASK-01-02-01-BE1,
+   TASK-03-01-01-BE1, TASK-01-02-01-BE2, TASK-01-02-02-BE1,
+   TASK-01-02-04-BE2, TASK-03-01-02-BE1, TASK-01-03-03-BE1,
+   TASK-02-01-01-BE1, TASK-04-01-01-BE1, TASK-01-01-01-QA1 (sequential).
+2. Backend track: TASK-01-01-01-BE3, BE4, TASK-01-01-02-BE2,
+   TASK-01-01-01-BE5, TASK-01-01-04-BE1, TASK-01-01-04-QA2,
+   TASK-01-01-03-BE1, TASK-03-02-04-BE1, TASK-01-06-01-BE1,
+   TASK-02-06-01-BE2.
+3. Frontend track: TASK-01-01-05-FE1, TASK-01-01-06-FE1, FE2, FE3,
+   TASK-01-01-05-FE2, TASK-01-01-01-FE1, TASK-01-01-05-FE7, FE3, FE8,
+   TASK-01-01-01-FE2, QA2, TASK-01-01-02-FE1, QA1, TASK-01-01-05-FE4, FE5,
+   QA1, TASK-01-01-06-FE4, QA1, TASK-01-01-03-FE1, FE2, FE3, QA1,
+   TASK-01-01-07-FE1.
 
-**Wave 5: EPIC-01-03 (shot log). Track A.**
-1. Context: TASK-01-03-01-BE1, TASK-01-03-01-FE1, TASK-01-03-01-FE2 and
-   TASK-01-03-01-QA1.
-2. Values: TASK-01-03-02-FE1, TASK-01-03-02-FE2, TASK-01-03-02-BE1,
-   TASK-01-03-02-FE3 and TASK-01-03-02-QA1.
-3. Saving: TASK-01-03-03-BE2, TASK-01-03-03-FE1 and TASK-01-03-03-QA1.
-4. Sweetened: TASK-01-03-04-FE1 and TASK-01-03-04-QA1.
-5. Local formats: TASK-01-03-05-FE1 and TASK-01-03-05-QA1.
-6. QA moved from wave 3: TASK-01-02-03-QA1 and TASK-01-02-06-QA1.
+**Wave 2: setup from a seeded catalog.**
 
-**Wave 5b: EPIC-01-06 (catalog additions). Track B, in parallel with waves 5
-to 7.**
-1. Hardware entries: TASK-01-06-01-BE2, TASK-01-06-01-FE1, TASK-01-06-01-FE2
-   and TASK-01-06-01-QA1.
-2. Coffee entries: TASK-01-06-02-BE1, TASK-01-06-02-FE1 and
-   TASK-01-06-02-QA1.
-3. Privacy: TASK-01-06-03-BE1 and TASK-01-06-03-QA1.
-4. Duplicates: TASK-01-06-04-BE1, TASK-01-06-04-FE1 and TASK-01-06-04-QA1.
-5. Links and aliases: TASK-01-06-05-BE1, TASK-01-06-05-FE1 and
-   TASK-01-06-05-QA1.
-6. Machine questions: TASK-01-06-06-BE1, TASK-01-06-06-FE1 and
-   TASK-01-06-06-QA1.
-7. Grinder questions: TASK-01-06-07-BE1, TASK-01-06-07-FE1 and
-   TASK-01-06-07-QA1.
-8. Answering later: TASK-01-06-09-BE1 and TASK-01-06-09-FE1.
-9. The fallbacks wait for wave 6: TASK-01-06-08-FE1, TASK-01-06-08-FE2 and
-   TASK-01-06-08-QA1.
+1. Catalog: TASK-01-02-01-BE5, BE3, BE6, BE4, FE1, FE2, QA1.
+2. Parts: TASK-01-02-02-BE2, FE3, FE1, FE2, FE4, FE5, FE6, QA1.
+3. Setup: TASK-01-02-04-BE1, FE1, FE2, QA1; TASK-01-02-05-BE1, FE1, QA1.
 
-**Wave 6: EPIC-01-04 (temperature and pressure).**
-1. Temperature: TASK-01-04-01-FE1, TASK-01-04-01-FE2, TASK-01-04-01-BE1,
-   TASK-01-04-01-FE3 and TASK-01-04-01-QA1.
-2. Pressure: TASK-01-04-02-BE1, TASK-01-04-02-FE1 and TASK-01-04-02-QA1.
-3. Then the 5b fallbacks: TASK-01-06-08-FE1, TASK-01-06-08-FE2 and
-   TASK-01-06-08-QA1.
+**Wave 3: beans.**
 
-**Wave 7: EPIC-01-05 (tasting, moved up as confirmed).**
-1. Defect list first: TASK-01-05-03-BE1.
-2. Rating: TASK-01-05-01-FE1, TASK-01-05-01-FE2, TASK-01-05-01-BE1,
-   TASK-01-05-01-FE3 and TASK-01-05-01-QA1.
-3. Scores: TASK-01-05-02-FE1 and TASK-01-05-02-QA1.
-4. Defect choices: TASK-01-05-03-FE1 and TASK-01-05-03-QA1.
-5. Warning: TASK-01-05-04-FE1, TASK-01-05-04-FE2 and TASK-01-05-04-QA1.
+1. Coffee: TASK-03-01-01-BE2, BE3, FE1, QA1.
+2. Bag: TASK-03-01-02-BE2, FE1, FE2, QA1.
+3. Beans list: TASK-03-01-04-BE1, FE1, FE2, FE3, QA1.
+4. Checklist: TASK-01-01-07-BE1, FE2, QA1.
 
-**Wave 8: EPIC-02-06 (recent shots).**
-1. List: TASK-02-06-01-BE1, TASK-02-06-01-FE1 and TASK-02-06-01-QA1.
-2. Detail: TASK-02-06-03-BE1, TASK-02-06-03-FE1, TASK-02-06-03-FE2 and
-   TASK-02-06-03-QA1.
-3. Editing: TASK-02-06-02-BE1, TASK-02-06-02-FE1 and TASK-02-06-02-QA1.
-4. Finishing EPIC-01-06: TASK-01-06-09-FE2 and TASK-01-06-09-QA1.
+**Wave 4: the shot log.**
 
-**Wave 9: EPIC-04-01 (maintenance).**
-1. Logging: TASK-04-01-01-BE2, TASK-04-01-01-FE1, TASK-04-01-01-FE2 and
-   TASK-04-01-01-QA1.
-2. Recalibration: TASK-04-01-02-BE1, TASK-04-01-02-FE1 and
-   TASK-04-01-02-QA1.
-3. Grind period: TASK-04-01-03-BE1, TASK-04-01-03-FE1 and TASK-04-01-03-QA1.
-4. Dividers: TASK-04-01-04-BE1, TASK-04-01-04-FE1 and TASK-04-01-04-QA1.
+1. Context: TASK-01-03-01-BE1, TASK-01-03-01-FE1, FE2, QA1.
+2. Values: TASK-01-03-02-FE1, FE2, BE1, FE3, QA1.
+3. Saving: TASK-01-03-03-BE2, FE1, QA1.
+4. Sweetened and formats: TASK-01-03-04-FE1, QA1, TASK-01-03-05-FE1, QA1.
+5. Bag-ready check: TASK-03-01-03-QA1 (AC 1 to AC 3).
 
-**Wave 10: EPIC-02-01 (recipes).**
-1. Pin from a shot: TASK-02-01-01-BE2, TASK-02-01-01-BE3, TASK-02-01-01-FE1,
-   TASK-02-01-01-FE2 and TASK-02-01-01-QA1.
-2. Pin by values: TASK-02-01-02-BE1, TASK-02-01-02-FE1 and
-   TASK-02-01-02-QA1.
-3. Newest pin wins: TASK-02-01-03-QA1.
-4. Bag recipes: TASK-02-01-04-BE1, TASK-02-01-04-FE1 (its dial-in action
-   is completed in wave 12) and TASK-02-01-04-QA1.
-5. Re-dial rule: TASK-02-01-05-BE1.
+**Wave 5: the Journal. Milestone 1 ends here.**
 
-**Wave 11: EPIC-02-02 (one tap).**
-1. Daily shot: TASK-02-02-01-BE1, TASK-02-02-01-FE1 and TASK-02-02-01-QA1.
-2. Pull: TASK-02-02-02-BE1, TASK-02-02-02-FE1, TASK-02-02-02-FE2 and
-   TASK-02-02-02-QA1.
-3. Choosing a bag: TASK-02-02-03-BE1, TASK-02-02-03-FE1, TASK-02-02-03-FE2
-   and TASK-02-02-03-QA1.
-4. Undo: TASK-02-02-04-BE1, TASK-02-02-04-FE1 and TASK-02-02-04-QA1.
-5. No recipe: TASK-02-02-05-FE1 and TASK-02-02-05-QA1.
-6. Changing drink and coffee: TASK-02-02-06-BE1, TASK-02-02-06-FE1,
-   TASK-02-02-06-FE2 and TASK-02-02-06-QA1.
+1. List: TASK-02-06-01-BE1, FE1, QA1.
+2. Detail: TASK-02-06-03-BE1, FE1, FE2, QA1.
+3. Edit: TASK-02-06-02-BE1, FE1, QA1.
 
-**Wave 12: EPIC-02-03 (fixing shots) and the re-dial state.**
-1. Reactions: TASK-02-03-01-BE1, TASK-02-03-01-FE1, TASK-02-03-01-FE2 and
-   TASK-02-03-01-QA1.
-2. Fix mode: TASK-02-03-02-FE1, TASK-02-03-02-FE2 and TASK-02-03-02-QA1.
-3. Dial-in mode: TASK-02-03-03-FE1 and TASK-02-03-03-QA1.
-4. Re-dial state: TASK-02-01-05-FE1 and TASK-02-01-05-QA1.
+After Milestone 1, the actual build pace is measured and the rest of the MVP
+is re-forecast from it (S-02). The waves below are the current order.
 
-**Wave 13: EPIC-03-02 (split and freeze).**
-1. TASK-03-04-01-BE1 (remaining weight, moved earlier).
-2. Freezing and thawing: TASK-03-02-02-BE1, TASK-03-02-02-FE1,
-   TASK-03-02-02-FE2 and TASK-03-02-02-QA1.
-3. Opening and finishing: TASK-03-02-03-BE1 and TASK-03-02-03-QA1.
-4. Splitting: TASK-03-02-01-BE1, TASK-03-02-01-FE1 and TASK-03-02-01-QA1.
-5. QA for the new bag: TASK-03-01-03-QA1.
-6. Portion states: TASK-03-02-04-FE1 and TASK-03-02-04-QA1.
+**Rest of the MVP**
 
-**Wave 14: EPIC-03-03 (bean age).**
-1. Age: TASK-03-03-01-BE1, TASK-03-03-01-FE1 and TASK-03-03-01-QA1.
-2. Frozen days: TASK-03-03-02-FE1 and TASK-03-03-02-QA1.
-3. Frozen marker: TASK-03-03-03-BE1, TASK-03-03-03-FE1 and
-   TASK-03-03-03-QA1.
+**Wave 6: milk list, and the current setup.**
 
-**Wave 15: EPIC-03-04 (remaining coffee).**
-1. Remaining: TASK-03-04-01-FE1, TASK-03-04-01-FE2 and TASK-03-04-01-QA1.
-2. Weighing: TASK-03-04-02-BE1, TASK-03-04-02-FE1 and TASK-03-04-02-QA1.
-3. Bag status: TASK-03-04-03-BE1, TASK-03-04-03-FE1 and TASK-03-04-03-QA1.
+1. Milk: TASK-01-01-08-BE2, FE1, QA1; then update bootstrap to seed milks
+   (TASK-01-01-01-BE5, QA2 checks).
+2. Setups: TASK-01-02-09-BE1, BE2, FE1, QA1; TASK-01-02-08-BE1, FE1, QA1.
+
+**Wave 7: catalog additions (EPIC-01-06).** Can run in parallel with waves 8
+and 9.
+
+1. TASK-01-06-03-BE1, TASK-01-06-04-BE1, then TASK-01-06-01-BE2, FE1, FE2,
+   FE3, QA1; TASK-01-06-04-FE1, QA1; TASK-01-06-03-QA1.
+2. Coffee: TASK-01-06-02-BE1, FE1, QA1; TASK-01-06-05-BE1, FE1, QA1.
+3. Capability questions: TASK-01-06-06-BE1, FE1, QA1; TASK-01-06-07-BE1, FE1,
+   QA1; TASK-01-06-09-BE1, FE1; the fallbacks TASK-01-06-08-FE1, FE2, QA1
+   wait for wave 8; TASK-01-06-09-FE2 and QA1 wait for the edit mode.
+
+**Wave 8: temperature, pressure, prep and milk in the log.**
+
+1. TASK-01-04-01-FE1, FE2, BE1, FE3, QA1; TASK-01-04-02-BE1, FE1, QA1.
+2. Prep: TASK-01-03-06-BE1, FE1, QA1.
+3. Milk: TASK-01-03-07-BE1, FE1, FE2, QA1.
+4. Fallbacks: TASK-01-06-08-FE1, FE2, QA1.
+
+**Wave 9: tasting (EPIC-01-05).**
+
+1. TASK-01-05-03-BE1; TASK-01-05-01-FE1, FE2, BE1, FE3, QA1.
+2. TASK-01-05-02-FE1, FE2, QA1; TASK-01-05-03-FE1, QA1.
+3. TASK-01-05-04-FE1, FE2, QA1.
+4. Add the warning, reaction and taste controls to the Journal and edit mode
+   (the parts trimmed from Milestone 1), then TASK-01-06-09-FE2 and QA1.
+
+**Wave 10: portions, clocks and remaining coffee.**
+
+1. TASK-03-04-01-BE1 (moved earlier for splitting).
+2. Freeze and thaw: TASK-03-02-02-BE1, FE1, FE2, QA1; open and finish:
+   TASK-03-02-03-BE1, QA1; split: TASK-03-02-01-BE1, FE1, QA1.
+3. TASK-03-02-04-FE1, QA1; grouping: TASK-03-02-05-BE1, FE1, QA1.
+4. Clocks: TASK-03-03-01-BE1, FE1, QA1; TASK-03-03-04-BE1, FE1, QA1;
+   TASK-03-03-02-FE1, QA1; TASK-03-03-03-BE1, FE1, QA1.
+5. Remaining: TASK-03-04-01-FE1, FE2, QA1; TASK-03-04-02-BE1, FE1, QA1;
+   TASK-03-04-03-BE1, FE1, QA1.
+
+**Wave 11: recipes and Brew (EPIC-02-01, EPIC-02-02).**
+
+1. Recipes: TASK-02-01-01-BE2, BE3, FE1, FE2, QA1; TASK-02-01-02-BE1, FE1,
+   QA1; TASK-02-01-03-QA1.
+2. Brew: TASK-02-02-01-BE1, FE1, QA1.
+3. Pull: TASK-02-02-02-BE1, FE1, FE2, QA1; TASK-02-02-03-BE1, FE1, FE2, QA1;
+   TASK-02-02-04-BE1, FE1, QA1.
+4. Bag recipes: TASK-02-01-04-BE1, FE1, QA1.
+5. Choosing: TASK-02-02-06-BE1, FE1, FE2, QA1; TASK-02-02-05-FE1, QA1.
+6. Setup switching and the closest setup: TASK-02-01-06-BE1, BE2, FE1, FE2,
+   QA1 (FE2 needs wave 12's dial-in mode); TASK-02-02-07-FE1, FE2, QA1.
+
+**Wave 12: fixing shots and suggestions (EPIC-02-03).**
+
+1. Engine: TASK-02-03-05-BE1; TASK-02-03-06-BE1, BE2, QA1 (the scenario suite).
+2. Card: TASK-02-03-05-FE1, FE2, QA1.
+3. Reactions and the off sheet: TASK-02-03-01-BE1, FE1, FE2, QA1;
+   TASK-02-03-04-BE1, FE1, FE2, QA1.
+4. Pending suggestions: TASK-02-03-07-BE1, FE1, QA1.
+5. Log modes: TASK-02-03-02-FE1, FE2, QA1; TASK-02-03-03-FE1, QA1.
+
+**Wave 13: Journal filters and dial in from a shot (rest of EPIC-02-06).**
+
+1. TASK-02-06-04-BE1, FE1, FE2, QA1; TASK-02-06-05-FE1, QA1.
+2. TASK-02-06-06-BE1, FE1, QA1.
+
+**Wave 14: Tried and the coffee screen (EPIC-03-06).**
+
+1. TASK-03-06-01-BE1, FE1, QA1; TASK-03-06-02-BE1, FE1, QA1.
+2. TASK-03-06-03-BE1, FE1, FE2, QA1; TASK-03-06-04-FE1, QA1.
+
+**Wave 15: maintenance (EPIC-04-01).**
+
+1. TASK-04-01-01-BE2, FE1, FE2, QA1.
+2. TASK-04-01-02-BE1, FE1, QA1; TASK-04-01-03-BE1, FE1, QA1.
+3. TASK-04-01-04-BE1, FE1, QA1.
 
 With two developers (one mostly backend, one mostly frontend) and EPIC-01-06
-on its own track from wave 5, the critical path runs through waves 1, 2, 3,
-5, 7, 8, 10, 11 and 12.
+on its own track, the critical path after Milestone 1 runs through waves 8,
+9, 10, 11 and 12 (the suggestions need the tasting and the clocks). Design
+runs one wave ahead.
 
 ---
 
@@ -3664,237 +3576,217 @@ on its own track from wave 5, the critical path runs through waves 1, 2, 3,
 
 ### 9.1 Technical decisions
 
-**Resolved by the Head of Product (recorded in S-02 and, where they touch
-the schema, in S-08).** Each was accepted as proposed:
+**Resolved (recorded in S-02 and, where they touch the schema, in S-08).**
 
-- **TQ-01 How Firebase anonymous auth reaches the server: resolved.**
-  - Decision: the browser signs in anonymously and sends its Firebase ID
-    token once to `POST /api/session`.
-  - The server verifies it with the Firebase Admin SDK and sets an httpOnly
-    session cookie.
-  - Firebase keys live outside the public repo.
-  - Implemented by TASK-01-01-01-BE3, BE4 and BE5.
-- **TQ-02 How the server talks to libSQL: resolved.**
-  - Decision: one server-side libSQL client. Server code talks to the
-    database directly.
-  - A deployed prototype uses hosted Turso instead of the local file.
-  - Implemented by TASK-01-01-01-BE1.
-- **TQ-03 Server Actions or Route Handlers: resolved.**
-  - Decision: Server Actions for writes.
-  - Route Handlers only for the session exchange, catalog search and the
-    duplicate-URL check.
-  - Implemented by TASK-01-01-01-BE4, TASK-01-02-01-BE4 and
-    TASK-01-06-04-BE1.
-- **TQ-04 Timestamp precision: resolved, and X-1 closed.**
-  - Decision: integer milliseconds everywhere. S-08 now uses
-    `mode: 'timestamp_ms'` throughout.
-- **TQ-05 Recalibration flag: resolved.**
-  - Decision: S-08 now has `isRecalibration` on `maintenance_events`
-    (boolean, not null, default false).
-  - Implemented by TASK-04-01-01-BE1 and TASK-04-01-02-BE1.
-- **TQ-06 "Not sure" capabilities: resolved.**
-  - Decision: S-08's capabilities comment now documents the unknown values
-    as proposed.
-  - Implemented by TASK-01-02-01-BE1, TASK-01-06-06-BE1 and
-    TASK-01-06-07-BE1.
-- **TQ-07 Time zone for local days: resolved.**
-  - Decision: the device's time zone is sent in a cookie, and nothing is
-    stored.
-  - Implemented by TASK-02-06-01-BE2.
+- **TQ-01 to TQ-07** (Firebase session, one libSQL client, Server Actions,
+  millisecond timestamps, the recalibration flag, "not sure" capabilities and
+  local days) were accepted as proposed. They are implemented by
+  TASK-01-01-01-BE1, BE3 to BE5, TASK-01-02-01-BE1, TASK-02-06-01-BE2,
+  TASK-04-01-01-BE1 and TASK-01-06-06-BE1.
+- **TQ-10** is partly answered for Milestone 1: the Head of Product supplies
+  the seed (their own equipment and a few coffees, TASK-01-02-01-BE6). Who
+  curates the full list later is still open.
 
-**Still open.** None of these blocks wave 1.
+**Still open.** None of these blocks Milestone 1's first wave.
 
-- **TQ-08 A second locale for testing.**
-  - Several acceptance criteria need a language other than English:
-    STORY-01-01-02 AC 2 and AC 3, STORY-01-01-03 AC 2, and STORY-01-03-05.
-    Only `en` exists.
-  - Proposal: a test-only messages fixture and `de-DE` number formatting,
-    with no second shipped language in the MVP. Or name the MVP's second
-    language.
-- **TQ-09 Test layers.**
-  - Story tests run in a browser with no database, and the screens are
-    props-only. Route wiring is therefore covered by Node tests of the
-    DAL and actions, play tests of the screens, and manual checks, not by a
-    real end-to-end run.
-  - Proposal: the Node test project (TASK-01-01-04-QA1), with no end-to-end
-    suite.
-  - Option: Playwright end-to-end tests for first launch, first shot, and
-    one-tap pull with undo, about +16 h. Decide.
-- **TQ-10 Catalog seed content and admin verification.**
-  - Who supplies the seed list (makers, models with capabilities, roasters,
-    beans, aliases, URLs)? The epics' "who curates" question is still open.
-  - How is "manual admin verification" done in the MVP? Proposal: a
-    developer edits `status` and `merged_into_id` in `db:studio` and writes a
-    `catalog_merges` row by hand.
-  - A small admin script would add about 4 h and isn't planned, since the
-    epic puts tooling out of scope.
-- **TQ-11 IDs.** Proposal: `crypto.randomUUID()` text keys, with the one-tap
-  pull's ID generated on the client as an idempotency key. Low impact.
-- **TQ-12 Markets for regional links and aliases.** Proposal: ISO 3166-1
-  alpha-2 codes, with names from `Intl.DisplayNames`. Which markets are
-  offered: all codes, or a short list? Low impact.
-- **TQ-13 Splitting a portion that has a stock check.**
-  - Proposal: the split writes a new stock check on the source portion, so
-    remaining stays right. That adds a stock-check row the user didn't weigh.
-  - Alternative: forbid splitting after a stock check.
-- **TQ-14 Wheel ranges for dose, yield and time** (not in the spec).
-  Proposal: dose 5 to 30 g, yield 5 to 100 g and time 5 to 90 s, each at step
-  0.1. The split wheel uses steps of 1 g. Low impact.
-- **TQ-15 How long the server accepts an undo.** Proposal: 8 seconds in the
-  UI and 13 seconds on the server (a grace period for slow networks), only by
-  the user who pulled. After that it's edit only. Low impact.
+- **TQ-08 A second locale for testing.** Several acceptance criteria need a
+  language other than English (STORY-01-01-02 AC 2, STORY-01-03-05). Proposal:
+  a test-only messages fixture and `de-DE` number formatting, with no second
+  shipped language in the MVP.
+- **TQ-09 Test layers.** Node tests for the DAL and actions, play tests for
+  screens and manual checks, with no end-to-end suite. Option: Playwright for
+  first launch, first shot and pull with undo, about +16 h.
+- **TQ-10 (rest).** Who supplies and verifies the seed after Milestone 1?
+  Proposal: a developer edits `status` and `merged_into_id` in `db:studio`.
+  A small admin script would add about 4 h and isn't planned.
+- **TQ-11 IDs.** `crypto.randomUUID()` text keys, with the one-tap pull's ID
+  generated on the client. Low impact.
+- **TQ-12 Markets for regional links and aliases.** ISO 3166-1 alpha-2 codes
+  with names from `Intl.DisplayNames`. Short list or all codes? Low impact.
+- **TQ-13 Splitting a portion that has a stock check.** Proposal: the split
+  writes a new stock check on the source portion. Alternative: forbid it.
+- **TQ-14 Wheel ranges for dose, yield and time.** Proposal: dose 5 to 30 g,
+  yield 5 to 100 g, time 5 to 90 s, step 0.1. Low impact.
+- **TQ-15 Undo window on the server.** 8 seconds in the UI, 13 seconds on the
+  server, only for the user who pulled. Low impact.
+- **TQ-16 Where the current setup is stored (new).** S-08 has no column for
+  it. Proposal: a device cookie with the setup ID and the time it was
+  chosen, and the latest shot decides otherwise (DQ-18). It doesn't follow
+  the user to another device. In Milestone 1 it isn't needed.
+- **TQ-17 Where suggestion dismissals are stored (new, DQ-25).** Proposal:
+  localStorage keyed by shot ID, session-only if unavailable. A dismissal
+  doesn't follow the user to another device.
 
-### 9.2 Product questions that block or shape MVP tasks (for the Head of Product)
+### 9.2 Product questions (for the Head of Product)
 
-All still open; none was settled by the approval decisions.
+1. **Milestone 1 is about 422 hours, not 300 to 340.** Section 8.1 gives the
+   reasons and a list of levers worth about 70 hours (the profile screen, the
+   edit mode, the part screen, the checklist and more). Which, if any, should
+   move out of Milestone 1? Or is about 420 hours acceptable?
+2. **Q-T1: what is "the guard against sections shrinking"?** It is named in
+   TASK-01-01-05-FE8 and in the retired and added lists, but no story defines
+   it. I read it as a guard that the four tabs keep their labels, height and
+   a non-blank screen, including a long-label locale and right-to-left.
+   Confirm, or say what it should guard.
+3. **Dose with an unknown basket range.** Story 02-03-06 AC 6 and 01-06-08
+   AC 5 say dose is never suggested. The design (EPIC-02-03 lever table) says
+   "no bound, and the reason says so". The plan follows the stories
+   (TASK-02-03-06-BE2). Confirm.
+4. **Entry mode of an edited one-tap shot.** The plan keeps it one-tap
+   (TASK-02-06-02-BE1). Confirm.
+5. **Brew in Milestone 1.** With EPIC-02-02 outside Milestone 1, Brew shows the
+   first-run checklist and then an interim "log a shot" state. Is that
+   acceptable for the walking skeleton?
+6. **Milk and the bootstrap.** Milestone 1 creates households without milks;
+   they're added in wave 6 for new households only. Households created in
+   Milestone 1 would have none. The plan assumes there are no real
+   households to migrate (prototype). Confirm.
+7. **DQ-11 fallback ranges** for "not sure" equipment live in one constants
+   object (TASK-01-06-08-FE1). Confirm before QA.
+8. **DQ-10 "add anyway"** on a duplicate link is built behind a flag, off.
+   Confirm off or on.
+9. **SQ-16: who owns the first-run checklist.** Planned under STORY-01-01-07.
+   It doesn't affect the code.
+10. **Seed content (TASK-01-02-01-BE6).** Please supply: your machine, grinder
+    and baskets with their dose ranges, and the coffees, as public product
+    facts only.
 
-1. **DQ-08 defect list.** It blocks the content of TASK-01-05-03-BE1. Until
-   it's answered, only `channelling` ships, plus DES-01-05-04's proposal if
-   approved.
-2. **INIT-03 Q2: the assumed gap from roast date to best-before.** Without
-   it, "estimated" bean age (STORY-03-03-01 AC 2) has no number. It blocks
-   TASK-03-03-01-BE1.
-3. **Retired units and recipes (EPIC-02-01 open question).** A retired unit
-   stays in its setup's components (STORY-01-02-03 AC 5), so without a rule
-   a one-tap pull would record a shot on a retired grinder. Proposal: treat a
-   retired unit as "not in the setup", so the recipe needs a re-dial.
-   Confirm. It affects TASK-02-01-05-BE1.
-4. **Entry mode of an edited one-tap shot (EPIC-02-06).** The plan keeps it
-   one-tap (TASK-02-06-02-BE1). Confirm.
-5. **SQ-14: doses from an "off" one-tap shot and its fix.** Under DQ-12 (two
-   records) both count toward coffee used, which may double-count. Confirm,
-   or say which one counts. It affects TASK-03-04-01-BE1.
-6. **DQ-11 fallback ranges** for "not sure" setup. They're one constants
-   object (TASK-01-06-08-FE1), so changing them is cheap, but confirm before
-   QA.
-7. **DQ-10 "add anyway" when a duplicate link is found.** The option is built
-   behind a flag that's off. Confirm off or on.
-8. **SQ-16: who owns the first-run checklist.** It's planned under
-   STORY-01-01-07 (EPIC-01-01). This doesn't affect the code.
-9. **TQ-08 and TQ-10** also need a product answer: a second language, and
-   who curates the seed list.
-
-The build-order question (tasting moved up) is closed: confirmed at
-approval.
+Closed by the Head of Product's six answers and S-02: step sizes (SQ-19), the
+temperature lever (SQ-21), typical milk amounts, the basket dose range
+(SQ-20), Tried and personas, and coffee used (SQ-14). Also closed: DQ-08
+(taste tags), INIT-03 Q2 (no estimated age) and the retired-unit question
+(no retire).
 
 ---
 
 ## 10. Technical risks and tech debt
 
-- **R-01 Dependency on PR #3.** About 30 tasks wire or extend PR #3's
+- **R-01 Dependency on PR #3.** About 35 tasks wire or extend PR #3's
   components. If their props change in review, or they lack states the
-  design needs (for example ShotDial's unset and "was" states, ChipGroup's
-  numbered deselect, HomeScreen's needs-re-dial state), the extension tasks
-  grow. Mitigation: merge PR #3 before wave 2. Each extension task checks
-  what's there first.
-- **R-02 Anonymous accounts.** A cleared browser profile or a reset device
-  loses the account. The MVP accepts this (S-02). Session cookie expiry must
-  be silent (TASK-01-01-01-BE4), or users see the start screen again. Safari
-  storage eviction (ITP) can drop the IndexedDB-held Firebase user after
-  periods of inactivity, which would create a new empty household. The risk
-  is high on iOS. Needs a decision on whether to accept it or prioritise
-  EPIC-05-03.
-- **R-03 S-08 deviations: closed.** S-08 now includes the timestamp mode, the
-  recalibration column and the "not sure" values, so the schema tasks follow
-  it exactly. The ID is kept so later references stay stable.
-- **R-04 JSON columns.** `setups.components`, `capabilities` and `defects`
-  aren't enforced by the database. "Setups containing a unit" and
-  "exactly one machine and one grinder" are application rules, so a bug can
-  store a setup with two grinders. Mitigation: one validator per JSON
-  shape, used on every write, and tests. Tech debt: a join table for setup
-  components would be safer, but S-08 chose JSON.
-- **R-05 Local-day maths.** Bean age, day groups, the time-of-day drink and
-  "opened today" all depend on the device's time zone (TQ-07). Off-by-one
-  errors near midnight and DST changes are likely without the shared
-  `localDay` helpers and their tests. A device that changes time zone also
-  shifts "today" for its history, since nothing is stored.
-- **R-06 Optimistic one-tap.** "Visible within 100 ms" means showing success
-  before the server confirms. With a poor kitchen connection, the shot can
-  fail after the user walks away. The design shows a retry Notice, but
-  only if the user looks. There's no offline mode (design concern).
-  Idempotent IDs prevent duplicates on retry.
-- **R-07 Server Action dispatch.** The client dispatches actions one at a
-  time. Pull, then undo, then reaction in quick succession are queued, which
-  is correct, but a slow pull delays undo inside the 8-second window. The
-  server grace period (TQ-15) covers this.
-- **R-08 Fahrenheit round-trip.** °F is display-only and °C is stored
-  (`real`). Rounding must be chosen so a stored value always re-displays as
-  the same °F step, or a re-pinned recipe could drift by one degree.
-  Covered by TASK-01-04-01-FE1's tests.
+  design needs (ShotDial's unset, "was" and milk tabs, ChipGroup's variants,
+  HomeScreen's three no-recipe states), the extension tasks grow. Mitigation:
+  merge PR #3 before wave 1. Each extension task checks what's there first.
+- **R-02 Anonymous accounts.** A cleared browser profile or reset device
+  loses the account, and Safari storage eviction can drop the Firebase user
+  after inactivity, creating a new empty household. Accepted (S-02, review
+  M6). Cookie expiry must be silent (TASK-01-01-01-BE4).
+- **R-03 S-08 deviations: closed.** The schema tasks follow S-08 exactly.
+- **R-04 JSON columns and unconstrained references.** `capabilities`,
+  `taste_tags` and catalog `entity_id` aren't enforced by the database.
+  Setups now have a real join table and a unique index, which removes the old
+  JSON risk. Mitigation: one validator per JSON shape and tests.
+- **R-05 Local-day maths.** Both clocks, day groups, the time-of-day drink
+  and "opened today" depend on the device's time zone. Off-by-one errors at
+  midnight and DST are likely without the shared helpers.
+- **R-06 Optimistic one-tap.** Showing success before the server confirms can
+  hide a failure. Idempotent IDs prevent duplicates on retry. No offline mode.
+- **R-07 Server Action ordering.** Pull, undo and reaction run one at a time;
+  a slow pull can delay undo inside the 8-second window. The 13-second server
+  grace covers it.
+- **R-08 Fahrenheit round-trip.** Rounding must keep a stored °C re-displaying
+  as the same °F step (TASK-01-04-01-FE1 tests).
 - **R-09 Catalog search quality.** SQLite `LIKE` lowercases ASCII only, so
-  accented names ("Café") and other scripts may not match case-insensitively.
-  This is fine for a small seed list. A normalised search column or SQLite
-  FTS5 would be a schema addition and isn't planned.
-- **R-10 Foreign keys.** Foreign-key enforcement depends on the libSQL
-  connection settings, locally and on Turso. If it's off, household and
-  catalog references aren't enforced at all. Checked in TASK-01-01-01-BE1.
-- **R-11 Undo is a hard delete.** Undo deletes the extraction row (STORY-02-02-04
-  AC 1, "as if it was never pulled"). That's the specified behaviour, but it's
-  the only delete in the MVP. It's limited to the same user, one-tap shots and
-  a short window.
-- **R-12 Splitting with stock checks** (TQ-13). Without the extra stock check,
-  remaining weight would be wrong after a split. This is subtle and has its
-  own tests.
-- **R-13 EPIC-01-06 size.** 104 h, the third-largest epic after EPIC-01-01
-  (137 h) and EPIC-01-02 (119 h). The capability questions and their mapping
-  are the riskiest part, as the epic says. The split option (stories 01 to 05
-  first) is kept in the build order.
-- **R-14 Test coverage of wiring.** Without an end-to-end suite (TQ-09), page
-  and action wiring regressions are caught only by Node tests and manual
-  checks.
-- **R-15 Secrets in a public repo.** Firebase service-account keys and the
-  Turso token must live only in deployment secrets. `.env.example` holds
-  names, never values.
+  accented names may not match case-insensitively. Fine for a small seed.
+- **R-10 Foreign keys.** Enforcement depends on libSQL connection settings,
+  locally and on Turso. Checked in TASK-01-01-01-BE1.
+- **R-11 Undo is a hard delete.** The only delete in the MVP; limited to the
+  same user, one-tap shots and a short window.
+- **R-12 Splitting with stock checks** (TQ-13). Subtle, with its own tests.
+- **R-13 EPIC-01-06 size and order.** 108 h. Only URL normalisation is in
+  Milestone 1; the rest can trail. The capability mapping is the riskiest
+  part.
+- **R-14 Test coverage of wiring.** With no end-to-end suite (TQ-09), page and
+  action wiring regressions are caught only by Node tests and manual checks.
+- **R-15 Secrets in a public repo.** Firebase and Turso keys live in
+  deployment secrets only.
+- **R-16 Suggestion correctness (new).** The rules are heuristics from dial-in
+  practice, tested by a scenario table the tech lead writes
+  (TASK-02-03-06-QA1, 8 h, at least 40 scenarios). Passing means expected
+  lever and direction, not that advice is good for every grinder. The step
+  sizes are starting values (answer 1) and live in one constants file.
+  Wrong advice here is more visible than most bugs. Needs a domain review
+  of the scenario table before release.
+- **R-17 Rule order and temperature (new).** The lever order is encoded once
+  (TASK-02-03-06-BE2). The temperature trigger ("grind at its limit or a
+  grind change didn't help") needs the previous shot in the same grind
+  period, which makes the engine depend on history, not just one shot.
+- **R-18 Current setup is device state (new, TQ-16).** A second device may show
+  a different current setup until a shot is logged. Acceptable in a
+  one-device prototype.
+- **R-19 Dismissals are device state (new, TQ-17).** Same limitation; storage
+  can be cleared by the browser.
+- **R-20 ShotDial tab overflow (new).** Up to seven tabs with temperature,
+  pressure and milk on 375 px (TASK-01-04-01-FE2). Scrolling tabs hide values
+  the design wants visible at once. Needs a design check once milk lands.
+- **R-21 Seed curation (new).** The seed is hand-made by the Head of Product
+  (basket dose ranges included). A wrong range silently bounds dose
+  suggestions. The loader validates shape, not truth.
+- **R-22 Milestone 1 estimate (new).** About 422 hours against a 300 to 340
+  forecast (section 8.1). The pace measured after Milestone 1 will re-forecast
+  the rest.
+- **R-23 Tried and coffee queries (new).** Tried groups shots by merge
+  survivor in one query. With a large history this may need an index on
+  `(household_id, portion_id)`; not planned until measured.
 - **Tech debt accepted for the MVP:**
   - no offline queue;
-  - no admin tooling for verification;
+  - no admin tooling for catalog verification;
   - URL normalisation rules hard-coded in one list;
   - `is_network_eligible` never computed (X-3);
-  - `has_milk` stored but unused.
+  - `has_milk` stored beside `typical_milk_ml` (redundant, kept for S-08);
+  - Tried summary ignores personas (answer 5).
 
 ---
 
 ## 11. Totals
 
-**By epic (MVP).** Unchanged at approval: the decisions match the proposals
-the estimates assumed.
+**By epic (MVP).**
 
 | Epic | Title | Stories | Tasks | Hours |
 |---|---|---|---|---|
-| EPIC-01-01 | Start brewing without setting anything up | 7 | 37 | 137 |
-| EPIC-01-02 | Describe your setup once | 7 | 32 | 119 |
-| EPIC-01-03 | Log a shot in seconds | 5 | 17 | 59 |
+| EPIC-01-01 | Start brewing without setting anything up | 8 | 42 | 148 |
+| EPIC-01-02 | Describe your setup once | 6 | 33 | 131 |
+| EPIC-01-03 | Log a shot in seconds | 7 | 24 | 83 |
 | EPIC-01-04 | Record temperature and pressure when your machine has them | 2 | 8 | 27 |
-| EPIC-01-05 | Say how it tasted | 4 | 13 | 35 |
-| EPIC-01-06 | Add what's missing from the catalog | 9 | 29 | 104 |
-| EPIC-02-01 | Pin the recipe that worked | 5 | 16 | 51 |
-| EPIC-02-02 | Pull your daily shot in one tap | 6 | 20 | 70 |
-| EPIC-02-03 | Fix a bad shot from your recipe | 3 | 9 | 24 |
-| EPIC-02-06 | See your recent shots | 3 | 11 | 40 |
-| EPIC-03-01 | Add a bag to your pantry | 4 | 16 | 59 |
-| EPIC-03-02 | Split and freeze a bag | 4 | 12 | 37 |
-| EPIC-03-03 | Know how fresh your beans really are | 3 | 8 | 24 |
+| EPIC-01-05 | Say how it tasted | 4 | 14 | 45 |
+| EPIC-01-06 | Add what's missing from the catalog | 9 | 30 | 108 |
+| **INIT-01** | | **36** | **151** | **542** |
+| EPIC-02-01 | Pin the recipe that worked | 5 | 18 | 60 |
+| EPIC-02-02 | Pull your daily shot in one tap | 7 | 23 | 83 |
+| EPIC-02-03 | Fix a bad shot from your recipe | 7 | 23 | 86 |
+| EPIC-02-06 | Look back in your journal | 6 | 20 | 71 |
+| **INIT-02** | | **25** | **84** | **300** |
+| EPIC-03-01 | Add a bag of beans | 4 | 16 | 60 |
+| EPIC-03-02 | Split and freeze a bag | 5 | 15 | 47 |
+| EPIC-03-03 | Know how fresh your beans really are | 4 | 11 | 33 |
 | EPIC-03-04 | See how much coffee is left | 3 | 10 | 28 |
-| EPIC-04-01 | Record maintenance on your setup | 4 | 14 | 37 |
-| **Total** | | **69** | **252** | **851** |
+| EPIC-03-06 | See every coffee you've tried | 4 | 12 | 36 |
+| **INIT-03** | | **20** | **64** | **204** |
+| EPIC-04-01 | Record maintenance on your equipment | 4 | 14 | 38 |
+| **INIT-04** | | **4** | **14** | **38** |
+| **Total** | | **85** | **313** | **1,084** |
 
-The schema, migrations and test harness (section 6, 13 tasks, 38 h) are
-counted in the epics of the stories they're parented to. EPIC-01-01 is large
-because it carries the account, privacy and app-shell groundwork that every
-other epic builds on.
+The schema, migrations and test harness (section 6, 15 tasks, 45 hours) are
+counted in the epics of the stories they're parented to.
 
-**Coverage check:** every one of the 69 MVP stories has at least one `qa`
+**Compared with revision 1:** 252 tasks and 851 hours became 313 tasks and
+1,084 hours (+61 tasks, +233 hours): 75 added, 14 retired, 129 updated and
+109 unchanged. The largest increases are EPIC-02-03 (the suggestions, +62 h),
+EPIC-03-06 (new, 36 h) and the setup work in EPIC-01-02 (+12 h).
+
+**Milestone 1 (section 8.1):** 113 tasks, 422 hours, inside the totals above.
+Design for it is about 148 hours on top. The rest of the MVP is 200 tasks and
+662 hours.
+
+**Coverage check:** every one of the 85 MVP stories has at least one `qa`
 task.
 
 - Two stories, STORY-02-01-03 and STORY-03-01-03, have only a QA task. Their
-  behaviour is built by other stories' tasks, and the QA task tests it
-  against their own acceptance criteria.
-- Four stories, STORY-01-03-04, 01-03-05, 01-05-02 and 02-02-05, have one FE
-  task and one QA task.
+  behaviour is built by other stories' tasks.
+- Several stories have one FE task and one QA task (for example
+  STORY-01-03-04, 01-03-05, 02-02-05, 02-06-05, 03-03-02 and 03-06-04).
+- The new stories have a QA task each: 01-01-08, 01-02-08, 01-02-09,
+  01-03-06, 01-03-07, 02-01-06, 02-02-07, 02-03-04 to 07, 02-06-04 to 06,
+  03-02-05, 03-03-04 and 03-06-01 to 04.
 
-**Not included:**
-
-- design tasks (DES-*, owned by the designer);
-- Next and Later stories;
-- the optional end-to-end suite (TQ-09, about +16 h);
-- the optional catalog admin script (TQ-10, about +4 h).
+**Not included:** Next and Later epics (section 1), design hours (328 h for
+the MVP, section 8.2), GitHub issues, and any change to scope.
