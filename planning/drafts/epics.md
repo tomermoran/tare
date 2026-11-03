@@ -282,9 +282,9 @@ is kept as approved.)
     which would silently start a new, empty household (review M6). The MVP
     explicitly accepts both for a prototype; linking to Google in EPIC-05-03,
     the first Next epic, removes them.
-  - The typical milk amount for each starter drink isn't given in the spec
-    (S-02 gives ratios: a cortado about 1:1, a latte 1:3 or more). Who sets
-    the starting values?
+  - **Resolved (Head of Product answer 3).** The typical milk amount for each
+    starter drink: cortado 60 ml, flat white 120 ml, cappuccino 120 ml, latte
+    200 ml, macchiato 15 ml, none for the rest.
   - Is a persona rename part of the MVP? S-02 says "until renamed" but doesn't
     place the rename in a phase. This draft includes a minimal rename.
   - Closed (S-02, revision 10): the tab names.
@@ -521,8 +521,8 @@ is kept as approved.)
   - Capability entry is the riskiest part of this epic. How the shot log
     behaves for a "not sure" answer is a design assumption (DQ-11: no
     temperature or pressure field, a generic grind scale); confirm the exact
-    fallback ranges. With a "not sure" basket dose range, should dose
-    suggestions be skipped or use a default range? Can the admin correct
+    fallback ranges. **Resolved:** with a "not sure" basket dose range, dose is
+    never suggested; the suggestion skips to the next lever. Can the admin correct
     capabilities on verification?
   - At L, this is the biggest lever on the MVP's size (review m9): coffee
     additions are simpler than hardware additions with capabilities, and could

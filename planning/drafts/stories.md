@@ -171,14 +171,12 @@ aren't counted as updates.
 
 ### Questions
 
-- **Closed:** SQ-02 (no retire), SQ-17 (DQ-23 and epics revision 9), and X-1
-  (TQ-04).
-- **New:**
-  - SQ-18: prep and drift, for EPIC-04-02.
-  - SQ-19: suggestion step sizes.
-  - SQ-20: no designed flow for a basket's dose range.
-  - SQ-21: the temperature lever's trigger.
-- **Still open:** SQ-04, 05, 09, 11, 12, 13, 14, 15 and 16.
+- **Closed:** SQ-02 (no retire), SQ-14 (an off shot and its fix both count),
+  SQ-17 (DQ-23 and epics revision 9), SQ-19 (step sizes), SQ-20 (the basket's
+  dose-range question, designed in round 6), SQ-21 (the temperature lever) and
+  X-1 (TQ-04).
+- **New:** SQ-18: prep and drift, for EPIC-04-02.
+- **Still open:** SQ-04, 05, 09, 11, 12, 13, 15 and 16.
 
 ## How to read this file
 
@@ -534,7 +532,7 @@ Retired: STORY-01-02-03 (retire), STORY-01-02-06 (edit a setup), STORY-01-02-07
      are saved with it; when I give neither, it still saves.
   3. Given I've picked a machine or grinder, when I review it, then I can see
      what it can control (for example exact temperature and its range); given
-     a basket, I can see the dose range it's made for (for example 16 to 20 g).
+     a basket, I can see the dose range it's made for (for example 17 to 19 g).
   4. Given I own two of the same model, when I add both, then they are two
      separate parts, each with its own history.
   5. Given a part, when I open it, then I see which of my setups it's in.
@@ -1016,7 +1014,7 @@ defect list. DQ-08 and INIT-01 Q3 are closed by S-02.
 - **Priority:** MVP
 - **Size:** 3
 - **Notes:** Updated (baskets and their dose range, epics revision 9). The
-  design has no flow yet for the basket's dose-range question (SQ-20). Baskets
+  basket's dose-range question is designed (round 6 addendum; SQ-20 closed). Baskets
   often have no product page of their own (EPIC-01-06 open question).
 
 #### STORY-01-06-02: Add a missing roaster or coffee
@@ -1700,7 +1698,7 @@ suggestions. The rules are plain rules, not AI (S-02).
      dose range, then less milk. *Example:* "try about 30 ml less milk".
   4. Given body is off, when the change is worked out, then it's dose, and only
      within the basket's dose range. *Example:* "a bit too thin" at 18 g in a
-     basket made for 16 to 20 g suggests 18.5 g; at 20 g, dose isn't suggested
+     basket made for 17 to 19 g suggests 18.5 g; at 19 g, dose isn't suggested
      and the next lever in order is considered.
   5. Given balance is still off and grind is at the end of its range, when the
      change is worked out, then temperature is suggested, only on a machine
@@ -1713,15 +1711,15 @@ suggestions. The rules are plain rules, not AI (S-02).
 - **Priority:** MVP
 - **Size:** 5
 - **Notes:** New (S-02 lever order). "A bit" is one step and "much" two
-  (design). The gram, degree and millilitre sizes in the examples come from
-  the design's examples and are working assumptions (SQ-19). The rules are
+  (design). The gram, degree and millilitre sizes were confirmed by the Head
+  of Product as starting values (SQ-19 closed). The rules are
   tested against a fixed set of scenarios covering every lever, both
   directions, the limits and the "not sure" cases, and all must pass before
-  release. These are plain scenario tests, not an LLM judge (EPIC-02-03 open
-  question: who writes the set). Grind suggestions use shots in the current
+  release. These are plain scenario tests, not an LLM judge; the tech lead
+  writes the set. Grind suggestions use shots in the current
   grind period (EPIC-04-01 open question, assumed yes). When the temperature
-  lever applies is SQ-21: S-02 lists it after dose, and the design triggers it
-  only when grind is at its limit; the design is followed here.
+  lever applies (SQ-21, closed): S-02 lists it after dose, and it applies only
+  when grind can't fix the balance, as in the design.
 
 #### STORY-02-03-07: Try the suggested change, or dismiss it
 
@@ -3548,28 +3546,20 @@ re-planned. AI output is always a suggestion the user can accept or ignore.
 
 ### Most pressing
 
-These shape MVP stories:
+Closed by the Head of Product's six answers (stories revision 4): SQ-19
+(step sizes: grind 1 step for "a bit" and 2 for "much", yield 2 g, dose 0.5 g,
+temperature 1 °C, milk about 30 ml), SQ-21 (temperature only when grind
+can't fix the balance), typical milk amounts per starter drink, SQ-20 (the
+basket's dose-range question, designed in the round 6 addendum), the Tried
+summary ignoring personas (DQ-28) and SQ-14 (an off shot and its fix both
+count, DQ-12). The scenario set for STORY-02-03-06 is written by the tech
+lead (tasks TASK-02-03-06-QA1).
 
-1. **SQ-19, suggestion step sizes.**
-   - "A bit" is one step and "much" two for grind.
-   - The other levers use the design's examples (2 g yield, 0.5 g dose,
-     1 °C, about 30 ml milk) as working assumptions.
-   - Confirm them, along with who writes the scenario set and what passing
-     means (EPIC-02-03 open question). STORY-02-03-06 depends on both.
-2. **SQ-21, when temperature is suggested.** S-02 puts it after dose. The
-   design suggests it only when balance is still off and grind is at its
-   limit. The stories follow the design.
-3. **Typical milk amounts per starter drink** (EPIC-01-01 open question). S-02
-   gives only ratios. STORY-01-01-02 and 01-03-07 need numbers.
-4. **SQ-20, the basket's dose-range question.**
-   - It's in scope (STORY-01-06-01) but has no designed flow yet.
-   - The seed list must give every basket a dose range (DQ-22).
-   - Who curates the seed is still open.
-5. **DQ-28, the Tried summary** ignores personas in the MVP. Confirm it's
-   acceptable until sub personas arrive.
-6. **SQ-14, doses from an "off" shot and its fix.** Both count (DQ-12).
-7. **DQ-11 fallback ranges** for equipment marked "not sure".
-8. **INIT-02 Q1** still blocks EPIC-02-04 (Next).
+These still shape MVP stories:
+
+1. **DQ-11 fallback ranges** for equipment marked "not sure" (confirm before
+   QA).
+2. **INIT-02 Q1** still blocks EPIC-02-04 (Next).
 
 The design's working assumptions DQ-02 to DQ-07, DQ-12 to DQ-15 and DQ-17 to
 DQ-28 are used as written and cited where they apply.
@@ -3595,14 +3585,14 @@ Still open:
   type.
 - **SQ-13** (Later eval stories): re-frame them when re-planning, or name a team
   role.
-- **SQ-14** (STORY-03-04-01): doses from an "off" one-tap shot and its fix.
 - **SQ-15** (STORY-03-02-03): can a finished portion be reopened?
-- **SQ-16** (STORY-01-01-07): first-run checklist ownership.
+- **SQ-16** (STORY-01-01-07): first-run checklist ownership. Planned under
+  that story; it doesn't affect the code.
 
 New:
 
 - **SQ-18** (STORY-04-02-03, Next): should drift detection compare shots with
   and without prep as equals?
-- **SQ-19** (STORY-02-03-06): step sizes per lever (see "Most pressing").
-- **SQ-20** (STORY-01-06-01): no designed flow for a basket's dose range.
-- **SQ-21** (STORY-02-03-06): when the temperature lever applies.
+
+Closed in the same round: **SQ-19**, **SQ-20**, **SQ-21** (see "Most
+pressing") and **SQ-14**.

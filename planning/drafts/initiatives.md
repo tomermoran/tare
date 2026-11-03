@@ -42,11 +42,13 @@ not given in the spec.
   one main persona per login (S-02, S-04).
 - Owned hardware units pointing to canonical models with declared capabilities
   (temperature, pressure, grind scale and coarser direction) (S-04, S-08).
-- Setups grouping owned units, e.g. machine, grinder, basket, accessories
-  (S-04).
+- Setups: one machine, one grinder and one basket, each an exact catalog
+  model. A setup never changes; a different combination is a different setup
+  (S-02, S-04, S-08).
 - Logging an extraction: MVPayload, optional temperature and pressure shown
   only when the machine can set them (exact value or step, never one shared
-  column), sensory scores 1-5, overall rating, defects (S-02, S-08).
+  column), an optional rating, "just right" taste answers relative to the
+  persona, taste tags and a one-tap good/off reaction (S-02, S-08).
 - Shots record the grinder and machine units directly, plus persona and
   logging user as separate fields (S-02).
 - Shot time stored in milliseconds, shown in seconds with one decimal (S-02).
@@ -75,7 +77,8 @@ not given in the spec.
   Firebase from day one": Firebase anonymous sign-in, no sign-in screen in the
   MVP. S-02 "Google sign-in comes first after the MVP": linking is the first
   Next item, ahead of invites.
-- Which sensory fields are required on a dial-in shot, and which are optional?
+- **Resolved.** Which sensory fields are required on a dial-in shot? None; all
+  taste answers, the rating and tags are optional (S-02, DQ-08).
 - **Resolved.** Which drink list is canonical? S-02 "Drink types are a starter
   list each household can edit": an editable starter list per household.
   Sugar or syrup is a "sweetened" mark on the shot, not a drink type.
@@ -96,8 +99,9 @@ exactly one tap (S-06 target). Share of daily shots recorded through
 shots"; no numeric target given).
 
 **In scope**
-- Pinned recipes scoped to bean, persona, setup and drink context, with the
-  grinder and machine units recorded directly (S-02, S-04, S-08).
+- Pinned recipes scoped to bean, persona, setup and drink context; a recipe
+  belongs to exactly one setup, which fixes its machine, grinder and basket
+  (S-02, S-04, S-08).
 - Optional batch override for a bag that behaves differently (S-02, S-04).
 - Re-pinning adds a row; the latest pin wins; a recipe can point back to the
   shot it came from (S-08).

@@ -185,7 +185,7 @@ SCR-START  Launch (first run: create anonymous account)
 | SCR-SHOTS | Journal: recent shots, filtered by drink, coffee and setup (renamed round 6) | 02-06, 04-01 |
 | SCR-SHOT | Shot detail | 02-06, 02-01, 01-05 |
 | SCR-PANTRY | Beans: On hand (bags by state, with portions) and Tried (every coffee used) (round 6) | 03-01 to 03-04 (Tried: PEC-15) |
-| SCR-COFFEE | One coffee: its recipes per setup and drink, recent shots, add a bag of it (round 6) | 03-01 (PEC-15), 02-01, 02-06 |
+| SCR-COFFEE | One coffee: its recipes per setup and drink, recent shots, add a bag of it (round 6) | 03-06 (PEC-15), 02-01, 02-06 |
 | SCR-BAG | Bag detail: facts, portions, recipes for this coffee | 03-01 to 03-04, 02-01 |
 | SCR-BAG-ADD | Add a bag: pick coffee, then bag details | 03-01 |
 | SCR-KIT | Setup tab: your setups (current first) and your parts | 01-02 |
@@ -1021,7 +1021,7 @@ Unknown parts fall back to the simplest honest behaviour:
 | Dial range | Grind wheel 0 to 100. Typed entry is the quickest way in, and the ruler only draws visible ticks, so a wide range costs nothing. |
 | Step (clicks) | Step 1. |
 | Which way is coarser | No finer and coarser captions on the grind wheel. Direction is never guessed, because a wrong caption is worse than none. |
-| Basket dose range (round-6 addendum) | Nothing changes in the shot log (the dose wheel keeps its normal range). A dose change is never suggested: the suggestion skips dose and moves to the next lever. The reason line is the next lever's own and doesn't mention dose. Only when dose would have been the lever, the card adds one quiet link under the reason, `suggest.noBasketRange` [set your basket's dose range to get dose advice], to answer the question. |
+| Basket dose range (round-6 addendum) | Nothing changes in the shot log (the dose wheel keeps its normal range). A dose change is never suggested: the suggestion skips dose and moves to the next lever. The reason line is the next lever's own and doesn't mention dose. There is no link on the card. The user sets the range from the basket's part details (link dropped 2026-11-03, see Round 7). |
 
 - When any part is "not sure", the grind tab or the affected tab shows a quiet
   ghost link under its wheel, `log.capUnknown` [tell us about your grinder],
@@ -1385,7 +1385,7 @@ shot, so it has no loading state.
   freshness), so every lever reads as one short sentence in every locale
   (round 5).
 
-#### EPIC-02-06: See your recent shots
+#### EPIC-02-06: Look back in your journal
 
 **UX flow: SCR-SHOTS (the Journal)**
 
@@ -1511,7 +1511,7 @@ round 5), Sheet (SH-SELECT), Icon (close).
 
 ### INIT-03: Always know what beans you have and how old they are
 
-#### EPIC-03-01: Add a bag to your pantry
+#### EPIC-03-01: Add a bag of beans
 
 **UX flow: SCR-BAG-ADD**
 
@@ -1785,7 +1785,7 @@ with the row.
 
 ### INIT-04: Grind settings stay meaningful through maintenance and time
 
-#### EPIC-04-01: Record maintenance on your setup
+#### EPIC-04-01: Record maintenance on your equipment
 
 **UX flow**
 
@@ -2734,9 +2734,9 @@ assuming PEC-13). Later: none until re-planned.
     If "other" is left empty, it saves as "not sure".
   - With a "not sure" range, the shot log is unchanged. A dose change is
     never suggested (amended 2026-11-03, see Round 7): the suggestion skips
-    dose and moves to the next lever. The reason line doesn't mention dose; a
-    quiet link (`suggest.noBasketRange`) shows only when dose would have been
-    the lever.
+    dose and moves to the next lever. The reason line doesn't mention dose, and
+    there is no link on the card (the quiet `suggest.noBasketRange` link was
+    dropped on 2026-11-03, see Round 7).
   - The part details show a basket's dose range.
   - Acceptance criteria, DES-01-06-03 and DES-01-06-05 were updated, at +2 h
     in total; the MVP is 61 tasks and 328 h.
@@ -2751,8 +2751,10 @@ assuming PEC-13). Later: none until re-planned.
 - **What changed:**
   - The "not sure" table, the lever table and the round 6 addendum now say
     the suggestion skips dose and moves to the next lever. The reason line
-    doesn't mention dose; a quiet answer-it link shows only when dose would
-    have been the lever.
+    doesn't mention dose.
+  - The quiet `suggest.noBasketRange` link was dropped (Head of Product,
+    2026-11-03). With an unknown range the suggestion simply skips dose, and
+    the user sets the range from the basket's part details (PEC-08).
   - The basket dose-range chips now say what happens outside 14–22 g:
     "other" with typed lowest and highest grams, and empty saves as "not sure".
   - The MVP epic count is corrected to 16.

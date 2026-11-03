@@ -1,4 +1,4 @@
-# Tare engineering tasks (revision 3, for the Head of Product's approval)
+# Tare engineering tasks (revision 4, for the Head of Product's approval)
 
 Source:
 
@@ -13,14 +13,52 @@ Source:
 - the codebase on branch `planning/breakdown-drafts`, plus open PR #3
   (`design/mvp-screens`), described in section 3.
 
-**Status: revision 3, for the Head of Product's approval.** Revision 1 was
-approved by the Head of Product; revision 2 is superseded by this one. Nothing is built, no code is written, and no
+**Status: revision 4, for the Head of Product's approval.** Revision 1 was
+approved by the Head of Product; revisions 2 and 3 are superseded by this one. Nothing is built, no code is written, and no
 GitHub issues are created. Open questions are named in each task's
 dependencies and listed in section 9.
 
 **Scope.** Only the 85 MVP stories in the 16 MVP epics are broken down. Next
 and Later stories are listed in section 1. **Milestone 1** (a lean walking
 skeleton, section 8.1) is a subset of these tasks, not extra work.
+
+## Changes since revision 3
+
+Revision 4 has **316 tasks and 1,085 hours** (revision 3: 315 and 1,082).
+Milestone 1 is unchanged at 99 tasks and 368 hours. Decisions by the Head of
+Product, 2026-11-03, applied after the round 3 review:
+
+1. **The shot detail is read-only in Milestone 1** (review N1).
+   TASK-02-06-03-FE1 and FE2 build no pin, edit or "dial in from this"
+   action. Each is added by the task that delivers its target, and each
+   depends on the detail route (TASK-02-06-03-FE2): edit in TASK-02-06-02-FE1
+   (6 h to 7 h), pin in TASK-02-01-01-FE2 and dial in in TASK-02-06-06-FE1.
+   The skip table lists the criteria this skips.
+2. **One setup until wave 6** (review N2). `resolveSetup` creates a setup only
+   when the household has none, so the only setup is current. This replaces
+   the "newest setup is current" rule in TASK-01-03-01-BE1. Risk R-24 and
+   question 3 in section 9.2 are retired. The new TASK-01-02-04-BE3 (2 h,
+   wave 6) lifts the limit; TASK-01-02-09-QA1 re-tests STORY-01-02-04 AC 2
+   (the `existing` case), AC 3 and AC 6 with several setups.
+3. **Wave 11 is split** (review N3). It was about 198 h (58 tasks), not 130 h;
+   R-25 is corrected. The profile (13 h) moves to wave 6, and
+   TASK-02-02-01-FE1 keeps its persona label (new dependency on
+   TASK-01-01-03-FE3, which now declares the interim Brew screen). The clock
+   and remaining-coffee screens (32 h) move to a new wave 12b beside wave 12.
+   TASK-02-01-06-FE2 and QA1 move to wave 12. The rest is wave 11a (recipes,
+   the checklist, Brew and the pull, with TASK-02-01-06-BE1 pulled forward
+   because the pull depends on it) and wave 11b (choosing, setup switching).
+   Section 8.2's design rows follow.
+4. **The quiet `suggest.noBasketRange` link is dropped** (review N4). With an
+   unknown range the suggestion skips dose; the user sets the range from the
+   basket's part details. No task changes.
+5. **Minor findings:** the Milestone 1 skip table lists the checklist
+   criteria and the setup-builder criteria, and the receiving QA tasks name
+   the re-tests (m2); stale references fixed in TASK-01-02-04-BE1,
+   TASK-01-03-02-FE2, R-17 and wave 7 (m3); TASK-01-01-05-QA1 checks that tab
+   labels never truncate (m4); TASK-01-03-01-FE2 wires Brew's "log a shot"
+   action (m5). DQ-24 (m5 in the earlier numbering) stays open for the Head of
+   Product.
 
 ## Changes since revision 2
 
@@ -65,7 +103,7 @@ Revision 1 had 252 tasks and 851 hours. **Revision 2 has 313 tasks and
 - 75 tasks added;
 - 129 updated;
 - 109 unchanged;
-- 14 retired.
+- 14 retired (a 15th, TASK-01-01-05-FE8, was retired in revision 3).
 
 Retired IDs are never reused. Each task's header line says New, Updated or
 Unchanged.
@@ -155,7 +193,7 @@ Unchanged.
     are deferred. It adds one task, TASK-01-02-01-BE6 (preparing the seed
     catalog data). The Firebase project is a prerequisite, not a task.
 
-### Retired (15)
+### Retired (14 in revision 2, plus 1 in revision 3)
 
 | Task | Why |
 |---|---|
@@ -383,8 +421,9 @@ values in the capabilities JSON; and local days from a time-zone cookie.
     setup was chosen more recently.
   - The choice is stored as a device cookie, `currentSetup`, holding the
     setup ID and the time it was chosen. S-08 has no column for it.
-  - In Milestone 1 there's one setup, so "current" is that setup and no rule
-    or cookie is built yet.
+  - Until wave 6 the household can have only one setup (the builder refuses a
+    second), so "current" is that setup and no rule or cookie is built yet.
+    TASK-01-02-04-BE3 lifts the limit together with the rule.
 - **Suggestions.**
   - Calculated on read from the shot, its answers and the setup's
     capabilities, never stored.
@@ -753,9 +792,10 @@ Schema: TASK-01-01-02-BE1 (section 6).
   (AC 5); a failed save keeps the input (AC 6).
 
 ##### TASK-01-01-03-FE3 · Wire the profile route and the persona label on Brew
-`frontend` · Parent: STORY-01-01-03 · 3 h · Unchanged · Depends on: TASK-01-01-03-FE2, TASK-01-01-03-BE1, TASK-01-01-05-FE4
+`frontend` · Parent: STORY-01-01-03 · 3 h · Updated (revision 4: wave 6, declares the interim Brew) · Depends on: TASK-01-01-03-FE2, TASK-01-01-03-BE1, TASK-01-01-05-FE4, TASK-01-01-05-FE3
 - **Build:** `src/app/(task)/profile/page.tsx` with `renamePersona` through
-  `useActionState`; the persona label on Brew opens it.
+  `useActionState`; the persona label on the interim Brew screen (TASK-01-01-05-FE3) opens it.
+  TASK-02-02-01-FE1 keeps the label when it rebuilds Brew.
 - **Done when:** A rename shows on Brew and Profile (AC 3); clearing restores
   the label (AC 4); failure keeps the text (AC 6).
 
@@ -838,8 +878,11 @@ Test infrastructure: TASK-01-01-04-QA1 (section 6).
 - **Build:** TabBar active state and 44 px height (AC 1); interim empty
   states (AC 2); the unsaved guard dirty versus clean (AC 3); return-to and
   draft unit tests, including storage unavailable (AC 4); a manual phone
-  back-button check.
-- **Done when:** AC 1 to AC 4 are covered.
+  back-button check; tab labels never truncate in any shipped locale (design
+  EPIC-01-01): a story test on the TabBar with the TQ-08 test locale at 320 px,
+  in LTR and RTL (no new task).
+- **Done when:** AC 1 to AC 4 are covered, and the tab labels are shown in full
+  at 320 px in LTR and RTL.
 
 ##### STORY-01-01-06: See the same loading, empty and error behaviour everywhere
 
@@ -906,8 +949,12 @@ Test infrastructure: TASK-01-01-04-QA1 (section 6).
 ##### TASK-01-01-07-QA1 · Test the checklist progression
 `qa` · Parent: STORY-01-01-07 · 3 h · Unchanged · Depends on: TASK-01-01-07-FE2
 - **Build:** Node tests for `getSetupProgress`; Checklist play tests; a manual
-  run from an empty household to the first shot.
-- **Done when:** AC 1 to AC 5 are covered.
+  run from an empty household to the first shot. Re-tests the checklist
+  criteria Milestone 1 skips: a setup added from the checklist returns with
+  draft restore (TASK-01-01-05-FE5 and QA1), the add-part walk-through that
+  continues machine, grinder and basket (TASK-01-02-02-FE4 and QA1), and the
+  setup offer in checklist step 1 (TASK-01-02-05-FE1 and QA1).
+- **Done when:** AC 1 to AC 5 are covered, plus the three criteria above.
 
 ##### STORY-01-01-08: Get a starter milk list
 
@@ -1089,12 +1136,17 @@ Schema: TASK-01-02-04-BE2 (section 6).
 - **Build:** `src/domain/setup.ts` `validateParts` (one machine, one grinder,
   one basket; names the missing one). DAL `previewSetup(ids)` returns
   `existing` (name, recipe count) or `new`. Action `resolveSetup(ids, name?)`
-  uses `findOrCreateSetup` (unique-index insert, read on conflict), then
-  makes it current (TASK-01-02-09-BE1).
-- **Done when:** A missing part names itself and saves nothing (AC 5); the
-  same combination reuses its setup (AC 3); a new one is made with an
-  optional name (AC 4); two quick calls make one setup; the preview matches
-  (AC 2); it becomes current (AC 6).
+  uses `findOrCreateSetup` (unique-index insert, read on conflict).
+  **Milestone 1 limit (revision 4):** `resolveSetup` creates a setup only when
+  the household has none; when one exists it refuses with a typed error and
+  changes nothing, and the preview always says `new`. The only setup is
+  current, so no current-setup rule is needed. TASK-01-02-04-BE3 (wave 6)
+  lifts the limit.
+- **Done when:** A missing part names itself and saves nothing (AC 5); a new
+  one is made with an optional name (AC 4); two quick calls make one setup; a
+  second create is refused; the only setup is current (AC 6, first setup). In
+  wave 6 (TASK-01-02-04-BE3): the same combination reuses its setup (AC 3) and
+  the preview says `existing` (AC 2).
 
 ##### TASK-01-02-04-FE1 · Build the setup builder (SCR-TOOLKIT) with its stories
 `frontend` · Parent: STORY-01-02-04 (also 01-02-08) · 5 h · Updated (builder) · Depends on: DES-01-02-04, PR-3, TASK-01-01-06-FE1
@@ -1110,14 +1162,31 @@ Schema: TASK-01-02-04-BE2 (section 6).
 `frontend` · Parent: STORY-01-02-04 · 3 h · Updated · Depends on: TASK-01-02-04-FE1, TASK-01-02-04-BE1, TASK-01-02-02-FE4
 - **Build:** `src/app/(task)/setup/builder/page.tsx` with `previewSetup` and
   `resolveSetup`, `returnTo` support and add-part with return-to.
+  The builder is reached only when the household has no setup (the log's
+  missing-setup path, the Setup tab's offer, the end-of-add-part offer).
 - **Done when:** Missing context in the log can add a setup and return
-  (AC 1); the resulting setup is current on return (AC 6).
+  (AC 1); the resulting (only) setup is current on return (AC 6).
 
 ##### TASK-01-02-04-QA1 · Test setup creation and matching
 `qa` · Parent: STORY-01-02-04 · 3 h · Updated · Depends on: TASK-01-02-04-FE2
 - **Build:** Unit tests for `validateParts`; Node tests for reuse, new, race,
   missing part and isolation; play test that the Notice names the part.
-- **Done when:** AC 1 to AC 6 are covered.
+- **Done when:** AC 1, AC 4 and AC 5 are covered, AC 2 for a new setup, and
+  the refusal of a second setup. In Milestone 1, AC 3 (reuse), AC 2's
+  `existing` case and AC 6 with more than one setup are skipped; they are
+  re-tested in TASK-01-02-09-QA1 (wave 6) after TASK-01-02-04-BE3.
+
+##### TASK-01-02-04-BE3 · Lift the one-setup limit
+`backend` · Parent: STORY-01-02-04 · 2 h · New (revision 4) · Depends on: TASK-01-02-04-BE1, TASK-01-02-09-BE1
+- **Build:** Remove the Milestone 1 guard from `resolveSetup`, so a second
+  combination makes a second setup, a known one reuses its setup, `previewSetup`
+  reports `existing`, and the result becomes current through
+  TASK-01-02-09-BE1's `useSetup`. The Setup tab's entry points to the builder
+  come from TASK-01-02-08-FE1 and TASK-01-02-09-FE1.
+- **Done when:** A second setup can be made and becomes current (AC 4, AC 6);
+  the same combination reuses its setup and recipes (AC 3); the preview says
+  `existing` with its name and recipe count (AC 2); two quick calls still make
+  one setup.
 
 ##### STORY-01-02-05: Make my first setup in one tap
 
@@ -1154,7 +1223,7 @@ Schema: TASK-01-02-04-BE2 (section 6).
   path for a setup's parts (AC 6).
 
 ##### TASK-01-02-08-FE1 · Add change-a-part mode and the "use the new part?" prompt
-`frontend` · Parent: STORY-01-02-08 · 4 h · New · Depends on: TASK-01-02-08-BE1, TASK-01-02-04-FE2, TASK-01-01-05-FE2
+`frontend` · Parent: STORY-01-02-08 · 4 h · New · Depends on: TASK-01-02-08-BE1, TASK-01-02-04-FE2, TASK-01-02-04-BE3, TASK-01-01-05-FE2
 - **Build:** `setup.changePart` on Setup cards opens the builder prefilled
   from that setup. After adding a part while a setup exists, a ConfirmSheet
   asks whether to use it: yes opens the builder with the part swapped in,
@@ -1201,10 +1270,14 @@ Schema: TASK-01-02-04-BE2 (section 6).
   "use this" makes it current at once (AC 3).
 
 ##### TASK-01-02-09-QA1 · Test current setup and setup cards
-`qa` · Parent: STORY-01-02-09 · 4 h · New · Depends on: TASK-01-02-09-FE1
+`qa` · Parent: STORY-01-02-09 · 4 h · New · Depends on: TASK-01-02-09-FE1, TASK-01-02-04-BE3
 - **Build:** Unit tests for the rule with fixed clocks; Node tests for the
-  read, rename and isolation; play tests for the cards.
-- **Done when:** AC 1 to AC 6 are covered.
+  read, rename and isolation; play tests for the cards. Re-tests the
+  criteria TASK-01-02-04-QA1 skipped in Milestone 1: reuse of a known
+  combination (STORY-01-02-04 AC 3), the `existing` preview (AC 2) and AC 6
+  with several setups.
+- **Done when:** AC 1 to AC 6 are covered, plus the three STORY-01-02-04
+  criteria above.
 
 #### EPIC-01-03: Log a shot in seconds
 
@@ -1217,15 +1290,16 @@ Schema: TASK-01-02-04-BE2 (section 6).
   unfinished portions (unopened included, frozen last and flagged), each
   with bean, bag, state and opened clock; `missingSetup` and
   `missingCoffee` flags.
-- **Milestone 1 starting values (revision 3):** a small `defaultSetupId`
-  inside this task picks the newest setup by `created_at`; there is no
-  cookie. TASK-01-02-09-BE1 (wave 6) replaces this rule. Starting drink:
+- **Milestone 1 starting values (revision 4):** there is only one setup
+  until wave 6 (the builder can't make a second), so `defaultSetupId` is that
+  setup; there is no cookie and no ordering rule. TASK-01-02-09-BE1 (wave 6)
+  replaces it with the current-setup rule. Starting drink:
   the drink of the persona's latest shot, else the first visible drink
   (espresso). Starting coffee: the latest shot's portion if it is not
   finished and not frozen; else the open portion opened earliest
   (`isOpen`); else the newest unopened portion.
-- **Done when:** The default setup is current, or in Milestone 1 the newest
-  (AC 1); options are complete
+- **Done when:** The default setup is current, or in Milestone 1 the only
+  setup (AC 1); options are complete
   and ordered (AC 2, AC 3); a frozen pick is flagged (AC 4); flags are
   correct (AC 5).
 
@@ -1241,7 +1315,9 @@ Schema: TASK-01-02-04-BE2 (section 6).
 - **Build:** `src/app/(task)/log/page.tsx` renders ShotLogScreen (PR #3) with
   setup, drink and coffee fields; defaults from Brew's drink and coffee and
   the current setup (in Milestone 1, from the starting values in
-  TASK-01-03-01-BE1, not from Brew; the setup field is read-only); frozen portions show `portion.frozen`; missing setup or
+  TASK-01-03-01-BE1, not from Brew; the setup field is read-only); the interim
+  Brew screen's "log a shot" action opens `/log` (added here, because `/log`
+  exists only from this task); frozen portions show `portion.frozen`; missing setup or
   coffee open the builder or add-bag with return-to, keeping dial values.
 - **Done when:** Context arrives pre-chosen (AC 1); changes go through
   SH-SELECT (AC 2, AC 3); a frozen pick is saved as from frozen (AC 4); a
@@ -1252,8 +1328,9 @@ Schema: TASK-01-02-04-BE2 (section 6).
 - **Build:** Node tests for the context read (current setup, frozen last,
   finished excluded, isolation); play tests for the missing paths.
 - **Done when:** AC 2, AC 3 and AC 5 are covered, plus the Milestone 1
-  default rule (newest setup, starting drink and coffee). AC 1 is re-tested
-  in TASK-02-02-01-QA1 and AC 4 in TASK-03-02-02-QA1.
+  default rule (the only setup, starting drink and coffee). AC 1 is re-tested
+  in TASK-02-02-01-QA1 and AC 4 in TASK-03-02-02-QA1 (both name it in their
+  Build).
 
 ##### STORY-01-03-02: Set grind, dose, yield and time by touch
 
@@ -1266,7 +1343,7 @@ Schema: TASK-01-02-04-BE2 (section 6).
 ##### TASK-01-03-02-FE2 · Add the grind scale config from grinder capabilities
 `frontend` · Parent: STORY-01-03-02 (also 01-06-08) · 3 h · Unchanged · Depends on: TASK-01-02-01-BE1
 - **Build:** `src/domain/grind.ts` `grindWheelConfig(capabilities)`; unknowns
-  go to the fallback function (TASK-01-06-08-FE1).
+  go to the fallback function (TASK-01-06-08-BE1).
 - **Done when:** Unit tests cover stepped, stepless and both directions.
 
 ##### TASK-01-03-02-BE1 · Add the starting values for a blank log
@@ -1875,11 +1952,13 @@ Schema: TASK-02-01-01-BE1 (section 6).
 
 ##### TASK-02-01-01-FE2 · Wire pinning from the tasting and shot detail screens
 `frontend` · Parent: STORY-02-01-01 · 3 h · Unchanged · Depends on: TASK-02-01-01-FE1, TASK-02-01-01-BE3, TASK-01-05-01-FE3, TASK-02-06-03-FE2
-- **Build:** `recipe.pin` on TasteScreen and ShotDetailScreen (measured only)
-  opens PinSheet; confirm calls `pinFromShot`, announces `recipe.pinned`.
+- **Build:** `recipe.pin` on TasteScreen and ShotDetailScreen (measured only;
+  added to the detail's `actions` slot here, because the detail is read-only in
+  Milestone 1) opens PinSheet; confirm calls `pinFromShot`, announces `recipe.pinned`.
   On the tasting screen the choices are saved first.
 - **Done when:** Pin is reachable from both (AC 1); absent on one-tap (AC 5);
-  failure retries (AC 6).
+  failure retries (AC 6). The detail's pin is the one that STORY-02-06-03 AC 3
+  asks for.
 
 ##### TASK-02-01-01-QA1 · Test pinning from a shot
 `qa` · Parent: STORY-02-01-01 · 4 h · Updated · Depends on: TASK-02-01-01-FE2
@@ -2013,9 +2092,10 @@ Schema: TASK-02-01-01-BE1 (section 6).
   portion opened then frozen (AC 5); the finished state (AC 6).
 
 ##### TASK-02-02-01-FE1 · Wire Brew with the daily shot and its states
-`frontend` · Parent: STORY-02-02-01 · 6 h · Updated (clocks line, prep and milk) · Depends on: TASK-02-02-01-BE1, TASK-01-01-07-FE2, TASK-01-01-06-FE4, PR-3, DES-02-02-01
+`frontend` · Parent: STORY-02-02-01 · 6 h · Updated (clocks line, prep and milk) · Depends on: TASK-02-02-01-BE1, TASK-01-01-07-FE2, TASK-01-01-03-FE3, TASK-01-01-06-FE4, PR-3, DES-02-02-01
 - **Build:** `src/app/(app)/page.tsx` renders HomeScreen (PR #3) with
-  `getHome()`: drink title, coffee line with both clocks, large ShotValues
+  `getHome()`: keeps the persona label that TASK-01-01-03-FE3 added to the
+  interim Brew screen (revision 4), drink title, coffee line with both clocks, large ShotValues
   with prep and milk lines, setup line, `home.pull`, ghost `home.dialIn`;
   states: loading, first run, no recipe, finished coffee, load failed.
   Extend HomeScreen props where PR #3 lacks a state.
@@ -2028,7 +2108,9 @@ Schema: TASK-02-01-01-BE1 (section 6).
 - **Build:** Unit tests in `homeDefaults.test.ts` for AC 2 to AC 5 with fixed
   clocks; a Node test for `getHome`; HomeScreen stories for each state with
   axe; a manual phone check.
-- **Done when:** AC 1 to AC 6 are covered.
+  Re-tests STORY-01-03-01 AC 1 (context arrives pre-chosen from Brew's
+  drink and coffee), skipped in TASK-01-03-01-QA1 in Milestone 1.
+- **Done when:** AC 1 to AC 6 are covered, plus STORY-01-03-01 AC 1.
 
 ##### STORY-02-02-02: Pull this shot in one tap
 
@@ -2374,8 +2456,8 @@ Schema: TASK-02-01-01-BE1 (section 6).
   `temperature.ts` (1 °C, only when grind is at its limit or a grind change
   didn't help, and only on a machine that can set it). Lever order in one
   place.
-- **Done when:** AC 3 to AC 6 examples hold, incl. 18 g in 16 to 20 g giving
-  18.5 g and 20 g moving to the next lever.
+- **Done when:** AC 3 to AC 6 examples hold, incl. 18 g in 17 to 19 g giving
+  18.5 g and 19 g moving to the next lever.
 
 ##### TASK-02-03-06-QA1 · Write the suggestion scenario test suite
 `qa` · Parent: STORY-02-03-06 · 8 h · Updated (revision 3: grind-period scenario) · Depends on: TASK-02-03-06-BE2
@@ -2461,8 +2543,8 @@ Schema: TASK-02-01-01-BE1 (section 6).
   reaction, inline warning, empty and alignment in LTR and RTL; a row opens
   the detail.
 - **Done when:** AC 1 to AC 5 are covered. In Milestone 1 the reaction and
-  warning markers are skipped; they are tested when TASK-02-06-01-FE2 lands
-  in wave 9.
+  warning markers are skipped; the wave 9 re-run depends on
+  TASK-02-06-01-FE2 and tests them.
 
 ##### STORY-02-06-02: Fix a shot after the fact
 
@@ -2480,14 +2562,17 @@ Its dependencies are unchanged.
   shows in remaining (AC 5); the recipe is unchanged (AC 5).
 
 ##### TASK-02-06-02-FE1 · Add the edit mode of the shot log with taste on the same screen
-`frontend` · Parent: STORY-02-06-02 · 6 h · Updated · Depends on: TASK-02-06-02-BE1, TASK-01-05-02-FE2, TASK-01-05-03-FE1, TASK-01-05-04-FE1, TASK-01-03-07-FE2, DES-02-06-03
+`frontend` · Parent: STORY-02-06-02 · 7 h · Updated (revision 4: 6 h to 7 h, adds the edit action to the shot detail) · Depends on: TASK-02-06-02-BE1, TASK-02-06-03-FE2, TASK-01-05-02-FE2, TASK-01-05-03-FE1, TASK-01-05-04-FE1, TASK-01-03-07-FE2, DES-02-06-03
 - **Build:** `/log?mode=edit&shotId=`: title `log.titleEdit`, read-only
   context, ShotDial with saved values, prep, milk, sweetened, and the
   tasting controls below (no rating for one-tap), the warning under the tags,
-  `log.saveChanges`, the unsaved guard.
+  `log.saveChanges`, the unsaved guard. Also adds `shot.edit` to the shot
+  detail's `actions` slot (primary for one-tap shots) and wires it in the
+  detail route to open `/log?mode=edit` (TASK-02-06-03-FE2).
 - **Done when:** Values and taste show together (AC 1, AC 2); context is
   read-only (AC 3); changes persist (AC 4); leave and confirm leaves the shot
-  unchanged (AC 6).
+  unchanged (AC 6); edit is at most two taps from the Journal tab, on measured
+  and one-tap shots (STORY-02-06-03 AC 3, AC 4).
 
 ##### TASK-02-06-02-QA1 · Test editing a shot
 `qa` · Parent: STORY-02-06-02 · 4 h · Updated · Depends on: TASK-02-06-02-FE1
@@ -2510,10 +2595,15 @@ Its dependencies are unchanged.
 `frontend` · Parent: STORY-02-06-03 · 3 h · Updated (revision 3: reaction, tags and warning move to FE3) · Depends on: DES-02-06-02, PR-3
 - **Build:** `ShotDetailScreen`, props-only: large ShotValues, context with
   parts, date, milk, prep when used and taste phrases ("a bit sour"). The
-  reaction, tags and block warning come from TASK-02-06-03-FE3. Measured: `recipe.pin` primary, `shot.dialInFromThis`,
-  edit. One-tap: `shot.copiedFromRecipe`, edit primary, dial in, reaction
-  slot, no pin. Stories: measured, one-tap, channelling, RTL.
-- **Done when:** Stories pass axe; pin is absent for one-tap.
+  reaction, tags and block warning come from TASK-02-06-03-FE3. **Read-only in
+  Milestone 1 (revision 4):** no pin, edit or dial-in action. The screen
+  takes an optional `actions` slot, which stays empty here; each action is
+  added by the task that delivers its target (edit: TASK-02-06-02-FE1; pin:
+  TASK-02-01-01-FE2; dial in: TASK-02-06-06-FE1). One-tap shows
+  `shot.copiedFromRecipe`. Stories: measured, one-tap, channelling, RTL.
+- **Done when:** Stories pass axe; there is no dead action on the screen; the
+  `actions` slot renders what it is given (the later tasks' stories add the
+  buttons).
 
 ##### TASK-02-06-03-FE3 · Add the reaction, tags and warning to the shot detail
 `frontend` · Parent: STORY-02-06-03 · 2 h · New (revision 3) · Depends on: TASK-02-06-03-FE1, TASK-01-05-04-FE1
@@ -2525,17 +2615,22 @@ Its dependencies are unchanged.
 
 ##### TASK-02-06-03-FE2 · Wire the shot detail route
 `frontend` · Parent: STORY-02-06-03 · 2 h · Unchanged · Depends on: TASK-02-06-03-FE1, TASK-02-06-03-BE1
-- **Build:** `src/app/(app)/journal/[shotId]/page.tsx` with `getShot`; edit
-  opens `/log?mode=edit`; pin opens PinSheet.
-- **Done when:** Edit is at most two taps from the Journal tab.
+- **Build:** `src/app/(app)/journal/[shotId]/page.tsx` with `getShot`. It
+  shows no actions in Milestone 1. Edit (TASK-02-06-02-FE1), pin
+  (TASK-02-01-01-FE2) and dial in (TASK-02-06-06-FE1) are wired by those
+  tasks, which depend on this route.
+- **Done when:** The route shows the shot read-only from the Journal row.
 
 ##### TASK-02-06-03-QA1 · Test shot details
 `qa` · Parent: STORY-02-06-03 · 3 h · Updated (revision 3: reaction and warning tests run in wave 9) · Depends on: TASK-02-06-03-FE2
 - **Build:** Node test for `getShot` fields; story tests for the measured and
-  one-tap actions, taste phrases and the warning.
+  one-tap layouts, taste phrases and the warning. The action checks (pin,
+  edit, dial in, AC 3 and AC 4) are tested in TASK-02-06-02-QA1,
+  TASK-02-01-01-QA1 and TASK-02-06-06-QA1.
 - **Done when:** AC 1 to AC 5 are covered. In Milestone 1 the reaction and
-  warning are skipped; they are tested when TASK-02-06-03-FE3 lands in
-  wave 9.
+  warning, and the actions of AC 3 and AC 4, are skipped. The reaction and
+  warning are tested in the wave 9 re-run, which also depends on
+  TASK-02-06-03-FE3.
 
 ##### STORY-02-06-04: Filter my journal by drink, coffee and setup
 
@@ -2598,7 +2693,8 @@ Its dependencies are unchanged.
 
 ##### TASK-02-06-06-FE1 · Add "dial in from this" to shot detail and the log note
 `frontend` · Parent: STORY-02-06-06 · 4 h · New · Depends on: TASK-02-06-06-BE1, TASK-02-06-03-FE2, TASK-02-03-03-FE1, TASK-02-02-03-FE2
-- **Build:** `shot.dialInFromThis` opens the log in dial-in mode with the
+- **Build:** Adds `shot.dialInFromThis` to the shot detail's `actions` slot
+  (the detail is read-only in Milestone 1). It opens the log in dial-in mode with the
   `log.fromShot` note; SH-PORTION first when no portion is open; a
   missing-coffee state when finished.
 - **Done when:** AC 1 to AC 4 hold; it is two taps from the list.
@@ -2812,8 +2908,9 @@ Schema: TASK-03-01-02-BE1 (section 6).
 `qa` · Parent: STORY-03-02-02 · 3 h · Updated · Depends on: TASK-03-02-02-FE2
 - **Build:** Unit tests for `allowedActions`; Node tests for default today,
   back-dating, future rejected, thaw before freeze and isolation; a play
-  test for the date error.
-- **Done when:** AC 1 to AC 5 are covered.
+  test for the date error. Re-tests STORY-01-03-01 AC 4 (a frozen pick is
+  saved as from frozen), skipped in TASK-01-03-01-QA1 in Milestone 1.
+- **Done when:** AC 1 to AC 5 are covered, plus STORY-01-03-01 AC 4.
 
 ##### STORY-03-02-03: Record opening and finishing a portion
 
@@ -3326,8 +3423,9 @@ the Journal.
 **Totals: 99 tasks, 368 hours.** The Head of Product's rough estimate was
 about 370 hours (S-02), so this matches it. Reasons:
 
-- The five epics in full are 136 tasks and 490 hours. Milestone 1 defers 41
-  tasks and 134 hours (the profile screen, the first-run checklist, the part
+- The five epics in full are 137 tasks and 493 hours (revision 4 added
+  TASK-01-02-04-BE3 and 1 h on the edit mode). Milestone 1 defers 42
+  tasks and 137 hours (the profile screen, the first-run checklist, the part
   screen, the edit mode and the rest in the table below).
 - The schema is built whole in Milestone 1 (13 tasks, 38 hours), so the
   later features add no migrations.
@@ -3346,7 +3444,8 @@ about 370 hours (S-02), so this matches it. Reasons:
 | Pulled in from other epics | 4 | 12 |
 | **Milestone 1** | **99** | **368** |
 
-Design work for Milestone 1 is 144 hours (section 8.2).
+Design work for Milestone 1 is 144 hours (section 8.2). Revision 4 leaves
+Milestone 1 at 99 tasks and 368 hours.
 
 All 99 tasks depend only on Milestone 1 tasks, PR-3, or the Head of
 Product's prerequisites. The references to TQ-08 and TQ-09 are resolved as
@@ -3406,16 +3505,18 @@ working assumptions (section 9.1).
 
 Each trimmed task keeps its full hours, as above.
 
-- **One setup, newest is current.** The current setup in Milestone 1 is the
-  newest setup by `created_at`. There is no cookie, and
-  TASK-01-02-09-BE1 isn't built; a small `defaultSetupId` lives inside
-  TASK-01-03-01-BE1. The log's setup field is read-only. The Setup tab lists
-  all setups with no marker, and its rows aren't tappable (the part screen,
-  TASK-01-02-02-FE5 and FE6, is deferred). TASK-01-02-09-BE1 (wave 6)
-  replaces this rule. Consequence: a second setup becomes current and can't
-  be switched back until wave 6 (risk R-24, question 3 in section 9.2). The
-  setup builder (TASK-01-02-04-*) and the one-tap first setup
-  (TASK-01-02-05-*) are kept, because the first setup has to be made.
+- **One setup until wave 6 (revision 4).** The household can have only one
+  setup, so the only setup is current. `resolveSetup` (TASK-01-02-04-BE1)
+  creates a setup only when the household has none, and the builder is
+  reached only from the no-setup paths (the log's missing-setup path and the
+  setup offers); there is no entry to a second setup. There is no cookie and
+  TASK-01-02-09-BE1 isn't built; a small `defaultSetupId` inside
+  TASK-01-03-01-BE1 returns the only setup. The log's setup field is
+  read-only. The Setup tab lists the setup with no marker, and its rows
+  aren't tappable (the part screen, TASK-01-02-02-FE5 and FE6, is deferred).
+  The new TASK-01-02-04-BE3 (wave 6) lifts the limit together with
+  TASK-01-02-09-BE1. The setup builder (TASK-01-02-04-*) and the one-tap first
+  setup (TASK-01-02-05-*) are kept, because the first setup has to be made.
 - **Starting values in the log.** Starting drink: the drink of the persona's
   latest shot, else the first visible drink (espresso). Starting coffee: the
   latest shot's portion if it isn't finished or frozen; else the open
@@ -3434,11 +3535,17 @@ Each trimmed task keeps its full hours, as above.
   false).
 - **No tasting.** Saving a shot (TASK-01-03-03-FE1) returns to Brew. The
   Journal rows and shot detail (TASK-02-06-01-FE1, TASK-02-06-03-FE1) leave
-  out the channelling warning, the reaction and the pin action; the new
-  TASK-02-06-01-FE2 and TASK-02-06-03-FE3 add them in wave 9. The edit mode
-  (STORY-02-06-02) is wholly deferred to wave 9.
+  out the channelling warning and the reaction; the new
+  TASK-02-06-01-FE2 and TASK-02-06-03-FE3 add them in wave 9. **The shot
+  detail is read-only in Milestone 1 (revision 4):** it has no edit, pin or
+  "dial in from this" action, so no tab has a dead action. Each is added by
+  the task that delivers its target: edit by TASK-02-06-02-FE1 (wave 9, the
+  edit mode, wholly deferred), pin by TASK-02-01-01-FE2 (wave 11a) and dial in
+  by TASK-02-06-06-FE1 (wave 13). Each of these depends on the detail route
+  (TASK-02-06-03-FE2).
 - **Brew is the interim screen.** EPIC-02-02 isn't in Milestone 1. Brew is a
-  plain screen with one "log a shot" action from TASK-01-01-05-FE3: no
+  plain screen with one "log a shot" action: TASK-01-01-05-FE3 builds the
+  screen and TASK-01-03-01-FE2 wires the action to `/log` in wave 4. No
   checklist and no persona label. The first-run checklist (STORY-01-01-07)
   and the profile screen are deferred. STORY-01-01-07 AC 5 ("my daily shot
   shows instead") completes with TASK-02-02-01-FE1.
@@ -3455,15 +3562,19 @@ feature they test lands.
 
 | QA task | Skipped criteria | Re-tested in |
 |---|---|---|
-| TASK-01-03-01-QA1 | AC 1 and AC 4 | wave 11 and wave 10 |
+| TASK-01-03-01-QA1 | AC 1 and AC 4 | wave 11a (TASK-02-02-01-QA1) and wave 10 (TASK-03-02-02-QA1) |
 | TASK-01-02-01-QA1 | AC 6 (private entries) | wave 7 |
 | TASK-02-06-01-QA1 | reaction and warning markers | wave 9 |
-| TASK-02-06-03-QA1 | reaction and warning | wave 9 |
+| TASK-02-06-03-QA1 | reaction and warning; the actions of AC 3 and AC 4 (edit, pin, dial in) | wave 9 (reaction, warning, edit), wave 11a (pin), wave 13 (dial in) |
 | TASK-01-02-02-QA1 | part-screen criteria | wave 6 |
 | TASK-01-01-01-QA2 | milk checks | wave 6 |
 | TASK-03-01-03-QA1 | AC 4 | wave 10 |
+| TASK-01-02-04-QA1 | STORY-01-02-04 AC 3 (reuse), AC 2's `existing` case, AC 6 with more than one setup | wave 6 (TASK-01-02-09-QA1) |
+| TASK-01-01-05-QA1 | AC 4's "a setup from the checklist" | wave 11a (TASK-01-01-07-QA1) |
+| TASK-01-02-02-QA1 | "from the checklist it continues" (TASK-01-02-02-FE4) | wave 11a (TASK-01-01-07-QA1) |
+| TASK-01-02-05-QA1 | "in checklist step 1" (TASK-01-02-05-FE1) | wave 11a (TASK-01-01-07-QA1) |
 
-#### Deferred after Milestone 1, inside the five epics (41 tasks, 134 h)
+#### Deferred after Milestone 1, inside the five epics (42 tasks, 137 h)
 
 | Epic | Story | Tasks | Hours |
 |---|---|---|---|
@@ -3475,12 +3586,13 @@ feature they test lands.
 | EPIC-01-02 | STORY-01-02-09 (current setup, setup cards) | BE1, BE2, FE1, QA1 | 15 |
 | EPIC-01-03 | STORY-01-03-06 (puck prep) | BE1, FE1, QA1 | 9 |
 | EPIC-01-03 | STORY-01-03-07 (milk in the log) | BE1, FE1, FE2, QA1 | 14 |
-| EPIC-02-06 | STORY-02-06-02 (edit mode) | BE1, FE1, QA1 | 14 |
+| EPIC-01-02 | STORY-01-02-04 (lift the one-setup limit, revision 4) | BE3 | 2 |
+| EPIC-02-06 | STORY-02-06-02 (edit mode) | BE1, FE1, QA1 | 15 |
 | EPIC-02-06 | TASK-02-06-01-FE2, TASK-02-06-03-FE3 (new markers) | FE2, FE3 | 4 |
 | EPIC-02-06 | STORY-02-06-04 (Journal filters) | BE1, FE1, FE2, QA1 | 14 |
 | EPIC-02-06 | STORY-02-06-05 (open the Journal on what I'm brewing) | FE1, QA1 | 5 |
 | EPIC-02-06 | STORY-02-06-06 (dial in from a past shot) | BE1, FE1, QA1 | 10 |
-| **Total** | | **41 tasks** | **134 h** |
+| **Total** | | **42 tasks** | **137 h** |
 
 EPIC-03-01 has nothing deferred. Everything else in the MVP (the other 11
 epics, and EPIC-01-06's catalog additions) follows in section 8.3.
@@ -3517,7 +3629,8 @@ Tasks PR #3 already delivers (DES-01-01-03, DES-01-03-02, DES-01-03-04) are
 | Wave 8 | DES-01-04-01, 02, plus DES-01-03-06 (milk, 8) | 18 |
 | Wave 9 | DES-01-05-01, 02, 04, 05, plus DES-02-06-03 (edit mode, 4) | 26 |
 | Wave 10 | DES-03-02-*, DES-03-03-01, DES-03-04-* | 21 |
-| Wave 11 | DES-02-01-01 to 05, DES-02-02-01, 02, 03, 04 (checklist), 05 | 49 |
+| Wave 11a | DES-02-01-01 to 04, DES-02-02-01, 02, 03, 04 (checklist) | 41 |
+| Wave 11b | DES-02-01-05 (closest-setup dial-in), DES-02-02-05 (choosing) | 8 |
 | Wave 12 | DES-02-03-01 to 05 | 27 |
 | Wave 14 | DES-03-01-04 (coffee screen) | 6 |
 | Wave 15 | DES-04-01-01, 02 | 8 |
@@ -3525,11 +3638,13 @@ Tasks PR #3 already delivers (DES-01-01-03, DES-01-03-02, DES-01-03-04) are
 
 Notes:
 
-- Waves 6 and 13 need no new design.
+- Waves 6, 12b and 13 need no new design (wave 6's profile uses DES-01-01-04,
+  delivered before wave 1; wave 12b uses wave 10's DES-03-03-01 and
+  DES-03-04-01).
 - Wave 3's DES-03-01-02 includes Beans' Tried section and grouping, even
   though Milestone 1 builds only On hand. The designer does the whole screen
   once.
-- DES-01-02-06 (setup select) is used in wave 11 for switching; its
+- DES-01-02-06 (setup select) is used in wave 11b for switching; its
   first-setup shortcut part is needed in wave 2.
 - With one designer, design runs about one wave ahead of the developers. The
   critical design path for Milestone 1 is DES-01-02-* and DES-01-03-* (74 h).
@@ -3591,15 +3706,21 @@ is re-forecast from it (S-02). The waves below are the current order.
 
 **Rest of the MVP**
 
-**Wave 6: milk list, and the current setup.**
+**Wave 6: milk list, the current setup, the part screen and the profile.**
 
 1. Milk: TASK-01-01-08-BE2 (adds milks to the bootstrap), FE1, QA1 (with
    the milk checks TASK-01-01-01-QA2 skips). Milks are seeded for new
    households only.
-2. Setups: TASK-01-02-09-BE1 (replaces the newest-setup rule),
-   BE2, FE1, QA1; TASK-01-02-08-BE1, FE1, QA1.
+2. Setups: TASK-01-02-09-BE1 (replaces the only-setup default),
+   then TASK-01-02-04-BE3 (lifts the one-setup limit), then
+   TASK-01-02-09-BE2, FE1, QA1 (which re-tests the setup builder criteria
+   TASK-01-02-04-QA1 skipped); TASK-01-02-08-BE1, FE1, QA1.
 3. Part screen: TASK-01-02-02-FE5, FE6; then re-test the part-screen
    criteria of TASK-01-02-02-QA1.
+4. Profile (moved from wave 11; nothing in its dependencies ties it to Brew):
+   TASK-01-01-03-BE1, FE2, FE3, QA1. FE3 adds the persona label to the
+   interim Brew screen (TASK-01-01-05-FE3, now declared), and
+   TASK-02-02-01-FE1 in wave 11a keeps it.
 
 **Wave 7: catalog additions (EPIC-01-06).** Can run in parallel with waves 8
 and 9.
@@ -3608,15 +3729,17 @@ and 9.
    FE3, QA1; TASK-01-06-04-FE1, QA1; TASK-01-06-03-QA1.
 2. Coffee: TASK-01-06-02-BE1, FE1, QA1; TASK-01-06-05-BE1, FE1, QA1.
 3. Capability questions: TASK-01-06-06-BE1, FE1, QA1; TASK-01-06-07-BE1, FE1,
-   QA1; TASK-01-06-09-BE1, FE1; the fallbacks TASK-01-06-08-BE1, FE1, FE2, QA1
-   wait for wave 8; TASK-01-06-09-FE2 and QA1 wait for the edit mode.
+   QA1; TASK-01-06-09-BE1, FE1; TASK-01-06-08-BE1 (a domain module that depends
+   only on the wave 1 schema and DQ-11) can run here, and its FE1, FE2 and
+   QA1 wait for wave 8; TASK-01-06-09-FE2 and QA1 wait for the edit mode.
 
 **Wave 8: temperature, pressure, prep and milk in the log.**
 
 1. TASK-01-04-01-FE1, FE2, BE1, FE3, QA1; TASK-01-04-02-BE1, FE1, QA1.
 2. Prep: TASK-01-03-06-BE1, FE1, QA1.
 3. Milk: TASK-01-03-07-BE1, FE1, FE2, QA1.
-4. Fallbacks: TASK-01-06-08-BE1, FE1, FE2, QA1.
+4. Fallbacks: TASK-01-06-08-FE1, FE2, QA1 (BE1 can already be done in
+   wave 7).
 
 **Wave 9: tasting (EPIC-01-05).**
 
@@ -3639,32 +3762,35 @@ and 9.
 2. Freeze and thaw: TASK-03-02-02-BE1, FE1, FE2, QA1; open and finish:
    TASK-03-02-03-BE1, QA1; split: TASK-03-02-01-BE1, FE1, QA1.
 3. TASK-03-02-04-FE1, QA1; grouping: TASK-03-02-05-BE1, FE1, QA1.
-4. Clocks (backend halves; the screens move to wave 11): TASK-03-03-01-BE1;
+4. Clocks (backend halves; the screens are in wave 12b): TASK-03-03-01-BE1;
    TASK-03-03-04-BE1; TASK-03-03-03-BE1. TASK-02-03-05-BE1 takes the
    clocks as inputs and depends on TASK-03-03-01-BE1 and
    TASK-03-03-04-BE1.
 5. Remaining: TASK-03-04-01-FE1; TASK-03-04-02-BE1, FE1, QA1;
    TASK-03-04-03-BE1, FE1, QA1.
 
-**Wave 11: recipes and Brew (EPIC-02-01, EPIC-02-02).**
+**Wave 11a: recipes, the checklist, Brew and the pull (EPIC-02-01,
+EPIC-02-02).** Wave 11 was split in revision 4 (it was about 198 h).
 
-1. Recipes: TASK-02-01-01-BE2, BE3, FE1, FE2, QA1; TASK-02-01-02-BE1, FE1,
-   QA1; TASK-02-01-03-QA1.
-2. Brew: TASK-02-02-01-BE1, FE1, QA1.
-3. Pull: TASK-02-02-02-BE1, FE1, FE2, QA1; TASK-02-02-03-BE1, FE1, FE2, QA1;
+1. Recipes: TASK-02-01-01-BE2, BE3, FE1, FE2, QA1 (FE2 adds the pin to the
+   shot detail); TASK-02-01-02-BE1, FE1, QA1; TASK-02-01-03-QA1;
+   TASK-02-01-06-BE1 (the closest-setup rule, pulled forward because the pull
+   in step 4 depends on it).
+2. First-run checklist (deferred from Milestone 1): TASK-01-01-07-FE1, BE1,
+   FE2, QA1. Its QA1 also re-tests the checklist criteria Milestone 1 skips.
+   TASK-02-02-01-FE1 depends on FE2, so it runs before Brew.
+3. Brew: TASK-02-02-01-BE1, FE1, QA1 (keeps the persona label from wave 6).
+4. Pull: TASK-02-02-02-BE1, FE1, FE2, QA1; TASK-02-02-03-BE1, FE1, FE2, QA1;
    TASK-02-02-04-BE1, FE1, QA1.
-4. Bag recipes: TASK-02-01-04-BE1, FE1, QA1.
-5. Choosing: TASK-02-02-06-BE1, FE1, FE2, QA1; TASK-02-02-05-FE1, QA1.
-6. Setup switching and the closest setup: TASK-02-01-06-BE1, BE2, FE1, FE2,
-   QA1 (FE2 needs wave 12's dial-in mode); TASK-02-02-07-FE1, FE2, QA1.
-7. Deferred from Milestone 1: the first-run checklist (TASK-01-01-07-FE1,
-   BE1, FE2, QA1; it shows on Brew, and TASK-02-02-01-FE1 depends on FE2,
-   so it runs before step 2) and the profile (TASK-01-01-03-BE1,
-   FE2, FE3, QA1; it adds the persona label to Brew).
-8. At the end of the wave, after Brew and the pull (moved from wave 10 to
-   fix an inversion): TASK-03-03-01-FE1 and QA1, TASK-03-03-04-FE1 and QA1,
-   TASK-03-03-02-FE1 and QA1, TASK-03-03-03-FE1 and QA1, TASK-03-04-01-FE2
-   and QA1. TASK-03-04-01-QA1 runs after TASK-02-02-04-BE1.
+5. Bag recipes: TASK-02-01-04-BE1, FE1, QA1.
+
+**Wave 11b: choosing, setup switching and the closest setup (EPIC-02-02,
+EPIC-02-01).**
+
+1. Choosing: TASK-02-02-06-BE1, FE1, FE2, QA1; TASK-02-02-05-FE1, QA1.
+2. Setup switching and the closest setup: TASK-02-01-06-BE2, FE1;
+   TASK-02-02-07-FE1, FE2, QA1. TASK-02-01-06-FE2 and QA1 move to wave 12
+   (they need wave 12's dial-in mode).
 
 **Wave 12: fixing shots and suggestions (EPIC-02-03).**
 
@@ -3674,6 +3800,17 @@ and 9.
    TASK-02-03-04-BE1, FE1, FE2, QA1.
 4. Pending suggestions: TASK-02-03-07-BE1, FE1, QA1.
 5. Log modes: TASK-02-03-02-FE1, FE2, QA1; TASK-02-03-03-FE1, QA1.
+6. Dial in from the closest setup (moved from wave 11; it needs
+   TASK-02-03-03-FE1): TASK-02-01-06-FE2, QA1.
+
+**Wave 12b: clocks and remaining-coffee screens (beside wave 12).** Moved from
+wave 11 in revision 4. The engine needs only the clock backends (wave 10), so
+this runs in parallel with wave 12. It follows Brew (wave 11a).
+
+1. Clocks: TASK-03-03-01-FE1 and QA1, TASK-03-03-04-FE1 and QA1,
+   TASK-03-03-02-FE1 and QA1, TASK-03-03-03-FE1 and QA1.
+2. Remaining coffee: TASK-03-04-01-FE2 and QA1 (QA1 runs after
+   TASK-02-02-04-BE1).
 
 **Wave 13: Journal filters and dial in from a shot (rest of EPIC-02-06).**
 
@@ -3693,9 +3830,36 @@ and 9.
 
 With two developers (one mostly backend, one mostly frontend) and EPIC-01-06
 on its own track, the critical path after Milestone 1 runs through waves 8,
-9, 10, 11 and 12 (the suggestions need the tasting and the clocks). Design
-runs one wave ahead. Wave 11 is large (about 130 h or more); the clocks' UI
-is the easiest part to peel off if it needs splitting.
+9, 10, 11a and 12 (the suggestions need the tasting and the clocks; wave 11b
+and the clock screens in wave 12b run beside or just before wave 12). Design
+runs one wave ahead. Revision 4 split the old wave 11 (about 198 h): waves
+11a, 11b and 12b are now about 110 h, 36 h and 32 h, and the profile (13 h) is
+in wave 6.
+
+**Hours per wave** (task headers summed; design hours are in section 8.2):
+
+| Wave | Tasks | Hours |
+|---|---|---|
+| 1 | 42 | 149 |
+| 2 | 21 | 89 |
+| 3 | 12 | 49 |
+| 4 | 17 | 59 |
+| 5 | 7 | 22 |
+| **Milestone 1** | **99** | **368** |
+| 6 | 17 | 54 |
+| 7 | 25 | 92 |
+| 8 | 18 | 57 |
+| 9 | 21 | 69 |
+| 10 | 27 | 79 |
+| 11a | 31 | 110 |
+| 11b | 11 | 36 |
+| 12 | 25 | 93 |
+| 12b | 10 | 32 |
+| 13 | 9 | 29 |
+| 14 | 12 | 36 |
+| 15 | 11 | 30 |
+| **Rest of the MVP** | **217** | **717** |
+| **MVP** | **316** | **1,085** |
 
 ---
 
@@ -3754,9 +3918,7 @@ TASK-01-03-05-QA1.
 2. **Milk and the bootstrap.** Milestone 1 households get no milks; milks are
    seeded in wave 6 for new households only. Confirm there are no real
    households to migrate.
-3. **Second setup in Milestone 1.** A second setup becomes current and can't
-   be switched back until wave 6. Alternative: hold the builder to one setup
-   until wave 6.
+3. **Closed in revision 4.** The builder holds to one setup until wave 6.
 4. **DQ-11 fallback ranges** for "not sure" equipment live in one domain
    module (TASK-01-06-08-BE1). Confirm before QA.
 5. **DQ-10 "add anyway"** on a duplicate link is built behind a flag, off.
@@ -3767,6 +3929,10 @@ TASK-01-03-05-QA1.
    and baskets with their dose ranges, and the coffees, as public product
    facts only. TASK-01-02-01-BE6 is blocked on it.
 8. **DQ-24 freshness thresholds** (review m5) are still to confirm.
+
+Closed in revision 4: a second setup in Milestone 1 (question 3 and risk
+R-24: there is only one setup until wave 6, TASK-01-02-04-BE3), and the quiet
+link for an unknown basket dose range (dropped).
 
 Closed in revision 3: the size of Milestone 1 (now 368 h), the section guard
 (TASK-01-01-05-FE8 retired), dose with an unknown basket range (never
@@ -3832,8 +3998,8 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
   (TASK-02-03-06-BE2). The temperature trigger ("grind at its limit or a
   grind change didn't help") needs the previous shot in the same grind
   period, which makes the engine depend on history, not just one shot. The
-  grind-period dependency is now declared (TASK-04-01-03-BE1 on
-  TASK-02-03-06-BE1 and BE2, and moved to wave 10).
+  grind-period dependency is now declared (TASK-02-03-06-BE1 and BE2 depend
+  on TASK-04-01-01-BE2 and TASK-04-01-03-BE1, which moved to wave 10).
 - **R-18 Current setup is device state (new, TQ-16).** A second device may show
   a different current setup until a shot is logged. Acceptable in a
   one-device prototype.
@@ -3851,11 +4017,15 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
 - **R-23 Tried and coffee queries (new).** Tried groups shots by merge
   survivor in one query. With a large history this may need an index on
   `(household_id, portion_id)`; not planned until measured.
-- **R-24 Second setup in Milestone 1 (new).** The newest setup is current, so
-  a second setup becomes current and can't be switched back until wave 6
-  (TASK-01-02-09-BE1). Question 3 in section 9.2.
-- **R-25 Wave 11 size (new).** Wave 11 is large (about 130 h or more). The
-  clocks' UI is the easiest to peel off if it needs splitting.
+- **R-24 Retired (revision 4).** The Milestone 1 builder can't make a second
+  setup, so the only setup is current. Closed by the Head of Product's
+  decision (TASK-01-02-04-BE3 lifts the limit in wave 6).
+- **R-25 Wave sizes (revision 4).** The old wave 11 was about 198 h (58
+  tasks), 28% of the post-Milestone 1 hours. It is now split: wave 11a about
+  110 h, wave 11b about 36 h, wave 12b (clock screens) about 32 h, the profile
+  in wave 6 (13 h) and TASK-02-01-06-FE2 and QA1 (7 h) in wave 12. Wave 11a is
+  still the largest (110 h); the re-forecast after Milestone 1 should measure
+  against the per-wave hours in section 8.3.
 - **Accepted as is (new).** TASK-02-03-06-BE1 depends on
   TASK-01-03-02-FE2 (the grind scale config). That task is pure TypeScript
   labelled frontend; the dependency is acceptable.
@@ -3876,17 +4046,17 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
 | Epic | Title | Stories | Tasks | Hours |
 |---|---|---|---|---|
 | EPIC-01-01 | Start brewing without setting anything up | 8 | 41 | 145 |
-| EPIC-01-02 | Describe your setup once | 6 | 33 | 131 |
+| EPIC-01-02 | Describe your setup once | 6 | 34 | 133 |
 | EPIC-01-03 | Log a shot in seconds | 7 | 24 | 83 |
 | EPIC-01-04 | Record temperature and pressure when your machine has them | 2 | 8 | 27 |
 | EPIC-01-05 | Say how it tasted | 4 | 14 | 45 |
 | EPIC-01-06 | Add what's missing from the catalog | 9 | 31 | 109 |
-| **INIT-01** | | **36** | **151** | **540** |
+| **INIT-01** | | **36** | **152** | **542** |
 | EPIC-02-01 | Pin the recipe that worked | 5 | 18 | 60 |
 | EPIC-02-02 | Pull your daily shot in one tap | 7 | 23 | 83 |
 | EPIC-02-03 | Fix a bad shot from your recipe | 7 | 23 | 86 |
-| EPIC-02-06 | Look back in your journal | 6 | 22 | 71 |
-| **INIT-02** | | **25** | **86** | **300** |
+| EPIC-02-06 | Look back in your journal | 6 | 22 | 72 |
+| **INIT-02** | | **25** | **86** | **301** |
 | EPIC-03-01 | Add a bag of beans | 4 | 16 | 60 |
 | EPIC-03-02 | Split and freeze a bag | 5 | 15 | 47 |
 | EPIC-03-03 | Know how fresh your beans really are | 4 | 11 | 33 |
@@ -3895,7 +4065,7 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
 | **INIT-03** | | **20** | **64** | **204** |
 | EPIC-04-01 | Record maintenance on your equipment | 4 | 14 | 38 |
 | **INIT-04** | | **4** | **14** | **38** |
-| **Total** | | **85** | **315** | **1,082** |
+| **Total** | | **85** | **316** | **1,085** |
 
 The schema, migrations and test harness (section 6, 15 tasks, 45 hours) are
 counted in the epics of the stories they're parented to.
@@ -3906,7 +4076,11 @@ counted in the epics of the stories they're parented to.
 EPIC-03-06 (new, 36 h) and the setup work in EPIC-01-02 (+12 h).
 
 **Milestone 1 (section 8.1):** 99 tasks, 368 hours; design 144 h; the rest of
-the MVP is 216 tasks, 714 hours.
+the MVP is 217 tasks, 717 hours.
+
+**Compared with revision 3:** 315 tasks and 1,082 hours became 316 tasks and
+1,085 hours (1 task added, TASK-01-02-04-BE3, 2 h; TASK-02-06-02-FE1 grows
+from 6 h to 7 h). Milestone 1 is unchanged.
 
 **Compared with revision 2:** 313 tasks and 1,084 hours became 315 tasks and
 1,082 hours (3 added, 1 retired, about 12 headers updated).
