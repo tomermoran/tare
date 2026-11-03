@@ -1,295 +1,222 @@
-# Tare planning review (round 3)
+# Tare planning review (round 4, closing pass)
 
 Reviewer: principal product manager (quality gate), for the Head of Product.
-Inputs: `docs/spec.md` (S-02 Milestone 1 bullet now says about 370 h),
-`planning/drafts/initiatives.md`, `epics.md` (revision 10), `stories.md`
-(revision 4), `design.md` (through the Round 7 addendum) and `tasks.md`
-(revision 3). The round 2 review is in git history. No drafts were edited and
+Inputs: `docs/spec.md`, `planning/drafts/initiatives.md`, `epics.md`,
+`stories.md`, `design.md` (through the Round 7 addendum) and `tasks.md`
+(revision 4). The round 3 review is in git history. No drafts were edited and
 no GitHub issues were created.
 
 ## Verdict
 
-**Needs fixes.** 0 Blockers, 4 Major, 9 Minor.
+**Ready for approval.** 0 Blockers, 0 Major, 8 Minor.
 
-Revision 3 fixes what blocked approval. Milestone 1 is 99 tasks and 368 h,
-against S-02's roughly 370 h. The spec, the design and the tasks now agree on
-dose: it is never suggested without a basket range. The grind-period ordering
-is fixed and declared. Milestone 1 is nearly self-contained. What's left is
-small but real:
+All four Major findings from round 3 are resolved, and every total agrees.
+Milestone 1 is self-contained and matches S-02. The Minor findings are
+one-line text fixes. The tech-lead can make them when picking up the work, and
+they don't need another review round.
 
-- the shot detail in Milestone 1 still has buttons for features that don't
-  exist yet (N1);
-- the second-setup rule still has a hole, and it goes against S-02's "one
-  setup" (N2);
-- wave 11 is about 198 h, not "about 130 h" (N3);
-- the design's dose-range link has no story or task (N4).
+**The only decision waiting on the Head of Product is DQ-24**, the freshness
+thresholds. It doesn't hold up approval or Milestone 1:
 
-None of these needs a Head of Product decision except N2 (Q3).
+- it only affects the suggestion work in wave 12;
+- the working assumption is written down in TASK-02-03-05-BE1, as constants:
+  under 5 days and over 35 days since roast or packing, and over 21 days open.
+
+It needs an answer before wave 12's suggestion tests are written against those
+values.
 
 ## Previous findings: status
 
-| Finding | Status | Evidence / leftover |
+| Round 3 finding | Status | Evidence / leftover |
 |---|---|---|
-| B1 Milestone 1 size | **Resolved** | S-02 says about 370 h; 8.1 has 99 tasks and 368 h; the deferred list matches S-02. The full MVP (1,082 h) is re-forecast after Milestone 1, as S-02 says. |
-| M1 Dependencies leave Milestone 1 | **Mostly resolved** | TASK-01-01-01-BE5, 01-03-01-BE1, 02-06-01-FE1, 02-06-03-FE1 and 03-01-03-QA1 are fixed, and the edit mode is fully deferred. Leftover: undeclared links from the shot detail to edit, pin and "dial in from this" (N1), and a stale reference in TASK-01-02-04-BE1 (m3). |
-| M2 Second setup, log defaults | **Partly resolved** | Log defaults are now defined (TASK-01-03-01-BE1). The current-setup rule still breaks on reuse (N2). |
-| M3 Design schedule and wave order | **Mostly resolved** | 8.2 uses 8.3's wave numbers; every listed inversion is fixed. New: TASK-02-01-06-FE2 and QA1 (wave 11) need TASK-02-03-03-FE1 (wave 12) (m1). |
-| M4 Unknown dose range | **Resolved** | Design line 1024, round 6 amended, Round 7 addendum, TASK-02-03-06-BE2 and TASK-01-06-08-BE1 all agree. Leftover: the quiet link (N4). |
-| M5 TASK-01-01-05-FE8 | **Resolved (retired)** | Leftover: a design criterion it covered is now untested (m4). |
-| M6 TQ-08 and TQ-09 | **Resolved** | Adopted in 9.1; headers say "(assumed)". |
-| M7 Grind periods | **Resolved** | TASK-04-01-01-BE2 and 04-01-03-BE1 are in wave 10; TASK-02-03-06-BE1 and BE2 declare them. R-17's wording is reversed (m3). |
-| m1 QA skips | **Mostly resolved** | 8.1 has a skip table. Leftovers in m2. |
-| m2 Stale open questions | **Not resolved** | `stories.md` lines 1019, 1717, 3553-3608 (SQ-19/20/21 still open); epics and INIT-01 Q3 as before. |
-| m3 Initiative scope | **Not resolved** | `initiatives.md` lines 49-50 and 100. |
-| m4 Design epic count and headings | **Partly resolved** | The count is fixed to 16. The headings (lines 1388, 1514, 1788) and the SCR-COFFEE row (line 188, "03-01") are unchanged. |
-| m5 DQ-24 | **Not resolved** | Still unconfirmed (9.2 Q8; design marks it as waiting). |
-| m6 Dose-range chips | **Partly resolved** | Ranges outside 14-22 g are explained. The story example, 16-20 g, sits inside that span and still fits no chip. |
-| m7 Seed loader wording | **Resolved** | 8.1 "Seed loader and content". |
-| m8 Rules engine on a frontend task | **Resolved** | TASK-01-06-08-BE1 is a pure domain module; TASK-02-03-05-BE1 depends on it. A stale reference remains in TASK-01-03-02-FE2 (m3). |
-| m9 Design-originated scope | **Unchanged, smaller** | The checklist is no longer in Milestone 1. Nothing else to do unless cuts are wanted. |
+| N1 Shot detail actions | **Resolved** | TASK-02-06-03-FE1 and FE2 build no actions. Edit, pin and dial in are added by TASK-02-06-02-FE1, TASK-02-01-01-FE2 and TASK-02-06-06-FE1, and each depends on TASK-02-06-03-FE2. 8.1 and the skip table agree. |
+| N2 Second setup | **Resolved** | `resolveSetup` refuses a second setup. S-02, 8.1, section 4, TQ-16 and TASK-01-03-01-BE1 agree. R-24 and Q3 are retired. Hand-over details are in m1 to m3. |
+| N3 Wave 11 size | **Resolved** | R-25 is corrected. The split adds up: 110 + 36 + 32 + 13 + 7 = 198 h, and 31 + 11 + 10 + 4 + 2 = 58 tasks. |
+| N4 Dose-range link | **Resolved (dropped)** | Design's Round 6 and Round 7 addenda and tasks 9.2 agree. No story or task refers to the link. |
+| m1 Wave 11 waits on wave 12 | **Resolved** | TASK-02-01-06-FE2 and QA1 are in wave 12. |
+| m2 QA skips and re-tests | **Mostly resolved** | The Brew, frozen-pick and checklist re-tests are named in TASK-02-02-01-QA1, TASK-03-02-02-QA1 and TASK-01-01-07-QA1. The wave 9 re-runs state their dependencies in the task text. Leftovers are in m5. |
+| m3 Stale cross-references | **Resolved** | All five are fixed. |
+| m4 Tab label truncation | **Resolved** | Added to TASK-01-01-05-QA1. |
+| m5 Brew's "log a shot" | **Resolved** | TASK-01-03-01-FE2 wires it. |
+| m6 S-02 wording | **Resolved** | S-02 says "the earlier, wider cut". |
+| m7 Stale questions and initiative scope | **Partly resolved** | `stories.md` is fixed. `initiatives.md` and `epics.md` each keep one stale passage (m7 below). |
+| m8 Design headings and SCR-COFFEE row | **Resolved** | Headings at lines 1388, 1514 and 1788 and the row at line 188 now match. |
+| m9 DQ-24 and dose chips | **Partly resolved** | Chips are resolved: the 16-20 g story example is gone, and the design explains "other". DQ-24 is knowingly open. |
+| Round 2 m9 Design-originated scope | **No action** | Nothing else to do unless cuts are wanted. |
 
 ## Coverage summary
 
-- **Spec to stories:** unchanged since round 2. Every section from S-01 to
-  S-09 is covered by at least one story. Nothing new is uncovered.
-- **Totals check out:**
-  - the MVP: 315 tasks and 1,082 h, which is revision 2 plus 3 added tasks,
-    minus 1 retired, with the changed estimates (-2 h);
-  - Milestone 1: 99 tasks and 368 h, which is the five epics' 136 tasks and
-    490 h, minus 41 deferred tasks (134 h), plus 4 pulled in (12 h);
-  - the deferred table: 41 tasks, 134 h;
-  - design: 144 h for Milestone 1 and 328 h for the MVP, matching design
-    section 9's per-task hours.
-- **Milestone 1 closure:** I checked the dependency lines of all 99 tasks.
-  Each depends only on Milestone 1 tasks, PR-3, the Head of Product's
-  prerequisites, or design tasks scheduled before wave 5. The exception is
-  the shot detail's undeclared action targets (N1).
-- **New tasks:**
-  - TASK-02-06-01-FE2 and TASK-02-06-03-FE3 (2 h each): well sized, with
-    clear "done when", parent and dependencies (TASK-01-05-04-FE1, wave 9).
-  - TASK-01-06-08-BE1 (2 h): a sound domain module whose only dependencies
-    are wave 1 schema and DQ-11.
-- **No AI in the MVP**, nothing in the MVP depends on Next or Later work, no
-  circular dependencies, no personal data. Every MVP story still has a QA
-  task.
-- **Wave placement asked about:**
-  - **Part screen in wave 6: sound.** FE5 and FE6 depend only on Milestone 1
-    work. Wave 6 comes before their consumers (wave 7's answer-later flow and
-    TASK-01-06-08-FE2 in wave 8), and DES-01-02-03 is delivered in wave 2.
-  - **Checklist in wave 11: sound.** TASK-02-02-01-FE1 (Brew) depends on
-    TASK-01-01-07-FE2, so the checklist has to land just before Brew, and
-    DES-02-02-04 is scheduled ahead of it.
-  - **Profile in wave 11: not well placed.** Nothing in its dependencies ties
-    it there. It only adds the persona label to a Brew screen that wave 11
-    rebuilds, and that link isn't declared (part of N3).
-  - **Wave 11 is too big:** see N3.
+**Spec to stories:** not re-run, because the stories' scope didn't change.
+Round 3's result stands: every section from S-01 to S-09 has at least one
+story.
+
+**Totals:** I added up all 316 task headers by hand, by epic and by wave.
+
+| Check | Stated | Result |
+|---|---|---|
+| MVP | 316 tasks, 1,085 h | Agrees |
+| Every epic and initiative row in section 11 | | Agrees |
+| Five Milestone 1 epics in full | 137 tasks, 493 h | Agrees |
+| Deferred table | 42 tasks, 137 h | Agrees |
+| Pulled in from other epics | 4 tasks, 12 h | Agrees |
+| Milestone 1 (137 - 42 + 4; 493 - 137 + 12) | 99 tasks, 368 h | Agrees |
+| Milestone 1 epic rows in 8.1 | 30/114, 24/98, 17/60, 16/60, 8/24 | Agree |
+| Waves 1 to 5 | 42/149, 21/89, 12/49, 17/59, 7/22 | Agree, total 99/368 |
+| Waves 6 to 15, including 11a, 11b and 12b | 217 tasks, 717 h | Agree, row by row |
+| Design | 144 h for Milestone 1, 328 h for the MVP | Agrees; 11a (41 h) and 11b (8 h) match design section 9 |
+| Revision 3 to 4 change | +1 task, +3 h | Agrees (TASK-01-02-04-BE3 2 h, TASK-02-06-02-FE1 +1 h) |
+
+Three smaller figures outside these totals are off (m6).
+
+**Changed areas:**
+
+- **Milestone 1 closure:** every dependency on the 99 tasks is a Milestone 1
+  task, PR-3, a Head of Product prerequisite, a design task scheduled by wave
+  5, or a working-assumption question.
+- **Wave order:** every task's declared dependencies land in the same wave or
+  an earlier one, including the moved tasks. Wave 6 and wave 12b need no new
+  design, as 8.2 says. There are no circular dependencies on the new links.
+- **TASK-01-02-04-BE3:** the task is well placed and sized, with a clear "done
+  when" and correct dependencies. Wave 6 runs it after TASK-01-02-09-BE1, and
+  TASK-01-02-08-FE1 and TASK-01-02-09-QA1 wait for it. The small gaps around it
+  are in m1 to m3.
+- **Skip table:** each row points to a wave that delivers the feature. Gaps in
+  naming the receiving test are in m5.
+- **Wave sizes:** wave 11a (110 h) is the largest after Milestone 1. R-25 says
+  so, and it is a reasonable size next to wave 12 (93 h) and wave 7 (92 h).
+
+**Limits of this pass:** I couldn't diff against git, so I judged the fixes by
+reading the current text. I didn't revisit unchanged areas apart from the
+carried findings.
 
 ---
+
+## Blockers
+
+None.
 
 ## Major
 
-### N1. The Milestone 1 shot detail has actions for features that come later
-
-- **Items:**
-  - TASK-02-06-03-FE1 still builds `recipe.pin` as the primary action, plus
-    `shot.dialInFromThis` and edit.
-  - TASK-02-06-03-FE2: "edit opens `/log?mode=edit`; pin opens PinSheet".
-    Done when: "Edit is at most two taps from the Journal tab".
-  - 8.1 trims "No tasting", which removes only the pin action.
-- **Problem:** In Milestone 1 the edit mode doesn't exist until wave 9,
-  PinSheet until wave 11 (EPIC-02-01) and "dial in from this" until wave 13.
-  As written, the shot detail ships three buttons that lead nowhere. That
-  breaks the shell rule "no tab is blank or has a dead action" (design
-  EPIC-01-01, TASK-01-01-05-FE3 AC 2). FE2's "done when" can't be met in
-  Milestone 1, and its link to PinSheet isn't declared. This is the last
-  real gap in "Milestone 1 stays inside itself".
-- **Fix:**
-  - Add a trim: in Milestone 1 the detail is read-only, with no actions.
-  - Move wiring each action into the task that delivers its target, with a
-    declared dependency: edit with TASK-02-06-02-FE1, pin with the EPIC-02-01
-    PinSheet task, and dial in with TASK-02-06-06-FE1.
-  - Add FE2's edit criterion to the 8.1 skip table.
-- **Owner:** tech-lead.
-
-### N2. Newest-is-current breaks when an existing setup is reused, and S-02 says "one setup"
-
-- **Items:**
-  - 8.1 trim "One setup, newest is current".
-  - TASK-01-02-04-BE1: "then makes it current (TASK-01-02-09-BE1)"; done when
-    "it becomes current (AC 6)".
-  - TASK-01-02-04-FE2 (AC 6) and TASK-01-02-04-QA1 (AC 1 to AC 6, no skip).
-  - R-24; 9.2 Q3; S-02: "describe your setup (one setup, from a seeded
-    catalog)".
-- **Problem:** `findOrCreateSetup` reuses an existing setup for a known
-  combination, and a reused setup isn't the newest. So in Milestone 1:
-  - a user who makes a second setup and then builds the original combination
-    again gets "use this", but the newer setup stays current;
-  - AC 6 of STORY-01-02-04 fails, and nothing marks it as skipped;
-  - R-24's "can't be switched back" understates this: not even by rebuilding
-    the combination.
-
-  The plan also never says where a second setup can be started in
-  Milestone 1. Change-a-part is deferred, and Setup rows aren't tappable. And
-  S-02 asks for one setup.
-- **Fix:** Take 9.2 Q3's alternative: in Milestone 1 the builder resolves
-  only when the household has no setup, so it matches S-02 and R-24 goes
-  away. Then add AC 6's reuse case to the skip table, re-tested in wave 6, and
-  drop the stale TASK-01-02-09-BE1 reference from TASK-01-02-04-BE1. If the
-  Head of Product prefers to keep second setups, make the rule "the most
-  recently resolved setup", which needs a timestamp or the cookie, and list
-  the Milestone 1 entry points to the builder.
-- **Owner:** Head of Product (Q3), then the tech-lead.
-
-### N3. Wave 11 is about 198 hours, not "about 130 h or more"
-
-- **Items:** 8.3 wave 11; R-25.
-- **Problem:** Adding the tasks listed in wave 11 from their headers:
-
-  | Part | Hours |
-  |---|---|
-  | EPIC-02-01 except TASK-02-01-01-BE1 | 58 |
-  | EPIC-02-02 | 83 |
-  | First-run checklist | 12 |
-  | Profile | 13 |
-  | Clock and remaining-coffee UI | 32 |
-  | **Total** | **about 198, 58 tasks** |
-
-  That is 28% of the 714 post-Milestone 1 hours in one wave, more than half
-  of Milestone 1. It also hides two inversions:
-  - TASK-02-01-06-FE2 and QA1 need wave 12 (m1);
-  - the profile's Brew label needs TASK-02-02-01-FE1, which isn't declared.
-
-  The re-forecast after Milestone 1 will be measured against waves like this
-  one, so its size should be stated correctly.
-- **Fix:**
-  - Correct R-25 and the 8.3 note.
-  - Split wave 11, for example:
-    - 11a: recipes, then the checklist, then Brew defaults and Brew;
-    - 11b: pull, choosing, setup switching and the closest setup.
-  - Move the clock and remaining-coffee UI (32 h) to run beside wave 12. The
-    engine needs only the clock backends.
-  - Move the profile to wave 6 (no dependency stops it) and have
-    TASK-02-02-01-FE1 keep the persona label. Or leave it after Brew and
-    declare TASK-02-02-01-FE1 as its dependency.
-  - Move TASK-02-01-06-FE2 and QA1 to wave 12.
-- **Owner:** tech-lead.
-
-### N4. The design's "set your basket's dose range" link has no story or task
-
-- **Items:** Design line 1024 and the round 6 and 7 addenda
-  (`suggest.noBasketRange`, a quiet link "only when dose would have been the
-  lever"); STORY-02-03-05 and 02-03-06; TASK-02-03-05-BE1 and FE1;
-  TASK-02-03-06-BE2.
-- **Problem:** The approved design shows a link the user can see. No story
-  criterion asks for it, and no task builds it. The engine would need to
-  report a skipped dose lever, and the card would need to render the link and
-  route it to the part's capability question (STORY-01-06-09). As it stands,
-  either the developer invents the behaviour, or the design silently loses
-  it.
-- **Fix:** Either:
-  - the story-writer adds a criterion to STORY-02-03-06 (or 02-03-05), and
-    the tech-lead adds it to TASK-02-03-06-BE2 (a `skippedDose` reason) and
-    TASK-02-03-05-FE1 (the link), plus a scenario in TASK-02-03-06-QA1; or
-  - the designer drops the link.
-
-  Each takes a few hours at most.
-- **Owner:** story-writer and tech-lead, or the designer.
-
----
+None.
 
 ## Minor
 
-### m1. Wave 11 tasks wait on wave 12
+### m1. The hand-over from TASK-01-02-04-QA1 to wave 6 has loose ends
 
-TASK-02-01-06-FE2 depends on TASK-02-03-03-FE1, and QA1 follows it. 8.3 notes
-this but leaves both in wave 11. **Fix:** move them to wave 12. **Owner:**
-tech-lead.
+- **Items:** TASK-01-02-04-QA1, TASK-01-02-04-BE3, TASK-01-02-09-QA1.
+- **Problems:**
+  - QA1's Build still says "Node tests for reuse", but its "done when" skips
+    reuse (AC 3).
+  - QA1 tests "the refusal of a second setup". That test fails once BE3 removes
+    the guard, and no task says to retire it.
+  - BE3 claims AC 4 for a second setup, but TASK-01-02-09-QA1's re-test list
+    has only AC 2, AC 3 and AC 6.
+  - BE3 says the builder's entry points come from TASK-01-02-08-FE1 and
+    TASK-01-02-09-FE1, but only 08-FE1 builds one.
+- **Fix:** Drop reuse from QA1's Build. Have BE3 retire the refusal test. Add
+  AC 4 to the re-test list. Remove 09-FE1 from BE3's sentence.
+- **Owner:** tech-lead.
 
-### m2. QA skips and re-tests are only partly wired
+### m2. TASK-01-02-09-BE1 doesn't say it replaces the only-setup default
 
-- TASK-01-03-01-QA1 says AC 1 is re-tested in TASK-02-02-01-QA1 and AC 4 in
-  TASK-03-02-02-QA1. Neither of those tasks mentions it, whereas
-  TASK-03-02-01-QA1 does this correctly for TASK-03-01-03-QA1.
-- TASK-02-06-01-QA1 and 02-06-03-QA1 re-run in wave 9, but they don't depend
-  on FE2 and FE3.
-- These criteria still mention the deferred checklist and aren't in the skip
-  table:
-  - TASK-01-01-05-FE5 ("the same for a setup from the checklist");
-  - TASK-01-02-02-FE4 ("from the checklist it continues");
-  - TASK-01-02-05-FE1 ("in checklist step 1").
+- **Items:** TASK-01-02-09-BE1 and QA1; TASK-01-03-01-BE1; wave 6 step 2.
+- **Problem:** TASK-01-03-01-BE1 and wave 6 both say 09-BE1 replaces
+  `defaultSetupId`, but 09-BE1's own Build and "done when" don't. If this is
+  missed, the log keeps the wrong default once a second setup exists, and no
+  test names that case.
+- **Fix:** Add the swap to 09-BE1's Build, and add a test to 09-QA1 that the
+  log defaults to the current setup when there are several.
+- **Owner:** tech-lead.
 
-**Fix:** add each re-test to the receiving QA task, add the FE2 and FE3
-dependencies, and list the checklist criteria in the skip table. **Owner:**
-tech-lead.
+### m3. The refusal of a second setup has no user-facing state
 
-### m3. Stale cross-references in revision 3
+- **Items:** TASK-01-02-04-BE1 and FE2; TASK-01-02-05-BE1 and FE1.
+- **Problem:** `resolveSetup` returns a typed error when a setup exists. No
+  task says what the user sees. It can happen in Milestone 1 in two ways:
+  - a double tap on the one-tap first setup, where the second call is refused
+    just after the first succeeded;
+  - a stale or back-navigated builder page.
+- **Fix:** Treat the refusal as success-and-return when the combination is the
+  same setup. Otherwise return to Setup with a neutral Notice. Add one test to
+  TASK-01-02-04-QA1.
+- **Owner:** tech-lead.
 
-- TASK-01-02-04-BE1 still cites TASK-01-02-09-BE1.
-- TASK-01-03-02-FE2 sends unknowns to "TASK-01-06-08-FE1"; it should now be
-  BE1.
-- R-17 says "TASK-04-01-03-BE1 on TASK-02-03-06-BE1 and BE2", which is the
-  wrong way round.
-- Wave 7 says TASK-01-06-08-BE1 "waits for wave 8", but it depends only on
-  wave 1 schema and DQ-11.
-- "Retired (15)" sits under "Changes since revision 1", which also says 14.
+### m4. TASK-02-02-01-QA1's "done when" can't be met until wave 12b
 
-**Fix:** correct each one. **Owner:** tech-lead.
+- **Items:** TASK-02-02-01-FE1 and QA1 (wave 11a); TASK-03-03-04-FE1 and
+  TASK-03-04-01-FE2 (wave 12b).
+- **Problem:** QA1 says "AC 1 to AC 6 are covered". STORY-02-02-01 AC 2 (both
+  clocks) and AC 1's "how much coffee is left" only appear in wave 12b. FE1's
+  Build lists "coffee line with both clocks", and its "once TASK-03-03-04
+  lands" doesn't say that the screen task is what's needed.
+- **Fix:** In QA1, hand those two criteria to TASK-03-03-04-QA1 and
+  TASK-03-04-01-QA1. In FE1, cite TASK-03-03-04-FE1 (wave 12b) and remove the
+  clocks from the Build.
+- **Owner:** tech-lead.
 
-### m4. Retiring FE8 left a design criterion untested
+### m5. A few re-tests still aren't named by the receiving task
 
-Design EPIC-01-01: "labels never truncated in any shipped locale (test with a
-long locale)". TASK-01-01-05-QA1 tests the 44 px height but not truncation.
-My round 2 finding M5 missed that this criterion exists. **Fix:** add a story
-test to TASK-01-01-05-QA1 with the TQ-08 test locale, at 320 px, in LTR and
-RTL (no new task). **Owner:** tech-lead.
+- **Items:**
+  - The skip table sends TASK-01-02-01-QA1 AC 6 (private entries) to "wave 7",
+    but no wave 7 task names it, and QA1 still says "AC 1 to AC 6 are covered".
+  - TASK-02-06-03-QA1 sends the actions of AC 3 and AC 4 to TASK-02-06-02-QA1,
+    TASK-02-01-01-QA1 and TASK-02-06-06-QA1. None of them mentions
+    STORY-02-06-03.
+  - TASK-02-01-01-FE2 doesn't say pin is primary on measured shots (design line
+    1445).
+- **Fix:** Name AC 6 in TASK-01-06-03-QA1 and add the skip to
+  TASK-01-02-01-QA1. Add one line to each receiving QA task. Add "primary" to
+  TASK-02-01-01-FE2.
+- **Owner:** tech-lead.
 
-### m5. No task puts "log a shot" on the interim Brew screen
+### m6. Small figures and references in `tasks.md` are off
 
-8.1 says Brew is "a plain screen with one 'log a shot' action from
-TASK-01-01-05-FE3". FE3 is in wave 1, but `/log` exists only from wave 4, and
-an interim EmptyState gets an action "only once its target exists". **Fix:**
-add a step for the Brew action to TASK-01-03-01-FE2, or say that FE3 adds it
-in wave 4. **Owner:** tech-lead.
+These don't affect any total.
 
-### m6. S-02 wording about revision 2
+- 8.1 says the schema is "13 tasks, 38 hours". The headers add up to 36 h.
+- Section 11 says "15 tasks, 45 hours". The headers add up to 44 h.
+- R-13 says EPIC-01-06 is 108 h. Section 11 correctly says 109 h.
+- The header (lines 7-8) cites the design "through round 6"; it now runs to
+  Round 7.
+- 9.2 Q8 and the changes section cite "review m5" for DQ-24. That numbering is
+  out of date.
 
-S-02 says revision 2 "priced the narrower cut at about 422 hours". Revision
-2's cut was the wider one. **Fix:** "the earlier, wider cut". **Owner:** Head
-of Product.
+**Fix:** Correct each one, and cite DQ-24 by name. **Owner:** tech-lead.
 
-### m7. Carried over: stale open questions and initiative scope
+### m7. One stale passage each in `initiatives.md` and `epics.md`
 
-These are previous m2 and m3, unchanged. In `stories.md`:
+- `initiatives.md` lines 52-53: "Shots record the grinder and machine units
+  directly". S-08 records `setupId` on the shot, and the parts follow from the
+  setup.
+- `epics.md` lines 732-736 still ask who writes the scenario set and say step
+  sizes "aren't defined". The Head of Product's answers closed both (the
+  tech-lead writes the scenarios; SQ-19 sets the step sizes).
 
-- the "Most pressing" list and its open-question list (lines 3553-3608);
-- the notes on STORY-01-06-01 (line 1019, SQ-20) and STORY-02-03-06 (line
-  1717).
+**Fix:** Update both passages. **Owners:** strategist, epic-planner.
 
-The epics' notes and `initiatives.md` lines 49-50 and 100 are also unchanged.
-**Owners:** story-writer, epic-planner, strategist.
+### m8. No task wires the builder's `setup.closest` line
 
-### m8. Carried over: design headings and the SCR-COFFEE row
-
-Design lines 1388, 1514 and 1788 still use the old titles, and the SCR-COFFEE
-row (line 188) still says "03-01". **Owner:** designer.
-
-### m9. Carried over: DQ-24 thresholds and the dose-range chips
-
-- DQ-24 is still unconfirmed (9.2 Q8).
-- A 16-20 g basket, the stories' own example, still needs "other".
-
-**Fix:** confirm DQ-24, or mark it as a tuneable constant. Check the chips
-against the seed's real ranges. **Owners:** Head of Product, designer.
+- **Items:** Design line 536; TASK-01-02-04-FE1 and FE2; TASK-02-01-06-BE1.
+- **Problem:** FE1 builds the line and a story for it, and TASK-02-01-06-BE1
+  says "the builder's `setup.closest` line uses it too". But TASK-01-02-04-FE2
+  can't use it in Milestone 1, and no later task connects the two.
+- **Fix:** Add the wiring to TASK-02-01-06-FE1 (a small step, no new task), or
+  have the designer drop the line.
+- **Owner:** tech-lead, or the designer.
 
 ---
 
 ## Checks that passed
 
-- Traceability: the new tasks have parents, sources and consistent IDs. The
-  retired FE8 ID isn't reused.
-- Task quality: the three new tasks are 2 h each, testable, with sensible
-  dependencies.
-- MVP discipline and build order: no Next or Later dependencies and no
-  cycles. Milestone 1 is closed apart from N1 and N2.
-- Design schedule: every design task comes before the wave that consumes it.
-  Wave 0 needs 42 h of design up front, which is realistic for one designer.
+- **Traceability:** TASK-01-02-04-BE3 has a parent, consistent IDs and
+  references across the files.
+- **Scope creep and duplicates:** revision 4 adds nothing the spec doesn't
+  support. It narrows Milestone 1 to S-02's "one setup". BE3 doesn't overlap
+  TASK-01-02-08-FE1 or TASK-01-02-09-FE1.
+- **Design consistency:** the design matches the dropped link. The read-only
+  detail is a build-order trim, and the full screen stays as designed. No new
+  components.
+- **MVP discipline:** no AI in the MVP, and nothing depends on Next or Later
+  work. Every MVP story still has a QA task.
+- **Build order:** no cycles, and the order is realistic. Milestone 1 ends at
+  wave 5, and the rest is re-forecast from the measured pace, as S-02 says.
