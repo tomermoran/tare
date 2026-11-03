@@ -729,11 +729,11 @@ is kept as approved.)
   INIT-02 already has six epics (the limit). If the rules grow, they can be
   split out when INIT-02 is next restructured.
 - **Risks and open questions**
-  - The rules are heuristics. Who writes the scenario set they're tested
-    against, and what counts as passing? Since there's no AI in Phase 1, this
-    draft assumes plain scenario tests, not an LLM judge; confirm.
+  - The rules are heuristics, tested against plain scenario tests, not an LLM
+    judge (Phase 1 has no AI). Closed by the Head of Product's answers: the
+    tech-lead writes the scenarios.
   - Step sizes for "a bit" and "much" per lever (grind steps, grams, degrees,
-    millilitres) aren't defined.
+    millilitres) are set by SQ-19. Closed.
   - When answers point in several directions (too sour and too thin), only
     one change is suggested; the order above decides. Confirm that the user
     never sees two at once.

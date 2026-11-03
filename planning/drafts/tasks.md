@@ -1,10 +1,10 @@
-# Tare engineering tasks (revision 4, for the Head of Product's approval)
+# Tare engineering tasks (revision 4, approved)
 
 Source:
 
 - `planning/drafts/stories.md` (revision 4, approved, 138 stories, with the
   Head of Product's six answers);
-- `planning/drafts/design.md` (approved through round 6, plus the basket
+- `planning/drafts/design.md` (approved through round 7, plus the basket
   dose-range addendum);
 - `planning/drafts/epics.md` (revision 10, final, MVP build order);
 - `planning/drafts/review.md` (the plan review);
@@ -57,8 +57,18 @@ Product, 2026-11-03, applied after the round 3 review:
    the re-tests (m2); stale references fixed in TASK-01-02-04-BE1,
    TASK-01-03-02-FE2, R-17 and wave 7 (m3); TASK-01-01-05-QA1 checks that tab
    labels never truncate (m4); TASK-01-03-01-FE2 wires Brew's "log a shot"
-   action (m5). DQ-24 (m5 in the earlier numbering) stays open for the Head of
+   action (m5). DQ-24 (freshness thresholds) stays open for the Head of
    Product.
+6. **Closing review, Minor findings (m1 to m8) applied, no change to hours or
+   task counts.** The hand-over to wave 6 and the retired refusal tests are
+   named; TASK-01-02-09-BE1 replaces the only-setup default and its QA tests
+   it; the refusal of a second setup is success-and-return for the same
+   combination, otherwise a neutral Notice on Setup; TASK-02-02-01-QA1 is met
+   in wave 11a with the clocks and remaining coffee re-tested in wave 12b;
+   the missing re-tests are named; the schema (36 h), schema and harness
+   (44 h) and R-13 (109 h) figures are corrected; `setup.closest` is wired in
+   TASK-02-01-06-FE1. DQ-24 stays a working value for the Head of Product to
+   confirm before wave 12's suggestion tests.
 
 ## Changes since revision 2
 
@@ -1053,8 +1063,10 @@ Schema: TASK-01-02-01-BE1 and BE2 (section 6).
 - **Build:** Node tests for name, maker and alias matches by kind (AC 1, AC 5),
   alphabetical makers (AC 2), stock baskets first (AC 3), two same-size
   baskets shown by maker and model (AC 4), merged and private entries
-  (AC 6); picker play tests for no match.
-- **Done when:** AC 1 to AC 6 are covered.
+  (AC 6); picker play tests for no match. In Milestone 1 AC 6 (merged and private
+  entries) is skipped and re-tested in TASK-01-06-03-QA1 (wave 7).
+- **Done when:** AC 1 to AC 5 are covered; AC 6 is covered by
+  TASK-01-06-03-QA1.
 
 ##### STORY-01-02-02: Add the parts I own
 
@@ -1138,8 +1150,9 @@ Schema: TASK-01-02-04-BE2 (section 6).
   `existing` (name, recipe count) or `new`. Action `resolveSetup(ids, name?)`
   uses `findOrCreateSetup` (unique-index insert, read on conflict).
   **Milestone 1 limit (revision 4):** `resolveSetup` creates a setup only when
-  the household has none; when one exists it refuses with a typed error and
-  changes nothing, and the preview always says `new`. The only setup is
+  the household has none; when one exists it refuses with a typed error that
+  carries the existing setup's ID and whether the combination is the same
+  setup, and changes nothing; the preview always says `new`. The only setup is
   current, so no current-setup rule is needed. TASK-01-02-04-BE3 (wave 6)
   lifts the limit.
 - **Done when:** A missing part names itself and saves nothing (AC 5); a new
@@ -1164,17 +1177,28 @@ Schema: TASK-01-02-04-BE2 (section 6).
   `resolveSetup`, `returnTo` support and add-part with return-to.
   The builder is reached only when the household has no setup (the log's
   missing-setup path, the Setup tab's offer, the end-of-add-part offer).
+  **Refusal state (Milestone 1):** when `resolveSetup` refuses and the
+  combination is the same setup (a double tap, a back-navigated page), treat it
+  as success and return as usual; otherwise return to Setup with a neutral
+  Notice (text in `en.json`) and save nothing. The same handling applies to
+  `createFirstSetup` in TASK-01-02-05-FE1, so the one-tap double tap lands on
+  the setup it made.
 - **Done when:** Missing context in the log can add a setup and return
-  (AC 1); the resulting (only) setup is current on return (AC 6).
+  (AC 1); the resulting (only) setup is current on return (AC 6); a stale
+  builder page returns to Setup with the Notice.
 
 ##### TASK-01-02-04-QA1 · Test setup creation and matching
 `qa` · Parent: STORY-01-02-04 · 3 h · Updated · Depends on: TASK-01-02-04-FE2
-- **Build:** Unit tests for `validateParts`; Node tests for reuse, new, race,
-  missing part and isolation; play test that the Notice names the part.
+- **Build:** Unit tests for `validateParts`; Node tests for new, race, missing
+  part, isolation and the refusal of a second setup (including the double tap
+  and the stale-page case below); play test that the Notice names the part.
 - **Done when:** AC 1, AC 4 and AC 5 are covered, AC 2 for a new setup, and
-  the refusal of a second setup. In Milestone 1, AC 3 (reuse), AC 2's
-  `existing` case and AC 6 with more than one setup are skipped; they are
-  re-tested in TASK-01-02-09-QA1 (wave 6) after TASK-01-02-04-BE3.
+  the refusal of a second setup, with the user-facing state: a repeat of the
+  same combination returns as a success, a different one returns to Setup with
+  the neutral Notice and saves nothing. In Milestone 1, AC 3 (reuse), AC 2's
+  `existing` case, a second setup (AC 4) and AC 6 with more than one setup are
+  skipped; they are re-tested in TASK-01-02-09-QA1 (wave 6) after
+  TASK-01-02-04-BE3, which retires the refusal tests.
 
 ##### TASK-01-02-04-BE3 · Lift the one-setup limit
 `backend` · Parent: STORY-01-02-04 · 2 h · New (revision 4) · Depends on: TASK-01-02-04-BE1, TASK-01-02-09-BE1
@@ -1182,7 +1206,10 @@ Schema: TASK-01-02-04-BE2 (section 6).
   combination makes a second setup, a known one reuses its setup, `previewSetup`
   reports `existing`, and the result becomes current through
   TASK-01-02-09-BE1's `useSetup`. The Setup tab's entry points to the builder
-  come from TASK-01-02-08-FE1 and TASK-01-02-09-FE1.
+  come from TASK-01-02-08-FE1. It also retires the Milestone 1 refusal tests
+  (TASK-01-02-04-BE1's "a second create is refused" and TASK-01-02-04-QA1's
+  refusal case), replacing them with a test that a second combination makes a
+  second setup.
 - **Done when:** A second setup can be made and becomes current (AC 4, AC 6);
   the same combination reuses its setup and recipes (AC 3); the preview says
   `existing` with its name and recipe count (AC 2); two quick calls still make
@@ -1204,7 +1231,8 @@ Schema: TASK-01-02-04-BE2 (section 6).
   in checklist step 1. One tap calls `createFirstSetup`, or opens the builder
   prefilled when `oneTap` is false. The add-part flow ends on it.
 - **Done when:** The offer names three parts (AC 4); it appears after the last
-  required part (AC 3); one tap with no typing (AC 1).
+  required part (AC 3); one tap with no typing (AC 1); a double tap ends on the one setup, with no error
+  (the refusal of the second call counts as success).
 
 ##### TASK-01-02-05-QA1 · Test the setup shortcut
 `qa` · Parent: STORY-01-02-05 · 3 h · Updated · Depends on: TASK-01-02-05-FE1
@@ -1246,12 +1274,14 @@ Schema: TASK-01-02-04-BE2 (section 6).
 `backend` · Parent: STORY-01-02-09 · 4 h · New · Depends on: TASK-01-02-04-BE2, TASK-01-03-03-BE1
 - **Build:** `src/domain/currentSetup.ts`: the setup of the persona's latest
   shot, unless the `currentSetup` cookie (setup ID and time) is newer; with
-  no shot, the newest setup (DQ-18, TQ-16). Action `useSetup(id)` writes the
-  cookie. DAL `getSetups()` returns each setup with parts, recipe count
+  no shot, the newest setup (DQ-18, TQ-16). It replaces the Milestone 1
+  `defaultSetupId` (the only setup) in TASK-01-03-01-BE1's `getLogContext`.
+  Action `useSetup(id)` writes the cookie. DAL `getSetups()` returns each setup with parts, recipe count
   (latest per key), last used and an `older` flag (90 days).
 - **Done when:** A later shot overrides an earlier choice and the reverse
   (AC 1, AC 3); no shots gives the newest setup (AC 2); counts and dates are
-  right (AC 4).
+  right (AC 4); with several setups, `getLogContext` defaults to the current
+  one, not the only-setup default.
 
 ##### TASK-01-02-09-BE2 · Add naming and renaming a setup
 `backend` · Parent: STORY-01-02-09 · 2 h · New · Depends on: TASK-01-02-04-BE2
@@ -1274,10 +1304,12 @@ Schema: TASK-01-02-04-BE2 (section 6).
 - **Build:** Unit tests for the rule with fixed clocks; Node tests for the
   read, rename and isolation; play tests for the cards. Re-tests the
   criteria TASK-01-02-04-QA1 skipped in Milestone 1: reuse of a known
-  combination (STORY-01-02-04 AC 3), the `existing` preview (AC 2) and AC 6
-  with several setups.
-- **Done when:** AC 1 to AC 6 are covered, plus the three STORY-01-02-04
-  criteria above.
+  combination (STORY-01-02-04 AC 3), the `existing` preview (AC 2), a second
+  setup (AC 4) and AC 6 with several setups. Also a test that the log
+  defaults to the current setup when there are several (see
+  TASK-01-02-09-BE1).
+- **Done when:** AC 1 to AC 6 are covered, plus the four STORY-01-02-04
+  criteria above and the log default with several setups.
 
 #### EPIC-01-03: Log a shot in seconds
 
@@ -1756,8 +1788,10 @@ it.
 ##### TASK-01-06-03-QA1 · Test catalog privacy and verification
 `qa` · Parent: STORY-01-06-03 · 4 h · Unchanged · Depends on: TASK-01-06-03-BE1
 - **Build:** Two-household Node tests for AC 1 to AC 3, including setting
-  `status='verified'` directly, plus isolation cases.
-- **Done when:** AC 1 to AC 3 are covered.
+  `status='verified'` directly, plus isolation cases. Re-tests STORY-01-02-01
+  AC 6 (a merged entry, our own marked as added by us, other households'
+  unverified entries never in a search), skipped in TASK-01-02-01-QA1.
+- **Done when:** AC 1 to AC 3 are covered, plus STORY-01-02-01 AC 6.
 
 ##### STORY-01-06-04: Get pointed to an entry that already exists
 
@@ -1954,7 +1988,7 @@ Schema: TASK-02-01-01-BE1 (section 6).
 `frontend` · Parent: STORY-02-01-01 · 3 h · Unchanged · Depends on: TASK-02-01-01-FE1, TASK-02-01-01-BE3, TASK-01-05-01-FE3, TASK-02-06-03-FE2
 - **Build:** `recipe.pin` on TasteScreen and ShotDetailScreen (measured only;
   added to the detail's `actions` slot here, because the detail is read-only in
-  Milestone 1) opens PinSheet; confirm calls `pinFromShot`, announces `recipe.pinned`.
+  Milestone 1; primary on measured shots, as the design says) opens PinSheet; confirm calls `pinFromShot`, announces `recipe.pinned`.
   On the tasting screen the choices are saved first.
 - **Done when:** Pin is reachable from both (AC 1); absent on one-tap (AC 5);
   failure retries (AC 6). The detail's pin is the one that STORY-02-06-03 AC 3
@@ -1965,8 +1999,10 @@ Schema: TASK-02-01-01-BE1 (section 6).
 - **Build:** Node tests: fields copied including prep and milk (AC 2); replace
   across different milk (AC 3); resolution only on the setup (AC 4); one-tap
   rejected (AC 5); edit does not change the recipe, forced failure leaves no
-  row (AC 6); isolation; sheet play tests (AC 1).
-- **Done when:** AC 1 to AC 6 are covered.
+  row (AC 6); isolation; sheet play tests (AC 1). Also tests STORY-02-06-03
+  AC 3's pin action on the shot detail (present and primary on a measured
+  shot, absent on a one-tap shot).
+- **Done when:** AC 1 to AC 6 are covered, plus STORY-02-06-03's pin action.
 
 ##### STORY-02-01-02: Pin a recipe by entering the values
 
@@ -2036,7 +2072,8 @@ Schema: TASK-02-01-01-BE1 (section 6).
 - **Build:** `src/domain/closestSetup.ts` `closestSetup(current, others,
   hasRecipe, lastUsed)`: the setup with a recipe for this bean and drink that
   shares the most parts with the current one (0 to 2); ties to the one used
-  most recently. The builder's `setup.closest` line uses it too.
+  most recently. The builder's `setup.closest` line uses it too (wired in
+  TASK-02-01-06-FE1).
 - **Done when:** Unit tests cover sharing counts, ties and no candidate
   (AC 2).
 
@@ -2052,11 +2089,16 @@ Schema: TASK-02-01-01-BE1 (section 6).
   recipe anywhere gives the blank start (AC 6).
 
 ##### TASK-02-01-06-FE1 · Show the no-recipe-on-this-setup state on Brew
-`frontend` · Parent: STORY-02-01-06 · 3 h · New · Depends on: TASK-02-01-06-BE2, TASK-02-02-01-FE1, DES-02-01-05
+`frontend` · Parent: STORY-02-01-06 · 3 h · New · Depends on: TASK-02-01-06-BE2, TASK-02-02-01-FE1, TASK-01-02-04-FE2, DES-02-01-05
 - **Build:** HomeScreen state: `home.noRecipeOnSetup`, `home.startsFrom`
   naming the closest setup, and only `home.dialIn` as primary, never a
-  pull. Check PR #3's HomeScreen props first.
-- **Done when:** The state shows with the setup named and no pull (AC 1).
+  pull. Check PR #3's HomeScreen props first. Also wires the setup builder's
+  `setup.closest` line (built in TASK-01-02-04-FE1): TASK-01-02-04-FE2's page
+  passes the line the result of TASK-02-01-06-BE1's `closestSetup` when the
+  new combination shares parts with another setup (a small step, no new
+  task; the line stays hidden in Milestone 1, which has one setup).
+- **Done when:** The state shows with the setup named and no pull (AC 1); a
+  new combination that shares parts shows `setup.closest` in the builder.
 
 ##### TASK-02-01-06-FE2 · Open the log from the closest setup with its notes
 `frontend` · Parent: STORY-02-01-06 · 3 h · New · Depends on: TASK-02-01-06-BE2, TASK-02-03-03-FE1
@@ -2095,12 +2137,16 @@ Schema: TASK-02-01-01-BE1 (section 6).
 `frontend` · Parent: STORY-02-02-01 · 6 h · Updated (clocks line, prep and milk) · Depends on: TASK-02-02-01-BE1, TASK-01-01-07-FE2, TASK-01-01-03-FE3, TASK-01-01-06-FE4, PR-3, DES-02-02-01
 - **Build:** `src/app/(app)/page.tsx` renders HomeScreen (PR #3) with
   `getHome()`: keeps the persona label that TASK-01-01-03-FE3 added to the
-  interim Brew screen (revision 4), drink title, coffee line with both clocks, large ShotValues
+  interim Brew screen (revision 4), drink title, coffee line (bean and portion; the clocks and the
+  remaining-coffee footnote are added by TASK-03-03-04-FE1 and
+  TASK-03-04-01-FE2 in wave 12b), large ShotValues
   with prep and milk lines, setup line, `home.pull`, ghost `home.dialIn`;
   states: loading, first run, no recipe, finished coffee, load failed.
   Extend HomeScreen props where PR #3 lacks a state.
 - **Done when:** The drink, coffee, values, prep, milk and setup show (AC 1);
-  clocks show as AC 2 says once TASK-03-03-04 lands; the finished state offers
+  the clocks (AC 2) and "how much coffee is left" (AC 1) are not part of this
+  task: TASK-03-03-04-FE1 (wave 12b) shows both clocks and TASK-03-04-01-FE2
+  (wave 12b) the remaining coffee; the finished state offers
   choose and add (AC 6); one primary button in every state.
 
 ##### TASK-02-02-01-QA1 · Test the home screen defaults and states
@@ -2110,7 +2156,12 @@ Schema: TASK-02-01-01-BE1 (section 6).
   axe; a manual phone check.
   Re-tests STORY-01-03-01 AC 1 (context arrives pre-chosen from Brew's
   drink and coffee), skipped in TASK-01-03-01-QA1 in Milestone 1.
-- **Done when:** AC 1 to AC 6 are covered, plus STORY-01-03-01 AC 1.
+  In wave 11a it skips the two criteria that need wave 12b: AC 2 (both
+  clocks) and the "how much coffee is left" part of AC 1. They are re-tested
+  in TASK-03-03-04-QA1 and TASK-03-04-01-QA1.
+- **Done when:** AC 1 (without the remaining-coffee line) and AC 3 to AC 6 are
+  covered, plus STORY-01-03-01 AC 1. AC 2 and the remaining-coffee line are
+  re-tested in wave 12b.
 
 ##### STORY-02-02-02: Pull this shot in one tap
 
@@ -2406,7 +2457,8 @@ Schema: TASK-02-01-01-BE1 (section 6).
 - **Build:** `src/domain/suggest/`: input types (shot, answers, tags, recipe,
   setup capabilities, dose bound, clocks), the result type (one change or
   none, reason parts, freshness line), `constants.ts` (step sizes from
-  answer 1; DQ-24 thresholds: under 5 days, over 35 days since roast or
+  answer 1; DQ-24 working-value thresholds (the Head of Product confirms them
+  before the wave 12 suggestion tests are written): under 5 days, over 35 days since roast or
   packing, over 21 days open, freezer time excluded), the reason builder
   (shot time as a diagnostic only) and the freshness explanation. No lever
   logic yet.
@@ -2578,8 +2630,9 @@ Its dependencies are unchanged.
 `qa` · Parent: STORY-02-06-02 · 4 h · Updated · Depends on: TASK-02-06-02-FE1
 - **Build:** Node tests for allowed and forbidden fields, one-tap staying
   one-tap with no rating, and remaining following the new dose; play tests
-  for layout, warning and discard.
-- **Done when:** AC 1 to AC 6 are covered.
+  for layout, warning and discard. Also tests STORY-02-06-03's edit action
+  (AC 3 and AC 4) from the shot detail, on measured and one-tap shots.
+- **Done when:** AC 1 to AC 6 are covered, plus STORY-02-06-03's edit action.
 
 ##### STORY-02-06-03: See a shot's details
 
@@ -2702,8 +2755,10 @@ Its dependencies are unchanged.
 ##### TASK-02-06-06-QA1 · Test dialing in from a past shot
 `qa` · Parent: STORY-02-06-06 · 3 h · New · Depends on: TASK-02-06-06-FE1
 - **Build:** Node tests for the read, current-setup change on save and the
-  untouched source; play tests for the sheet and finished coffee.
-- **Done when:** AC 1 to AC 5 are covered.
+  untouched source; play tests for the sheet and finished coffee. Also tests
+  STORY-02-06-03's dial-in action (AC 3 and AC 4) from the shot detail.
+- **Done when:** AC 1 to AC 5 are covered, plus STORY-02-06-03's dial-in
+  action.
 
 ---
 
@@ -3082,8 +3137,9 @@ Schema: TASK-03-01-02-BE1 (section 6).
 ##### TASK-03-03-04-QA1 · Test the opened clock
 `qa` · Parent: STORY-03-03-04 · 3 h · New · Depends on: TASK-03-03-04-FE1
 - **Build:** Unit tests for AC 1, 2, 3 and 5; a story test of Brew's combined
-  line in `en` and the test locale.
-- **Done when:** AC 1 to AC 5 are covered.
+  line in `en` and the test locale. Re-tests STORY-02-02-01 AC 2 (both
+  clocks on Brew), skipped in TASK-02-02-01-QA1 in wave 11a.
+- **Done when:** AC 1 to AC 5 are covered, plus STORY-02-02-01 AC 2.
 
 #### EPIC-03-04: See how much coffee is left
 
@@ -3117,8 +3173,10 @@ Schema: TASK-03-01-02-BE1 (section 6).
 `qa` · Parent: STORY-03-04-01 · 4 h · Unchanged · Depends on: TASK-03-04-01-FE2, TASK-02-02-04-BE1, TASK-02-06-02-BE1
 - **Build:** Node tests for measured and one-tap doses, bag totals, undo and
   edit changing the result, over-logged clamp and isolation; story tests for
-  the Meter text and neutral Notice.
-- **Done when:** AC 1 to AC 4 are covered.
+  the Meter text and neutral Notice. Re-tests the "how much coffee is left" part
+  of STORY-02-02-01 AC 1 on Brew, skipped in TASK-02-02-01-QA1 in wave 11a.
+- **Done when:** AC 1 to AC 4 are covered, plus the remaining-coffee line on
+  Brew.
 
 ##### STORY-03-04-02: Weigh what's left
 
@@ -3427,7 +3485,7 @@ about 370 hours (S-02), so this matches it. Reasons:
   TASK-01-02-04-BE3 and 1 h on the edit mode). Milestone 1 defers 42
   tasks and 137 hours (the profile screen, the first-run checklist, the part
   screen, the edit mode and the rest in the table below).
-- The schema is built whole in Milestone 1 (13 tasks, 38 hours), so the
+- The schema is built whole in Milestone 1 (13 tasks, 36 hours), so the
   later features add no migrations.
 - Four tasks from other epics are pulled in (12 hours), and one new task
   (TASK-01-02-01-BE6, 6 hours) prepares the seed data.
@@ -3563,7 +3621,7 @@ feature they test lands.
 | QA task | Skipped criteria | Re-tested in |
 |---|---|---|
 | TASK-01-03-01-QA1 | AC 1 and AC 4 | wave 11a (TASK-02-02-01-QA1) and wave 10 (TASK-03-02-02-QA1) |
-| TASK-01-02-01-QA1 | AC 6 (private entries) | wave 7 |
+| TASK-01-02-01-QA1 | AC 6 (private entries) | wave 7 (TASK-01-06-03-QA1) |
 | TASK-02-06-01-QA1 | reaction and warning markers | wave 9 |
 | TASK-02-06-03-QA1 | reaction and warning; the actions of AC 3 and AC 4 (edit, pin, dial in) | wave 9 (reaction, warning, edit), wave 11a (pin), wave 13 (dial in) |
 | TASK-01-02-02-QA1 | part-screen criteria | wave 6 |
@@ -3928,7 +3986,9 @@ TASK-01-03-05-QA1.
 7. **Seed content (TASK-01-02-01-BE6).** Please supply: your machine, grinder
    and baskets with their dose ranges, and the coffees, as public product
    facts only. TASK-01-02-01-BE6 is blocked on it.
-8. **DQ-24 freshness thresholds** (review m5) are still to confirm.
+8. **DQ-24 freshness thresholds** (under 5 days, over 35 days since roast or
+   packing, over 21 days open, freezer time excluded) are working values that the Head of Product will
+   confirm before wave 12's suggestion tests are written.
 
 Closed in revision 4: a second setup in Milestone 1 (question 3 and risk
 R-24: there is only one setup until wave 6, TASK-01-02-04-BE3), and the quiet
@@ -3980,7 +4040,7 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
 - **R-11 Undo is a hard delete.** The only delete in the MVP; limited to the
   same user, one-tap shots and a short window.
 - **R-12 Splitting with stock checks** (TQ-13). Subtle, with its own tests.
-- **R-13 EPIC-01-06 size and order.** 108 h. Only URL normalisation is in
+- **R-13 EPIC-01-06 size and order.** 109 h. Only URL normalisation is in
   Milestone 1; the rest can trail. The capability mapping is the riskiest
   part.
 - **R-14 Test coverage of wiring.** With no end-to-end suite (TQ-09), page and
@@ -4067,7 +4127,7 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
 | **INIT-04** | | **4** | **14** | **38** |
 | **Total** | | **85** | **316** | **1,085** |
 
-The schema, migrations and test harness (section 6, 15 tasks, 45 hours) are
+The schema, migrations and test harness (section 6, 15 tasks, 44 hours) are
 counted in the epics of the stories they're parented to.
 
 **Compared with revision 1:** 252 tasks and 851 hours became 313 tasks and

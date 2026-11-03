@@ -49,8 +49,9 @@ not given in the spec.
   only when the machine can set them (exact value or step, never one shared
   column), an optional rating, "just right" taste answers relative to the
   persona, taste tags and a one-tap good/off reaction (S-02, S-08).
-- Shots record the grinder and machine units directly, plus persona and
-  logging user as separate fields (S-02).
+- Shots record the setup they were made on (`setupId`), and the grinder,
+  machine and basket follow from it, plus persona and logging user as
+  separate fields (S-02, S-08).
 - Shot time stored in milliseconds, shown in seconds with one decimal (S-02).
 - Tactile number wheels, no text keyboards for variables (S-06).
 - Japandi design: Inter, thin weights at large sizes, monochrome warm grey,
