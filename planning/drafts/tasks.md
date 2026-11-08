@@ -1030,7 +1030,7 @@ Schema: TASK-01-02-01-BE1 and BE2 (section 6).
 
 ##### TASK-01-02-01-BE6 · Prepare the seed catalog data for Milestone 1
 `backend` · Parent: STORY-01-02-01 (also 03-01-01) · 6 h · New · Depends on: TASK-01-02-01-BE3, TASK-03-01-01-BE2, the Head of Product's equipment and coffee list (TQ-10)
-- **Build:** With the Head of Product, write the seed entries in
+- **Build:** From `planning/seed-catalog.md`, write the seed entries in
   `src/db/seed/hardware.json` and `coffee.json`: their own machine, grinder
   and baskets (maker, model, kind, capabilities, each basket's dose range,
   regional aliases and public product links) and a few coffees (roaster,
@@ -1712,7 +1712,9 @@ it.
   segments, sort the rest, strip a trailing slash; null for non-URLs. One
   rules list.
 - **Done when:** A table of at least 30 cases passes, including regional
-  variants and pages that must stay distinct.
+  variants and pages that must stay distinct. Unknown query parameters are
+  kept: Crema's basket page tells single, double and triple apart only by
+  `?variant=` (see `planning/seed-catalog.md`).
 
 ##### TASK-01-06-01-BE2 · Add creating a hardware entry
 `backend` · Parent: STORY-01-06-01 · 5 h · Updated (baskets, dose range) · Depends on: TASK-01-06-01-BE1, TASK-01-02-01-BE2, TASK-01-01-04-BE1, TASK-01-06-04-BE1
@@ -3932,9 +3934,11 @@ in wave 6.
   local days) were accepted as proposed. They are implemented by
   TASK-01-01-01-BE1, BE3 to BE5, TASK-01-02-01-BE1, TASK-02-06-01-BE2,
   TASK-04-01-01-BE1 and TASK-01-06-06-BE1.
-- **TQ-10** is supplied by the Head of Product for Milestone 1: the Head of Product supplies
-  the seed (their own equipment and a few coffees, TASK-01-02-01-BE6). Who
-  curates the full list later is still open.
+- **TQ-10** is answered for Milestone 1: the Head of Product supplied the
+  seed in `planning/seed-catalog.md` (a machine, grinder, basket and coffee,
+  for TASK-01-02-01-BE6). The Bambino Plus stock baskets still need dose
+  ranges before TASK-01-02-01-BE3's rule holds. Who curates the full list
+  later is still open.
 
 **Resolved (working assumptions).** TQ-08 and TQ-09 are adopted as working
 assumptions, so they don't gate TASK-01-01-04-QA1, TASK-01-01-02-QA1 or
