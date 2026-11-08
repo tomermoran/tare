@@ -74,11 +74,22 @@ Single wall, non-pressurised. Crema lists single 8–11 g, double 16–18 g and
 triple 18–22 g; only the double is seeded. The portafilter (Crema 54mm
 bottomless) isn't catalogued: per S-01 it doesn't change the recipe.
 
-### Still to add: the Bambino Plus stock baskets
+### Baskets: the Bambino Plus stock baskets
 
 TASK-01-02-01-BE3 seeds every machine maker's stock baskets with a dose
-range. The Bambino Plus ships with 1 and 2 cup single wall and dual wall 54 mm
-baskets; their ranges need confirming from Breville before they're seeded.
+range. The Bambino Plus ships with four 54 mm baskets, all under maker
+Breville (alias "Sage", market GB), kind `basket`:
+
+| Model | Dose |
+|---|---|
+| 54mm Single Shot Single Wall Basket | `{ "min": 8, "max": 10 }` |
+| 54mm Double Shot Single Wall Basket | `{ "min": 18, "max": 22 }` |
+| 54mm Single Shot Dual Wall Basket | `{ "min": 8, "max": 10 }` |
+| 54mm Double Shot Dual Wall Basket | `{ "min": 18, "max": 22 }` |
+
+The ranges come from the Head of Product, one per shot size; the dual wall
+(pressurised) baskets are assumed to share them. No links yet: they're stock
+parts, so seeded rows don't need one.
 
 ## Coffee
 
