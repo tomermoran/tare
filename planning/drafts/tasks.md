@@ -3935,7 +3935,7 @@ in wave 6.
   TASK-01-01-01-BE1, BE3 to BE5, TASK-01-02-01-BE1, TASK-02-06-01-BE2,
   TASK-04-01-01-BE1 and TASK-01-06-06-BE1.
 - **TQ-10** is answered for Milestone 1: the Head of Product supplied the
-  seed in `planning/seed-catalog.md` (a machine, grinder, basket and coffee,
+  seed in `planning/seed-catalog.md` (a machine, grinder, basket and two coffees,
   for TASK-01-02-01-BE6). The Bambino Plus stock baskets still need dose
   ranges before TASK-01-02-01-BE3's rule holds. Who curates the full list
   later is still open.

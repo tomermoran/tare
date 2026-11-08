@@ -96,3 +96,19 @@ A blend from Asia, Central America and South America; the roaster describes
 a heavy, velvety body and gentle bitterness. The link is the 250 g page. Bag
 size belongs to the batch, so a 1 kg page would be a second link on this
 bean, not a second bean.
+
+### Coffee4U Brazil Cerrado (INSPERATION)
+
+| Field | Value |
+|---|---|
+| Roaster | Coffee4U |
+| Bean | Brazil Cerrado INSPERATION (aliases "Brazil Cerrado Inspiration", "ברזיל סראדו") |
+| Roast level | not stated (null until confirmed) |
+| Tasting notes | `["Nutty", "Chocolate", "Dark Chocolate"]` |
+| Links | `https://www.coffee4u.co.il/product/1-%D7%A7%D7%92-%D7%A4%D7%95%D7%9C%D7%99-%D7%A7%D7%A4%D7%94-%D7%91%D7%A8%D7%96%D7%99%D7%9C-%D7%A1%D7%A8%D7%90%D7%93%D7%95-insperation` (IL) |
+
+INSPERATION (the shop's spelling) is Coffee4U's own locally roasted house
+line, sold since 2014. Despite the name it's a blend: a Brazilian base with
+Indonesian and Indian beans. The link is the 1 kg page; the shop also sells
+250 g and 3 kg bags on their own pages, which would be further links on this
+bean.
