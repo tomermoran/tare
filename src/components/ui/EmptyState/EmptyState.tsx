@@ -31,7 +31,7 @@ export function EmptyState({
     <section
       className={cx("flex flex-col items-center gap-3 px-4 py-16 text-center", className)}
     >
-      <h2 className="text-h2 font-light text-ink">{title}</h2>
+      <h2 className="text-h2 text-ink">{title}</h2>
       <p className="max-w-[32ch] text-body text-ink-secondary">{children}</p>
       {action &&
         (action.href !== undefined ? (

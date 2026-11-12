@@ -9,7 +9,10 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "retry": "Try again",
-    "save": "Save"
+    "save": "Save",
+    "close": "Close",
+    "discard": "Discard",
+    "keepEditing": "Keep editing"
   },
   "shot": {
     "dose": "Dose",
@@ -134,5 +137,9 @@
     "title": "Setup",
     "emptyTitle": "No setup yet",
     "empty": "Your machine, grinder and basket will show up here."
+  },
+  "confirm": {
+    "discardTitle": "Discard changes?",
+    "discard": "What you've changed here won't be saved."
   }
 }
