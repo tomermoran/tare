@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/db/client";
-import { drinkTypes, households, personas, users } from "@/db/schema";
+import { drinkTypes, householdMembers, households, personas, users } from "@/db/schema";
 import { STARTER_DRINKS } from "@/domain/starterDrinks";
 import { createTestDb } from "@/test/db";
 import { ensureAccount } from "./bootstrap";
@@ -29,6 +29,19 @@ describe("ensureAccount", () => {
     expect(drinks.find((d) => d.nameKey === "drinks.latte")?.typicalMilkMl).toBe(200);
     expect(drinks.filter((d) => !d.hasMilk).every((d) => d.typicalMilkMl === null)).toBe(true);
   });
+
+  it("makes the new user the household's owner (AC 2)", async () => {
+    const { householdId } = await ensureAccount(db, "test-uid-a");
+    const members = await db
+      .select()
+      .from(householdMembers)
+      .where(eq(householdMembers.householdId, householdId));
+    expect(members).toHaveLength(1);
+    expect(members[0].role).toBe("owner");
+  });
+
+  // Starter milks arrive in wave 6; TASK-01-01-08-QA1 adds these checks.
+  it.todo("gives a new household the seven starter milks, atomically and idempotently");
 
   it("returns the same account on a second launch and creates nothing", async () => {
     const first = await ensureAccount(db, "test-uid-a");
