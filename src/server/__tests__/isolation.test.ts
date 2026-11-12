@@ -18,6 +18,7 @@ import {
   type OwnedTable,
 } from "@/server/dal/scope";
 import { addPart, getPart, getPartModel, getSetupTab } from "@/server/dal/parts";
+import { getSetupSuggestion, previewSetup, resolveSetup } from "@/server/dal/setups";
 import { createTestDb } from "@/test/db";
 import { makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -152,5 +153,20 @@ describe("parts", () => {
     });
     await expect(addPart({ hardwareId: id })).rejects.toBeInstanceOf(NotFoundError);
     await expect(getPartModel(id)).resolves.toBeNull();
+  });
+});
+
+describe("setups", () => {
+  it("won't make a setup from another household's parts", async () => {
+    await expect(resolveSetup(theirs.parts.map((p) => p.id))).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("doesn't match another household's setup in a preview", async () => {
+    await expect(previewSetup(theirs.parts.map((p) => p.id))).resolves.toEqual({ kind: "new" });
+    await expect(previewSetup(mine.parts.map((p) => p.id))).resolves.toMatchObject({ kind: "existing", id: mine.setup.id });
+  });
+
+  it("bases the suggestion on my setups only", async () => {
+    await expect(getSetupSuggestion()).resolves.toBeNull();
   });
 });
