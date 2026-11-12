@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useFormatter, useTranslations } from "next-intl";
+import { Notice } from "../Notice/Notice";
 import { Card } from "./Card";
 
 const meta = {
@@ -42,9 +43,9 @@ function ShotCard(props: React.ComponentProps<typeof Card>) {
             })}
           </span>
         </div>
-        <span className="rounded-full bg-signal-subtle px-3 py-1 text-label text-signal">
-          {t("warnings.tooFast")}
-        </span>
+        <Notice size="inline" tone="warning" warning="channelling">
+          {t("warnings.channelling")}
+        </Notice>
       </div>
       <div className="grid grid-cols-3 gap-6">
         <Stat
