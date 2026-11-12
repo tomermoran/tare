@@ -43,6 +43,9 @@ export type CatalogPickLabels = {
   cancel: string;
   /** Shown above a maker's models in browse; returns to all makers. */
   back?: string;
+  loadFailedTitle: string;
+  loadFailed: string;
+  retry: string;
 };
 
 export function CatalogPickScreen({
@@ -55,12 +58,14 @@ export function CatalogPickScreen({
   onCantFind,
   onCancel,
   onBack,
+  onRetry,
 }: {
   labels: CatalogPickLabels;
   query: string;
   onQueryChange: (query: string) => void;
   /** loading: skeleton rows; ready: the groups (empty with a query = no match). */
-  state: "loading" | "ready";
+  state: "loading" | "ready" | "failed";
+  onRetry?: () => void;
   groups: PickGroup[];
   onPick: (row: PickRow) => void;
   onCantFind: () => void;
@@ -108,6 +113,14 @@ export function CatalogPickScreen({
             </div>
           ))}
         </Skeleton>
+      ) : state === "failed" ? (
+        <Notice
+          urgent
+          title={labels.loadFailedTitle}
+          action={onRetry ? { label: labels.retry, onClick: onRetry } : undefined}
+        >
+          {labels.loadFailed}
+        </Notice>
       ) : noMatch ? (
         <div className="flex flex-col gap-3">
           <Notice>{labels.noMatch}</Notice>

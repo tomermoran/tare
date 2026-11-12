@@ -12,7 +12,8 @@
     "save": "Save",
     "close": "Close",
     "discard": "Discard",
-    "keepEditing": "Keep editing"
+    "keepEditing": "Keep editing",
+    "back": "Back"
   },
   "shot": {
     "dose": "Dose",
@@ -177,6 +178,8 @@
     "alsoKnownAs": "Also known as {alias}",
     "cantFind": "Can't find it? Add it",
     "noMatch": "Nothing matches “{query}”.",
-    "allMakers": "All makers"
+    "allMakers": "All makers",
+    "addSoonTitle": "Adding to the catalog is coming",
+    "addSoon": "For now, pick the closest match, or go back and try another search."
   }
 }

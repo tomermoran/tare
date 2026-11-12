@@ -17,6 +17,9 @@ const labels = (title: string, hint = catalog.searchHint, query = ""): CatalogPi
   loading: states.loading,
   cancel: actions.cancel,
   back: catalog.allMakers,
+  loadFailedTitle: states.loadFailedTitle,
+  loadFailed: states.loadFailed,
+  retry: actions.retry,
 });
 
 // Fictional catalog rows.
@@ -123,6 +126,17 @@ export const NoMatch: Story = {
     await expect(canvas.getByRole("status")).toHaveTextContent("Imaginary 9000");
     await userEvent.click(canvas.getByRole("button", { name: catalog.cantFind }));
     await expect(args.onCantFind).toHaveBeenCalled();
+  },
+};
+
+/** The search couldn't run: neutral notice and retry, the field keeps the query. */
+export const Failed: Story = {
+  args: { state: "failed", query: "zer", onRetry: fn() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(within(canvas.getByRole("alert")).getByRole("button", { name: actions.retry }));
+    await expect(args.onRetry).toHaveBeenCalled();
+    await expect(canvas.getByRole("searchbox")).toHaveValue("zer");
   },
 };
 

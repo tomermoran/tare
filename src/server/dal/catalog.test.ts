@@ -85,7 +85,8 @@ describe("searchHardware", () => {
 
     await db.insert(ownedHardware).values({ id: "owned-1", householdId: household, hardwareId: BAMBINO });
     browse = await searchHardware(db, household, { kind: "basket" });
-    expect(browse.slice(0, 4).every((r) => r.makerName === "Breville")).toBe(true);
+    expect(browse.slice(0, 4).every((r) => r.makerName === "Breville" && r.stock)).toBe(true);
+    expect(browse.filter((r) => r.stock)).toHaveLength(4);
     expect(browse.at(-1)?.makerName).not.toBe("Breville");
   });
 

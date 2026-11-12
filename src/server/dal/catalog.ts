@@ -26,6 +26,8 @@ export type HardwareResult = {
   addedByYou: boolean;
   /** The alias that matched, when the match wasn't on the name. */
   matchedAlias: string | null;
+  /** A basket by the household's machine maker ("made for your machine"). */
+  stock: boolean;
 };
 
 export type MakerResult = { id: string; name: string; addedByYou: boolean };
@@ -70,6 +72,7 @@ async function rowsByIds(db: Db, householdId: string, kind: HardwareKind, ids: s
     ...r,
     addedByYou: status !== "verified",
     matchedAlias: null as string | null,
+    stock: false,
   }));
 }
 
@@ -158,9 +161,10 @@ export async function searchHardware(
     if (names.some((n) => n.startsWith(ql))) return 1;
     return 2;
   };
+  for (const r of results) r.stock = stock.has(r.makerId);
   return results.sort(
     (a, b) =>
-      Number(stock.has(b.makerId)) - Number(stock.has(a.makerId)) ||
+      Number(b.stock) - Number(a.stock) ||
       rank(a) - rank(b) ||
       byMakerThenName(a, b),
   );
