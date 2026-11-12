@@ -210,3 +210,54 @@ export const canonicalBeans = sqliteTable("canonical_beans", {
   ),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });
+
+export type CatalogEntityType = "maker" | "model" | "roaster" | "bean";
+
+// Product pages, one row per market. A catalog row can have many (UK and US pages).
+// entityType + entityId point at a maker, model, roaster or bean (not FK-enforced).
+// normalizedUrl strips regional path segments and tracking parameters: an exact match
+// on it flags a likely duplicate in the MVP. Later, an LLM suggests fuzzier matches;
+// a person or a reviewed rule always confirms the merge.
+export const catalogUrls = sqliteTable(
+  "catalog_urls",
+  {
+    id: text("id").primaryKey(),
+    entityType: text("entity_type").$type<CatalogEntityType>().notNull(),
+    entityId: text("entity_id").notNull(),
+    url: text("url").notNull(),
+    normalizedUrl: text("normalized_url").notNull(),
+    market: text("market"), // ISO 3166-1 alpha-2, e.g. 'GB', 'US'; null if global
+    addedByHouseholdId: text("added_by_household_id").references(
+      () => households.id,
+    ),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("catalog_urls_normalized").on(t.normalizedUrl)],
+);
+
+// Other names for the same catalog row, usually regional ("Sage" for "Breville" in
+// the UK). Search matches any alias.
+export const catalogAliases = sqliteTable(
+  "catalog_aliases",
+  {
+    id: text("id").primaryKey(),
+    entityType: text("entity_type").$type<CatalogEntityType>().notNull(),
+    entityId: text("entity_id").notNull(),
+    name: text("name").notNull(),
+    market: text("market"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("catalog_aliases_type_name").on(t.entityType, t.name)],
+);
+
+// Audit trail of merges: who or what suggested it and who confirmed it.
+export const catalogMerges = sqliteTable("catalog_merges", {
+  id: text("id").primaryKey(),
+  entityType: text("entity_type").$type<CatalogEntityType>().notNull(),
+  fromId: text("from_id").notNull(), // The duplicate, which keeps existing as a pointer
+  intoId: text("into_id").notNull(), // The surviving row
+  suggestedBy: text("suggested_by").notNull(), // 'url-match', 'llm', 'user', 'reviewer'
+  confidence: real("confidence"), // 0-1, for automated suggestions
+  reason: text("reason"),
+  decidedAt: integer("decided_at", { mode: "timestamp_ms" }).notNull(),
+});

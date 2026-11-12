@@ -1,7 +1,10 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/db/client";
 import { newId } from "@/db/ids";
 import {
+  catalogAliases,
+  catalogUrls,
   canonicalBeans,
   canonicalHardware,
   hardwareMakers,
@@ -79,5 +82,34 @@ describe("coffee catalog", () => {
     });
     const [bean] = await db.select().from(canonicalBeans);
     expect(bean.tastingNotes).toEqual(["Nutty", "Chocolate"]);
+  });
+});
+
+describe("catalog links and aliases", () => {
+  it("point at any of the four entity types", async () => {
+    const types = ["maker", "model", "roaster", "bean"] as const;
+    for (const entityType of types) {
+      await db.insert(catalogUrls).values({
+        id: newId(),
+        entityType,
+        entityId: newId(),
+        url: `https://example.com/${entityType}`,
+        normalizedUrl: `example.com/${entityType}`,
+        createdAt: new Date(),
+      });
+      await db.insert(catalogAliases).values({
+        id: newId(),
+        entityType,
+        entityId: newId(),
+        name: `Example ${entityType}`,
+        createdAt: new Date(),
+      });
+    }
+    const match = await db
+      .select()
+      .from(catalogUrls)
+      .where(eq(catalogUrls.normalizedUrl, "example.com/bean"));
+    expect(match).toHaveLength(1);
+    expect(await db.select().from(catalogAliases)).toHaveLength(4);
   });
 });
