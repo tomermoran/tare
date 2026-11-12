@@ -177,3 +177,36 @@ export const canonicalHardware = sqliteTable(
     ),
   ],
 );
+
+export const roasters = sqliteTable("roasters", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  source: text("source").notNull(),
+  status: text("status").notNull(),
+  mergedIntoId: text("merged_into_id").references(
+    (): AnySQLiteColumn => roasters.id,
+  ),
+  createdByHouseholdId: text("created_by_household_id").references(
+    () => households.id,
+  ),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const canonicalBeans = sqliteTable("canonical_beans", {
+  id: text("id").primaryKey(),
+  roasterId: text("roaster_id")
+    .references(() => roasters.id)
+    .notNull(),
+  name: text("name").notNull(),
+  roastLevel: text("roast_level"), // One of the S-09 levels, or null if not stated
+  tastingNotes: text("tasting_notes", { mode: "json" }).$type<string[]>(),
+  source: text("source").notNull(),
+  status: text("status").notNull(),
+  mergedIntoId: text("merged_into_id").references(
+    (): AnySQLiteColumn => canonicalBeans.id,
+  ),
+  createdByHouseholdId: text("created_by_household_id").references(
+    () => households.id,
+  ),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});

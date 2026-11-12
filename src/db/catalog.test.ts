@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { canonicalHardware, hardwareMakers } from "@/db/schema";
+import {
+  canonicalBeans,
+  canonicalHardware,
+  hardwareMakers,
+  roasters,
+} from "@/db/schema";
 import { createTestDb } from "@/test/db";
 
 let db: Db;
@@ -49,5 +54,30 @@ describe("hardware catalog", () => {
     });
     const [row] = await db.select().from(canonicalHardware);
     expect(row.capabilities).toEqual(capabilities);
+  });
+});
+
+describe("coffee catalog", () => {
+  it("round-trips tasting notes as a string array", async () => {
+    const roasterId = newId();
+    await db.insert(roasters).values({
+      id: roasterId,
+      name: "Example Roasters",
+      source: "seed",
+      status: "verified",
+      createdAt: new Date(),
+    });
+    await db.insert(canonicalBeans).values({
+      id: newId(),
+      roasterId,
+      name: "House Blend",
+      roastLevel: "Dark",
+      tastingNotes: ["Nutty", "Chocolate"],
+      source: "seed",
+      status: "verified",
+      createdAt: new Date(),
+    });
+    const [bean] = await db.select().from(canonicalBeans);
+    expect(bean.tastingNotes).toEqual(["Nutty", "Chocolate"]);
   });
 });
