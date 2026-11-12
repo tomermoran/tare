@@ -317,3 +317,55 @@ export const setupParts = sqliteTable(
     index("setup_parts_owned_hardware").on(t.ownedHardwareId),
   ],
 );
+
+// --- BEANS (batches and portions) ---
+
+// The bag as bought. Status, remaining weight and bean age are calculated, not stored.
+export const batches = sqliteTable("batches", {
+  id: text("id").primaryKey(),
+  householdId: text("household_id")
+    .references(() => households.id)
+    .notNull(),
+  beanId: text("bean_id")
+    .references(() => canonicalBeans.id)
+    .notNull(),
+  lotCode: text("lot_code"), // Roaster's lot, if printed on the bag
+  roastDate: integer("roast_date", { mode: "timestamp_ms" }), // Null if not printed
+  packedAt: integer("packed_at", { mode: "timestamp_ms" }), // When printed instead of a roast date
+  bestBefore: integer("best_before", { mode: "timestamp_ms" }),
+  bagWeight: real("bag_weight").notNull(), // Grams, as bought
+  purchasedAt: integer("purchased_at", { mode: "timestamp_ms" }), // For reorder timing
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+// What physically exists: a whole bag is one portion; splitting to freeze creates more.
+export const batchPortions = sqliteTable(
+  "batch_portions",
+  {
+    id: text("id").primaryKey(),
+    batchId: text("batch_id")
+      .references(() => batches.id)
+      .notNull(),
+    weight: real("weight").notNull(), // Grams
+    frozenAt: integer("frozen_at", { mode: "timestamp_ms" }),
+    thawedAt: integer("thawed_at", { mode: "timestamp_ms" }),
+    openedAt: integer("opened_at", { mode: "timestamp_ms" }),
+    finishedAt: integer("finished_at", { mode: "timestamp_ms" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("batch_portions_batch").on(t.batchId)],
+);
+
+// Optional: the user weighs what's left, correcting the run-out estimate.
+export const stockChecks = sqliteTable(
+  "stock_checks",
+  {
+    id: text("id").primaryKey(),
+    portionId: text("portion_id")
+      .references(() => batchPortions.id)
+      .notNull(),
+    remainingWeight: real("remaining_weight").notNull(), // Grams
+    checkedAt: integer("checked_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("stock_checks_portion_time").on(t.portionId, t.checkedAt)],
+);
