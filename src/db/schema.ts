@@ -502,3 +502,35 @@ export const pinnedRecipes = sqliteTable(
     ),
   ],
 );
+
+// --- MAINTENANCE ---
+
+// Maintenance on one owned unit. For a grinder, each event starts a new grind
+// period: shots either side aren't directly comparable. Once the user finalises a
+// re-dial after the event, the confirmed shift is stored here (a user decision, so
+// kept rather than recalculated). Grind in the new period = old grind x grindScale
+// + grindShift. Stored recipes are never rewritten; the mapping applies on read.
+// The offset columns stay null in the MVP.
+export const maintenanceEvents = sqliteTable(
+  "maintenance_events",
+  {
+    id: text("id").primaryKey(),
+    ownedHardwareId: text("owned_hardware_id")
+      .references(() => ownedHardware.id)
+      .notNull(),
+    kind: text("kind").notNull(), // 'burrs', 'clean', 'rezero', 'repair', 'other'
+    isRecalibration: integer("is_recalibration", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    note: text("note"),
+    occurredAt: integer("occurred_at", { mode: "timestamp_ms" }).notNull(),
+    grindShift: real("grind_shift"), // Grinder units; set when a re-dial is confirmed
+    grindScale: real("grind_scale"), // Stretch factor; 1 unless 2+ coffees re-dialed
+    offsetSourceRecipeId: text("offset_source_recipe_id").references(
+      () => pinnedRecipes.id,
+    ),
+  },
+  (t) => [
+    index("maintenance_events_unit_time").on(t.ownedHardwareId, t.occurredAt),
+  ],
+);

@@ -2,10 +2,10 @@ import { sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { setups } from "@/db/schema";
+import { maintenanceEvents, setups } from "@/db/schema";
 import { partsKey } from "@/domain/setupKey";
 import { createTestDb } from "@/test/db";
-import { makeHousehold } from "@/test/fixtures";
+import { makeHousehold, makeKitchen } from "@/test/fixtures";
 
 let db: Db;
 beforeEach(async () => {
@@ -54,5 +54,24 @@ describe("setups", () => {
       });
     }
     expect(await db.select().from(setups)).toHaveLength(2);
+  });
+});
+
+describe("maintenance events", () => {
+  it("defaults to not a recalibration, with no grind offset", async () => {
+    const kitchen = await makeKitchen(db);
+    await db.insert(maintenanceEvents).values({
+      id: newId(),
+      ownedHardwareId: kitchen.parts[1].id,
+      kind: "burrs",
+      occurredAt: new Date(),
+    });
+    const [event] = await db.select().from(maintenanceEvents);
+    expect(event).toMatchObject({
+      isRecalibration: false,
+      grindShift: null,
+      grindScale: null,
+      offsetSourceRecipeId: null,
+    });
   });
 });
