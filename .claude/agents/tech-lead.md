@@ -1,7 +1,7 @@
 ---
 name: tech-lead
 description: Breaks approved Tare stories and their design direction into frontend, backend and QA tasks. Use after the designer has added UX direction.
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, Edit
 model: sonnet
 ---
 

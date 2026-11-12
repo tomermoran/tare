@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import { SessionBootstrap } from "@/components/session/SessionBootstrap";
 import { getDirection } from "@/i18n/config";
+import { getSession } from "@/server/auth/session";
 import "./globals.css";
 
 // Inter is a variable font: every weight from 100 to 900 ships in one file.
@@ -27,7 +30,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {/* Reads the session cookie, so it streams in behind its own boundary
+            and the rest of the page stays in the static shell. */}
+        <Suspense fallback={null}>
+          <SessionGate />
+        </Suspense>
       </body>
     </html>
   );
+}
+
+async function SessionGate() {
+  const session = await getSession();
+  return <SessionBootstrap hasSession={session !== null} />;
 }

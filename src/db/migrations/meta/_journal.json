@@ -1,1 +1,90 @@
-{"version":"7","dialect":"sqlite","entries":[]}
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1794513236897,
+      "tag": "0000_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794515209849,
+      "tag": "0001_drink_types",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794515223458,
+      "tag": "0002_milk_types",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794515254683,
+      "tag": "0003_hardware_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794515328807,
+      "tag": "0004_coffee_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794515340932,
+      "tag": "0005_catalog_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794515368905,
+      "tag": "0006_owned_hardware",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1794515381529,
+      "tag": "0007_setups",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1794515401896,
+      "tag": "0008_bags_and_portions",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1794515439705,
+      "tag": "0009_extractions",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1794515473399,
+      "tag": "0010_pinned_recipes",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1794515488464,
+      "tag": "0011_maintenance_events",
+      "breakpoints": true
+    }
+  ]
+}

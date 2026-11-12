@@ -1,0 +1,33 @@
+CREATE TABLE `pinned_recipes` (
+	`id` text PRIMARY KEY NOT NULL,
+	`household_id` text NOT NULL,
+	`bean_id` text NOT NULL,
+	`persona_id` text NOT NULL,
+	`setup_id` text NOT NULL,
+	`drink_type_id` text NOT NULL,
+	`batch_id` text,
+	`grind_size` real NOT NULL,
+	`dose_weight` real NOT NULL,
+	`yield_weight` real NOT NULL,
+	`yield_time` integer NOT NULL,
+	`brew_temp_c` real,
+	`brew_temp_step` integer,
+	`pressure_bar` real,
+	`pressure_step` integer,
+	`used_wdt` integer DEFAULT false NOT NULL,
+	`used_puck_screen` integer DEFAULT false NOT NULL,
+	`milk_type_id` text,
+	`milk_ml` real,
+	`source_extraction_id` text,
+	`pinned_at` integer NOT NULL,
+	FOREIGN KEY (`household_id`) REFERENCES `households`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`bean_id`) REFERENCES `canonical_beans`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`persona_id`) REFERENCES `personas`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`setup_id`) REFERENCES `setups`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`drink_type_id`) REFERENCES `drink_types`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`batch_id`) REFERENCES `batches`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`milk_type_id`) REFERENCES `milk_types`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`source_extraction_id`) REFERENCES `extractions`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `pinned_recipes_key` ON `pinned_recipes` (`bean_id`,`persona_id`,`setup_id`,`drink_type_id`,`pinned_at`);

@@ -15,6 +15,22 @@ export default defineConfig({
   test: {
     projects: [
       {
+        // Node tests for domain logic, the data access layer and actions.
+        // Each test file gets its own migrated in-memory database (src/test/db.ts).
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['src/{domain,server,db,lib}/**/*.test.ts'],
+        },
+        resolve: {
+          alias: {
+            '@': path.join(dirname, 'src'),
+            // The real package throws outside a React Server Components bundle.
+            'server-only': path.join(dirname, 'src/test/server-only.ts'),
+          },
+        },
+      },
+      {
         extends: true,
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
