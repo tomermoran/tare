@@ -1,0 +1,101 @@
+{
+  "$comment": "Public catalog facts only (planning/seed-catalog.md). No serial numbers, owners or anything personal. Capabilities use known values only.",
+  "makers": [
+    {
+      "key": "breville",
+      "name": "Breville",
+      "aliases": [{ "name": "Sage", "market": "GB" }],
+      "models": [
+        {
+          "key": "bambino-plus",
+          "kind": "machine",
+          "name": "Bambino Plus",
+          "aliases": [
+            { "name": "Sage Bambino Plus", "market": "GB" },
+            { "name": "BES500", "market": null },
+            { "name": "SES500BSS4GUK1", "market": "GB" },
+            { "name": "BES500BSS1BUS1", "market": "US" }
+          ],
+          "links": [
+            { "url": "https://www.sageappliances.com/en-gb/product/bes500", "market": "GB" },
+            { "url": "https://www.breville.com/en-us/product/bes500", "market": "US" },
+            { "url": "https://www.breville.com/en-us/my-products/producthub/bes500", "market": "US" }
+          ],
+          "capabilities": {
+            "temperature": { "control": "none" },
+            "pressure": { "control": "none", "gauge": false }
+          }
+        },
+        {
+          "key": "54mm-single-single-wall",
+          "kind": "basket",
+          "name": "54mm Single Shot Single Wall Basket",
+          "aliases": [],
+          "links": [],
+          "capabilities": { "dose": { "min": 8, "max": 10 } }
+        },
+        {
+          "key": "54mm-double-single-wall",
+          "kind": "basket",
+          "name": "54mm Double Shot Single Wall Basket",
+          "aliases": [],
+          "links": [],
+          "capabilities": { "dose": { "min": 18, "max": 22 } }
+        },
+        {
+          "key": "54mm-single-dual-wall",
+          "kind": "basket",
+          "name": "54mm Single Shot Dual Wall Basket",
+          "aliases": [],
+          "links": [],
+          "capabilities": { "dose": { "min": 8, "max": 10 } }
+        },
+        {
+          "key": "54mm-double-dual-wall",
+          "kind": "basket",
+          "name": "54mm Double Shot Dual Wall Basket",
+          "aliases": [],
+          "links": [],
+          "capabilities": { "dose": { "min": 18, "max": 22 } }
+        }
+      ]
+    },
+    {
+      "key": "niche",
+      "name": "Niche",
+      "aliases": [],
+      "models": [
+        {
+          "key": "zero",
+          "kind": "grinder",
+          "name": "Zero",
+          "aliases": [{ "name": "Niche Zero", "market": null }],
+          "links": [{ "url": "https://www.nichecoffee.co.uk/products/niche-zero", "market": "GB" }],
+          "capabilities": {
+            "grind": { "type": "stepless", "min": 0, "max": 50, "step": 0.5, "coarser": "higher" }
+          }
+        }
+      ]
+    },
+    {
+      "key": "crema-coffee-products",
+      "name": "Crema Coffee Products",
+      "aliases": [{ "name": "Crema", "market": null }],
+      "models": [
+        {
+          "key": "54mm-double",
+          "kind": "basket",
+          "name": "54mm Double Shot Basket",
+          "aliases": [],
+          "links": [
+            {
+              "url": "https://cremacoffeeproducts.com/products/54mm-portafilter-baskets-for-breville?variant=43266907242711",
+              "market": "US"
+            }
+          ],
+          "capabilities": { "dose": { "min": 16, "max": 18 } }
+        }
+      ]
+    }
+  ]
+}
