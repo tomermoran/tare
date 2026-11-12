@@ -133,12 +133,17 @@
   "beans": {
     "title": "Beans",
     "emptyTitle": "No coffee yet",
-    "empty": "Bags you add will show up here, with how much is left."
+    "empty": "Bags you add will show up here, with how much is left.",
+    "roastDate": "Roast date",
+    "roastDateHint": "On the bag, often near the seal."
   },
   "setup": {
     "title": "Setup",
     "emptyTitle": "No setup yet",
-    "empty": "Your machine, grinder and basket will show up here."
+    "empty": "Your machine, grinder and basket will show up here.",
+    "productLink": "Product page",
+    "productLinkHint": "The maker's or shop's page, so the same part isn't added twice.",
+    "productLinkPlaceholder": "https://"
   },
   "confirm": {
     "discardTitle": "Discard changes?",
