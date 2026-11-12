@@ -15,8 +15,10 @@
  * - Timestamps as integer milliseconds since the Unix epoch, UTC.
  */
 
+import { sql } from "drizzle-orm";
 import {
   type AnySQLiteColumn,
+  check,
   index,
   integer,
   primaryKey,
@@ -118,4 +120,60 @@ export const milkTypes = sqliteTable(
     sortOrder: integer("sort_order").notNull(),
   },
   (t) => [index("milk_types_household_order").on(t.householdId, t.sortOrder)],
+);
+
+// --- CANONICAL CATALOG ---
+// Two shared catalogs, each a parent and a product: hardware makers -> hardware
+// models, and roasters -> beans. Every catalog row follows the same rules:
+// - source: 'seed' (curated list) or 'user' (added by a household; needs a product URL)
+// - status: 'verified' or 'unverified' (user additions start unverified until reviewed)
+// - mergedIntoId: duplicates are merged, never deleted. Anything that references a
+//   merged row follows the pointer to the surviving one.
+// Regional URLs and names live in catalogUrls and catalogAliases, so "Sage Bambino"
+// (UK) and "Breville Bambino" (US) are one model with two names and two URLs.
+
+export const hardwareMakers = sqliteTable("hardware_makers", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  source: text("source").notNull(), // 'seed', 'user'
+  status: text("status").notNull(), // 'verified', 'unverified'
+  mergedIntoId: text("merged_into_id").references(
+    (): AnySQLiteColumn => hardwareMakers.id,
+  ),
+  createdByHouseholdId: text("created_by_household_id").references(
+    () => households.id,
+  ),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+// A hardware model (the catalog row), not a unit someone owns; see ownedHardware.
+// Only the kinds that define a setup. Portafilters, tampers, scales and prep tools
+// aren't tracked; WDT and puck screen use are checkboxes on shots and recipes.
+// capabilities is JSON, typed and checked by src/domain/capabilities.ts.
+export const canonicalHardware = sqliteTable(
+  "canonical_hardware",
+  {
+    id: text("id").primaryKey(),
+    makerId: text("maker_id")
+      .references(() => hardwareMakers.id)
+      .notNull(),
+    kind: text("kind", { enum: ["machine", "grinder", "basket"] }).notNull(),
+    name: text("name").notNull(), // Model name, e.g. "Bambino"
+    capabilities: text("capabilities", { mode: "json" }),
+    source: text("source").notNull(),
+    status: text("status").notNull(),
+    mergedIntoId: text("merged_into_id").references(
+      (): AnySQLiteColumn => canonicalHardware.id,
+    ),
+    createdByHouseholdId: text("created_by_household_id").references(
+      () => households.id,
+    ),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [
+    check(
+      "canonical_hardware_kind",
+      sql`${t.kind} in ('machine', 'grinder', 'basket')`,
+    ),
+  ],
 );
