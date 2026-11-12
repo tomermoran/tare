@@ -194,7 +194,30 @@
       "basket": "Baskets"
     },
     "partsLoading": "Loading your parts",
-    "partName": "{maker} {model}"
+    "partName": "{maker} {model}",
+    "builderTitle": "Which parts are you using?",
+    "notChosen": "Choose",
+    "matchFound": "This is your setup “{name}”.",
+    "recipeCount": "{count, plural, =0 {No recipes yet} one {# recipe} other {# recipes}}",
+    "newSetup": "This will be a new setup.",
+    "closest": "Recipes on “{name}” will give your dial-in a head start.",
+    "addName": "Add a name",
+    "name": "Name",
+    "nameHint": "Optional. Without one, it's shown by its parts.",
+    "useThis": "Use this setup",
+    "makeThis": "Make this setup",
+    "missingParts": "Choose your {kinds} to make a setup.",
+    "kindLower": {
+      "machine": "machine",
+      "grinder": "grinder",
+      "basket": "basket"
+    },
+    "suggestTitle": "Ready to make your setup",
+    "suggestBody": "Your machine, grinder and basket, together:",
+    "suggest": "Make these your setup",
+    "current": "Current",
+    "existsNotice": "You already have a setup. More than one comes in a later version, so nothing was changed.",
+    "saveFailedTitle": "Couldn't save the setup"
   },
   "confirm": {
     "discardTitle": "Discard changes?",
