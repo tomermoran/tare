@@ -117,6 +117,42 @@ export async function getPart(id: string): Promise<Part & { capabilities: unknow
   return { ...part, capabilities, setups: all.filter((s) => s.parts.some((p) => p.id === id)) };
 }
 
+export type PartModel = {
+  id: string;
+  kind: HardwareKind;
+  model: string;
+  maker: string;
+  capabilities: unknown;
+};
+
+/** A model the household can see, followed to its merge survivor. */
+async function visibleModel(householdId: string, hardwareId: string) {
+  const id = await resolveEntity(db, canonicalHardware, hardwareId);
+  if (!id) return null;
+  const [row] = await db
+    .select({
+      id: canonicalHardware.id,
+      kind: canonicalHardware.kind,
+      model: canonicalHardware.name,
+      maker: hardwareMakers.name,
+      capabilities: canonicalHardware.capabilities,
+      status: canonicalHardware.status,
+      owner: canonicalHardware.createdByHouseholdId,
+    })
+    .from(canonicalHardware)
+    .innerJoin(hardwareMakers, eq(hardwareMakers.id, canonicalHardware.makerId))
+    .where(eq(canonicalHardware.id, id));
+  if (!row || !(row.status === "verified" || row.owner === householdId)) return null;
+  if (!PART_KINDS.includes(row.kind)) return null;
+  return { id: row.id, kind: row.kind, model: row.model, maker: row.maker, capabilities: row.capabilities };
+}
+
+/** The model picked for a new part, for SCR-UNIT-ADD; null if it can't be used. */
+export async function getPartModel(hardwareId: string): Promise<PartModel | null> {
+  const { householdId } = await requireHousehold();
+  return visibleModel(householdId, hardwareId);
+}
+
 /**
  * Adds a part from a catalog model (AC 1, AC 2, AC 4). The model must be
  * visible to the household (verified or its own addition) and of one of the
@@ -129,21 +165,15 @@ export async function addPart(input: {
   acquiredAt?: Date | null;
 }): Promise<{ id: string; kind: HardwareKind }> {
   const { householdId } = await requireHousehold();
-  const hardwareId = await resolveEntity(db, canonicalHardware, input.hardwareId);
-  if (!hardwareId) throw new NotFoundError();
-  const [model] = await db
-    .select({ kind: canonicalHardware.kind, status: canonicalHardware.status, owner: canonicalHardware.createdByHouseholdId })
-    .from(canonicalHardware)
-    .where(eq(canonicalHardware.id, hardwareId));
-  const visible = model && (model.status === "verified" || model.owner === householdId);
-  if (!visible || !PART_KINDS.includes(model.kind)) throw new NotFoundError();
+  const model = await visibleModel(householdId, input.hardwareId);
+  if (!model) throw new NotFoundError();
 
   const nickname = input.nickname?.trim().slice(0, 60) || null;
   const id = newId();
   await db.insert(ownedHardware).values({
     id,
     householdId,
-    hardwareId,
+    hardwareId: model.id,
     nickname,
     acquiredAt: input.acquiredAt ?? null,
     createdAt: new Date(),

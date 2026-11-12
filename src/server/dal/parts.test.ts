@@ -8,7 +8,7 @@ import { loadSeed, seedIds, type CoffeeSeed, type HardwareSeed } from "@/db/seed
 import { createTestDb } from "@/test/db";
 import { makeHousehold } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
-import { addPart, getPart, getSetupTab } from "./parts";
+import { addPart, getPart, getPartModel, getSetupTab } from "./parts";
 import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
@@ -77,6 +77,12 @@ describe("addPart", () => {
     await expect(addPart({ hardwareId: mine })).resolves.toMatchObject({ kind: "grinder" });
   });
 
+  it("has no fourth kind of part to add (AC 1)", async () => {
+    const [model] = await db().select().from(canonicalHardware).where(eq(canonicalHardware.id, ZERO));
+    const tamper = { ...model, id: newId(), name: "Tamper", kind: "tamper" as "basket" };
+    await expect(db().insert(canonicalHardware).values(tamper)).rejects.toThrow();
+  });
+
   it("rejects an unknown model", async () => {
     await expect(addPart({ hardwareId: "no-such-model" })).rejects.toBeInstanceOf(NotFoundError);
   });
@@ -117,5 +123,17 @@ describe("getPart", () => {
 
   it("treats a missing part as not found", async () => {
     await expect(getPart("no-such-part")).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("getPartModel", () => {
+  it("returns the model by maker and name with its capabilities", async () => {
+    await expect(getPartModel(ZERO)).resolves.toMatchObject({
+      id: ZERO, kind: "grinder", maker: "Niche", model: "Zero",
+    });
+  });
+
+  it("returns null for an unknown model", async () => {
+    await expect(getPartModel("no-such-model")).resolves.toBeNull();
   });
 });

@@ -17,7 +17,7 @@ import {
   visibleCatalog,
   type OwnedTable,
 } from "@/server/dal/scope";
-import { addPart, getPart, getSetupTab } from "@/server/dal/parts";
+import { addPart, getPart, getPartModel, getSetupTab } from "@/server/dal/parts";
 import { createTestDb } from "@/test/db";
 import { makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -151,5 +151,6 @@ describe("parts", () => {
       ...model, id, name: "Their private model", source: "user", status: "unverified", createdByHouseholdId: theirs.household.id,
     });
     await expect(addPart({ hardwareId: id })).rejects.toBeInstanceOf(NotFoundError);
+    await expect(getPartModel(id)).resolves.toBeNull();
   });
 });
