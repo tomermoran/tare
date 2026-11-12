@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
-import { Skeleton, SkeletonBlock } from "./Skeleton";
+import { BrewSkeleton, ListSkeleton, Skeleton, SkeletonBlock } from "./Skeleton";
 
 const { states } = messages;
 
@@ -70,4 +70,19 @@ export const Pulse: Story = {
 export const RightToLeft: Story = {
   ...BrewCard,
   globals: { direction: "rtl" },
+};
+
+/** The presets the tabs' loading.tsx files use. */
+export const Presets: Story = {
+  render: () => (
+    <div className="flex flex-col gap-12">
+      <BrewSkeleton label={states.loading} />
+      <ListSkeleton label={states.loading} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const regions = within(canvasElement).getAllByRole("status", { name: states.loading });
+    await expect(regions).toHaveLength(2);
+    for (const r of regions) await expect(r).toHaveAttribute("aria-busy", "true");
+  },
 };

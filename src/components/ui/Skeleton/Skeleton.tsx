@@ -64,3 +64,35 @@ export function Skeleton({
     </div>
   );
 }
+
+/** SCR-HOME loading: drink title, coffee line, four values, the pull button. */
+export function BrewSkeleton({ label }: { label: string }) {
+  return (
+    <Skeleton label={label} className="gap-4">
+      <SkeletonBlock shape="title" />
+      <SkeletonBlock shape="line" className="w-1/2" />
+      <div className="grid grid-cols-4 gap-3">
+        <SkeletonBlock shape="value" />
+        <SkeletonBlock shape="value" />
+        <SkeletonBlock shape="value" />
+        <SkeletonBlock shape="value" />
+      </div>
+      <SkeletonBlock shape="button" />
+    </Skeleton>
+  );
+}
+
+/** A list tab loading: its title, then rows with a primary and secondary line. */
+export function ListSkeleton({ label, rows = 4 }: { label: string; rows?: number }) {
+  return (
+    <Skeleton label={label}>
+      <SkeletonBlock shape="title" className="h-10 w-1/2" />
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="flex flex-col gap-2 border-b border-line py-3">
+          <SkeletonBlock shape="line" className="w-3/5" />
+          <SkeletonBlock shape="line" className="w-2/5" />
+        </div>
+      ))}
+    </Skeleton>
+  );
+}

@@ -126,7 +126,9 @@
     "loadFailedTitle": "Couldn't load this",
     "loadFailed": "Check your connection, then try again.",
     "saveFailed": "Couldn't save. Your changes are still here; try again.",
-    "loading": "Loading"
+    "loading": "Loading",
+    "notFound": "This was removed or moved. Go back and pick it again.",
+    "noSession": "Your session ended. Reload Tare to carry on; nothing you saved is lost."
   },
   "beans": {
     "title": "Beans",
