@@ -21,6 +21,21 @@ const sizes = {
   sm: "h-10 px-4 text-label",
 };
 
+/** Button looks for a link that acts as a button (navigation, not an action). */
+export function buttonClass({
+  variant = "secondary",
+  size = "md",
+  fullWidth = false,
+}: Pick<ButtonProps, "variant" | "size" | "fullWidth"> = {}) {
+  return cx(
+    "inline-flex items-center justify-center gap-2 rounded-md whitespace-nowrap",
+    "transition-colors disabled:cursor-not-allowed",
+    variants[variant],
+    sizes[size],
+    fullWidth && "w-full",
+  );
+}
+
 export function Button({
   variant = "secondary",
   size = "md",
@@ -32,14 +47,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-md whitespace-nowrap",
-        "transition-colors disabled:cursor-not-allowed",
-        variants[variant],
-        sizes[size],
-        fullWidth && "w-full",
-        className,
-      )}
+      className={cx(buttonClass({ variant, size, fullWidth }), className)}
       {...props}
     />
   );
