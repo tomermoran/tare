@@ -446,3 +446,59 @@ export const extractions = sqliteTable(
     index("extractions_setup_time").on(t.setupId, t.createdAt),
   ],
 );
+
+// --- RECIPES ---
+
+// Pinned per bean, persona, setup and drink type. A set batchId overrides the
+// bean's default for that one bag. Re-pinning adds a row; the latest pinnedAt wins.
+export const pinnedRecipes = sqliteTable(
+  "pinned_recipes",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    beanId: text("bean_id")
+      .references(() => canonicalBeans.id)
+      .notNull(),
+    personaId: text("persona_id")
+      .references(() => personas.id)
+      .notNull(),
+    setupId: text("setup_id")
+      .references(() => setups.id)
+      .notNull(),
+    drinkTypeId: text("drink_type_id")
+      .references(() => drinkTypes.id)
+      .notNull(),
+    batchId: text("batch_id").references(() => batches.id), // Null = the bean's default
+
+    grindSize: real("grind_size").notNull(),
+    doseWeight: real("dose_weight").notNull(),
+    yieldWeight: real("yield_weight").notNull(),
+    yieldTime: integer("yield_time").notNull(), // Milliseconds
+    brewTempC: real("brew_temp_c"), // Same optional pairs as extractions
+    brewTempStep: integer("brew_temp_step"),
+    pressureBar: real("pressure_bar"),
+    pressureStep: integer("pressure_step"),
+    usedWdt: integer("used_wdt", { mode: "boolean" }).notNull().default(false),
+    usedPuckScreen: integer("used_puck_screen", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    milkTypeId: text("milk_type_id").references(() => milkTypes.id), // The usual milk
+    milkMl: real("milk_ml"),
+
+    sourceExtractionId: text("source_extraction_id").references(
+      () => extractions.id,
+    ), // The shot it came from, if any
+    pinnedAt: integer("pinned_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [
+    index("pinned_recipes_key").on(
+      t.beanId,
+      t.personaId,
+      t.setupId,
+      t.drinkTypeId,
+      t.pinnedAt,
+    ),
+  ],
+);
