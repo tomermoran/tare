@@ -120,7 +120,40 @@
   },
   "unit": {
     "finer": "Finer",
-    "coarser": "Coarser"
+    "coarser": "Coarser",
+    "capNotSure": "not sure",
+    "cap": {
+      "temperatureNone": "No temperature setting",
+      "temperatureSteps": "Temperature: {count} settings",
+      "temperatureExact": "Temperature: {min} to {max}, in steps of {step}",
+      "temperatureUnknown": "Temperature control: not sure",
+      "pressureNone": "Fixed pressure, {gauge, select, true {with a gauge} false {no gauge} other {gauge not sure}}",
+      "pressureManual": "Pressure by hand (lever or paddle), {gauge, select, true {with a gauge} false {no gauge} other {gauge not sure}}",
+      "pressureSteps": "Pressure: {count} settings",
+      "pressureExact": "Pressure: {min} to {max}, in steps of {step}",
+      "pressureUnknown": "Pressure control: not sure",
+      "grindStepped": "Stepped grind dial, {min} to {max}, steps of {step}",
+      "grindStepless": "Stepless grind dial, {min} to {max}, set in steps of {step}",
+      "grindUnknown": "Grind dial, {min} to {max}",
+      "coarserHigher": "Higher numbers are coarser",
+      "coarserLower": "Lower numbers are coarser",
+      "coarserUnknown": "Which way is coarser: not sure",
+      "dose": "Made for {min} to {max} of coffee"
+    },
+    "barValue": "{value} bar",
+    "addTitle": "Add a part",
+    "kindLabel": "What kind of part",
+    "model": "Model",
+    "chooseModel": "Choose the model",
+    "changeModel": "Change",
+    "modelMissing": "Choose the model first.",
+    "nickname": "Nickname",
+    "nicknameHint": "Optional. Handy if you have two of the same.",
+    "acquired": "Got it on",
+    "acquiredHint": "Optional.",
+    "aboutModel": "About this model",
+    "save": "Add part",
+    "saveFailedTitle": "Couldn't add the part"
   },
   "states": {
     "notBuilt": "This tab isn't built yet.",
@@ -141,7 +174,7 @@
   "setup": {
     "title": "Setup",
     "emptyTitle": "No setup yet",
-    "empty": "Your machine, grinder and basket will show up here.",
+    "empty": "Start with your espresso machine. Your grinder and basket come next.",
     "productLink": "Product page",
     "productLinkHint": "The maker's or shop's page, so the same part isn't added twice.",
     "productLinkPlaceholder": "https://",
@@ -150,7 +183,18 @@
       "machine": "Machine",
       "grinder": "Grinder",
       "basket": "Basket"
-    }
+    },
+    "addPart": "Add a part",
+    "addMachine": "Add your machine",
+    "setups": "Your setups",
+    "parts": "Your parts",
+    "kindPlural": {
+      "machine": "Machines",
+      "grinder": "Grinders",
+      "basket": "Baskets"
+    },
+    "partsLoading": "Loading your parts",
+    "partName": "{maker} {model}"
   },
   "confirm": {
     "discardTitle": "Discard changes?",

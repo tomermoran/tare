@@ -26,7 +26,7 @@ const EXPECTED: Record<string, string> = {
   households: "id:text! name:text created_at:integer!",
   maintenance_events: "id:text! owned_hardware_id:text! kind:text! is_recalibration:integer! note:text occurred_at:integer! grind_shift:real grind_scale:real offset_source_recipe_id:text",
   milk_types: "id:text! household_id:text! name_key:text name:text kind:text! hidden:integer sort_order:integer!",
-  owned_hardware: "id:text! household_id:text! hardware_id:text! nickname:text acquired_at:integer retired_at:integer",
+  owned_hardware: "id:text! household_id:text! hardware_id:text! nickname:text acquired_at:integer retired_at:integer created_at:integer!",
   personas: "id:text! household_id:text! user_id:text name:text is_default:integer",
   pinned_recipes: "id:text! household_id:text! bean_id:text! persona_id:text! setup_id:text! drink_type_id:text! batch_id:text grind_size:real! dose_weight:real! yield_weight:real! yield_time:integer! brew_temp_c:real brew_temp_step:integer pressure_bar:real pressure_step:integer used_wdt:integer! used_puck_screen:integer! milk_type_id:text milk_ml:real source_extraction_id:text pinned_at:integer!",
   roasters: "id:text! name:text! source:text! status:text! merged_into_id:text created_by_household_id:text created_at:integer!",

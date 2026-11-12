@@ -1,3 +1,4 @@
+import "server-only";
 import { eq, inArray } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { canonicalBeans, canonicalHardware, hardwareMakers, roasters } from "@/db/schema";

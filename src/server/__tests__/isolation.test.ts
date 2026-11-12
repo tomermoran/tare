@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
 import {
   canonicalBeans,
+  canonicalHardware,
   extractions,
   maintenanceEvents,
   pinnedRecipes,
@@ -16,6 +17,7 @@ import {
   visibleCatalog,
   type OwnedTable,
 } from "@/server/dal/scope";
+import { addPart, getPart, getPartModel, getSetupTab } from "@/server/dal/parts";
 import { createTestDb } from "@/test/db";
 import { makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -126,5 +128,29 @@ describe("catalog visibility", () => {
       .where(and(visibleCatalog(canonicalBeans, householdId), eq(canonicalBeans.roasterId, roasterId)));
     expect(visible.map((b) => b.name).sort()).toEqual(["House Blend", "Mine, unverified"]);
     expect(await db.select().from(roasters)).toHaveLength(2);
+  });
+});
+
+describe("parts", () => {
+  it("lists only my parts and setups on the Setup tab", async () => {
+    const tab = await getSetupTab();
+    const partIds = Object.values(tab.parts).flat().map((p) => p.id).sort();
+    expect(partIds).toEqual(mine.parts.map((p) => p.id).sort());
+    expect(tab.setups.map((s) => s.id)).toEqual([mine.setup.id]);
+  });
+
+  it("treats another household's part as not found", async () => {
+    await expect(getPart(theirs.parts[0].id)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("won't add a part from another household's unverified model", async () => {
+    const db = testContext.db!;
+    const [model] = await db.select().from(canonicalHardware).where(eq(canonicalHardware.id, theirs.parts[0].hardwareId));
+    const id = newId();
+    await db.insert(canonicalHardware).values({
+      ...model, id, name: "Their private model", source: "user", status: "unverified", createdByHouseholdId: theirs.household.id,
+    });
+    await expect(addPart({ hardwareId: id })).rejects.toBeInstanceOf(NotFoundError);
+    await expect(getPartModel(id)).resolves.toBeNull();
   });
 });

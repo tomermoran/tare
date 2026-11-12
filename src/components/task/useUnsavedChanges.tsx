@@ -14,14 +14,15 @@ import { ConfirmSheet } from "@/components/ui/Sheet/ConfirmSheet";
  * Back is caught with one extra history entry on top while dirty; popping
  * it asks instead of leaving, and a discard then goes back past it.
  *
- * Returns `leave`, for the task's Cancel button, and the `confirm` sheet to
- * render once in the task.
+ * Returns `leave`, for the task's Cancel button, `proceed`, for leaving
+ * without asking (after saving, or for a side task that keeps a draft), and
+ * the `confirm` sheet to render once in the task.
  */
 export function useUnsavedChanges(
   isDirty: boolean,
   /** Where Cancel goes, e.g. back to where the task was opened from. */
   onLeave: () => void,
-): { leave: () => void; confirm: ReactNode } {
+): { leave: () => void; proceed: (go: () => void) => void; confirm: ReactNode } {
   const t = useTranslations();
   const [asking, setAsking] = useState<null | "cancel" | "back">(null);
   const leaving = useRef(false);
@@ -80,6 +81,18 @@ export function useUnsavedChanges(
     }
   }, [asking, onLeave]);
 
+  const proceed = useCallback((go: () => void) => {
+    leaving.current = true;
+    if (!guarded.current) {
+      go();
+      return;
+    }
+    // Drop the guard entry first, so the next page replaces the task itself.
+    guarded.current = false;
+    window.addEventListener("popstate", () => go(), { once: true });
+    window.history.back();
+  }, []);
+
   const confirm = (
     <ConfirmSheet
       open={asking !== null}
@@ -94,5 +107,5 @@ export function useUnsavedChanges(
     </ConfirmSheet>
   );
 
-  return { leave, confirm };
+  return { leave, proceed, confirm };
 }

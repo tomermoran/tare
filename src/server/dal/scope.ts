@@ -19,7 +19,7 @@ import {
   stockChecks,
 } from "@/db/schema";
 import { findAccount, type Account } from "@/server/auth/bootstrap";
-import { requireSession } from "@/server/auth/session";
+import { NoSessionError, requireSession } from "@/server/auth/session";
 
 /** Another household's row, or one that doesn't exist: callers can't tell. */
 export class NotFoundError extends Error {
@@ -40,6 +40,20 @@ export async function requireHousehold(): Promise<Account> {
   // The session exchange creates the account, so this means a stale cookie.
   if (!account) throw new NotFoundError();
   return account;
+}
+
+/**
+ * For page reads: null while there's no session yet. On first launch the
+ * start screen covers the page and refreshes it once the session exists, so
+ * the page renders its loading state instead of an error meanwhile.
+ */
+export async function unlessSignedOut<T>(read: Promise<T>): Promise<T | null> {
+  try {
+    return await read;
+  } catch (e) {
+    if (e instanceof NoSessionError) return null;
+    throw e;
+  }
 }
 
 /** Tables a household owns directly, through a household_id column. */
