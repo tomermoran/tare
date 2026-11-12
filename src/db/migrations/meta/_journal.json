@@ -8,6 +8,13 @@
       "when": 1794513236897,
       "tag": "0000_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794515209849,
+      "tag": "0001_drink_types",
+      "breakpoints": true
     }
   ]
 }

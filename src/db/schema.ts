@@ -16,10 +16,14 @@
  */
 
 import {
+  type AnySQLiteColumn,
+  index,
   integer,
   primaryKey,
+  real,
   sqliteTable,
   text,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 // --- ACCOUNTS ---
@@ -74,3 +78,26 @@ export const personas = sqliteTable("personas", {
   name: text("name"), // Null shows the translated role label (e.g. "Me")
   isDefault: integer("is_default", { mode: "boolean" }).default(false),
 });
+
+// --- HOUSEHOLD LISTS ---
+
+// Drinks a household makes. Each new household gets the starter list (Espresso,
+// Ristretto, Lungo, Americano, Cortado, Flat white, Cappuccino, Latte, Macchiato) as
+// its own rows, which it can rename, hide or add to. Starter rows use nameKey so
+// they are translated; a renamed or added drink stores its own name.
+export const drinkTypes = sqliteTable(
+  "drink_types",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    nameKey: text("name_key"), // i18n key for starter drinks, e.g. 'drinks.latte'
+    name: text("name"), // Set when renamed or custom; overrides nameKey
+    hasMilk: integer("has_milk", { mode: "boolean" }).notNull(),
+    typicalMilkMl: real("typical_milk_ml"), // Pre-fills milk amount; null without milk
+    hidden: integer("hidden", { mode: "boolean" }).default(false),
+    sortOrder: integer("sort_order").notNull(),
+  },
+  (t) => [index("drink_types_household_order").on(t.householdId, t.sortOrder)],
+);
