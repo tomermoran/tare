@@ -119,6 +119,7 @@
     "notBuilt": "This tab isn't built yet.",
     "loadFailedTitle": "Couldn't load this",
     "loadFailed": "Check your connection, then try again.",
-    "saveFailed": "Couldn't save. Your changes are still here; try again."
+    "saveFailed": "Couldn't save. Your changes are still here; try again.",
+    "loading": "Loading"
   }
 }
