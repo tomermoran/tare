@@ -3,7 +3,7 @@ import { expect, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { Icon, type IconName } from "./Icon";
 
-const names: IconName[] = ["chevron", "check", "plus", "close"];
+const names: IconName[] = ["chevron", "back", "check", "plus", "close"];
 
 const meta = {
   title: "Components/Icon",
