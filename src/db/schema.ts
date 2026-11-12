@@ -283,3 +283,37 @@ export const ownedHardware = sqliteTable(
   },
   (t) => [index("owned_hardware_household").on(t.householdId)],
 );
+
+// A setup: a fixed combination of owned parts. Setups never change; any different
+// combination is a different setup. partsKey is the sorted list of part IDs
+// (src/domain/setupKey.ts), unique per household, so using the same combination
+// again finds the same setup, and its recipes, instead of creating a new one.
+export const setups = sqliteTable(
+  "setups",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    partsKey: text("parts_key").notNull(),
+    name: text("name"), // Optional; otherwise shown by its parts or a translated default
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [uniqueIndex("setups_household_parts").on(t.householdId, t.partsKey)],
+);
+
+export const setupParts = sqliteTable(
+  "setup_parts",
+  {
+    setupId: text("setup_id")
+      .references(() => setups.id)
+      .notNull(),
+    ownedHardwareId: text("owned_hardware_id")
+      .references(() => ownedHardware.id)
+      .notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.setupId, t.ownedHardwareId] }),
+    index("setup_parts_owned_hardware").on(t.ownedHardwareId),
+  ],
+);
