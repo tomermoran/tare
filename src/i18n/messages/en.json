@@ -80,7 +80,9 @@
       "shot": "Pull your first shot",
       "addMachine": "Add machine",
       "done": "Done"
-    }
+    },
+    "interimTitle": "Nothing to brew yet",
+    "interim": "Once your setup and a bag of coffee are in, your next shot starts here."
   },
   "log": {
     "titleNew": "New shot",
@@ -104,7 +106,8 @@
     "off": "Off",
     "maintenanceDivider": "{unit}: {work}, {date}",
     "empty": "No shots yet. Your first one will show up here.",
-    "rowTitle": "{drink} · {time}"
+    "rowTitle": "{drink} · {time}",
+    "emptyTitle": "No shots yet"
   },
   "maintenance": {
     "burrs": "New burrs",
@@ -121,5 +124,15 @@
     "loadFailed": "Check your connection, then try again.",
     "saveFailed": "Couldn't save. Your changes are still here; try again.",
     "loading": "Loading"
+  },
+  "beans": {
+    "title": "Beans",
+    "emptyTitle": "No coffee yet",
+    "empty": "Bags you add will show up here, with how much is left."
+  },
+  "setup": {
+    "title": "Setup",
+    "emptyTitle": "No setup yet",
+    "empty": "Your machine, grinder and basket will show up here."
   }
 }
