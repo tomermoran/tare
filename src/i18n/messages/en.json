@@ -12,7 +12,8 @@
     "save": "Save",
     "close": "Close",
     "discard": "Discard",
-    "keepEditing": "Keep editing"
+    "keepEditing": "Keep editing",
+    "back": "Back"
   },
   "shot": {
     "dose": "Dose",
@@ -143,7 +144,13 @@
     "empty": "Your machine, grinder and basket will show up here.",
     "productLink": "Product page",
     "productLinkHint": "The maker's or shop's page, so the same part isn't added twice.",
-    "productLinkPlaceholder": "https://"
+    "productLinkPlaceholder": "https://",
+    "stockBaskets": "Made for your machine",
+    "kind": {
+      "machine": "Machine",
+      "grinder": "Grinder",
+      "basket": "Basket"
+    }
   },
   "confirm": {
     "discardTitle": "Discard changes?",
@@ -153,5 +160,26 @@
     "slow": "Still setting up…",
     "failedTitle": "Couldn't get started",
     "failed": "Tare needs a connection the first time. Check yours, then try again."
+  },
+  "catalog": {
+    "search": "Search",
+    "searchHint": "Maker, model or a model number",
+    "searchCoffeeHint": "Roaster or coffee",
+    "pickTitle": {
+      "machine": "Pick your machine",
+      "grinder": "Pick your grinder",
+      "basket": "Pick your basket",
+      "coffee": "Pick your coffee"
+    },
+    "makers": "Makers",
+    "roasters": "Roasters",
+    "results": "Results",
+    "addedByYou": "Added by you",
+    "alsoKnownAs": "Also known as {alias}",
+    "cantFind": "Can't find it? Add it",
+    "noMatch": "Nothing matches “{query}”.",
+    "allMakers": "All makers",
+    "addSoonTitle": "Adding to the catalog is coming",
+    "addSoon": "For now, pick the closest match, or go back and try another search."
   }
 }
