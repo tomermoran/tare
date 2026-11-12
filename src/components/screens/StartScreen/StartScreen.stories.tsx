@@ -31,7 +31,7 @@ export const Starting: Story = {
     await expect(canvas.queryByRole("button")).toBeNull();
     await expect(canvas.queryByRole("textbox")).toBeNull();
     await expect(canvas.queryByRole("checkbox")).toBeNull();
-    await expect(canvas.getByRole("main")).toHaveAttribute("aria-busy", "true");
+    await expect(canvasElement.querySelector("[aria-busy]")).toHaveAttribute("aria-busy", "true");
   },
 };
 

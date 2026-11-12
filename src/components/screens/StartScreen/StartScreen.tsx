@@ -28,7 +28,7 @@ export function StartScreen({
   onRetry: () => void;
 }) {
   return (
-    <main
+    <div
       aria-busy={state !== "failed"}
       className="flex min-h-dvh flex-col items-center justify-center gap-8 bg-paper px-6 text-center"
     >
@@ -48,6 +48,6 @@ export function StartScreen({
           </Button>
         </div>
       )}
-    </main>
+    </div>
   );
 }
