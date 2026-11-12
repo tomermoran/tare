@@ -45,6 +45,7 @@ export function SetupScreen({
   setupOffer,
   addPartHref,
   addMachineHref,
+  notice,
 }: {
   labels: SetupLabels;
   state?: "loading" | "ready";
@@ -55,6 +56,8 @@ export function SetupScreen({
   setupOffer?: ReactNode;
   addPartHref: string;
   addMachineHref: string;
+  /** A neutral Notice under the header, e.g. after a refused save. */
+  notice?: ReactNode;
 }) {
   if (state === "loading") {
     return (
@@ -77,6 +80,7 @@ export function SetupScreen({
     return (
       <div className="flex flex-col gap-8">
         <PageHeader title={labels.title} />
+        {notice}
         <EmptyState title={labels.emptyTitle} action={{ label: labels.addMachine, href: addMachineHref }}>
           {labels.empty}
         </EmptyState>
@@ -94,6 +98,7 @@ export function SetupScreen({
           </Link>
         }
       />
+      {notice}
 
       {(setups || setupOffer) && (
         <section aria-labelledby="setup-setups" className="flex flex-col gap-4">

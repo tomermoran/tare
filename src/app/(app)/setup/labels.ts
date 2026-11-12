@@ -1,8 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { SetupLabels } from "@/components/screens/SetupScreen/SetupScreen";
 
-export const ADD_PART = "/setup/add-part";
-
 export async function setupLabels(): Promise<SetupLabels> {
   const t = await getTranslations("setup");
   return {

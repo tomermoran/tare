@@ -1,8 +1,8 @@
 import "server-only";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { canonicalHardware, hardwareMakers, ownedHardware, setupParts, setups } from "@/db/schema";
+import { canonicalHardware, hardwareMakers, ownedHardware, pinnedRecipes, setupParts, setups } from "@/db/schema";
 import type { HardwareKind } from "@/domain/capabilities";
 import { resolveEntity } from "./catalogMerge";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
@@ -32,6 +32,7 @@ export type SetupSummary = {
   createdAt: Date;
   /** Its three parts, in kind order (machine, grinder, basket). */
   parts: Part[];
+  recipeCount: number;
 };
 
 const partColumns = {
@@ -70,7 +71,14 @@ async function setupsOf(householdId: string, parts: Part[]): Promise<SetupSummar
     .from(setupParts)
     .where(inArray(setupParts.setupId, rows.map((r) => r.id)));
   const byId = new Map(parts.map((p) => [p.id, p]));
+  const counts = await db
+    .select({ setupId: pinnedRecipes.setupId, n: count() })
+    .from(pinnedRecipes)
+    .where(eq(pinnedRecipes.householdId, householdId))
+    .groupBy(pinnedRecipes.setupId);
+  const recipes = new Map(counts.map((c) => [c.setupId, c.n]));
   return rows.map((s) => ({
+    recipeCount: recipes.get(s.id) ?? 0,
     id: s.id,
     name: s.name,
     createdAt: s.createdAt,

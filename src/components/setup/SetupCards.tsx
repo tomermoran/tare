@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button/Button";
 import { Card } from "@/components/ui/Card/Card";
+import { Notice } from "@/components/ui/Notice/Notice";
 
 /*
  * Cards on the Setup tab (SCR-KIT). SetupOfferCard is the first-setup
@@ -14,6 +15,7 @@ export function SetupOfferCard({
   parts,
   action,
   busy = false,
+  error,
   onAccept,
 }: {
   title: string;
@@ -22,6 +24,8 @@ export function SetupOfferCard({
   parts: string[];
   action: string;
   busy?: boolean;
+  /** Shown when the tap didn't save. */
+  error?: string;
   onAccept: () => void;
 }) {
   return (
@@ -35,6 +39,11 @@ export function SetupOfferCard({
           <li key={p}>{p}</li>
         ))}
       </ul>
+      {error && (
+        <Notice size="inline" urgent>
+          {error}
+        </Notice>
+      )}
       <Button variant="primary" onClick={onAccept} disabled={busy} aria-busy={busy || undefined} className="self-start">
         {action}
       </Button>
