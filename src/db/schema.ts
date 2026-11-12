@@ -281,6 +281,12 @@ export const ownedHardware = sqliteTable(
     nickname: text("nickname"),
     acquiredAt: integer("acquired_at", { mode: "timestamp_ms" }),
     retiredAt: integer("retired_at", { mode: "timestamp_ms" }), // Not written in the MVP
+    // When it was added to Tare (not when it was bought: that's acquiredAt).
+    // Orders "most recently added" for the first-setup shortcut. Rows from
+    // before this column read as the epoch, i.e. oldest.
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`0`),
   },
   (t) => [index("owned_hardware_household").on(t.householdId)],
 );

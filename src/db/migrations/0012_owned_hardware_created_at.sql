@@ -1,0 +1,1 @@
+ALTER TABLE `owned_hardware` ADD `created_at` integer DEFAULT 0 NOT NULL;

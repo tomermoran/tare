@@ -81,3 +81,12 @@ export function localNoon(dayKey: string, timeZone: string): Date {
   const [year, month, day] = dayKey.split("-").map(Number);
   return zonedInstant(timeZone, year, month, day, 12);
 }
+
+/** A real calendar day written YYYY-MM-DD, as a date input gives it. */
+export function isValidDayKey(value: string): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m) return false;
+  const [year, month, day] = m.slice(1).map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day));
+  return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
+}

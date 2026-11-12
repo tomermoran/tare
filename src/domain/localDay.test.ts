@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { localDayKey, localNoon, startOfLocalDay } from "./localDay";
+import { isValidDayKey, localDayKey, localNoon, startOfLocalDay } from "./localDay";
 
 const at = (iso: string) => new Date(iso);
 
@@ -65,4 +65,16 @@ describe("localNoon", () => {
       expect(localDayKey(localNoon(day, "Europe/London"), "Europe/London")).toBe(day);
     }
   });
+});
+
+describe("isValidDayKey", () => {
+  it.each(["2026-01-15", "2024-02-29"])("accepts %s", (v) => {
+    expect(isValidDayKey(v)).toBe(true);
+  });
+  it.each(["", "2026-1-15", "2026-02-30", "2025-02-29", "15/01/2026", "2026-13-01", "2026-01-15T00:00"])(
+    "rejects %s",
+    (v) => {
+      expect(isValidDayKey(v)).toBe(false);
+    },
+  );
 });
