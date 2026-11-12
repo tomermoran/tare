@@ -9,6 +9,7 @@ import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import type { HardwareKind } from "@/domain/capabilities";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { returnWithSelection, withReturnTo } from "@/lib/returnTo";
+import { ADD_PART_PATH, SETUP_PATH } from "@/lib/setupRoutes";
 import { addPartAction } from "@/server/actions/parts";
 import type { PartModel } from "@/server/dal/parts";
 
@@ -20,9 +21,7 @@ import type { PartModel } from "@/server/dal/parts";
  * to Setup, where the first-setup offer waits once all three exist.
  */
 
-export const ADD_PART_PATH = "/setup/add-part";
 const DRAFT = "add-part";
-const SETUP = "/setup";
 
 type Draft = { kind: HardwareKind; model: PartModel | null; nickname: string; acquired: string };
 
@@ -81,7 +80,7 @@ export function AddPartFlow({
   const dirty = draft.model !== null || draft.nickname.trim() !== "" || draft.acquired !== "";
   const { leave, proceed, confirm } = useUnsavedChanges(dirty, () => {
     clearDraft(DRAFT);
-    router.replace(returnTo ?? SETUP);
+    router.replace(returnTo ?? SETUP_PATH);
   });
 
   const update = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
@@ -123,7 +122,7 @@ export function AddPartFlow({
       ? returnWithSelection(returnTo, result.data.id)
       : walk && next
         ? `${ADD_PART_PATH}?kind=${next}&walk=1`
-        : SETUP;
+        : SETUP_PATH;
     proceed(() => {
       router.replace(to);
       router.refresh();
