@@ -7,8 +7,8 @@ import { TabBar } from "./TabBar";
 const { nav } = messages;
 const tabs = [
   { id: "brew", label: nav.brew },
-  { id: "shots", label: nav.shots },
-  { id: "pantry", label: nav.pantry },
+  { id: "journal", label: nav.journal },
+  { id: "beans", label: nav.beans },
   { id: "setup", label: nav.setup },
 ];
 
@@ -34,8 +34,8 @@ export const Default: Story = {
   render: () => <Interactive />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: nav.shots }));
-    await expect(canvas.getByRole("button", { name: nav.shots })).toHaveAttribute("aria-current", "page");
+    await userEvent.click(canvas.getByRole("button", { name: nav.journal }));
+    await expect(canvas.getByRole("button", { name: nav.journal })).toHaveAttribute("aria-current", "page");
     await expect(canvas.getByRole("button", { name: nav.brew })).not.toHaveAttribute("aria-current");
   },
 };

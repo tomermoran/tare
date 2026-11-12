@@ -18,7 +18,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Page: Story = { args: { title: messages.shots.title } };
+export const Page: Story = { args: { title: messages.journal.title } };
 
 export const Task: Story = {
   args: {

@@ -32,7 +32,7 @@ export const WithMarkers: Story = {
   args: {
     ...Default.args,
     footer: (
-      <span className="text-overline uppercase text-ink-secondary">{messages.shots.oneTap}</span>
+      <span className="text-overline uppercase text-ink-secondary">{messages.journal.oneTap}</span>
     ),
   },
 };

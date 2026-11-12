@@ -33,7 +33,7 @@ const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
  * apart by a text marker, maintenance on a grinder shown as a divider.
  */
 export function RecentShotsScreen({ items, now, onOpen }: RecentShotsScreenProps) {
-  const t = useTranslations("shots");
+  const t = useTranslations("journal");
   const tShot = useTranslations("shot");
   const tMaint = useTranslations("maintenance");
   const format = useFormatter();

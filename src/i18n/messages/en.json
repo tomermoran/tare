@@ -37,8 +37,8 @@
   "nav": {
     "label": "Main",
     "brew": "Brew",
-    "shots": "Shots",
-    "pantry": "Pantry",
+    "journal": "Journal",
+    "beans": "Beans",
     "setup": "Setup"
   },
   "profile": {
@@ -95,8 +95,8 @@
     "was": "was {value}",
     "setup": "Setup"
   },
-  "shots": {
-    "title": "Shots",
+  "journal": {
+    "title": "Journal",
     "today": "Today",
     "yesterday": "Yesterday",
     "oneTap": "One tap",
