@@ -120,7 +120,27 @@
   },
   "unit": {
     "finer": "Finer",
-    "coarser": "Coarser"
+    "coarser": "Coarser",
+    "capNotSure": "not sure",
+    "cap": {
+      "temperatureNone": "No temperature setting",
+      "temperatureSteps": "Temperature: {count} settings",
+      "temperatureExact": "Temperature: {min} to {max}, in steps of {step}",
+      "temperatureUnknown": "Temperature control: not sure",
+      "pressureNone": "Fixed pressure, {gauge, select, true {with a gauge} false {no gauge} other {gauge not sure}}",
+      "pressureManual": "Pressure by hand (lever or paddle), {gauge, select, true {with a gauge} false {no gauge} other {gauge not sure}}",
+      "pressureSteps": "Pressure: {count} settings",
+      "pressureExact": "Pressure: {min} to {max}, in steps of {step}",
+      "pressureUnknown": "Pressure control: not sure",
+      "grindStepped": "Stepped grind dial, {min} to {max}, steps of {step}",
+      "grindStepless": "Stepless grind dial, {min} to {max}, set in steps of {step}",
+      "grindUnknown": "Grind dial, {min} to {max}",
+      "coarserHigher": "Higher numbers are coarser",
+      "coarserLower": "Lower numbers are coarser",
+      "coarserUnknown": "Which way is coarser: not sure",
+      "dose": "Made for {min} to {max} of coffee"
+    },
+    "barValue": "{value} bar"
   },
   "states": {
     "notBuilt": "This tab isn't built yet.",
