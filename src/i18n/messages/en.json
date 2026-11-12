@@ -141,5 +141,10 @@
   "confirm": {
     "discardTitle": "Discard changes?",
     "discard": "What you've changed here won't be saved."
+  },
+  "start": {
+    "slow": "Still setting up…",
+    "failedTitle": "Couldn't get started",
+    "failed": "Tare needs a connection the first time. Check yours, then try again."
   }
 }
