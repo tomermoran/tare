@@ -261,3 +261,25 @@ export const catalogMerges = sqliteTable("catalog_merges", {
   reason: text("reason"),
   decidedAt: integer("decided_at", { mode: "timestamp_ms" }).notNull(),
 });
+
+// --- THE HOUSEHOLD'S EQUIPMENT ---
+
+// The physical units a household owns. Maintenance and grind history belong to a
+// unit, not to the model (every Niche Zero) or to a setup (one grinder can be in
+// several).
+export const ownedHardware = sqliteTable(
+  "owned_hardware",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    hardwareId: text("hardware_id")
+      .references(() => canonicalHardware.id)
+      .notNull(), // The model
+    nickname: text("nickname"),
+    acquiredAt: integer("acquired_at", { mode: "timestamp_ms" }),
+    retiredAt: integer("retired_at", { mode: "timestamp_ms" }), // Not written in the MVP
+  },
+  (t) => [index("owned_hardware_household").on(t.householdId)],
+);
