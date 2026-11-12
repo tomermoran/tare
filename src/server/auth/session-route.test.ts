@@ -1,5 +1,8 @@
 import { generateKeyPairSync } from "node:crypto";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+
+// Rejected tokens never reach the database; keep the dev file out of tests.
+vi.mock("@/db/client", () => ({ db: {} }));
 
 // A throwaway service account, so the test needs no real Firebase project.
 beforeAll(() => {

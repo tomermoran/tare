@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { SessionBootstrap } from "@/components/session/SessionBootstrap";
+import { TimeZoneCookie } from "@/components/session/TimeZoneCookie";
 import { getDirection } from "@/i18n/config";
 import { getSession } from "@/server/auth/session";
 import "./globals.css";
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <TimeZoneCookie />
         {/* Reads the session cookie, so it streams in behind its own boundary
             and the rest of the page stays in the static shell. */}
         <Suspense fallback={null}>

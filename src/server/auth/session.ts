@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { cache } from "react";
 import { adminAuth } from "./firebase-admin";
+import {
+  NoSessionError,
+  SESSION_COOKIE,
+  SESSION_MAX_AGE_MS,
+  type Session,
+} from "./session-shared";
 
-export const SESSION_COOKIE = "tare_session";
-/** Firebase's longest session cookie. The client re-exchanges after it ends. */
-export const SESSION_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
-
-export type Session = { firebaseUid: string };
+export { NoSessionError, SESSION_COOKIE, SESSION_MAX_AGE_MS, type Session };
 
 /**
  * The signed-in Firebase account for this request, or null. Cached per
@@ -27,12 +29,6 @@ export const getSession = cache(async (): Promise<Session | null> => {
     return null;
   }
 });
-
-export class NoSessionError extends Error {
-  constructor() {
-    super("No session");
-  }
-}
 
 /** For Server Actions and data reads that need an account. */
 export async function requireSession(): Promise<Session> {

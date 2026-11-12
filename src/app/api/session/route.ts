@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { db } from "@/db/client";
+import { ensureAccount } from "@/server/auth/bootstrap";
 import { adminAuth } from "@/server/auth/firebase-admin";
 import { SESSION_COOKIE, SESSION_MAX_AGE_MS } from "@/server/auth/session";
 
@@ -17,14 +19,18 @@ export async function POST(request: Request) {
   }
 
   let cookie: string;
+  let uid: string;
   try {
-    await adminAuth().verifyIdToken(idToken);
+    uid = (await adminAuth().verifyIdToken(idToken)).uid;
     cookie = await adminAuth().createSessionCookie(idToken, {
       expiresIn: SESSION_MAX_AGE_MS,
     });
   } catch {
     return NextResponse.json({ error: "invalid_token" }, { status: 401 });
   }
+
+  // The first sign-in creates the household; later ones find it.
+  await ensureAccount(db, uid);
 
   const response = new NextResponse(null, { status: 204 });
   response.cookies.set(SESSION_COOKIE, cookie, {
