@@ -72,10 +72,9 @@ function createAccount(db: Db, firebaseUid: string): Promise<Account> {
   );
 }
 
-type Reader = Pick<Db, "select">;
-
-async function findAccount(
-  db: Reader,
+/** The account for a Firebase uid, or null before its first sign-in. */
+export async function findAccount(
+  db: Db,
   firebaseUid: string,
 ): Promise<Account | null> {
   const [row] = await db
