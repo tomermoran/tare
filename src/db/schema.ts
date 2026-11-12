@@ -27,6 +27,7 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+import type { TasteTag } from "@/domain/taste";
 
 // --- ACCOUNTS ---
 
@@ -368,4 +369,80 @@ export const stockChecks = sqliteTable(
     checkedAt: integer("checked_at", { mode: "timestamp_ms" }).notNull(),
   },
   (t) => [index("stock_checks_portion_time").on(t.portionId, t.checkedAt)],
+);
+
+// --- SHOTS (extractions) ---
+
+export const extractions = sqliteTable(
+  "extractions",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    personaId: text("persona_id")
+      .references(() => personas.id)
+      .notNull(), // Whose taste it records
+    loggedByUserId: text("logged_by_user_id")
+      .references(() => users.id)
+      .notNull(), // Who tapped; often not the persona
+    setupId: text("setup_id")
+      .references(() => setups.id)
+      .notNull(),
+    portionId: text("portion_id")
+      .references(() => batchPortions.id)
+      .notNull(), // Batch and bean follow from the portion
+    drinkTypeId: text("drink_type_id")
+      .references(() => drinkTypes.id)
+      .notNull(),
+    sweetened: integer("sweetened", { mode: "boolean" }).default(false),
+    // 'measured': values entered or confirmed at the machine.
+    // 'one-tap': "Pull this shot" copied the pinned recipe; nothing was measured.
+    // One-tap shots count for coffee used and as "the recipe was fine", but drift
+    // detection and palate learning must not treat their values as measurements.
+    entryMode: text("entry_mode").$type<"measured" | "one-tap">().notNull(),
+
+    grindSize: real("grind_size").notNull(), // The grinder's own scale
+    doseWeight: real("dose_weight").notNull(), // Grams
+    yieldWeight: real("yield_weight").notNull(), // Grams
+    yieldTime: integer("yield_time").notNull(), // Milliseconds; shown as seconds
+
+    // Only when the machine can set them. At most one of each pair is filled,
+    // matching the machine's capability; steps are never converted to °C or bar.
+    brewTempC: real("brew_temp_c"),
+    brewTempStep: integer("brew_temp_step"),
+    pressureBar: real("pressure_bar"), // Exact setting, or peak gauge reading
+    pressureStep: integer("pressure_step"),
+
+    // Puck prep, as checkboxes; a one-tap pull copies them from the recipe.
+    usedWdt: integer("used_wdt", { mode: "boolean" }).notNull().default(false),
+    usedPuckScreen: integer("used_puck_screen", { mode: "boolean" })
+      .notNull()
+      .default(false),
+
+    // Milk, for milk drinks; pre-filled from the recipe or the drink's typical amount.
+    milkTypeId: text("milk_type_id").references(() => milkTypes.id),
+    milkMl: real("milk_ml"),
+
+    // Taste, relative to this persona ("just right" scales, -2..2; 0 = just right).
+    reaction: text("reaction").$type<"good" | "off">(), // After a one-tap shot
+    userRating: integer("user_rating"), // 1-5 overall
+    tasteBalance: integer("taste_balance"), // -2 much too sour ... +2 much too bitter
+    tasteStrength: integer("taste_strength"), // -2 much too weak ... +2 much too strong
+    tasteBody: integer("taste_body"), // -2 much too thin ... +2 much too heavy
+    tasteSweetness: integer("taste_sweetness"), // -2 not sweet enough ... 0 just right
+    tasteTags: text("taste_tags", { mode: "json" }).$type<TasteTag[]>(),
+
+    // True only for a measured shot with the full payload and a persona claimed by a
+    // user who opted in. One-tap shots and personas without a login never qualify.
+    isNetworkEligible: integer("is_network_eligible", {
+      mode: "boolean",
+    }).default(false),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [
+    index("extractions_household_time").on(t.householdId, t.createdAt),
+    index("extractions_portion").on(t.portionId),
+    index("extractions_setup_time").on(t.setupId, t.createdAt),
+  ],
 );

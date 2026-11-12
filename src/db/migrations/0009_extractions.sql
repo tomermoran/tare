@@ -1,0 +1,43 @@
+CREATE TABLE `extractions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`household_id` text NOT NULL,
+	`persona_id` text NOT NULL,
+	`logged_by_user_id` text NOT NULL,
+	`setup_id` text NOT NULL,
+	`portion_id` text NOT NULL,
+	`drink_type_id` text NOT NULL,
+	`sweetened` integer DEFAULT false,
+	`entry_mode` text NOT NULL,
+	`grind_size` real NOT NULL,
+	`dose_weight` real NOT NULL,
+	`yield_weight` real NOT NULL,
+	`yield_time` integer NOT NULL,
+	`brew_temp_c` real,
+	`brew_temp_step` integer,
+	`pressure_bar` real,
+	`pressure_step` integer,
+	`used_wdt` integer DEFAULT false NOT NULL,
+	`used_puck_screen` integer DEFAULT false NOT NULL,
+	`milk_type_id` text,
+	`milk_ml` real,
+	`reaction` text,
+	`user_rating` integer,
+	`taste_balance` integer,
+	`taste_strength` integer,
+	`taste_body` integer,
+	`taste_sweetness` integer,
+	`taste_tags` text,
+	`is_network_eligible` integer DEFAULT false,
+	`created_at` integer NOT NULL,
+	FOREIGN KEY (`household_id`) REFERENCES `households`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`persona_id`) REFERENCES `personas`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`logged_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`setup_id`) REFERENCES `setups`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`portion_id`) REFERENCES `batch_portions`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`drink_type_id`) REFERENCES `drink_types`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`milk_type_id`) REFERENCES `milk_types`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `extractions_household_time` ON `extractions` (`household_id`,`created_at`);--> statement-breakpoint
+CREATE INDEX `extractions_portion` ON `extractions` (`portion_id`);--> statement-breakpoint
+CREATE INDEX `extractions_setup_time` ON `extractions` (`setup_id`,`created_at`);
