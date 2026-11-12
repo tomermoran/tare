@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
+import { Notice } from "@/components/ui/Notice/Notice";
 import { ListRow } from "@/components/ui/ListRow/ListRow";
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
@@ -33,7 +34,7 @@ const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
  * apart by a text marker, maintenance on a grinder shown as a divider.
  */
 export function RecentShotsScreen({ items, now, onOpen }: RecentShotsScreenProps) {
-  const t = useTranslations("shots");
+  const t = useTranslations("journal");
   const tShot = useTranslations("shot");
   const tMaint = useTranslations("maintenance");
   const format = useFormatter();
@@ -90,7 +91,9 @@ export function RecentShotsScreen({ items, now, onOpen }: RecentShotsScreenProps
                             <span className="text-overline uppercase text-ink-secondary">{t(item.reaction)}</span>
                           )}
                           {item.channelling && (
-                            <span className="text-label text-signal">{tShot("warnings.channelling")}</span>
+                            <Notice size="inline" tone="warning" warning="channelling">
+                              {tShot("warnings.channelling")}
+                            </Notice>
                           )}
                         </>
                       ) : undefined

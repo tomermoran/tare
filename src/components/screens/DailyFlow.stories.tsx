@@ -13,14 +13,14 @@ import { ShotLogScreen } from "./ShotLogScreen/ShotLogScreen";
 const { nav } = messages;
 const tabs = [
   { id: "brew", label: nav.brew },
-  { id: "shots", label: nav.shots },
-  { id: "pantry", label: nav.pantry },
+  { id: "journal", label: nav.journal },
+  { id: "beans", label: nav.beans },
   { id: "setup", label: nav.setup },
 ];
 
 /**
  * The daily flow, clickable: pull a shot, mark it off, dial in on the shot
- * log, save, and see it in recent shots. Pantry and Setup aren't built yet.
+ * log, save, and see it in the Journal. Beans and Setup aren't built yet.
  */
 function DailyFlow() {
   const [tab, setTab] = useState("brew");
@@ -53,7 +53,7 @@ function DailyFlow() {
           onSave={(values) => {
             addShot(values, false);
             setLogMode(null);
-            setTab("shots");
+            setTab("journal");
           }}
         />
       </PhoneFrame>
@@ -104,8 +104,8 @@ function DailyFlow() {
           onDialIn={() => setLogMode("dialIn")}
         />
       )}
-      {tab === "shots" && <RecentShotsScreen items={shots} now={exampleNow} onOpen={() => {}} />}
-      {(tab === "pantry" || tab === "setup") && (
+      {tab === "journal" && <RecentShotsScreen items={shots} now={exampleNow} onOpen={() => {}} />}
+      {(tab === "beans" || tab === "setup") && (
         <p className="m-auto text-center text-body text-ink-secondary">{messages.states.notBuilt}</p>
       )}
     </PhoneFrame>

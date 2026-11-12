@@ -25,6 +25,8 @@ import { requireSession } from "@/server/auth/session";
 export class NotFoundError extends Error {
   constructor() {
     super("Not found");
+    // Matched by name in runAction, which client code can import.
+    this.name = "NotFoundError";
   }
 }
 

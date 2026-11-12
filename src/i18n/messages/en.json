@@ -9,7 +9,10 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "retry": "Try again",
-    "save": "Save"
+    "save": "Save",
+    "close": "Close",
+    "discard": "Discard",
+    "keepEditing": "Keep editing"
   },
   "shot": {
     "dose": "Dose",
@@ -37,8 +40,8 @@
   "nav": {
     "label": "Main",
     "brew": "Brew",
-    "shots": "Shots",
-    "pantry": "Pantry",
+    "journal": "Journal",
+    "beans": "Beans",
     "setup": "Setup"
   },
   "profile": {
@@ -80,7 +83,9 @@
       "shot": "Pull your first shot",
       "addMachine": "Add machine",
       "done": "Done"
-    }
+    },
+    "interimTitle": "Nothing to brew yet",
+    "interim": "Once your setup and a bag of coffee are in, your next shot starts here."
   },
   "log": {
     "titleNew": "New shot",
@@ -95,16 +100,17 @@
     "was": "was {value}",
     "setup": "Setup"
   },
-  "shots": {
-    "title": "Shots",
+  "journal": {
+    "title": "Journal",
     "today": "Today",
     "yesterday": "Yesterday",
     "oneTap": "One tap",
     "good": "Good",
     "off": "Off",
     "maintenanceDivider": "{unit}: {work}, {date}",
-    "empty": "No shots yet. Your first one will show up here.",
-    "rowTitle": "{drink} · {time}"
+    "empty": "Your first shot will show up here.",
+    "rowTitle": "{drink} · {time}",
+    "emptyTitle": "No shots yet"
   },
   "maintenance": {
     "burrs": "New burrs",
@@ -116,6 +122,36 @@
     "coarser": "Coarser"
   },
   "states": {
-    "notBuilt": "This tab isn't built yet."
+    "notBuilt": "This tab isn't built yet.",
+    "loadFailedTitle": "Couldn't load this",
+    "loadFailed": "Check your connection, then try again.",
+    "saveFailed": "Couldn't save. Your changes are still here; try again.",
+    "loading": "Loading",
+    "notFound": "This was removed or moved. Go back and pick it again.",
+    "noSession": "Your session ended. Reload Tare to carry on; nothing you saved is lost."
+  },
+  "beans": {
+    "title": "Beans",
+    "emptyTitle": "No coffee yet",
+    "empty": "Bags you add will show up here, with how much is left.",
+    "roastDate": "Roast date",
+    "roastDateHint": "On the bag, often near the seal."
+  },
+  "setup": {
+    "title": "Setup",
+    "emptyTitle": "No setup yet",
+    "empty": "Your machine, grinder and basket will show up here.",
+    "productLink": "Product page",
+    "productLinkHint": "The maker's or shop's page, so the same part isn't added twice.",
+    "productLinkPlaceholder": "https://"
+  },
+  "confirm": {
+    "discardTitle": "Discard changes?",
+    "discard": "What you've changed here won't be saved."
+  },
+  "start": {
+    "slow": "Still setting up…",
+    "failedTitle": "Couldn't get started",
+    "failed": "Tare needs a connection the first time. Check yours, then try again."
   }
 }

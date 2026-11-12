@@ -25,8 +25,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("heading", { name: messages.shots.today })).toBeInTheDocument();
-    await expect(canvas.getAllByText(messages.shots.oneTap)).toHaveLength(2);
+    await expect(canvas.getByRole("heading", { name: messages.journal.today })).toBeInTheDocument();
+    await expect(canvas.getAllByText(messages.journal.oneTap)).toHaveLength(2);
     await expect(canvas.getByText(messages.shot.warnings.channelling)).toBeInTheDocument();
   },
 };

@@ -114,6 +114,14 @@
   --ease-calm: cubic-bezier(0.2, 0, 0, 1);
   --default-transition-duration: 200ms;
   --default-transition-timing-function: var(--ease-calm);
+  /* Loading placeholders: a slow opacity pulse, never a spinner. */
+  --animate-breathe: breathe 2.4s ease-in-out infinite;
+
+  @keyframes breathe {
+    50% {
+      opacity: 0.5;
+    }
+  }
 }
 
 @layer base {
