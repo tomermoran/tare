@@ -193,7 +193,8 @@
       "grinder": "Grinders",
       "basket": "Baskets"
     },
-    "partsLoading": "Loading your parts"
+    "partsLoading": "Loading your parts",
+    "partName": "{maker} {model}"
   },
   "confirm": {
     "discardTitle": "Discard changes?",

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
   CatalogPickScreen,
   type PickGroup,
@@ -45,6 +45,16 @@ export function HardwarePicker() {
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+
+  // Next keeps a left page's state; the picker opens at the top each time.
+  useLayoutEffect(
+    () => () => {
+      setMaker(null);
+      setQuery("");
+    },
+     
+    [],
+  );
 
   useEffect(() => {
     const controller = new AbortController();
