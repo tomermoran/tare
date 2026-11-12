@@ -15,6 +15,13 @@
       "when": 1794515209849,
       "tag": "0001_drink_types",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794515223458,
+      "tag": "0002_milk_types",
+      "breakpoints": true
     }
   ]
 }

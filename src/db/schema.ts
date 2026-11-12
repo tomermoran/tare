@@ -101,3 +101,21 @@ export const drinkTypes = sqliteTable(
   },
   (t) => [index("drink_types_household_order").on(t.householdId, t.sortOrder)],
 );
+
+// Milks a household uses. New households get a starter list (whole, semi-skimmed,
+// skimmed, oat, soy, almond, lactose-free) as their own rows, renamable and extendable.
+export const milkTypes = sqliteTable(
+  "milk_types",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    nameKey: text("name_key"), // i18n key for starter milks, e.g. 'milks.oat'
+    name: text("name"), // Set when renamed or custom, e.g. "Oat (barista)"
+    kind: text("kind").notNull(), // 'dairy', 'plant'
+    hidden: integer("hidden", { mode: "boolean" }).default(false),
+    sortOrder: integer("sort_order").notNull(),
+  },
+  (t) => [index("milk_types_household_order").on(t.householdId, t.sortOrder)],
+);
