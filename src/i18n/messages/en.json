@@ -108,7 +108,7 @@
     "good": "Good",
     "off": "Off",
     "maintenanceDivider": "{unit}: {work}, {date}",
-    "empty": "No shots yet. Your first one will show up here.",
+    "empty": "Your first shot will show up here.",
     "rowTitle": "{drink} · {time}",
     "emptyTitle": "No shots yet"
   },

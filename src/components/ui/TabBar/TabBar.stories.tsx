@@ -41,3 +41,19 @@ export const Default: Story = {
 };
 
 export const RightToLeft: Story = { render: () => <Interactive />, globals: { direction: "rtl" } };
+
+/** In the app each tab is a link to its route. */
+export const Links: Story = {
+  args: {
+    current: "journal",
+    tabs: tabs.map((t) => ({ ...t, href: t.id === "brew" ? "/" : `/${t.id}` })),
+  },
+  decorators: [(Story) => <div className="w-[390px]"><Story /></div>],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const journal = canvas.getByRole("link", { name: nav.journal });
+    await expect(journal).toHaveAttribute("href", "/journal");
+    await expect(journal).toHaveAttribute("aria-current", "page");
+    await expect(canvas.getByRole("link", { name: nav.brew })).toHaveAttribute("href", "/");
+  },
+};

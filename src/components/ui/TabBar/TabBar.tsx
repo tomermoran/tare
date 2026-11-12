@@ -1,15 +1,21 @@
+import Link from "next/link";
 import { cx } from "@/lib/cx";
 
-type Tab = { id: string; label: string };
+/** A tab with `href` is a link (app routes); without, a button (stories, prototypes). */
+type Tab = { id: string; label: string; href?: string };
 
 type TabBarProps = {
   /** Accessible name for the navigation landmark. */
   label: string;
   tabs: Tab[];
   current: string;
-  onSelect: (id: string) => void;
+  onSelect?: (id: string) => void;
   className?: string;
 };
+
+const tabClass = "-mt-px min-h-14 w-full border-t-2 text-label transition-colors";
+const activeClass = "border-ink text-ink";
+const idleClass = "border-transparent text-ink-secondary hover:text-ink";
 
 /**
  * Bottom navigation (NC-01): text tabs, no icons. The current tab is ink with
@@ -29,17 +35,24 @@ export function TabBar({ label, tabs, current, onSelect, className }: TabBarProp
           const active = tab.id === current;
           return (
             <li key={tab.id}>
-              <button
-                type="button"
-                aria-current={active ? "page" : undefined}
-                onClick={() => onSelect(tab.id)}
-                className={cx(
-                  "-mt-px min-h-14 w-full border-t-2 text-label transition-colors",
-                  active ? "border-ink text-ink" : "border-transparent text-ink-secondary hover:text-ink",
-                )}
-              >
-                {tab.label}
-              </button>
+              {tab.href ? (
+                <Link
+                  href={tab.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cx(tabClass, "flex items-center justify-center", active ? activeClass : idleClass)}
+                >
+                  {tab.label}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => onSelect?.(tab.id)}
+                  className={cx(tabClass, active ? activeClass : idleClass)}
+                >
+                  {tab.label}
+                </button>
+              )}
             </li>
           );
         })}
