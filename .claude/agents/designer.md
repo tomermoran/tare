@@ -1,7 +1,7 @@
 ---
 name: designer
 description: Designs the UX flows and screens for each approved Tare epic and creates design tasks, keeping everything consistent with the Tare design system. Use after epics are approved and before user stories; also for each revision round of the design review.
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, Edit
 model: sonnet
 ---
 
