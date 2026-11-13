@@ -63,6 +63,8 @@ type ShotLogScreenProps = {
    * more (STORY-01-06-08 AC 6). Never a Notice, never signal; once per screen.
    */
   capLink?: { label: string; onClick: () => void };
+  /** Edit mode's taste controls, on the same screen as the values (STORY-02-06-02 AC 1). */
+  taste?: ReactNode;
   /** A Notice under the dial: what's missing, or a failed save. */
   notice?: ReactNode;
   saving?: boolean;
@@ -108,6 +110,7 @@ export function ShotLogScreen({
   onPrepChange,
   readOnly = [],
   capLink,
+  taste,
   notice,
   saving = false,
   onCancel = noop,
@@ -191,6 +194,17 @@ export function ShotLogScreen({
       unit: "milliliter",
     });
   }
+  // Editing never clamps a stored value silently: a wheel widens to show it (STORY-01-06-09 AC 4).
+  if (mode === "edit") {
+    for (const f of fields) {
+      if (typeof f.startValue !== "number") continue;
+      if (f.kind === "steps") f.count = Math.max(f.count, f.startValue);
+      else {
+        f.min = Math.min(f.min, f.startValue);
+        f.max = Math.max(f.max, f.startValue);
+      }
+    }
+  }
   const pick = (field: ContextField) => (readOnly.includes(field) ? undefined : () => onPick(field));
 
   return (
@@ -239,6 +253,7 @@ export function ShotLogScreen({
         onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
         className="mt-2 border-t border-line py-4"
       />
+      {taste && <div className="mt-6 flex flex-col gap-8 border-t border-line pt-6">{taste}</div>}
       {notice && <div className="mt-2">{notice}</div>}
       {/* Pinned above the safe area, so Save is always in reach; the toggles may scroll under it. */}
       <div data-testid="log-save" className="sticky bottom-0 -mx-4 mt-auto bg-paper px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
@@ -256,7 +271,7 @@ export function ShotLogScreen({
             )
           }
         >
-          {t("save")}
+          {t(mode === "edit" ? "saveChanges" : "save")}
         </Button>
       </div>
     </div>

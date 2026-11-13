@@ -2,11 +2,10 @@
 
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button/Button";
-import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
+import { TasteRating } from "@/components/taste/TasteRating";
 import { Icon } from "@/components/ui/Icon/Icon";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
-import { RATINGS } from "@/domain/tasting";
 
 /*
  * SCR-TASTE (STORY-01-05-01): right after saving a measured shot, say how it
@@ -79,16 +78,7 @@ export function TasteScreen({
       </div>
 
       <div className="mt-8 flex flex-col gap-8">
-        <section className="flex flex-col gap-3">
-          <h2 className="text-body text-ink">{labels.rating}</h2>
-          <ChipGroup
-            clearable
-            label={labels.rating}
-            options={RATINGS.map((r) => ({ value: String(r), label: String(r) }))}
-            value={rating === null ? null : String(rating)}
-            onChange={(v) => onRatingChange(v === null ? null : Number(v))}
-          />
-        </section>
+        <TasteRating label={labels.rating} rating={rating} onChange={onRatingChange} />
         {questions}
         {(tags || warning) && (
           <div className="flex flex-col gap-3">

@@ -293,3 +293,46 @@ export const NoLinkWhenKnown: Story = {
     await expect(within(canvasElement).queryByRole("button", { name: /Tell us about/ })).toBeNull();
   },
 };
+
+/**
+ * Edit mode (STORY-02-06-02): context read-only, taste on the same screen,
+ * saved with "save changes".
+ */
+export const EditMode: Story = {
+  args: {
+    mode: "edit",
+    readOnly: ["setup", "drink", "coffee"],
+    onPick: fn(),
+    taste: <Notice tone="warning" warning="channelling">{shot.warnings.channelling}</Notice>,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: log.titleEdit })).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: new RegExp(log.setup) })).toBeNull();
+    await expect(canvas.getByText(shot.warnings.channelling)).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: log.saveChanges }));
+    await expect(args.onSave).toHaveBeenCalled();
+    await expect(args.onPick).not.toHaveBeenCalled();
+  },
+};
+
+/**
+ * A stored grind outside today's range widens the wheel to show it, and it
+ * saves unchanged; never clamped silently (STORY-01-06-09 AC 4).
+ */
+export const EditKeepsAnOldValue: Story = {
+  args: {
+    mode: "edit",
+    readOnly: ["setup", "drink", "coffee"],
+    start: { ...exampleRecipe, grind: 44 },
+    grind: { min: 0, max: 40, step: 0.5, majorEvery: 2, coarser: "higher" },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const wheel = canvas.getByRole("slider", { name: shot.grind });
+    await expect(wheel).toHaveAttribute("aria-valuenow", "44");
+    await expect(Number(wheel.getAttribute("aria-valuemax"))).toBeGreaterThanOrEqual(44);
+    await userEvent.click(canvas.getByRole("button", { name: log.saveChanges }));
+    await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, grind: 44 }, false, unset, noPrep);
+  },
+};
