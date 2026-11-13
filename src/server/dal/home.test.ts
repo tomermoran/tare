@@ -112,6 +112,12 @@ describe("getHome (STORY-02-02-01)", () => {
     expect(home.state).toMatchObject({ kind: "noRecipeOnSetup", from: { id: other } });
   });
 
+  it("offers the pull once a recipe is pinned here (STORY-02-02-05 AC 4)", async () => {
+    expect((await getHome({}, NOW))!.state.kind).toBe("noRecipe");
+    await pinFromShot(await shot(), at(2));
+    expect((await getHome({}, NOW))!.state).toMatchObject({ kind: "recipe", recipe: { grind: 15 } });
+  });
+
   it("uses a drink chosen for this visit, when it's one of the options", async () => {
     expect((await getHome({ drinkId: k.drinks.latte.id }, NOW))!.drink.id).toBe(k.drinks.latte.id);
     expect((await getHome({ drinkId: "nope" }, NOW))!.drink.id).toBe(k.drinks.espresso.id);

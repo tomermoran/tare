@@ -122,6 +122,14 @@
       opacity: 0.5;
     }
   }
+  /* Values changing in place (Brew's drink or coffee): a 200 ms cross-fade. */
+  --animate-fade-in: fade-in 200ms var(--ease-calm);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
 }
 
 @layer base {
