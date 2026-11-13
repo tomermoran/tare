@@ -1,19 +1,20 @@
 import { Suspense } from "react";
-import { CatalogAddInterim } from "@/components/catalog/CatalogAddInterim";
+import { CoffeeAddFlow } from "@/components/catalog/CoffeeAddFlow";
 import { HardwareAddFlow } from "@/components/catalog/HardwareAddFlow";
 import { db } from "@/db/client";
 import type { HardwareKind } from "@/domain/capabilities";
 import { safeReturnTo } from "@/lib/returnTo";
 import { ADD_PART_PATH } from "@/lib/setupRoutes";
 import { listMakers } from "@/server/dal/catalog";
+import { listRoasters } from "@/server/dal/coffeeCatalog";
 import { requireHousehold, unlessSignedOut } from "@/server/dal/scope";
 
 const KINDS: HardwareKind[] = ["machine", "grinder", "basket"];
+const BAG_ADD_PATH = "/beans/add";
 
 /**
  * SCR-CATALOG-ADD: /catalog/add?catalog=hardware&kind=grinder&q=…&returnTo=…
- * Hardware is built (STORY-01-06-01); coffee follows in its own track and
- * keeps the interim screen until then.
+ * or /catalog/add?catalog=coffee&q=…&returnTo=… (STORY-01-06-01, 01-06-02).
  */
 export default function CatalogAddPage({ searchParams }: PageProps<"/catalog/add">) {
   return (
@@ -32,9 +33,25 @@ async function makersFor() {
   return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+async function roastersFor() {
+  const { householdId } = await requireHousehold();
+  return listRoasters(db, householdId);
+}
+
 async function CatalogAdd({ searchParams }: Pick<PageProps<"/catalog/add">, "searchParams">) {
   const params = await searchParams;
-  if (one(params.catalog) !== "hardware") return <CatalogAddInterim />;
+  const initialName = (one(params.q) ?? "").slice(0, 80);
+  if (one(params.catalog) === "coffee") {
+    const returnTo = one(params.returnTo);
+    const roasters = await unlessSignedOut(roastersFor());
+    return (
+      <CoffeeAddFlow
+        initialName={initialName}
+        roasters={roasters ?? []}
+        returnTo={returnTo ? safeReturnTo(returnTo, BAG_ADD_PATH) : BAG_ADD_PATH}
+      />
+    );
+  }
   const kindParam = one(params.kind) as HardwareKind | undefined;
   const kind = kindParam && KINDS.includes(kindParam) ? kindParam : "machine";
   const returnTo = one(params.returnTo);
@@ -42,7 +59,7 @@ async function CatalogAdd({ searchParams }: Pick<PageProps<"/catalog/add">, "sea
   return (
     <HardwareAddFlow
       initialKind={kind}
-      initialName={(one(params.q) ?? "").slice(0, 80)}
+      initialName={initialName}
       makers={makers ?? []}
       returnTo={returnTo ? safeReturnTo(returnTo, ADD_PART_PATH) : `${ADD_PART_PATH}?kind=${kind}`}
     />

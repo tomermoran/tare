@@ -3,8 +3,10 @@ import { and, eq, isNull, or, sql } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { canonicalBeans, canonicalHardware, catalogUrls, hardwareMakers, roasters } from "@/db/schema";
+import { canonicalBeans, canonicalHardware, catalogAliases, catalogUrls, hardwareMakers, roasters, type CatalogEntityType } from "@/db/schema";
 import { notSureCapabilities, parseCapabilities, type HardwareKind } from "@/domain/capabilities";
+import { isMarket } from "@/domain/markets";
+import { isRoastLevel } from "@/domain/roast";
 import { normalizeUrl } from "@/domain/url";
 import { assertVisibleCatalog, visibleCatalogId } from "./catalogVisibility";
 import { requireHousehold } from "./scope";
@@ -95,11 +97,26 @@ export async function checkCatalogUrl(catalog: "hardware" | "coffee", url: strin
   return findByNormalizedUrl(catalog, url, householdId);
 }
 
-export type HardwareEntryInput = {
+/** More product pages and other names, each for a market or everywhere (STORY-01-06-05). */
+export type CatalogExtras = {
+  urls?: { url: string; market: string | null }[];
+  aliases?: { name: string; market: string | null }[];
+};
+
+export type HardwareEntryInput = CatalogExtras & {
   /** An existing maker, or a new one with its own link (AC 3). */
   maker: { id: string } | { name: string; url: string };
   model: { name: string; kind: HardwareKind; url: string; capabilities?: unknown };
 };
+
+export type CoffeeEntryInput = CatalogExtras & {
+  /** An existing roaster, or a new one with its own link (AC 2). */
+  roaster: { id: string } | { name: string; url: string };
+  bean: { name: string; url: string; roastLevel?: string | null; tastingNotes?: string[] };
+};
+
+const MAX_EXTRAS = 10;
+const MAX_NOTES = 4;
 
 const cleanName = (name: string) => name.trim().replace(/\s+/g, " ").slice(0, MAX_NAME);
 
@@ -117,6 +134,68 @@ async function visibleMakerNamed(name: string, householdId: string) {
     )
     .limit(1);
   return row?.id ?? null;
+}
+
+/**
+ * The extra links and names, cleaned: links normalised, deduplicated
+ * (against the main link too) and each checked for a duplicate entry
+ * (AC 4); names trimmed and deduplicated against the entry's own name.
+ * A market is one of the known codes, or null for everywhere.
+ */
+async function cleanExtras(
+  catalog: "hardware" | "coffee",
+  extras: CatalogExtras,
+  primary: { normalized: string; name: string },
+  householdId: string,
+) {
+  const urls: { url: string; normalized: string; market: string | null }[] = [];
+  const seen = new Set([primary.normalized]);
+  for (const u of (extras.urls ?? []).slice(0, MAX_EXTRAS)) {
+    const url = u.url?.trim() ?? "";
+    if (!url) continue;
+    const normalized = normalizeUrl(url);
+    if (!normalized) throw new InvalidLinkError("url");
+    if (seen.has(normalized)) continue;
+    seen.add(normalized);
+    const duplicate = await findByNormalizedUrl(catalog, url, householdId);
+    if (duplicate) throw new DuplicateEntryError(duplicate);
+    urls.push({ url, normalized, market: isMarket(u.market) ? u.market : null });
+  }
+  const aliases: { name: string; market: string | null }[] = [];
+  const names = new Set([primary.name.toLowerCase()]);
+  for (const a of (extras.aliases ?? []).slice(0, MAX_EXTRAS)) {
+    const name = cleanName(a.name ?? "");
+    if (!name || names.has(name.toLowerCase())) continue;
+    names.add(name.toLowerCase());
+    aliases.push({ name, market: isMarket(a.market) ? a.market : null });
+  }
+  return { urls, aliases };
+}
+
+function extraStatements(
+  entityType: CatalogEntityType,
+  entityId: string,
+  extras: Awaited<ReturnType<typeof cleanExtras>>,
+  householdId: string,
+  now: Date,
+): BatchItem<"sqlite">[] {
+  return [
+    ...extras.urls.map((u) =>
+      db.insert(catalogUrls).values({
+        id: newId(),
+        entityType,
+        entityId,
+        url: u.url,
+        normalizedUrl: u.normalized,
+        market: u.market,
+        addedByHouseholdId: householdId,
+        createdAt: now,
+      }),
+    ),
+    ...extras.aliases.map((a) =>
+      db.insert(catalogAliases).values({ id: newId(), entityType, entityId, name: a.name, market: a.market, createdAt: now }),
+    ),
+  ];
 }
 
 /**
@@ -143,6 +222,7 @@ export async function createHardwareEntry(input: HardwareEntryInput): Promise<{ 
 
   const duplicate = await findByNormalizedUrl("hardware", url, householdId);
   if (duplicate) throw new DuplicateEntryError(duplicate);
+  const extras = await cleanExtras("hardware", input, { normalized, name }, householdId);
 
   const now = new Date();
   const statements: BatchItem<"sqlite">[] = [];
@@ -204,7 +284,120 @@ export async function createHardwareEntry(input: HardwareEntryInput): Promise<{ 
       addedByHouseholdId: householdId,
       createdAt: now,
     }),
+    ...extraStatements("model", id, extras, householdId, now),
   );
   await db.batch(statements as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
   return { id, kind };
+}
+
+/** A visible roaster with this name, so typing a known roaster doesn't add it twice. */
+async function visibleRoasterNamed(name: string, householdId: string) {
+  const [row] = await db
+    .select({ id: roasters.id })
+    .from(roasters)
+    .where(
+      and(
+        sql`lower(${roasters.name}) = ${name.toLowerCase()}`,
+        isNull(roasters.mergedIntoId),
+        or(eq(roasters.status, "verified"), eq(roasters.createdByHouseholdId, householdId)),
+      ),
+    )
+    .limit(1);
+  return row?.id ?? null;
+}
+
+/** Up to four tasting notes, trimmed, without repeats; none is fine (AC 3). */
+export function cleanTastingNotes(notes: readonly string[] | undefined): string[] | null {
+  const out: string[] = [];
+  for (const n of notes ?? []) {
+    const note = n.trim().replace(/\s+/g, " ").slice(0, 40);
+    if (note && !out.some((o) => o.toLowerCase() === note.toLowerCase())) out.push(note);
+    if (out.length === MAX_NOTES) break;
+  }
+  return out.length ? out : null;
+}
+
+/**
+ * Adds a bean, and its roaster when new, with the hardware rules
+ * (STORY-01-06-02): a link is required, the duplicate check reruns, and
+ * the entry is user-added and unverified. Roast level comes from the fixed
+ * list (S-09) and tasting notes are optional.
+ */
+export async function createCoffeeEntry(input: CoffeeEntryInput): Promise<{ id: string }> {
+  const { householdId } = await requireHousehold();
+  const url = input.bean.url?.trim() ?? "";
+  const normalized = normalizeUrl(url);
+  if (!normalized) throw new InvalidLinkError("url");
+  const name = cleanName(input.bean.name ?? "");
+  if (!name) throw new MissingNameError("model");
+  const roastLevel = isRoastLevel(input.bean.roastLevel) ? input.bean.roastLevel : null;
+
+  const duplicate = await findByNormalizedUrl("coffee", url, householdId);
+  if (duplicate) throw new DuplicateEntryError(duplicate);
+  const extras = await cleanExtras("coffee", input, { normalized, name }, householdId);
+
+  const now = new Date();
+  const statements: BatchItem<"sqlite">[] = [];
+  let roasterId: string;
+  if ("id" in input.roaster) {
+    roasterId = await assertVisibleCatalog("roaster", input.roaster.id, householdId);
+  } else {
+    const roasterName = cleanName(input.roaster.name ?? "");
+    if (!roasterName) throw new MissingNameError("maker");
+    const known = await visibleRoasterNamed(roasterName, householdId);
+    if (known) {
+      roasterId = known;
+    } else {
+      const roasterUrl = input.roaster.url?.trim() ?? "";
+      const roasterNormalized = normalizeUrl(roasterUrl);
+      if (!roasterNormalized) throw new InvalidLinkError("makerUrl");
+      roasterId = newId();
+      statements.push(
+        db.insert(roasters).values({
+          id: roasterId,
+          name: roasterName,
+          source: "user",
+          status: "unverified",
+          createdByHouseholdId: householdId,
+          createdAt: now,
+        }),
+        db.insert(catalogUrls).values({
+          id: newId(),
+          entityType: "roaster",
+          entityId: roasterId,
+          url: roasterUrl,
+          normalizedUrl: roasterNormalized,
+          addedByHouseholdId: householdId,
+          createdAt: now,
+        }),
+      );
+    }
+  }
+
+  const id = newId();
+  statements.push(
+    db.insert(canonicalBeans).values({
+      id,
+      roasterId,
+      name,
+      roastLevel,
+      tastingNotes: cleanTastingNotes(input.bean.tastingNotes),
+      source: "user",
+      status: "unverified",
+      createdByHouseholdId: householdId,
+      createdAt: now,
+    }),
+    db.insert(catalogUrls).values({
+      id: newId(),
+      entityType: "bean",
+      entityId: id,
+      url,
+      normalizedUrl: normalized,
+      addedByHouseholdId: householdId,
+      createdAt: now,
+    }),
+    ...extraStatements("bean", id, extras, householdId, now),
+  );
+  await db.batch(statements as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
+  return { id };
 }
