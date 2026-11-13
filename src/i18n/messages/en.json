@@ -629,5 +629,75 @@
       "littleCrema": "Little crema",
       "channelling": "Channelling seen"
     }
+  },
+  "suggest": {
+    "title": "Next shot",
+    "change": {
+      "wdt": "Use WDT next time",
+      "puckScreen": "Add a puck screen next time",
+      "prepAlready": "Prep was used; check distribution and tamping",
+      "grindFiner": "{steps, plural, one {Grind # step finer} other {Grind # steps finer}}",
+      "grindCoarser": "{steps, plural, one {Grind # step coarser} other {Grind # steps coarser}}",
+      "grindFinerUnknown": "Grind finer",
+      "grindCoarserUnknown": "Grind coarser",
+      "yield": "Stop at {to} instead of {from}",
+      "doseMore": "Dose {amount} more",
+      "doseLess": "Dose {amount} less",
+      "milkLess": "Try about {amount} less milk",
+      "milkMore": "Try about {amount} more milk",
+      "hotter": "Brew {amount} hotter",
+      "cooler": "Brew {amount} cooler",
+      "hotterUnknown": "Brew a little hotter",
+      "coolerUnknown": "Brew a little cooler"
+    },
+    "to": "to",
+    "why": {
+      "balance": {
+        "muchLess": "much too sour",
+        "less": "a bit sour",
+        "more": "a bit bitter",
+        "muchMore": "much too bitter"
+      },
+      "strength": {
+        "muchLess": "much too weak",
+        "less": "a bit weak",
+        "more": "a bit strong",
+        "muchMore": "much too strong"
+      },
+      "strengthMilk": {
+        "muchLess": "lost in the milk",
+        "less": "a bit lost in the milk",
+        "more": "a bit overpowering",
+        "muchMore": "overpowering"
+      },
+      "body": {
+        "muchLess": "much too thin",
+        "less": "a bit thin",
+        "more": "a bit heavy",
+        "muchMore": "much too heavy"
+      },
+      "sweetness": {
+        "muchLess": "not sweet at all",
+        "less": "not sweet enough"
+      },
+      "tags": {
+        "sourAndBitter": "sour and bitter at once",
+        "dryFinish": "a dry finish",
+        "flat": "flat",
+        "burnt": "burnt",
+        "littleCrema": "little crema",
+        "channelling": "channelling seen"
+      },
+      "ranFast": "ran fast",
+      "ranSlow": "ran slow"
+    },
+    "fresh": {
+      "veryFresh": "{days, plural, one {# day} other {# days}} since {from, select, packed {packing} other {roast}}: very fresh, may channel",
+      "pastPeakRoasted": "{days, plural, one {# day} other {# days}} since {from, select, packed {packing} other {roast}}: likely past its peak",
+      "pastPeakOpen": "{days, plural, one {# day} other {# days}} open: likely past its peak"
+    },
+    "directionUnknown": "Tell Tare which way your grinder goes coarser",
+    "dismiss": "Not now",
+    "tryIt": "Dial in with this change"
   }
 }

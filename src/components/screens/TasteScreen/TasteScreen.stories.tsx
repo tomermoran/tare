@@ -10,6 +10,9 @@ import { useTasteLabels } from "@/components/taste/useTasteLabels";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { shotWarnings } from "@/domain/shotWarnings";
 import type { TasteTag } from "@/domain/taste";
+import { useLiveSuggestion, type SuggestContextInput } from "@/components/suggest/useLiveSuggestion";
+import { SuggestionCard } from "@/components/ui/SuggestionCard/SuggestionCard";
+import { NO_PREP } from "@/domain/prep";
 import { TasteScreen } from "./TasteScreen";
 
 const { actions, taste } = messages;
@@ -40,17 +43,28 @@ function Rated(props: Partial<ComponentProps<typeof TasteScreen>>) {
   );
 }
 
-/** Everything in place: rating, the four questions and the tags. */
-function Full({ onDone, milkDrink = false }: { onDone?: () => void; milkDrink?: boolean }) {
+/** A grinder at 15 where higher is coarser, on a machine without temperature control. */
+const suggestContext: SuggestContextInput = {
+  shot: { grind: 15, dose: 18, yield: 36, timeMs: 27_600, brewTempC: null, prep: NO_PREP, milkMl: null, milkDrink: false },
+  recipe: null,
+  setup: { grind: { type: "stepped", min: 0, max: 30, step: 1, coarser: "higher" }, temperature: false, doseRange: { min: 17, max: 19 } },
+  previous: null,
+  clocks: { roasting: null, opened: null },
+};
+
+/** Everything in place: rating, the four questions and the tags, and the live suggestion when given its context. */
+function Full({ onDone, milkDrink = false, context }: { onDone?: () => void; milkDrink?: boolean; context?: SuggestContextInput }) {
   const words = useTasteLabels(milkDrink);
   const [answers, setAnswers] = useState<TasteAnswerValues>({ balance: null, strength: null, body: null, sweetness: null });
   const [tags, setTags] = useState<TasteTag[]>([]);
+  const card = useLiveSuggestion(context, answers, tags);
   return (
     <Rated
       primary={{ label: taste.done, onClick: onDone ?? fn() }}
       questions={<TasteQuestions labels={words.questions} value={answers} onChange={(p) => setAnswers((a) => ({ ...a, ...p }))} />}
       tags={<TasteTags labels={words} value={tags} onChange={setTags} />}
       warning={<ShotWarnings warnings={shotWarnings(tags)} labels={{ channelling: messages.shot.warnings.channelling }} />}
+      suggestion={card && <SuggestionCard labels={{ title: messages.suggest.title, dismiss: messages.suggest.dismiss, to: messages.suggest.to }} {...card} />}
     />
   );
 }
@@ -175,3 +189,26 @@ export const ChannellingWarning: Story = {
 export const MilkDrink: Story = { render: () => <Full milkDrink /> };
 
 export const RightToLeft: Story = { render: () => <Full />, globals: { direction: "rtl" } };
+
+/** The card appears as soon as an answer gives a lever, follows each change, and goes when there's nothing to say (STORY-02-03-05). */
+export const LiveSuggestion: Story = {
+  render: () => <Full context={suggestContext} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = () => canvas.queryByText(messages.suggest.title);
+    await expect(card()).toBeNull();
+    const balance = canvas.getByRole("radiogroup", { name: taste.question.balance });
+    await userEvent.click(within(balance).getByRole("radio", { name: taste.balance.muchLess }));
+    await expect(canvas.getByText("Grind 2 steps finer")).toBeVisible();
+    await userEvent.click(within(balance).getByRole("radio", { name: taste.balance.more }));
+    await expect(canvas.getByText("Grind 1 step coarser")).toBeVisible();
+    // A channelling sign puts puck prep first.
+    await userEvent.click(canvas.getByRole("button", { name: taste.tags.channelling }));
+    await expect(canvas.getByText(messages.suggest.change.wdt)).toBeVisible();
+    // Advice, not a warning: the card has no signal; the channelling Notice keeps its own.
+    await expect(card()!.closest("[role=status]")!.outerHTML).not.toMatch(/signal/);
+    await userEvent.click(canvas.getByRole("button", { name: taste.tags.channelling }));
+    await userEvent.click(within(balance).getByRole("radio", { name: taste.justRight }));
+    await expect(card()).toBeNull();
+  },
+};

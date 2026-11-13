@@ -35,12 +35,12 @@ function grindMove(input: SuggestInput): Change | null {
   const scale = effectiveGrind(input.setup.grind);
   // Direction not known: words only, no dial numbers (AC 6).
   if (!input.setup.grind || input.setup.grind.type === "unknown" || !scale.coarser) {
-    return { lever: "grind", direction, from: null, to: null };
+    return { lever: "grind", direction, steps: GRIND_STEPS[size(balance)], from: null, to: null };
   }
   const up = (direction === "coarser") === (scale.coarser === "higher");
   const from = input.shot.grind;
   const to = round(Math.min(scale.max, Math.max(scale.min, from + (up ? 1 : -1) * GRIND_STEPS[size(balance)] * scale.step)));
-  return to === from ? null : { lever: "grind", direction, from, to };
+  return to === from ? null : { lever: "grind", direction, steps: Math.round(Math.abs(to - from) / scale.step), from, to };
 }
 
 /**

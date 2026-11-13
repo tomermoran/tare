@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { TasteScreen } from "@/components/screens/TasteScreen/TasteScreen";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
+import { SuggestionCard } from "@/components/ui/SuggestionCard/SuggestionCard";
+import { useLiveSuggestion, type SuggestContextInput } from "@/components/suggest/useLiveSuggestion";
 import type { TasteTag } from "@/domain/taste";
 import type { Tasting } from "@/domain/tasting";
 import { shotWarnings } from "@/domain/shotWarnings";
@@ -49,6 +51,7 @@ export function TasteFlow({
   initial,
   leaveTo,
   pinTitle,
+  suggestion,
 }: {
   shotId: string;
   values: ShotValuesData;
@@ -58,6 +61,8 @@ export function TasteFlow({
   leaveTo: string;
   /** SH-PIN's title: the drink, coffee and setup (STORY-02-01-01 AC 1). */
   pinTitle: string;
+  /** The engine's input apart from the answers, and where to tell Tare the grinder's direction. */
+  suggestion?: { context: SuggestContextInput; directionHref: string | null };
 }) {
   const t = useTranslations();
   const words = useTasteLabels(milkDrink);
@@ -136,6 +141,10 @@ export function TasteFlow({
     return () => window.removeEventListener("popstate", onPopState);
   }, [dirty, router]);
 
+  // Worked out on the device on every answer or tag change (STORY-02-03-05 AC 6).
+  const [dismissed, setDismissed] = useState(false);
+  const card = useLiveSuggestion(suggestion?.context, answers, answers.tags);
+
   const set = (patch: Partial<TasteAnswers>) => {
     setAnswers((a) => ({ ...a, ...patch }));
     if (state === "failed") setState("idle");
@@ -158,6 +167,20 @@ export function TasteFlow({
         questions={<TasteQuestions labels={words.questions} value={answers} onChange={set} />}
         tags={<TasteTags labels={words} value={answers.tags} onChange={(tags) => set({ tags })} />}
         warning={<ShotWarnings warnings={shotWarnings(answers.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
+        suggestion={
+          card &&
+          !dismissed && (
+            <SuggestionCard
+              labels={{ title: t("suggest.title"), dismiss: t("suggest.dismiss"), to: t("suggest.to") }}
+              change={card.change}
+              values={card.values}
+              reason={card.reason}
+              freshness={card.freshness}
+              link={card.askDirection && suggestion?.directionHref ? { label: t("suggest.directionUnknown"), href: suggestion.directionHref } : undefined}
+              onDismiss={() => setDismissed(true)}
+            />
+          )
+        }
         primary={{ label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) }}
         secondary={[{ label: t("recipe.pin"), onClick: () => void saveThenPin() }]}
         status={pin.status}
