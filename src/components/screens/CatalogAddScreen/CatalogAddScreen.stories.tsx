@@ -3,6 +3,8 @@ import { createTranslator } from "next-intl";
 import { useState } from "react";
 import { expect, fn, userEvent, within } from "storybook/test";
 import { BasketQuestions, CapabilitySection } from "@/components/catalog/BasketQuestions";
+import { CoffeeDetails } from "@/components/catalog/CoffeeDetails";
+import { ROAST_LEVELS } from "@/domain/roast";
 import type { DoseAnswer } from "@/domain/capabilityQuestions";
 import messages from "@/i18n/messages/en.json";
 import { PhoneFrame } from "../PhoneFrame";
@@ -170,4 +172,56 @@ export const BasketDose: Story = {
 export const RightToLeft: Story = {
   args: { kind: "basket", newParent: true, parent: catalog.newMaker, capabilities: <Basket initial={{ choice: "other", min: "7", max: "10" }} /> },
   globals: { direction: "rtl" },
+};
+
+function Coffee() {
+  const [roast, setRoast] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
+  return (
+    <CoffeeDetails
+      labels={{
+        roastLevel: catalog.roastLevel,
+        levels: Object.fromEntries(ROAST_LEVELS.map((l) => [l, catalog.roast[l]])) as Record<(typeof ROAST_LEVELS)[number], string>,
+        notSure: catalog.cap.notSure,
+        notes: catalog.tastingNotes,
+        notesHint: catalog.tastingNotesHint,
+      }}
+      roast={roast}
+      onRoastChange={setRoast}
+      notes={notes}
+      onNotesChange={setNotes}
+    />
+  );
+}
+
+const coffeeLabels = {
+  ...labels,
+  title: catalog.addTitle.coffee,
+  urlHint: catalog.urlCoffeeHint,
+  parent: catalog.roaster,
+  parentName: catalog.roasterName,
+  parentUrl: catalog.roasterUrl,
+  parentUrlHint: catalog.roasterUrlHint,
+  name: catalog.bean,
+  kindLabel: undefined,
+};
+
+/** A coffee: roaster, name, and an optional roast level and notes (STORY-01-06-02 AC 3). */
+export const CoffeeEntry: Story = {
+  args: { labels: coffeeLabels, kinds: undefined, kind: undefined, name: "Morning Blend", capabilities: <Coffee /> },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("radiogroup", { name: catalog.kind })).toBeNull();
+    await userEvent.click(canvas.getByRole("radio", { name: catalog.roast["Medium-Light"] }));
+    await expect(canvas.getByRole("radio", { name: catalog.roast["Medium-Light"] })).toBeChecked();
+    await expect(canvas.getByLabelText(catalog.tastingNotes)).toBeVisible();
+  },
+};
+
+/** A new roaster, with its own link (STORY-01-06-02 AC 2). */
+export const NewRoaster: Story = {
+  args: { labels: coffeeLabels, kinds: undefined, kind: undefined, parent: catalog.newRoaster, newParent: true, capabilities: <Coffee /> },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByLabelText(catalog.roasterUrl)).toBeVisible();
+  },
 };
