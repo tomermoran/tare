@@ -2,7 +2,7 @@
 
 import { fail, ok, runAction, type ActionError, type ActionResult } from "@/lib/actionResult";
 import { DATED_ACTIONS, type DatedAction } from "@/domain/portionActions";
-import { InvalidPortionActionError, setPortionDate, splitPortion } from "@/server/dal/portions";
+import { addStockCheck, InvalidPortionActionError, setPortionDate, splitPortion } from "@/server/dal/portions";
 import { getTimeZone } from "@/server/time";
 
 /** A date the sheet shows in ink on the field (SQ-09), or a general failure. */
@@ -31,4 +31,11 @@ export async function setPortionDateAction(portionId: string, action: DatedActio
 export async function splitPortionAction(portionId: string, takeGrams: number, freezeNew = true): Promise<PortionResult<{ id: string }>> {
   if (typeof portionId !== "string" || !portionId) return fail("notFound");
   return run(() => splitPortion(portionId, takeGrams, { freezeNew: freezeNew !== false }));
+}
+
+/** SH-STOCK's save: what's left, weighed now. */
+export async function addStockCheckAction(portionId: string, grams: number): Promise<PortionResult> {
+  if (typeof portionId !== "string" || !portionId) return fail("notFound");
+  if (typeof grams !== "number") return { ok: false, error: "badWeight" };
+  return run(() => addStockCheck(portionId, grams));
 }
