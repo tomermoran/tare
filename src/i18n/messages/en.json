@@ -137,7 +137,14 @@
     "portionFinished": "That coffee is finished. Choose another to save this shot.",
     "prep": "Puck prep",
     "prepWdt": "WDT",
-    "prepPuckScreen": "Puck screen"
+    "prepPuckScreen": "Puck screen",
+    "unset": "—",
+    "notSet": "not set",
+    "addTemperature": "Add temperature",
+    "addPressure": "Add pressure",
+    "clear": "Clear",
+    "peakPressure": "Peak pressure",
+    "unsetHint": "Optional. Leave it unset if you didn't change it."
   },
   "journal": {
     "title": "Journal",
