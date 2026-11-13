@@ -166,6 +166,8 @@ export type ShotDetail = Omit<JournalShot, "day" | "grinderId"> & {
     parts: { kind: HardwareKind; maker: string; model: string; nickname: string | null }[];
   };
   sweetened: boolean;
+  /** The drink is a milk drink, which words strength differently. */
+  milkDrink: boolean;
   prep: { wdt: boolean; puckScreen: boolean };
   rating: number | null;
   /** Just-right answers, -2..2 (sweetness -2..0); null when not answered. */
@@ -186,6 +188,7 @@ export async function getShot(id: string): Promise<ShotDetail> {
       shot: extractions,
       drinkName: drinkTypes.name,
       drinkKey: drinkTypes.nameKey,
+      hasMilk: drinkTypes.hasMilk,
       beanId: batches.beanId,
       milkName: milkTypes.name,
       milkKey: milkTypes.nameKey,
@@ -231,6 +234,7 @@ export async function getShot(id: string): Promise<ShotDetail> {
     fromFrozen: wasFrozen(s.createdAt, r),
     setup: { id: s.setupId, name: r.setupName, parts },
     sweetened: s.sweetened === true,
+    milkDrink: r.hasMilk,
     prep: { wdt: s.usedWdt, puckScreen: s.usedPuckScreen },
     rating: s.userRating ?? null,
     taste: { balance: s.tasteBalance, strength: s.tasteStrength, body: s.tasteBody, sweetness: s.tasteSweetness },

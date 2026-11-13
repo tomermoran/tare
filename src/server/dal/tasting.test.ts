@@ -23,11 +23,11 @@ beforeEach(async () => {
   signInAs(k.user.firebaseUid);
 });
 
-async function shot(entryMode: "measured" | "one-tap" = "measured") {
+async function shot(entryMode: "measured" | "one-tap" = "measured", over: Partial<typeof extractions.$inferInsert> = {}) {
   const id = newId();
   await db()
     .insert(extractions)
-    .values({ id, ...shotValues(k), loggedByUserId: k.user.id, portionId: k.portion.id, entryMode, createdAt: new Date() });
+    .values({ id, ...shotValues(k), loggedByUserId: k.user.id, portionId: k.portion.id, entryMode, createdAt: new Date(), ...over });
   return id;
 }
 const row = async (id: string) => (await db().select().from(extractions).where(eq(extractions.id, id)))[0];
@@ -81,5 +81,10 @@ describe("saveTasting (TASK-01-05-01-BE1)", () => {
     await expect(saveTasting(id, { rating: 4 })).rejects.toBeInstanceOf(NotFoundError);
     expect(await saveTastingAction(id, { rating: 4 })).toEqual({ ok: false, error: "notFound" });
     expect((await row(id)).userRating).toBeNull();
+  });
+
+  it("tells a milk drink apart, for the strength wording (STORY-01-05-02 AC 2)", async () => {
+    expect((await getShot(await shot())).milkDrink).toBe(false);
+    expect((await getShot(await shot("measured", { drinkTypeId: k.drinks.latte.id }))).milkDrink).toBe(true);
   });
 });

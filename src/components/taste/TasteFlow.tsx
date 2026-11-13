@@ -8,6 +8,9 @@ import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import type { TasteTag } from "@/domain/taste";
 import type { Tasting } from "@/domain/tasting";
 import { saveTastingAction } from "@/server/actions/shots";
+import { TasteQuestions } from "./TasteQuestions";
+import { TasteTags } from "./TasteTags";
+import { useTasteLabels } from "./useTasteLabels";
 
 /*
  * SCR-TASTE, wired (STORY-01-05-01 AC 3, AC 4). Leaving saves: Done, close
@@ -39,16 +42,19 @@ function changes(from: TasteAnswers, to: TasteAnswers): Tasting {
 export function TasteFlow({
   shotId,
   values,
+  milkDrink,
   initial,
   leaveTo,
 }: {
   shotId: string;
   values: ShotValuesData;
+  milkDrink: boolean;
   initial: TasteAnswers;
   /** Where Done and close go. */
   leaveTo: string;
 }) {
   const t = useTranslations();
+  const words = useTasteLabels(milkDrink);
   const router = useRouter();
   const [answers, setAnswers] = useState(initial);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
@@ -124,6 +130,8 @@ export function TasteFlow({
       values={values}
       rating={answers.rating}
       onRatingChange={(rating) => set({ rating })}
+      questions={<TasteQuestions labels={words.questions} value={answers} onChange={set} />}
+      tags={<TasteTags labels={words} value={answers.tags} onChange={(tags) => set({ tags })} />}
       primary={{ label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) }}
       state={state}
       onClose={() => void saveThen(toLeaveTo)}
