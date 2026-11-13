@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { extractions, ownedHardware, pinnedRecipes, setupParts, setups } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { batches, batchPortions, extractions, ownedHardware, pinnedRecipes, setupParts, setups } from "@/db/schema";
 import { partsKey } from "@/domain/setupKey";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
-import { getDialInFromRecipe, getDialInFromShot, getFixStart, getPendingSuggestion, suggestionForShot } from "./logStart";
+import { dialInPortion, getDialInFromRecipe, getDialInFromShot, getFixStart, getPendingSuggestion, suggestionForShot } from "./logStart";
 import { NotFoundError } from "./scope";
+import { currentSetupOf } from "./setups";
+import { saveMeasuredShot } from "./shots";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
@@ -91,6 +94,91 @@ describe("getDialInFromShot (STORY-02-03-07 AC 1)", () => {
     expect(s).toMatchObject({ portionId: k.portion.id, locked: false });
     expect(s.start.yield).toBe(36);
     expect(s.applied.yield).toBe(34);
+    // The note is the suggestion, not "starting from your shot".
+    expect(s.fromShot).toBeNull();
+  });
+});
+
+describe("dial in from a past shot (STORY-02-06-06)", () => {
+  const setPortion = (id: string, dates: Partial<typeof batchPortions.$inferInsert>) =>
+    db().update(batchPortions).set(dates).where(eq(batchPortions.id, id));
+  async function anotherBag(dates: Partial<typeof batchPortions.$inferInsert> = {}) {
+    const batchId = newId();
+    await db().insert(batches).values({ id: batchId, householdId: k.household.id, beanId: k.bean.id, bagWeight: 250, createdAt: at(2) });
+    const id = newId();
+    await db().insert(batchPortions).values({ id, batchId, weight: 250, createdAt: at(2), ...dates });
+    return id;
+  }
+
+  it("starts from the shot's values, prep, milk, setup and drink, and says which shot (AC 1)", async () => {
+    const id = await shot({ drinkTypeId: k.drinks.latte.id, milkTypeId: k.milk.id, milkMl: 150, usedWdt: true, grindSize: 13, tasteBalance: -2 });
+    const s = await getDialInFromShot(id);
+    expect(s).toMatchObject({ setupId: k.setup.id, drinkTypeId: k.drinks.latte.id, milkTypeId: k.milk.id, portionId: k.portion.id, locked: false });
+    expect(s.start).toMatchObject({ grind: 13, milkMl: 150, prep: { wdt: true, puckScreen: false } });
+    // No suggestion is applied unless asked for.
+    expect(s.suggestion).toBeNull();
+    expect(s.applied).toEqual(s.start);
+    expect(s.fromShot).toEqual({ at: at(5) });
+  });
+
+  it("uses the shot's bag while it's open, else another open bag of the coffee", async () => {
+    await setPortion(k.portion.id, { openedAt: at(4) });
+    const id = await shot();
+    expect(await dialInPortion(id)).toEqual({ kind: "portion", portionId: k.portion.id });
+    await setPortion(k.portion.id, { finishedAt: at(6) });
+    const other = await anotherBag({ openedAt: at(6) });
+    expect(await dialInPortion(id)).toEqual({ kind: "portion", portionId: other });
+  });
+
+  it("asks which bag when none of the coffee is open (AC 2)", async () => {
+    await setPortion(k.portion.id, { openedAt: at(4), finishedAt: at(6) });
+    const id = await shot();
+    const sealed = await anotherBag();
+    const result = await dialInPortion(id);
+    expect(result).toMatchObject({ kind: "choose", portions: [{ id: sealed }] });
+    // The chosen bag is the log's, and must be this coffee's.
+    expect((await getDialInFromShot(id, undefined, sealed)).portionId).toBe(sealed);
+    await expect(getDialInFromShot(id, undefined, k.portion.id)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("has no bags to offer when the coffee is finished (AC 3)", async () => {
+    await setPortion(k.portion.id, { openedAt: at(4), finishedAt: at(6) });
+    const id = await shot();
+    expect(await dialInPortion(id)).toEqual({ kind: "choose", portions: [] });
+    expect((await getDialInFromShot(id)).portionId).toBeNull();
+  });
+
+  it("makes the shot's setup current once the new shot is saved (AC 4)", async () => {
+    const id = await shot();
+    const other = newId();
+    await db().insert(setups).values({ id: other, householdId: k.household.id, partsKey: "other", createdAt: at(4) });
+    testContext.setupChoice = { setupId: other, at: at(6).getTime() };
+    const list = () => db().select({ id: setups.id, createdAt: setups.createdAt }).from(setups).where(eq(setups.householdId, k.household.id));
+    expect(await currentSetupOf(k.household.id, await list())).toBe(other);
+    const s = await getDialInFromShot(id);
+    // Leaving changes nothing; only a saved shot does.
+    expect(await currentSetupOf(k.household.id, await list())).toBe(other);
+    await saveMeasuredShot(
+      { setupId: s.setupId, drinkTypeId: s.drinkTypeId, portionId: s.portionId!, grind: s.start.grind, dose: s.start.dose, yield: s.start.yield, timeMs: s.start.timeMs },
+      at(7),
+    );
+    expect(await currentSetupOf(k.household.id, await list())).toBe(k.setup.id);
+  });
+
+  it("only reads the past shot (AC 5)", async () => {
+    const id = await shot({ tasteBalance: -1 });
+    const [before] = await db().select().from(extractions).where(eq(extractions.id, id));
+    await getDialInFromShot(id);
+    await dialInPortion(id);
+    const [after] = await db().select().from(extractions).where(eq(extractions.id, id));
+    expect(after).toEqual(before);
+  });
+
+  it("doesn't open another household's shot", async () => {
+    const id = await shot();
+    const other = await makeHousehold(db());
+    signInAs(other.user.firebaseUid);
+    await expect(dialInPortion(id)).rejects.toBeInstanceOf(NotFoundError);
   });
 });
 
