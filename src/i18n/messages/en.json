@@ -454,7 +454,37 @@
       "frozen": "Frozen",
       "finished": "Finished"
     },
-    "openFor": "{days, plural, =0 {opened today} one {open # day} other {open # days}}"
+    "openFor": "{days, plural, =0 {opened today} one {open # day} other {open # days}}",
+    "action": {
+      "open": "Mark as open",
+      "freeze": "Freeze",
+      "thaw": "Thaw",
+      "finish": "Mark as finished",
+      "weigh": "Weigh what's left",
+      "split": "Split off a portion"
+    },
+    "actionsTitle": "{state} · {remaining} left",
+    "dateTitle": {
+      "open": "When did you open it?",
+      "freeze": "When did you freeze it?",
+      "thaw": "When did you take it out?",
+      "finish": "When did you finish it?"
+    },
+    "date": "Date",
+    "dateHint": "Today, or an earlier day. A date can't be changed once it's set.",
+    "dateFuture": "Choose today or an earlier day.",
+    "thawBeforeFreeze": "It went in the freezer on {date}. Choose that day or later.",
+    "confirm": {
+      "open": "Mark as open",
+      "freeze": "Freeze",
+      "thaw": "Thaw",
+      "finish": "Mark as finished"
+    },
+    "splitTitle": "Split off a portion",
+    "takeOut": "Take out",
+    "splitRemainder": "{grams} stays in this portion",
+    "freezeNew": "Freeze the new portion",
+    "splitConfirm": "Split"
   },
   "milks": {
     "whole": "Whole",
