@@ -37,6 +37,22 @@ export const Default: Story = {
   },
 };
 
+/** The reaction mark and the inline channelling warning, in words, not colour alone (STORY-02-06-01). */
+export const ReactionAndWarning: Story = {
+  args: { items: exampleShots.slice(0, 2) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(messages.journal.good)).toBeVisible();
+    const warning = canvas.getByText(messages.shot.warnings.channelling);
+    await expect(warning).toBeVisible();
+    await expect(warning).toHaveAttribute("data-warning", "channelling");
+    // Only the channelling row warns.
+    await expect(canvas.getAllByText(messages.shot.warnings.channelling)).toHaveLength(1);
+  },
+};
+
+export const ReactionAndWarningRightToLeft: Story = { ...ReactionAndWarning, globals: { direction: "rtl" } };
+
 /** No shots yet: says so and offers to dial in (AC 4). */
 export const Empty: Story = {
   args: { items: [], emptyAction: { label: messages.home.dialIn, href: "/log" } },

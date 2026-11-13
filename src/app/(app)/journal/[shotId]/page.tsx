@@ -3,6 +3,8 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetailScreen/ShotDetailScreen";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { ShotWarnings } from "@/components/shot/ShotWarnings";
+import { shotWarnings } from "@/domain/shotWarnings";
 import { tastePhraseKeys } from "@/domain/tastePhrase";
 import { getShot } from "@/server/dal/journal";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
@@ -46,8 +48,12 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
     ...(shot.fromFrozen ? [{ label: t("bag.fromFrozen"), value: t("shot.fromFrozen") }] : []),
   ];
 
-  const phrases = tastePhraseKeys(shot.taste).map((key) => t(key));
+  const phrases = tastePhraseKeys(shot.taste, shot.milkDrink).map((key) => t(key));
   const rating = shot.rating !== null ? { label: t("shot.rating"), value: t("shot.ratingValue", { rating: shot.rating }) } : undefined;
+  const reaction = shot.reaction ? { label: t("shot.reaction"), value: t(`journal.${shot.reaction}`) } : undefined;
+  const noticed = shot.tags.length
+    ? { label: t("shot.noticed"), value: format.list(shot.tags.map((tag) => t(`taste.tags.${tag}`)), { type: "conjunction" }) }
+    : undefined;
 
   return (
     <ShotDetailScreen
@@ -61,7 +67,8 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
       values={shot.values}
       note={shot.entryMode === "one-tap" ? t("shot.copiedFromRecipe") : undefined}
       facts={facts}
-      taste={rating || phrases.length ? { rating, phrases } : undefined}
+      taste={rating || reaction || noticed || phrases.length ? { rating, reaction, phrases, noticed } : undefined}
+      warning={<ShotWarnings warnings={shotWarnings(shot.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
     />
   );
 }

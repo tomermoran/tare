@@ -11,18 +11,22 @@ const STEPS = { "-2": "muchLess", "-1": "less", "0": "right", "1": "more", "2": 
 type Step = (typeof STEPS)[keyof typeof STEPS];
 
 export type TastePhraseKey =
-  | `taste.${Exclude<TasteQuestion, "sweetness">}.${Step}`
+  | `taste.${Exclude<TasteQuestion, "sweetness"> | "strengthMilk"}.${Step}`
   | `taste.sweetness.${Exclude<Step, "more" | "muchMore">}`;
 
-/** The message keys for the answered questions, in question order. */
-export function tastePhraseKeys(answers: Record<TasteQuestion, number | null>): TastePhraseKey[] {
+/**
+ * The message keys for the answered questions, in question order. A milk
+ * drink's strength reads "lost in the milk" to "overpowering".
+ */
+export function tastePhraseKeys(answers: Record<TasteQuestion, number | null>, milkDrink = false): TastePhraseKey[] {
   const keys: TastePhraseKey[] = [];
   for (const q of TASTE_QUESTIONS) {
     const v = answers[q];
     if (v === null || !Number.isInteger(v) || v < -2 || v > 2) continue;
     // Sweetness only goes from "not sweet at all" to "just right".
     if (q === "sweetness" && v > 0) continue;
-    keys.push(`taste.${q}.${STEPS[String(v) as keyof typeof STEPS]}` as TastePhraseKey);
+    const words = q === "strength" && milkDrink ? "strengthMilk" : q;
+    keys.push(`taste.${words}.${STEPS[String(v) as keyof typeof STEPS]}` as TastePhraseKey);
   }
   return keys;
 }

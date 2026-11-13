@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { createTranslator } from "next-intl";
 import { expect, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
+import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { exampleRecipe } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { ShotDetailScreen, type ShotFact } from "./ShotDetailScreen";
@@ -71,6 +72,43 @@ export const OneTap: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(shot.copiedFromRecipe)).toBeVisible();
     await expect(canvas.queryByRole("heading", { name: shot.taste })).toBeNull();
+  },
+};
+
+/** Channelling seen: the block warning under the values, and the tags in words (STORY-01-05-04 AC 2). */
+export const Channelling: Story = {
+  args: {
+    drink: drinks.espresso,
+    facts: facts.filter((f) => f.label !== shot.milk),
+    warning: <ShotWarnings warnings={["channelling"]} labels={{ channelling: shot.warnings.channelling }} />,
+    taste: {
+      rating: { label: shot.rating, value: t("shot.ratingValue", { rating: 2 }) },
+      phrases: [taste.balance.muchLess],
+      noticed: { label: shot.noticed, value: `${taste.tags.dryFinish} and ${taste.tags.channelling}` },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("status")).toHaveTextContent(shot.warnings.channelling);
+    await expect(canvas.getByText(shot.noticed)).toBeVisible();
+    await expect(canvas.getByText(new RegExp(taste.tags.channelling))).toBeVisible();
+  },
+};
+
+/** A one-tap shot marked good: the reaction in words, no rating. */
+export const OneTapWithReaction: Story = {
+  args: {
+    drink: drinks.espresso,
+    note: shot.copiedFromRecipe,
+    facts: facts.filter((f) => f.label !== shot.milk),
+    taste: { reaction: { label: shot.reaction, value: journal.good }, phrases: [] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: shot.taste })).toBeVisible();
+    await expect(canvas.getByText(journal.good)).toBeVisible();
+    await expect(canvas.queryByText(shot.rating)).toBeNull();
+    await expect(canvas.queryByRole("status")).toBeNull();
   },
 };
 

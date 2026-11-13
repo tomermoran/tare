@@ -9,14 +9,15 @@ import { Notice } from "@/components/ui/Notice/Notice";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { daysBetween, localNoon } from "@/domain/localDay";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { shotWarnings } from "@/domain/shotWarnings";
 import { LOG_PATH } from "@/lib/logRoutes";
 import { loadOlderShotsAction } from "@/server/actions/journal";
 import type { JournalCursor, JournalShot } from "@/server/dal/journal";
 
 /*
  * The Journal tab, wired (STORY-02-06-01): the last 30 days from the
- * server, then "show older shots" a page at a time. Rows open the shot.
- * The reaction mark and channelling warning come with TASK-02-06-01-FE2.
+ * server, then "show older shots" a page at a time. Rows open the shot,
+ * and show the reaction mark and the channelling warning in words.
  */
 
 export function JournalList({
@@ -62,7 +63,9 @@ export function JournalList({
       : undefined,
     values: s.values,
     oneTap: s.entryMode === "one-tap",
+    reaction: s.reaction ?? undefined,
     fromFrozen: s.fromFrozen,
+    channelling: shotWarnings(s.tags).includes("channelling"),
   }));
 
   const showOlder = async () => {
