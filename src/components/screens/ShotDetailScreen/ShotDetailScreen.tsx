@@ -30,6 +30,7 @@ export function ShotDetailScreen({
   note,
   facts,
   taste,
+  warning,
   actions,
 }: {
   labels: ShotDetailLabels;
@@ -42,12 +43,18 @@ export function ShotDetailScreen({
   note?: string;
   /** Context in display order, already formatted. */
   facts: ShotFact[];
-  /** Rating and just-right phrases; omitted when the shot has no taste. */
-  taste?: { rating?: ShotFact; phrases: string[] };
+  /**
+   * Rating, reaction, just-right phrases and noticed tags, already worded;
+   * omitted when the shot has no taste.
+   */
+  taste?: { rating?: ShotFact; reaction?: ShotFact; phrases: string[]; noticed?: ShotFact };
+  /** The block shot warning (ShotWarnings), under the values. */
+  warning?: ReactNode;
   /** Pin, dial in and edit, added by the tasks that build them. */
   actions?: ReactNode;
 }) {
-  const hasTaste = taste && (taste.rating || taste.phrases.length > 0);
+  const hasTaste = taste && (taste.rating || taste.reaction || taste.noticed || taste.phrases.length > 0);
+  const tasteFacts = [taste?.rating, taste?.reaction, taste?.noticed].filter((f): f is ShotFact => !!f);
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
@@ -64,6 +71,7 @@ export function ShotDetailScreen({
       <div className="flex flex-col gap-3">
         <ShotValues values={values} />
         {note && <p className="text-label text-ink-secondary">{note}</p>}
+        {warning}
       </div>
 
       {actions && <div className="flex flex-col gap-2">{actions}</div>}
@@ -87,10 +95,14 @@ export function ShotDetailScreen({
           <h2 id="shot-taste" className="text-h3 text-ink">
             {labels.taste}
           </h2>
-          {taste.rating && (
-            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6">
-              <dt className="text-label text-ink-secondary">{taste.rating.label}</dt>
-              <dd className="text-body text-ink">{taste.rating.value}</dd>
+          {tasteFacts.length > 0 && (
+            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
+              {tasteFacts.map((f) => (
+                <div key={f.label} className="contents">
+                  <dt className="text-label text-ink-secondary">{f.label}</dt>
+                  <dd className="text-body text-ink">{f.value}</dd>
+                </div>
+              ))}
             </dl>
           )}
           {taste.phrases.length > 0 && (

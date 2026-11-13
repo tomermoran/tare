@@ -50,7 +50,9 @@
     "ratingValue": "{rating} out of 5",
     "copiedFromRecipe": "Copied from your recipe with one tap; nothing was measured.",
     "dateTime": "{date} at {time}",
-    "fromFrozen": "Ground from frozen"
+    "fromFrozen": "Ground from frozen",
+    "reaction": "How it was",
+    "noticed": "Noticed"
   },
   "nav": {
     "label": "Main",
