@@ -10,6 +10,7 @@ import { setupLabel } from "@/domain/setupName";
 import { LOG_PATH } from "@/lib/logRoutes";
 import { changePartHref } from "@/lib/setupRoutes";
 import { PROFILE_PATH } from "@/lib/profileRoutes";
+import { getPendingSuggestion } from "@/server/dal/logStart";
 import { getHome, type Home } from "@/server/dal/home";
 import { getProfile } from "@/server/dal/profile";
 import { getSetupProgress } from "@/server/dal/progress";
@@ -60,11 +61,23 @@ async function Brew({ home }: { home: Home }) {
   const setup = (s: Home["setup"]) => setupLabel(s, home.setups, list);
   const { state } = home;
 
-  const dialIn: BrewAction = {
-    kind: "link",
-    label: t("home.dialIn"),
-    href: `${LOG_PATH}?${new URLSearchParams({ drinkId: home.drink.id, ...(home.portion ? { portionId: home.portion.id } : {}) })}`,
-  };
+  // A coffee's dial-in starts from its recipe, here or on the closest setup, with a pending suggestion.
+  const pending = home.coffee ? await getPendingSuggestion({ beanId: home.coffee.id, setupId: home.setup.id, drinkTypeId: home.drink.id }) : null;
+  const dialIn: BrewAction = home.coffee
+    ? {
+        kind: "dialIn",
+        label: t("home.dialIn"),
+        suggestedLabel: t("home.dialInSuggested"),
+        drinkId: home.drink.id,
+        beanId: home.coffee.id,
+        portionId: home.portion?.openedAt ? home.portion.id : null,
+        pendingShotId: pending?.shotId ?? null,
+      }
+    : {
+        kind: "link",
+        label: t("home.dialIn"),
+        href: `${LOG_PATH}?${new URLSearchParams({ drinkId: home.drink.id, ...(home.portion ? { portionId: home.portion.id } : {}) })}`,
+      };
   const addBag = { kind: "link", label: t("home.addBag"), href: `/beans/add?${new URLSearchParams({ returnTo: "/" })}` } as const;
   const chooseCoffee: BrewAction = { kind: "chooseCoffee", label: t("home.chooseCoffee") };
 

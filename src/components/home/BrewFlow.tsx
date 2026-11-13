@@ -10,9 +10,10 @@ import { Notice } from "@/components/ui/Notice/Notice";
 import { PulledState, type Reaction } from "@/components/ui/PulledState/PulledState";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { clearBrewChoice, saveBrewChoice, touchBrewChoice } from "@/lib/brewChoiceCookie";
-import { fixHref } from "@/lib/fixRoutes";
+import { isSuggestionDismissed } from "@/lib/dismissals";
+import { dialInHref, fixHref } from "@/lib/fixRoutes";
 import { portionStateLabel } from "@/lib/portionStateLabel";
-import { pullShotAction, undoPullAction } from "@/server/actions/pull";
+import { portionChoicesAction, pullShotAction, undoPullAction } from "@/server/actions/pull";
 import { getOffContextAction, setReactionAction } from "@/server/actions/reaction";
 import { chooseSetupAction } from "@/server/actions/setups";
 import type { PortionChoice } from "@/server/dal/pull";
@@ -25,7 +26,25 @@ type Field = "drink" | "coffee" | "setup";
 export type BrewAction =
   | { kind: "link"; label: string; href: string }
   | { kind: "chooseCoffee"; label: string }
-  | { kind: "pull"; label: string };
+  | { kind: "pull"; label: string }
+  /**
+   * Dial in from the recipe (STORY-02-03-03): with no open portion it asks
+   * which bag first; with a pending suggestion not dismissed on this device
+   * it says so and starts with it (STORY-02-03-07 AC 3).
+   */
+  | {
+      kind: "dialIn";
+      label: string;
+      suggestedLabel: string;
+      drinkId: string;
+      beanId: string;
+      /** The open portion; null asks first. */
+      portionId: string | null;
+      /** The shot a pending suggestion comes from. */
+      pendingShotId: string | null;
+    };
+
+type DialInAction = Extract<BrewAction, { kind: "dialIn" }>;
 
 /** DQ-04: undo is offered this long, then fades with no countdown. */
 export const UNDO_MS = 8_000;
@@ -33,7 +52,8 @@ export const UNDO_MS = 8_000;
 export const PULLED_MS = 30_000;
 
 type Pulled = { shotId: string | null; undo: boolean; reaction?: Reaction | null; reactionFailed?: Reaction };
-type Choosing = { portions: PortionChoice[] } | null;
+/** Which bag: for a pull, or for a dial-in that opens the log with it. */
+type Choosing = { portions: PortionChoice[]; dialIn?: DialInAction } | null;
 
 /**
  * Brew's client side. The drink and coffee selects keep the choice in a
@@ -83,6 +103,13 @@ export function BrewFlow({
   const [failed, setFailed] = useState(false);
   const [said, setSaid] = useState("");
   const [off, setOff] = useState<{ shotId: string; context: OffContext } | null>(null);
+  const [dismissedShot, setDismissedShot] = useState<string | null>(null);
+  const pendingShotId = [primary, secondary].find((a): a is DialInAction => a?.kind === "dialIn")?.pendingShotId ?? null;
+  // Dismissals live on this device, so they're read after hydration.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read the device store on mount
+    if (pendingShotId && isSuggestionDismissed(pendingShotId)) setDismissedShot(pendingShotId);
+  }, [pendingShotId]);
   // One ID per intended shot: retries and a second tap reuse it.
   const clientId = useRef<string | null>(null);
   const busy = useRef(false);
@@ -186,7 +213,24 @@ export function BrewFlow({
     else router.push(fixHref(shotId));
   };
 
+  const suggestedFor = (a: DialInAction) => (a.pendingShotId && a.pendingShotId !== dismissedShot ? a.pendingShotId : null);
+  const dialIn = async (a: DialInAction) => {
+    const open = (portionId: string | null) =>
+      router.push(dialInHref({ drinkId: a.drinkId, beanId: a.beanId, portionId, suggested: suggestedFor(a) }));
+    if (a.portionId) return open(a.portionId);
+    const choices = await portionChoicesAction(a.beanId);
+    // Unknown: let the log choose, as it would for a new shot.
+    if (!choices.ok) return open(null);
+    setChoosing({ portions: choices.data, dialIn: a });
+  };
+
   const action = (a: BrewAction, variant: "primary" | "ghost") => {
+    if (a.kind === "dialIn")
+      return (
+        <Button key="dialIn" variant={variant} fullWidth onClick={() => void dialIn(a)}>
+          {suggestedFor(a) ? a.suggestedLabel : a.label}
+        </Button>
+      );
     if (a.kind === "link")
       return (
         <Link key={a.label} href={a.href} className={buttonClass({ variant, fullWidth: true })}>
@@ -284,7 +328,12 @@ export function BrewFlow({
           clientId.current = null;
         }}
         portions={options}
-        onChoose={(id) => void doPull(id)}
+        onChoose={(id) => {
+          const forDialIn = choosing?.dialIn;
+          if (!forDialIn) return void doPull(id);
+          setChoosing(null);
+          router.push(dialInHref({ drinkId: forDialIn.drinkId, beanId: forDialIn.beanId, portionId: id, suggested: suggestedFor(forDialIn) }));
+        }}
         addBagHref={addBagHref}
         labels={{
           title: t("portion.chooseTitle"),

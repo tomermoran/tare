@@ -7,6 +7,8 @@ import { TasteScreen } from "@/components/screens/TasteScreen/TasteScreen";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { SuggestionCard } from "@/components/ui/SuggestionCard/SuggestionCard";
 import { useLiveSuggestion, type SuggestContextInput } from "@/components/suggest/useLiveSuggestion";
+import { dismissSuggestion, isSuggestionDismissed } from "@/lib/dismissals";
+import { dialInFromShotHref } from "@/lib/fixRoutes";
 import type { TasteTag } from "@/domain/taste";
 import type { Tasting } from "@/domain/tasting";
 import { shotWarnings } from "@/domain/shotWarnings";
@@ -52,6 +54,7 @@ export function TasteFlow({
   leaveTo,
   pinTitle,
   suggestion,
+  pinFirst = false,
 }: {
   shotId: string;
   values: ShotValuesData;
@@ -63,6 +66,8 @@ export function TasteFlow({
   pinTitle: string;
   /** The engine's input apart from the answers, and where to tell Tare the grinder's direction. */
   suggestion?: { context: SuggestContextInput; directionHref: string | null };
+  /** After a fix or dial-in, pinning is why the user came (STORY-02-03-02 AC 4). */
+  pinFirst?: boolean;
 }) {
   const t = useTranslations();
   const words = useTasteLabels(milkDrink);
@@ -143,7 +148,18 @@ export function TasteFlow({
 
   // Worked out on the device on every answer or tag change (STORY-02-03-05 AC 6).
   const [dismissed, setDismissed] = useState(false);
+  // A dismissal is kept on this device by shot (DQ-25); storage is only there after hydration.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read once on mount
+    if (isSuggestionDismissed(shotId)) setDismissed(true);
+  }, [shotId]);
   const card = useLiveSuggestion(suggestion?.context, answers, answers.tags);
+  const suggesting = !!card?.change && !dismissed;
+  const done = { label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) };
+  const pinAction = { label: t("recipe.pin"), onClick: () => void saveThenPin() };
+  // Saves the tasting, then the log opens with this shot plus the change (STORY-02-03-07 AC 1).
+  const tryIt = { label: t("suggest.tryIt"), onClick: () => void saveThen(() => router.replace(dialInFromShotHref(shotId))) };
+  const [primary, ...secondary] = suggesting ? [tryIt, done, pinAction] : pinFirst ? [pinAction, done] : [done, pinAction];
 
   const set = (patch: Partial<TasteAnswers>) => {
     setAnswers((a) => ({ ...a, ...patch }));
@@ -177,12 +193,15 @@ export function TasteFlow({
               reason={card.reason}
               freshness={card.freshness}
               link={card.askDirection && suggestion?.directionHref ? { label: t("suggest.directionUnknown"), href: suggestion.directionHref } : undefined}
-              onDismiss={() => setDismissed(true)}
+              onDismiss={() => {
+                dismissSuggestion(shotId);
+                setDismissed(true);
+              }}
             />
           )
         }
-        primary={{ label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) }}
-        secondary={[{ label: t("recipe.pin"), onClick: () => void saveThenPin() }]}
+        primary={primary}
+        secondary={secondary}
         status={pin.status}
         state={state}
         onClose={() => void saveThen(toLeaveTo)}
