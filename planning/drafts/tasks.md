@@ -3990,8 +3990,8 @@ TASK-01-03-05-QA1.
    and baskets with their dose ranges, and the coffees, as public product
    facts only. TASK-01-02-01-BE6 is blocked on it.
 8. **DQ-24 freshness thresholds** (under 5 days, over 35 days since roast or
-   packing, over 21 days open, freezer time excluded) are working values that the Head of Product will
-   confirm before wave 12's suggestion tests are written.
+   packing, over 21 days open, freezer time excluded) are confirmed by the
+   Head of Product, before wave 12's suggestion tests.
 
 Closed in revision 4: a second setup in Milestone 1 (question 3 and risk
 R-24: there is only one setup until wave 6, TASK-01-02-04-BE3), and the quiet
