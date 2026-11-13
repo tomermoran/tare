@@ -1,9 +1,12 @@
 "use client";
 
-import { useRef, type KeyboardEvent } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { cx } from "@/lib/cx";
 
 type Option = { value: string; label: string };
+
+/** Words under the outer chips of a scale, e.g. "too sour" and "too bitter". */
+type Ends = { start: string; end?: string };
 
 type ChipGroupProps = {
   /** Accessible name for the group. */
@@ -11,8 +14,13 @@ type ChipGroupProps = {
   options: Option[];
   className?: string;
 } & (
-  | { multiple?: false; value: string | null; onChange: (value: string) => void }
-  | { multiple: true; value: string[]; onChange: (value: string[]) => void }
+  | { multiple?: false; clearable?: false; ends?: Ends; value: string | null; onChange: (value: string) => void }
+  /**
+   * An optional scale: tapping the chosen chip again clears it, and arrow
+   * keys only move, so moving never answers (space or enter chooses).
+   */
+  | { multiple?: false; clearable: true; ends?: Ends; value: string | null; onChange: (value: string | null) => void }
+  | { multiple: true; clearable?: false; ends?: never; value: string[]; onChange: (value: string[]) => void }
 );
 
 const chip =
@@ -22,11 +30,14 @@ const on = "border-ink bg-ink text-on-action";
 
 /**
  * Chips for choosing (NC-04). Single choice is a radio group: one tab stop,
- * arrow keys move and select. Multiple choice is a set of toggle buttons.
+ * arrow keys move and select (or only move, on a clearable scale). Multiple
+ * choice is a set of toggle buttons.
  */
 export function ChipGroup(props: ChipGroupProps) {
   const { label, options, className } = props;
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [focused, setFocused] = useState<number | null>(null);
+  const endsId = useId();
 
   if (props.multiple) {
     const selected = new Set(props.value);
@@ -55,8 +66,15 @@ export function ChipGroup(props: ChipGroupProps) {
     );
   }
 
-  const { value, onChange } = props;
-  const current = Math.max(0, options.findIndex((o) => o.value === value));
+  const { value, ends } = props;
+  const chosen = options.findIndex((o) => o.value === value);
+  const stop = focused ?? Math.max(0, chosen);
+
+  const choose = (index: number) => {
+    const v = options[index].value;
+    if (props.clearable) props.onChange(v === value ? null : v);
+    else props.onChange(v);
+  };
 
   const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
@@ -67,12 +85,21 @@ export function ChipGroup(props: ChipGroupProps) {
     if (e.key === back || e.key === "ArrowUp") next = (index - 1 + options.length) % options.length;
     if (next === null) return;
     e.preventDefault();
-    onChange(options[next].value);
+    if (!props.clearable) props.onChange(options[next].value);
+    setFocused(next);
     refs.current[next]?.focus();
   };
 
-  return (
-    <div role="radiogroup" aria-label={label} className={cx("flex flex-wrap gap-2", className)}>
+  const group = (
+    <div
+      role="radiogroup"
+      aria-label={label}
+      aria-describedby={ends ? endsId : undefined}
+      className={cx("flex flex-wrap gap-2", !ends && className)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setFocused(null);
+      }}
+    >
       {options.map((o, i) => {
         const isOn = o.value === value;
         return (
@@ -84,8 +111,9 @@ export function ChipGroup(props: ChipGroupProps) {
             type="button"
             role="radio"
             aria-checked={isOn}
-            tabIndex={i === current ? 0 : -1}
-            onClick={() => onChange(o.value)}
+            tabIndex={i === stop ? 0 : -1}
+            onClick={() => choose(i)}
+            onFocus={() => setFocused(i)}
             onKeyDown={(e) => onKeyDown(e, i)}
             className={cx(chip, isOn ? on : off)}
           >
@@ -93,6 +121,17 @@ export function ChipGroup(props: ChipGroupProps) {
           </button>
         );
       })}
+    </div>
+  );
+
+  if (!ends) return group;
+  return (
+    <div className={cx("flex w-fit flex-col gap-1", className)}>
+      {group}
+      <div id={endsId} className="flex justify-between gap-4 text-label text-ink-secondary">
+        <span>{ends.start}</span>
+        {ends.end && <span className="text-end">{ends.end}</span>}
+      </div>
     </div>
   );
 }
