@@ -1,18 +1,30 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useLayoutEffect, useRef, useState } from "react";
 import { CatalogAddScreen, type CatalogAddErrors } from "@/components/screens/CatalogAddScreen/CatalogAddScreen";
 import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import { SelectSheet } from "@/components/ui/SelectSheet/SelectSheet";
 import type { HardwareKind } from "@/domain/capabilities";
-import { doseFromAnswer, DOSE_PRESETS, type DoseAnswer } from "@/domain/capabilityQuestions";
+import {
+  doseFromAnswer,
+  emptyGrinderAnswers,
+  emptyMachineAnswers,
+  grinderFromAnswers,
+  machineFromAnswers,
+  type DoseAnswer,
+  type GrinderAnswers,
+  type MachineAnswers,
+} from "@/domain/capabilityQuestions";
 import { normalizeUrl } from "@/domain/url";
 import { returnWithSelection } from "@/lib/returnTo";
 import { createHardwareEntryAction } from "@/server/actions/catalog";
 import type { CatalogMatch } from "@/server/dal/catalogAdd";
 import { BasketQuestions, CapabilitySection } from "./BasketQuestions";
+import { GrinderQuestions } from "./GrinderQuestions";
+import { MachineQuestions } from "./MachineQuestions";
+import { useCapabilityLabels } from "./useCapabilityLabels";
 import { useCatalogExtras } from "./useCatalogExtras";
 
 /*
@@ -37,8 +49,7 @@ export function HardwareAddFlow({
   returnTo: string;
 }) {
   const t = useTranslations();
-  const format = useFormatter();
-  const locale = useLocale();
+  const capLabels = useCapabilityLabels();
   const router = useRouter();
 
   const [kind, setKind] = useState<HardwareKind>(initialKind);
@@ -48,6 +59,8 @@ export function HardwareAddFlow({
   const [makerUrl, setMakerUrl] = useState("");
   const [name, setName] = useState(initialName);
   const [dose, setDose] = useState<DoseAnswer>({ choice: null });
+  const [machine, setMachine] = useState<MachineAnswers>(emptyMachineAnswers);
+  const [grinder, setGrinder] = useState<GrinderAnswers>(emptyGrinderAnswers);
   const [pickingMaker, setPickingMaker] = useState(false);
   const [check, setCheck] = useState<"idle" | "checking" | "failed">("idle");
   const [duplicate, setDuplicate] = useState<CatalogMatch | null>(null);
@@ -64,6 +77,9 @@ export function HardwareAddFlow({
       setUrl("");
       setMakerId(null);
       setName(initialName);
+      setDose({ choice: null });
+      setMachine(emptyMachineAnswers());
+      setGrinder(emptyGrinderAnswers());
       setDuplicate(null);
       setErrors({});
       setState("idle");
@@ -74,7 +90,11 @@ export function HardwareAddFlow({
     [],
   );
 
-  const dirty = url.trim() !== "" || makerId !== null || name !== initialName || dose.choice !== null || extras.dirty;
+  const dirty = url.trim() !== "" || makerId !== null || name !== initialName ||
+    dose.choice !== null ||
+    JSON.stringify(machine) !== JSON.stringify(emptyMachineAnswers()) ||
+    JSON.stringify(grinder) !== JSON.stringify(emptyGrinderAnswers()) ||
+    extras.dirty;
   const { leave, proceed, confirm } = useUnsavedChanges(dirty, () => router.replace(returnTo));
   const backWith = (id: string) => proceed(() => router.replace(returnWithSelection(returnTo, id)));
 
@@ -95,6 +115,9 @@ export function HardwareAddFlow({
     }
   };
 
+  const capabilitiesFor = (k: HardwareKind) =>
+    k === "basket" ? { dose: doseFromAnswer(dose) } : k === "machine" ? machineFromAnswers(machine) : grinderFromAnswers(grinder);
+
   const save = async () => {
     const next: CatalogAddErrors = {};
     if (!normalizeUrl(url)) next.url = t("catalog.urlMissing");
@@ -110,7 +133,7 @@ export function HardwareAddFlow({
     setState("saving");
     const result = await createHardwareEntryAction({
       maker: makerId === NEW_MAKER ? { name: makerName, url: makerUrl } : { id: makerId! },
-      model: { name, kind, url, capabilities: kind === "basket" ? { dose: doseFromAnswer(dose) } : undefined },
+      model: { name, kind, url, capabilities: capabilitiesFor(kind) },
       ...extras.input,
     });
     if (result.ok) return backWith(result.data.id);
@@ -125,11 +148,6 @@ export function HardwareAddFlow({
     setState("failed");
   };
 
-  const grams = (n: number) => format.number(n, { style: "unit", unit: "gram", unitDisplay: "narrow" });
-  const gramSymbol =
-    new Intl.NumberFormat(locale, { style: "unit", unit: "gram", unitDisplay: "narrow" })
-      .formatToParts(1)
-      .find((p) => p.type === "unit")?.value ?? "";
   const chosenMaker = makerId === NEW_MAKER ? t("catalog.newMaker") : (makers.find((m) => m.id === makerId)?.name ?? null);
 
   return (
@@ -178,25 +196,15 @@ export function HardwareAddFlow({
         kind={kind}
         onKindChange={(k) => setKind(k as HardwareKind)}
         capabilities={
-          kind === "basket" ? (
-            <CapabilitySection title={t("catalog.cap.title")} why={t("catalog.cap.why")}>
-              <BasketQuestions
-                labels={{
-                  question: t("catalog.cap.doseQ"),
-                  presets: Object.fromEntries(
-                    DOSE_PRESETS.map((p) => [p.id, t("catalog.cap.doseRange", { min: grams(p.min), max: grams(p.max) })]),
-                  ) as Record<(typeof DOSE_PRESETS)[number]["id"], string>,
-                  other: t("catalog.cap.other"),
-                  notSure: t("catalog.cap.notSure"),
-                  min: t("catalog.cap.doseMin"),
-                  max: t("catalog.cap.doseMax"),
-                  unit: gramSymbol,
-                }}
-                answer={dose}
-                onChange={setDose}
-              />
-            </CapabilitySection>
-          ) : undefined
+          <CapabilitySection title={t("catalog.cap.title")} why={t("catalog.cap.why")}>
+            {kind === "basket" ? (
+              <BasketQuestions labels={capLabels.basket} answer={dose} onChange={setDose} />
+            ) : kind === "machine" ? (
+              <MachineQuestions labels={capLabels.machine} answers={machine} onChange={setMachine} />
+            ) : (
+              <GrinderQuestions labels={capLabels.grinder} answers={grinder} onChange={setGrinder} />
+            )}
+          </CapabilitySection>
         }
         more={extras.more}
         errors={errors}

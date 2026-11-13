@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
 import { Input } from "@/components/ui/Input/Input";
 import { DOSE_PRESETS, type DoseAnswer } from "@/domain/capabilityQuestions";
@@ -86,10 +86,11 @@ export function CapabilitySection({
   why: string;
   children: ReactNode;
 }) {
+  const id = useId();
   return (
-    <section aria-labelledby="catalog-cap" className="flex flex-col gap-4 border-t border-line pt-6">
+    <section aria-labelledby={id} className="flex flex-col gap-4 border-t border-line pt-6">
       <div className="flex flex-col gap-1">
-        <h2 id="catalog-cap" className="text-h3 text-ink">
+        <h2 id={id} className="text-h3 text-ink">
           {title}
         </h2>
         <p className="text-label text-ink-secondary">{why}</p>
