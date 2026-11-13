@@ -119,10 +119,17 @@ describe("getLogContext", () => {
     expect(c.portions.map((p) => p.id)).not.toContain(k.portion.id);
   });
 
-  it("treats a thawed portion as open from when it thawed", async () => {
-    const thawed = await addPortion({ bagAt: day(2), frozenAt: day(3), thawedAt: day(6) });
+  it("treats a thawed portion opened before freezing as open from when it thawed", async () => {
+    const thawed = await addPortion({ bagAt: day(2), openedAt: day(2), frozenAt: day(3), thawedAt: day(6) });
     const c = await getLogContext();
     expect(c.portions[0]).toMatchObject({ id: thawed, state: "thawed", openedAt: day(6), frozen: false });
+  });
+
+  it("keeps a sealed thawed portion with the unopened ones", async () => {
+    const sealed = await addPortion({ bagAt: day(2), frozenAt: day(3), thawedAt: day(6) });
+    const c = await getLogContext();
+    expect(c.portions.find((p) => p.id === sealed)).toMatchObject({ state: "thawed", openedAt: null, frozen: false });
+    expect(c.defaultPortionId).not.toBe(sealed);
   });
 
   it("flags a missing setup and missing coffee (AC 5)", async () => {
