@@ -13,7 +13,7 @@ import { MILK_RANGE } from "@/domain/milk";
 import { NO_PREP, type Prep, type PrepKey } from "@/domain/prep";
 import { msToSeconds, secondsToMs } from "@/lib/units";
 
-type Mode = "new" | "dialIn" | "fix" | "edit";
+type Mode = "new" | "dialIn" | "fix" | "edit" | "recipe";
 
 /**
  * The dial's values in display units: grinder units, grams, seconds, and
@@ -73,7 +73,7 @@ type ShotLogScreenProps = {
   onPick?: (field: ContextField) => void;
 };
 
-const titleKey = { new: "titleNew", dialIn: "titleDialIn", fix: "titleFix", edit: "titleEdit" } as const;
+const titleKey = { new: "titleNew", dialIn: "titleDialIn", fix: "titleFix", edit: "titleEdit", recipe: "titleRecipe" } as const;
 const noop = () => {};
 
 const NO_BREW: BrewDial = { temperature: null, pressure: null };
@@ -120,6 +120,7 @@ export function ShotLogScreen({
   const t = useTranslations("log");
   const tShot = useTranslations("shot");
   const tActions = useTranslations("actions");
+  const tRecipe = useTranslations("recipe");
   const format = useFormatter();
   const startSeconds = toDial(start, brewStart);
   const [own, setOwn] = useState<DialValues>(() => (milk ? { ...startSeconds, milk: milk.startMl } : startSeconds));
@@ -195,7 +196,7 @@ export function ShotLogScreen({
     });
   }
   // Editing never clamps a stored value silently: a wheel widens to show it (STORY-01-06-09 AC 4).
-  if (mode === "edit") {
+  if (mode === "edit" || mode === "recipe") {
     for (const f of fields) {
       if (typeof f.startValue !== "number") continue;
       if (f.kind === "steps") f.count = Math.max(f.count, f.startValue);
@@ -247,12 +248,15 @@ export function ShotLogScreen({
         <Toggle label={t("prepWdt")} checked={prep.wdt} onChange={(v) => setPrep("wdt", v)} className="py-3" />
         <Toggle label={t("prepPuckScreen")} checked={prep.puckScreen} onChange={(v) => setPrep("puckScreen", v)} className="py-3" />
       </section>
-      <Toggle
-        label={t("sweetened")}
-        checked={sweetened}
-        onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
-        className="mt-2 border-t border-line py-4"
-      />
+      {/* A recipe isn't a drink someone had, so there's nothing to sweeten (STORY-02-01-02). */}
+      {mode !== "recipe" && (
+        <Toggle
+          label={t("sweetened")}
+          checked={sweetened}
+          onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
+          className="mt-2 border-t border-line py-4"
+        />
+      )}
       {taste && <div className="mt-6 flex flex-col gap-8 border-t border-line pt-6">{taste}</div>}
       {notice && <div className="mt-2">{notice}</div>}
       {/* Pinned above the safe area, so Save is always in reach; the toggles may scroll under it. */}
@@ -271,7 +275,7 @@ export function ShotLogScreen({
             )
           }
         >
-          {t(mode === "edit" ? "saveChanges" : "save")}
+          {mode === "recipe" ? tRecipe("pinThis") : t(mode === "edit" ? "saveChanges" : "save")}
         </Button>
       </div>
     </div>

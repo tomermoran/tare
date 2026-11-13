@@ -20,6 +20,8 @@ export type BagLabels = {
   portions: string;
   recipes: string;
   noRecipes: string;
+  /** "Add a recipe", into the log's recipe mode (STORY-02-01-02). */
+  addRecipe?: string;
 };
 
 export function BagScreen({
@@ -35,6 +37,7 @@ export function BagScreen({
   status,
   total,
   recipes,
+  addRecipeHref,
 }: {
   labels: BagLabels;
   backHref: string;
@@ -54,6 +57,8 @@ export function BagScreen({
   total?: string;
   /** Recipe rows for this coffee (EPIC-02-01). */
   recipes?: ReactNode;
+  /** Where "add a recipe" goes; hidden without it. */
+  addRecipeHref?: string;
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -97,6 +102,11 @@ export function BagScreen({
           {labels.recipes}
         </h2>
         {recipes ?? <p className="text-body text-ink-secondary">{labels.noRecipes}</p>}
+        {addRecipeHref && labels.addRecipe && (
+          <Link href={addRecipeHref} className={cx(buttonClass({ variant: "ghost", size: "sm" }), "-ms-4 self-start")}>
+            {labels.addRecipe}
+          </Link>
+        )}
       </section>
     </div>
   );
