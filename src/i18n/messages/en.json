@@ -103,12 +103,16 @@
     "firstRun": {
       "title": "Let's get your first shot",
       "body": "Three steps, about two minutes.",
-      "parts": "Add your machine and grinder",
+      "parts": "Add your machine, grinder and basket",
       "partsHint": "Pick them from the list, or add what's missing.",
       "bag": "Add a bag of coffee",
       "bagHint": "Roast date and weight are enough.",
       "shot": "Pull your first shot",
       "addMachine": "Add machine",
+    "addParts": "Add your parts",
+    "addBag": "Add a bag",
+    "logShot": "Log your first shot",
+    "shotHint": "Pull it as you normally would, then note what you measured.",
       "done": "Done"
     },
     "interimTitle": "Nothing to brew yet",
