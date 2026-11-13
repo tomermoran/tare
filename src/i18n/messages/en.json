@@ -40,7 +40,18 @@
     "grindValue": "Grind {grind}",
     "finer": "Finer",
     "coarser": "Coarser",
-    "milkLine": "{milk}, {amount}"
+    "milkLine": "{milk}, {amount}",
+    "details": "About this shot",
+    "coffee": "Coffee",
+    "milk": "Milk",
+    "sweetenedYes": "Yes",
+    "sweetenedNo": "No",
+    "taste": "Taste",
+    "rating": "Rating",
+    "ratingValue": "{rating} out of 5",
+    "copiedFromRecipe": "Copied from your recipe with one tap; nothing was measured.",
+    "dateTime": "{date} at {time}",
+    "fromFrozen": "Ground from frozen"
   },
   "nav": {
     "label": "Main",
@@ -112,9 +123,11 @@
     "bagRoasted": "roasted {date}",
     "bagAdded": "added {date}",
     "addBag": "Add a bag",
-    "setupFixed": "More than one setup comes in a later version.",
     "saveFailedTitle": "Couldn't save the shot",
-    "portionFinished": "That coffee is finished. Choose another to save this shot."
+    "portionFinished": "That coffee is finished. Choose another to save this shot.",
+    "prep": "Puck prep",
+    "prepWdt": "WDT",
+    "prepPuckScreen": "Puck screen"
   },
   "journal": {
     "title": "Journal",
@@ -323,5 +336,33 @@
     "soy": "Soy",
     "almond": "Almond",
     "lactoseFree": "Lactose-free"
+  },
+  "taste": {
+    "balance": {
+      "right": "Balanced",
+      "more": "A bit bitter",
+      "muchMore": "Much too bitter",
+      "muchLess": "Much too sour",
+      "less": "A bit sour"
+    },
+    "strength": {
+      "right": "Strength just right",
+      "more": "A bit strong",
+      "muchMore": "Much too strong",
+      "muchLess": "Much too weak",
+      "less": "A bit weak"
+    },
+    "body": {
+      "right": "Body just right",
+      "more": "A bit heavy",
+      "muchMore": "Much too heavy",
+      "muchLess": "Much too thin",
+      "less": "A bit thin"
+    },
+    "sweetness": {
+      "right": "Sweet enough",
+      "muchLess": "Not sweet at all",
+      "less": "Not sweet enough"
+    }
   }
 }
