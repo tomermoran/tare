@@ -1,7 +1,5 @@
-import { getTranslations } from "next-intl/server";
-import { ListSkeleton } from "@/components/ui/Skeleton/Skeleton";
+import { RecentShotsScreen } from "@/components/screens/RecentShotsScreen/RecentShotsScreen";
 
-export default async function JournalLoading() {
-  const t = await getTranslations("states");
-  return <ListSkeleton label={t("loading")} />;
+export default function JournalLoading() {
+  return <RecentShotsScreen state="loading" items={[]} now={new Date(0)} />;
 }
