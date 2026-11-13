@@ -35,8 +35,12 @@ type NumberWheelProps = {
   majorEvery?: number;
   /** Intl unit; the browser supplies the localised symbol. */
   unit?: CanonicalUnit;
-  /** For units Intl doesn't know (bar). Pass a translated string. */
-  unitLabel?: string;
+  /**
+   * For units Intl doesn't know (bar): the translated symbol shown beside the
+   * number, and how a value is read out, from a message pattern ("9.5 bar"),
+   * so the number and unit are never joined by hand.
+   */
+  unitLabel?: { symbol: string; valueText: (formattedNumber: string) => string };
   /**
    * Captions for the ruler's two ends, by value: the grinder's "finer" and
    * "coarser". They follow the ruler, so they mirror in right-to-left.
@@ -329,10 +333,10 @@ export function NumberWheel({
   // Display the snapped value even mid-drag, so digits change in whole steps.
   const shown = snap(position);
   const parts = formatValueParts(locale, shown, decimals, unit);
-  const unitText = unitLabel ?? parts.unit;
+  const unitText = unitLabel?.symbol ?? parts.unit;
   const fieldText = draft ?? parts.number;
   const valueText = unitLabel
-    ? `${parts.number} ${unitLabel}`
+    ? unitLabel.valueText(parts.number)
     : new Intl.NumberFormat(locale, {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
