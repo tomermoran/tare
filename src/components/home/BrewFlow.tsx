@@ -2,65 +2,160 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ComponentProps } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { HomeScreen } from "@/components/screens/HomeScreen/HomeScreen";
-import { buttonClass } from "@/components/ui/Button/Button";
-import { Button } from "@/components/ui/Button/Button";
+import { Button, buttonClass } from "@/components/ui/Button/Button";
+import { Notice } from "@/components/ui/Notice/Notice";
+import { PulledState } from "@/components/ui/PulledState/PulledState";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
+import { portionStateLabel } from "@/lib/portionStateLabel";
+import { pullShotAction, undoPullAction } from "@/server/actions/pull";
+import type { PortionChoice } from "@/server/dal/pull";
+import { PortionSheet, type PortionOption } from "./PortionSheet";
 
 type Field = "drink" | "coffee";
 
 export type BrewAction =
   | { kind: "link"; label: string; href: string }
-  | { kind: "chooseCoffee"; label: string };
+  | { kind: "chooseCoffee"; label: string }
+  | { kind: "pull"; label: string };
+
+/** DQ-04: undo is offered this long, then fades with no countdown. */
+export const UNDO_MS = 8_000;
+/** The card returns to its normal state after this long (design 2.3). */
+export const PULLED_MS = 30_000;
+
+type Pulled = { shotId: string | null; undo: boolean };
+type Choosing = { portions: PortionChoice[] } | null;
 
 /**
- * Brew's client side: the drink and coffee selects (SH-SELECT), which put
- * the choice in the URL for this visit only, never as a setting (DQ-17).
- * The page computes everything shown. The one-tap pull joins in its own task.
+ * Brew's client side. The drink and coffee selects put the choice in the
+ * URL for this visit only, never as a setting (DQ-17). "Pull this shot"
+ * (STORY-02-02-02) shows the pulled state at once, then records the shot
+ * with an ID made here, so a double tap or a retry makes one shot; when none
+ * of the coffee is open it asks which bag first (STORY-02-02-03), and undo
+ * lasts 8 seconds (STORY-02-02-04).
  */
 export function BrewFlow({
   screen,
   primary,
   secondary,
+  pull,
   drinks,
   coffees,
   drinkId,
   beanId,
-  sheetTitles,
-  closeLabel,
+  addBagHref,
 }: {
   screen: Omit<ComponentProps<typeof HomeScreen>, "actions" | "onChangeDrink" | "onChangeCoffee">;
   primary: BrewAction;
   secondary?: BrewAction;
+  /** Present when the primary is the one-tap pull. */
+  pull?: { drinkTypeId: string; beanId: string };
   drinks: SelectOption[];
   coffees: SelectOption[];
   drinkId: string;
   beanId: string | null;
-  sheetTitles: Record<Field, string>;
-  closeLabel: string;
+  addBagHref: string;
 }) {
+  const t = useTranslations();
+  const format = useFormatter();
   const router = useRouter();
   const [picking, setPicking] = useState<Field | null>(null);
+  const [pulled, setPulled] = useState<Pulled | null>(null);
+  const [choosing, setChoosing] = useState<Choosing>(null);
+  const [failed, setFailed] = useState(false);
+  const [said, setSaid] = useState("");
+  // One ID per intended shot: retries and a second tap reuse it.
+  const clientId = useRef<string | null>(null);
+  const busy = useRef(false);
+
+  // Undo fades after 8 s; the card returns after 30 s.
+  useEffect(() => {
+    if (!pulled?.shotId) return;
+    const fade = setTimeout(() => setPulled((p) => p && { ...p, undo: false }), UNDO_MS);
+    const back = setTimeout(() => setPulled(null), PULLED_MS);
+    return () => {
+      clearTimeout(fade);
+      clearTimeout(back);
+    };
+  }, [pulled?.shotId]);
 
   const choose = (field: Field, id: string) => {
     setPicking(null);
+    setPulled(null);
     const params = new URLSearchParams({ drink: field === "drink" ? id : drinkId });
     const coffee = field === "coffee" ? id : beanId;
     if (coffee) params.set("coffee", coffee);
     router.replace(`/?${params}`, { scroll: false });
   };
 
-  const action = (a: BrewAction, variant: "primary" | "ghost") =>
-    a.kind === "link" ? (
-      <Link key={a.label} href={a.href} className={buttonClass({ variant, fullWidth: true })}>
-        {a.label}
-      </Link>
-    ) : (
-      <Button key={a.label} variant={variant} fullWidth onClick={() => setPicking("coffee")}>
+  const doPull = async (portionId?: string) => {
+    if (!pull || busy.current) return;
+    busy.current = true;
+    clientId.current ??= crypto.randomUUID();
+    setFailed(false);
+    setChoosing(null);
+    // Optimistic: the buttons give way at once (AC 1, AC 4).
+    setPulled({ shotId: null, undo: true });
+    setSaid(t("home.pulled"));
+    const result = await pullShotAction({ clientId: clientId.current, ...pull, portionId });
+    busy.current = false;
+    if (!result.ok) {
+      setPulled(null);
+      setSaid("");
+      setFailed(true);
+      return;
+    }
+    const outcome = result.data;
+    if (outcome.kind !== "pulled") {
+      setPulled(null);
+      setSaid("");
+      setChoosing({ portions: outcome.kind === "needsPortion" ? outcome.portions : [] });
+      return;
+    }
+    clientId.current = null;
+    setPulled({ shotId: outcome.shotId, undo: true });
+    router.refresh();
+  };
+
+  const undo = async () => {
+    const shotId = pulled?.shotId;
+    if (!shotId) return;
+    const result = await undoPullAction(shotId);
+    if (!result.ok) {
+      setPulled((p) => p && { ...p, undo: false });
+      return;
+    }
+    setPulled(null);
+    setSaid(t("home.undone"));
+    router.refresh();
+  };
+
+  const action = (a: BrewAction, variant: "primary" | "ghost") => {
+    if (a.kind === "link")
+      return (
+        <Link key={a.label} href={a.href} className={buttonClass({ variant, fullWidth: true })}>
+          {a.label}
+        </Link>
+      );
+    const onClick = a.kind === "pull" ? () => void doPull() : () => setPicking("coffee");
+    return (
+      <Button key={a.label} variant={variant} fullWidth onClick={onClick}>
         {a.label}
       </Button>
     );
+  };
+
+  const date = (d: Date) => format.dateTime(d, { day: "numeric", month: "short" });
+  const options: PortionOption[] = (choosing?.portions ?? []).map((p) => ({
+    id: p.id,
+    primary: p.roastDate ? t("portion.bagRoasted", { date: date(p.roastDate) }) : t("portion.bagAdded", { date: date(p.bagAddedAt) }),
+    secondary: portionStateLabel(t, p.state),
+    end: p.remaining ? t("portion.remaining", { grams: format.number(p.remaining.grams, { style: "unit", unit: "gram", unitDisplay: "short", maximumFractionDigits: 0 }) }) : undefined,
+    frozen: p.frozen,
+  }));
 
   const sheet = picking === "drink" ? { options: drinks, value: drinkId } : { options: coffees, value: beanId };
   return (
@@ -71,19 +166,50 @@ export function BrewFlow({
         onChangeCoffee={coffees.length ? () => setPicking("coffee") : undefined}
         actions={
           <>
-            {action(primary, "primary")}
-            {secondary && action(secondary, "ghost")}
+            <p className="sr-only" role="status">
+              {said}
+            </p>
+            {pulled ? (
+              <PulledState labels={{ pulled: t("home.pulled"), undo: t("home.undo") }} undoAvailable={!!pulled.shotId && pulled.undo} onUndo={() => void undo()} />
+            ) : (
+              <>
+                {failed && (
+                  <Notice action={{ label: t("actions.retry"), onClick: () => void doPull() }}>{t("home.pullFailed")}</Notice>
+                )}
+                {action(primary, "primary")}
+                {secondary && action(secondary, "ghost")}
+              </>
+            )}
           </>
         }
       />
       <SelectSheet
         open={picking !== null}
         onClose={() => setPicking(null)}
-        title={picking ? sheetTitles[picking] : ""}
-        closeLabel={closeLabel}
+        title={picking === "drink" ? t("log.drink") : t("shot.coffee")}
+        closeLabel={t("actions.close")}
         options={sheet.options}
         value={sheet.value}
         onChoose={(id) => picking && choose(picking, id)}
+      />
+      <PortionSheet
+        open={choosing !== null}
+        onClose={() => {
+          // Cancel records nothing (STORY-02-02-03 AC 5).
+          setChoosing(null);
+          clientId.current = null;
+        }}
+        portions={options}
+        onChoose={(id) => void doPull(id)}
+        addBagHref={addBagHref}
+        labels={{
+          title: t("portion.chooseTitle"),
+          body: t("portion.chooseBody"),
+          close: t("actions.close"),
+          grindFromFrozen: t("portion.grindFromFrozen"),
+          noneLeft: t("portion.noneLeft"),
+          addBag: t("home.addBag"),
+        }}
       />
     </>
   );

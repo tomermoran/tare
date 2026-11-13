@@ -66,7 +66,7 @@ async function Brew({ home }: { home: Home }) {
     label: t("home.dialIn"),
     href: `${LOG_PATH}?${new URLSearchParams({ drinkId: home.drink.id, ...(home.portion ? { portionId: home.portion.id } : {}) })}`,
   };
-  const addBag: BrewAction = { kind: "link", label: t("home.addBag"), href: `/beans/add?${new URLSearchParams({ returnTo: "/" })}` };
+  const addBag = { kind: "link", label: t("home.addBag"), href: `/beans/add?${new URLSearchParams({ returnTo: "/" })}` } as const;
   const chooseCoffee: BrewAction = { kind: "chooseCoffee", label: t("home.chooseCoffee") };
 
   const recipe = state.kind === "recipe" ? state.recipe : state.kind === "finished" ? state.recipe : null;
@@ -78,14 +78,15 @@ async function Brew({ home }: { home: Home }) {
     noCoffee: t("home.noCoffee"),
   }[state.kind];
   const [primary, secondary]: [BrewAction, BrewAction?] =
-    state.kind === "finished"
-      ? home.coffees.length
-        ? [chooseCoffee, addBag]
-        : [addBag]
-      : state.kind === "noCoffee"
-        ? [addBag]
-        : // The one-tap pull joins with STORY-02-02-02; until then Dial in is the way to log.
-          [dialIn];
+    state.kind === "recipe"
+      ? [{ kind: "pull", label: t("home.pull") }, dialIn]
+      : state.kind === "finished"
+        ? home.coffees.length
+          ? [chooseCoffee, addBag]
+          : [addBag]
+        : state.kind === "noCoffee"
+          ? [addBag]
+          : [dialIn];
 
   return (
     <BrewFlow
@@ -108,6 +109,8 @@ async function Brew({ home }: { home: Home }) {
       }}
       primary={primary}
       secondary={secondary}
+      pull={state.kind === "recipe" && home.coffee ? { drinkTypeId: home.drink.id, beanId: home.coffee.id } : undefined}
+      addBagHref={addBag.href}
       drinks={home.drinks.map((d) => ({
         id: d.id,
         primary: drinkLabel(d, (key: DrinkKey) => t(key)),
@@ -121,8 +124,6 @@ async function Brew({ home }: { home: Home }) {
       }))}
       drinkId={home.drink.id}
       beanId={home.coffee?.id ?? null}
-      sheetTitles={{ drink: t("log.drink"), coffee: t("shot.coffee") }}
-      closeLabel={t("actions.close")}
     />
   );
 }
