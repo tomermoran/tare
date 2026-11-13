@@ -189,7 +189,20 @@
     "emptyTitle": "No shots yet",
     "showOlder": "Show older shots",
     "coffeeAndMilk": "{coffee} · {milk}",
-    "loading": "Loading your shots"
+    "loading": "Loading your shots",
+    "filters": "Filter shots",
+    "filterDrink": "Drink",
+    "filterCoffee": "Coffee",
+    "filterSetup": "Setup",
+    "filterAnyDrink": "Any drink",
+    "filterAnyCoffee": "Any coffee",
+    "filterAnySetup": "Any setup",
+    "filterName": "{filter}: {value}",
+    "removeFilter": "Remove filter {filter}: {value}",
+    "filterAll": "All",
+    "emptyFilteredTitle": "No matching shots",
+    "emptyFiltered": "No shots of {filters} yet.",
+    "clearFilters": "Clear filters"
   },
   "maintenance": {
     "burrs": "New burrs",
