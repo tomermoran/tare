@@ -38,8 +38,8 @@ export type MachineCapabilities = {
   pressure: PressureControl;
 };
 export type GrinderCapabilities = { grind: GrindScale };
-/** Grams the basket is made for; it bounds dose suggestions. */
-export type BasketCapabilities = { dose: { min: number; max: number } };
+/** Grams the basket is made for; it bounds dose suggestions. Null: not sure. */
+export type BasketCapabilities = { dose: { min: number; max: number } | null };
 
 export type Capabilities<K extends HardwareKind = HardwareKind> =
   K extends "machine"
@@ -154,7 +154,7 @@ function isGrind(v: unknown, notSure: boolean): v is GrindScale {
   );
 }
 
-function isDose(v: unknown): v is BasketCapabilities["dose"] {
+function isDose(v: unknown): v is NonNullable<BasketCapabilities["dose"]> {
   return (
     isObject(v) &&
     hasOnly(v, ["min", "max"]) &&
@@ -187,10 +187,20 @@ export function parseCapabilities<K extends HardwareKind>(
       ok = hasOnly(value, ["grind"]) && isGrind(value.grind, allowNotSure);
       break;
     case "basket":
-      ok = hasOnly(value, ["dose"]) && isDose(value.dose);
+      ok = hasOnly(value, ["dose"]) && (isDose(value.dose) || (value.dose === null && allowNotSure));
       break;
     default:
       ok = false;
   }
   return ok ? (value as Capabilities<K>) : null;
+}
+
+/** Every answer "not sure": what a household-added model starts as (AC 4). */
+export function notSureCapabilities<K extends HardwareKind>(kind: K): Capabilities<K> {
+  const all: { [k in HardwareKind]: Capabilities<k> } = {
+    machine: { temperature: { control: "unknown" }, pressure: { control: "unknown" } },
+    grinder: { grind: { type: "unknown", min: null, max: null, step: null, coarser: "unknown" } },
+    basket: { dose: null },
+  };
+  return all[kind] as Capabilities<K>;
 }
