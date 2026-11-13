@@ -18,6 +18,8 @@ export type DialField = {
   step: number;
   majorEvery?: number;
   unit?: CanonicalUnit;
+  /** The ruler's end captions, e.g. finer and coarser for grind. */
+  endCaptions?: { lower: string; higher: string };
 };
 
 type ShotDialProps = {
@@ -101,6 +103,7 @@ export function ShotDial({ label, fields, selected, onSelect, onChange, classNam
           max={current.max}
           step={current.step}
           majorEvery={current.majorEvery}
+          endCaptions={current.endCaptions}
           unit={current.unit}
         />
       </div>

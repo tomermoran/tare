@@ -9,6 +9,7 @@ import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
+import type { GrindWheel } from "@/domain/grind";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
 import { withReturnTo } from "@/lib/returnTo";
@@ -46,7 +47,7 @@ export function ShotLogFlow({
   /** A portion just added from the log (add a bag came back with it). */
   selectedPortionId: string | null;
   start: ShotValuesData;
-  grind?: { min: number; max: number; step: number };
+  grind?: GrindWheel;
   resume: boolean;
 }) {
   const t = useTranslations();
