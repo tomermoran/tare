@@ -5,7 +5,9 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetailScreen/ShotDetailScreen";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { PinAction } from "@/components/recipes/PinAction";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
+import { shotSetupName } from "@/domain/shotSetupName";
 import { shotWarnings } from "@/domain/shotWarnings";
 import { tastePhraseKeys } from "@/domain/tastePhrase";
 import { getShot } from "@/server/dal/journal";
@@ -14,7 +16,8 @@ import { getTimeZone } from "@/server/time";
 
 /**
  * SCR-SHOT: one shot. Edit is primary on a one-tap shot and a quiet ghost
- * on a measured one, where pin and dial in from this join it later.
+ * on a measured one, where "pin as recipe" is the primary (STORY-02-06-03
+ * AC 3); one-tap shots can't be pinned. Dial in from this joins later.
  */
 export default async function ShotPage({ params }: PageProps<"/journal/[shotId]">) {
   const { shotId } = await params;
@@ -57,11 +60,15 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
     ? { label: t("shot.noticed"), value: format.list(shot.tags.map((tag) => t(`taste.tags.${tag}`)), { type: "conjunction" }) }
     : undefined;
 
+  const drink = drinkLabel(shot.drink, (key: DrinkKey) => t(key));
+  const setup = shotSetupName(shot.setup, (items) => format.list(items, { type: "conjunction" }));
+  const pinTitle = t("recipe.pinTitle", { drink, coffee: shot.coffee.name, setup });
+
   return (
     <ShotDetailScreen
       labels={{ back: t("journal.title"), details: t("shot.details"), taste: t("shot.taste") }}
       backHref="/journal"
-      drink={drinkLabel(shot.drink, (key: DrinkKey) => t(key))}
+      drink={drink}
       when={t("shot.dateTime", {
         date: format.dateTime(shot.at, { dateStyle: "medium", timeZone }),
         time: format.dateTime(shot.at, { timeStyle: "short", timeZone }),
@@ -71,16 +78,19 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
       facts={facts}
       taste={rating || reaction || noticed || phrases.length ? { rating, reaction, phrases, noticed } : undefined}
       actions={
-        <Link
-          href={`/log?mode=edit&shotId=${shot.id}`}
-          className={
-            shot.entryMode === "one-tap"
-              ? buttonClass({ variant: "primary", fullWidth: true })
-              : `${buttonClass({ variant: "ghost", size: "sm" })} -ms-4 self-start`
-          }
-        >
-          {t("actions.edit")}
-        </Link>
+        <>
+          {shot.entryMode === "measured" && <PinAction shotId={shot.id} title={pinTitle} label={t("recipe.pin")} />}
+          <Link
+            href={`/log?mode=edit&shotId=${shot.id}`}
+            className={
+              shot.entryMode === "one-tap"
+                ? buttonClass({ variant: "primary", fullWidth: true })
+                : `${buttonClass({ variant: "ghost", size: "sm" })} -ms-4 self-start`
+            }
+          >
+            {t("actions.edit")}
+          </Link>
+        </>
       }
       warning={<ShotWarnings warnings={shotWarnings(shot.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
     />

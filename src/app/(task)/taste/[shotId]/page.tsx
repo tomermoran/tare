@@ -1,6 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { TasteFlow } from "@/components/taste/TasteFlow";
+import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
+import { shotSetupName } from "@/domain/shotSetupName";
 import { getShot } from "@/server/dal/journal";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 
@@ -24,6 +27,12 @@ async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
   });
   if (!shot) return null;
   if (shot.entryMode !== "measured") redirect(`/journal/${shot.id}`);
+  const [t, format] = await Promise.all([getTranslations(), getFormatter()]);
+  const pinTitle = t("recipe.pinTitle", {
+    drink: drinkLabel(shot.drink, (key: DrinkKey) => t(key)),
+    coffee: shot.coffee.name,
+    setup: shotSetupName(shot.setup, (items) => format.list(items, { type: "conjunction" })),
+  });
 
   return (
     <TasteFlow
@@ -32,6 +41,7 @@ async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
       milkDrink={shot.milkDrink}
       initial={{ rating: shot.rating, ...shot.taste, tags: shot.tags }}
       leaveTo="/"
+      pinTitle={pinTitle}
     />
   );
 }
