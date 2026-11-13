@@ -8,7 +8,7 @@ import { PhoneFrame } from "../PhoneFrame";
 import { ShotDetailScreen, type ShotFact } from "./ShotDetailScreen";
 
 const t = createTranslator({ locale: "en", messages });
-const { drinks, journal, log, setup, shot, taste } = messages;
+const { actions, drinks, journal, log, setup, shot, taste } = messages;
 
 // Fictional parts and coffee.
 const facts: ShotFact[] = [
@@ -109,6 +109,21 @@ export const OneTapWithReaction: Story = {
     await expect(canvas.getByText(journal.good)).toBeVisible();
     await expect(canvas.queryByText(shot.rating)).toBeNull();
     await expect(canvas.queryByRole("status")).toBeNull();
+  },
+};
+
+/** Edit is two taps from the Journal: a quiet ghost on a measured shot (STORY-02-06-03 AC 3). */
+export const MeasuredWithEdit: Story = {
+  args: {
+    actions: (
+      <a href="/log?mode=edit&shotId=s1" className="self-start">
+        {actions.edit}
+      </a>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const link = within(canvasElement).getByRole("link", { name: actions.edit });
+    await expect(link).toHaveAttribute("href", "/log?mode=edit&shotId=s1");
   },
 };
 

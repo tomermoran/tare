@@ -1,21 +1,26 @@
 import { connection } from "next/server";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { ShotEditFlow } from "@/components/log/ShotEditFlow";
 import { ShotLogFlow, type DrinkMilk } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { brewTabs, brewToDial, NO_BREW_VALUES } from "@/domain/brewControls";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { MILK_FALLBACK_ML } from "@/domain/milk";
 import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { daysBetween, localDayKey } from "@/domain/localDay";
 import { setupLabel } from "@/domain/setupName";
 import { getLogContext, getStartingValues, NEUTRAL_START, type LogPortion } from "@/server/dal/logContext";
-import { unlessSignedOut } from "@/server/dal/scope";
+import { getShot } from "@/server/dal/journal";
+import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
+import { notFound } from "next/navigation";
 import { getTimeZone } from "@/server/time";
 
 /**
- * SCR-LOG, a new shot: /log?drinkId=…&portionId=…
+ * SCR-LOG, a new shot: /log?drinkId=…&portionId=…, or a saved one in edit
+ * mode: /log?mode=edit&shotId=…
  * `selected` is a portion just added from the log; `resume` restores the
  * values set before leaving for an add task.
  */
@@ -31,6 +36,8 @@ const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : u
 
 async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   const params = await searchParams;
+  const shotId = one(params.shotId);
+  if (one(params.mode) === "edit" && shotId) return <EditShot shotId={shotId} />;
   const selected = one(params.selected);
   const [context, t, format, timeZone] = await Promise.all([
     unlessSignedOut(getLogContext({ drinkId: one(params.drinkId), portionId: selected ?? one(params.portionId) })),
@@ -97,6 +104,46 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       )}
       milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
       resume={one(params.resume) === "1"}
+    />
+  );
+}
+
+/** Edit mode (STORY-02-06-02): the saved shot, with its context read-only. */
+async function EditShot({ shotId }: { shotId: string }) {
+  const [shot, context, t, format] = await Promise.all([
+    unlessSignedOut(getShot(shotId)).catch((e) => {
+      if (e instanceof NotFoundError) notFound();
+      throw e;
+    }),
+    unlessSignedOut(getLogContext()),
+    getTranslations(),
+    getFormatter(),
+  ]);
+  if (!shot || !context) return null;
+
+  const list = (items: string[]) => format.list(items, { type: "conjunction" });
+  const setup = context.setups.find((s) => s.id === shot.setup.id);
+  const brew = brewTabs(setup?.machine);
+  const milkMl = shot.milk?.ml ?? null;
+
+  return (
+    <ShotEditFlow
+      shotId={shot.id}
+      oneTap={shot.entryMode === "one-tap"}
+      setup={setup ? setupLabel(setup, context.setups, list) : (shot.setup.name ?? "")}
+      drink={drinkLabel(shot.drink, (key: DrinkKey) => t(key))}
+      coffee={shot.coffee.name}
+      start={shot.values}
+      grind={grindWheelConfig(setup?.grind)}
+      brew={brew}
+      brewStart={brewToDial(brew, shot.brew)}
+      sweetened={shot.sweetened}
+      prep={shot.prep}
+      milk={shot.milkDrink ? { milkTypeId: shot.milkTypeId, ml: milkMl ?? MILK_FALLBACK_ML } : null}
+      milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
+      milkDrink={shot.milkDrink}
+      taste={{ rating: shot.rating, ...shot.taste, tags: shot.tags }}
+      backTo={`/journal/${shot.id}`}
     />
   );
 }

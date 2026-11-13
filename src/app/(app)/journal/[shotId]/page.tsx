@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { buttonClass } from "@/components/ui/Button/Button";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetailScreen/ShotDetailScreen";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
@@ -11,8 +13,8 @@ import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
 
 /**
- * SCR-SHOT: one shot, read-only in Milestone 1. Edit, pin and dial in from
- * this are added to its actions by the tasks that build them.
+ * SCR-SHOT: one shot. Edit is primary on a one-tap shot and a quiet ghost
+ * on a measured one, where pin and dial in from this join it later.
  */
 export default async function ShotPage({ params }: PageProps<"/journal/[shotId]">) {
   const { shotId } = await params;
@@ -68,6 +70,18 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
       note={shot.entryMode === "one-tap" ? t("shot.copiedFromRecipe") : undefined}
       facts={facts}
       taste={rating || reaction || noticed || phrases.length ? { rating, reaction, phrases, noticed } : undefined}
+      actions={
+        <Link
+          href={`/log?mode=edit&shotId=${shot.id}`}
+          className={
+            shot.entryMode === "one-tap"
+              ? buttonClass({ variant: "primary", fullWidth: true })
+              : `${buttonClass({ variant: "ghost", size: "sm" })} -ms-4 self-start`
+          }
+        >
+          {t("actions.edit")}
+        </Link>
+      }
       warning={<ShotWarnings warnings={shotWarnings(shot.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
     />
   );

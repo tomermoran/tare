@@ -149,7 +149,8 @@
     "milk": "Milk",
     "milkAmount": "Milk",
     "milkNone": "Choose a milk",
-    "capUnknown": "Tell us about your {kind, select, machine {machine} grinder {grinder} other {basket}}"
+    "capUnknown": "Tell us about your {kind, select, machine {machine} grinder {grinder} other {basket}}",
+    "saveChanges": "Save changes"
   },
   "journal": {
     "title": "Journal",
