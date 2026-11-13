@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
+import { personaLabel } from "@/domain/personaLabel";
 import { LogoMark } from "@/components/brand/Logo/Logo";
 import { Button } from "@/components/ui/Button/Button";
 import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
@@ -64,7 +65,7 @@ export function HomeScreen({
   const header = (
     <div className="flex min-h-8 items-center justify-between">
       <button type="button" onClick={onProfile} className="py-1.5 text-label text-ink-secondary hover:text-ink">
-        {personaName ?? tProfile("defaultName")}
+        {personaLabel({ name: personaName ?? null }, tProfile("defaultName"))}
       </button>
       <LogoMark size={24} className="text-ink" />
     </div>
