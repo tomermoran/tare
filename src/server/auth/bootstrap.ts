@@ -6,10 +6,12 @@ import {
   drinkTypes,
   householdMembers,
   households,
+  milkTypes,
   personas,
   users,
 } from "@/db/schema";
 import { STARTER_DRINKS } from "@/domain/starterDrinks";
+import { STARTER_MILKS } from "@/domain/starterMilks";
 
 export type Account = { userId: string; householdId: string };
 
@@ -63,6 +65,14 @@ function createAccount(db: Db, firebaseUid: string): Promise<Account> {
           id: newId(),
           householdId,
           ...drink,
+          sortOrder,
+        })),
+      );
+      await tx.insert(milkTypes).values(
+        STARTER_MILKS.map((milk, sortOrder) => ({
+          id: newId(),
+          householdId,
+          ...milk,
           sortOrder,
         })),
       );
