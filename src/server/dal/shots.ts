@@ -56,7 +56,8 @@ export type MeasuredShot = {
 
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
-function check(input: MeasuredShot) {
+/** The four core values in range, shared by shots and entered recipes. */
+export function checkValues(input: Pick<MeasuredShot, "grind" | "dose" | "yield" | "timeMs">) {
   if (!finite(input.grind) || input.grind < 0) throw new InvalidShotError("grind");
   if (!finite(input.dose) || input.dose <= 0 || input.dose > 100) throw new InvalidShotError("dose");
   if (!finite(input.yield) || input.yield <= 0 || input.yield > 500) throw new InvalidShotError("yield");
@@ -65,7 +66,7 @@ function check(input: MeasuredShot) {
 
 export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): Promise<{ id: string }> {
   const { householdId, userId } = await requireHousehold();
-  check(input);
+  checkValues(input);
   await Promise.all([
     assertOwned("setups", input.setupId, householdId),
     assertOwned("drinkTypes", input.drinkTypeId, householdId),
