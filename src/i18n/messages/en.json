@@ -184,7 +184,10 @@
     "acquiredHint": "Optional.",
     "aboutModel": "About this model",
     "save": "Add part",
-    "saveFailedTitle": "Couldn't add the part"
+    "saveFailedTitle": "Couldn't add the part",
+    "details": "Details",
+    "inSetups": "In your setups",
+    "notInSetup": "Not in a setup yet. Use it from Setup with “Change a part”."
   },
   "states": {
     "notBuilt": "This tab isn't built yet.",

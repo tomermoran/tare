@@ -8,3 +8,6 @@ export const changePartHref = (setupId: string) => `${BUILDER_PATH}?from=${encod
 
 /** The builder, starting from the current setup with a new part swapped in (AC 5). */
 export const newPartBuilderHref = (partId: string) => `${BUILDER_PATH}?newPart=${encodeURIComponent(partId)}`;
+
+/** One part (SCR-UNIT). */
+export const partHref = (partId: string) => `${SETUP_PATH}/parts/${encodeURIComponent(partId)}`;

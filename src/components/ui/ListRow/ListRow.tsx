@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
@@ -10,13 +11,15 @@ type ListRowProps = {
   footer?: ReactNode;
   /** Makes the whole row one button. */
   onClick?: () => void;
+  /** Makes the whole row one link, e.g. to a part. */
+  href?: string;
   /** Marks the row as the current choice for assistive tech (a button row only). */
   current?: boolean;
   className?: string;
 };
 
 /** A hairline-separated list row (NC-03). Lighter than a Card, for lists. */
-export function ListRow({ primary, secondary, end, footer, onClick, current, className }: ListRowProps) {
+export function ListRow({ primary, secondary, end, footer, onClick, href, current, className }: ListRowProps) {
   const content = (
     <>
       <span className="flex min-w-0 flex-col">
@@ -31,6 +34,13 @@ export function ListRow({ primary, secondary, end, footer, onClick, current, cla
     "grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 border-b border-line py-3.5 text-start",
     className,
   );
+  if (href) {
+    return (
+      <Link href={href} className={cx(classes, "transition-colors hover:bg-surface")}>
+        {content}
+      </Link>
+    );
+  }
   return onClick ? (
     <button type="button" onClick={onClick} aria-current={current || undefined} className={cx(classes, "transition-colors hover:bg-surface")}>
       {content}
