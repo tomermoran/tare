@@ -26,9 +26,11 @@ type HomeScreenProps = {
   actions: ReactNode;
   /** Remaining coffee in the portion in use; hidden when unknown. */
   footnote?: string;
-  labels: { changeDrink: string; changeCoffee: string };
+  labels: { changeDrink: string; changeCoffee: string; changeSetup?: string };
   onChangeDrink?: () => void;
   onChangeCoffee?: () => void;
+  /** The setup line becomes a quiet select (STORY-02-02-07). */
+  onChangeSetup?: () => void;
 };
 
 /**
@@ -51,6 +53,7 @@ export function HomeScreen({
   labels,
   onChangeDrink,
   onChangeCoffee,
+  onChangeSetup,
 }: HomeScreenProps) {
   return (
     <div className="flex flex-1 flex-col [&>*]:shrink-0">
@@ -87,7 +90,18 @@ export function HomeScreen({
           </div>
         )}
       </div>
-      <p className="mt-3 text-label text-ink-secondary">{setup}</p>
+      {onChangeSetup ? (
+        <SelectField
+          look="quiet"
+          value={setup}
+          onClick={onChangeSetup}
+          hiddenLabel={labels.changeSetup}
+          valueClassName="text-label text-ink-secondary"
+          className="mt-3 text-ink-secondary"
+        />
+      ) : (
+        <p className="mt-3 text-label text-ink-secondary">{setup}</p>
+      )}
 
       <div className="mt-auto grid min-h-38 content-end gap-2 pt-7">
         {actions}

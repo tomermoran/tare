@@ -12,10 +12,11 @@ import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/Sele
 import { clearBrewChoice, saveBrewChoice, touchBrewChoice } from "@/lib/brewChoiceCookie";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { pullShotAction, undoPullAction } from "@/server/actions/pull";
+import { chooseSetupAction } from "@/server/actions/setups";
 import type { PortionChoice } from "@/server/dal/pull";
 import { PortionSheet, type PortionOption } from "./PortionSheet";
 
-type Field = "drink" | "coffee";
+type Field = "drink" | "coffee" | "setup";
 
 export type BrewAction =
   | { kind: "link"; label: string; href: string }
@@ -46,8 +47,11 @@ export function BrewFlow({
   pull,
   drinks,
   coffees,
+  setups,
   drinkId,
   beanId,
+  setupId,
+  changePartHref,
   addBagHref,
 }: {
   screen: Omit<ComponentProps<typeof HomeScreen>, "actions" | "onChangeDrink" | "onChangeCoffee">;
@@ -57,8 +61,13 @@ export function BrewFlow({
   pull?: { drinkTypeId: string; beanId: string };
   drinks: SelectOption[];
   coffees: SelectOption[];
+  /** The household's setups, current first and marked. */
+  setups: SelectOption[];
   drinkId: string;
   beanId: string | null;
+  setupId: string;
+  /** The builder from the current setup, coming back to Brew (STORY-02-02-07 AC 3). */
+  changePartHref: string;
   addBagHref: string;
 }) {
   const t = useTranslations();
@@ -98,10 +107,15 @@ export function BrewFlow({
   }, [router]);
 
   // For the next pull only, never a setting (DQ-17). Changing ends the pulled state.
-  const choose = (field: Field, id: string) => {
+  const choose = async (field: Field, id: string) => {
     setPicking(null);
     setPulled(null);
-    saveBrewChoice(field === "drink" ? { drinkId: id } : { beanId: id });
+    if (field === "setup") {
+      // A setup is physical, so choosing one makes it current (DQ-18).
+      if (id !== setupId) await chooseSetupAction(id);
+    } else {
+      saveBrewChoice(field === "drink" ? { drinkId: id } : { beanId: id });
+    }
     router.refresh();
   };
 
@@ -173,13 +187,19 @@ export function BrewFlow({
     frozen: p.frozen,
   }));
 
-  const sheet = picking === "drink" ? { options: drinks, value: drinkId } : { options: coffees, value: beanId };
+  const sheets = {
+    drink: { title: t("log.drink"), options: drinks, value: drinkId },
+    coffee: { title: t("shot.coffee"), options: coffees, value: beanId },
+    setup: { title: t("log.setup"), options: setups, value: setupId },
+  };
+  const sheet = sheets[picking ?? "drink"];
   return (
     <>
       <HomeScreen
         {...screen}
         onChangeDrink={() => setPicking("drink")}
         onChangeCoffee={coffees.length ? () => setPicking("coffee") : undefined}
+        onChangeSetup={() => setPicking("setup")}
         actions={
           <>
             <p className="sr-only" role="status">
@@ -202,11 +222,12 @@ export function BrewFlow({
       <SelectSheet
         open={picking !== null}
         onClose={() => setPicking(null)}
-        title={picking === "drink" ? t("log.drink") : t("shot.coffee")}
+        title={sheet.title}
         closeLabel={t("actions.close")}
         options={sheet.options}
         value={sheet.value}
-        onChoose={(id) => picking && choose(picking, id)}
+        onChoose={(id) => picking && void choose(picking, id)}
+        footerRow={picking === "setup" ? { label: t("setup.changePart"), onClick: () => router.push(changePartHref) } : undefined}
       />
       <PortionSheet
         open={choosing !== null}
