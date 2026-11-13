@@ -53,7 +53,8 @@ export type Lever = "prep" | "grind" | "yield" | "dose" | "temperature" | "milk"
 /** One change for the next shot. Values are in the shot's units; none when only a direction is known. */
 export type Change =
   | { lever: "prep"; tool: "wdt" | "puckScreen" | "checkDistribution" }
-  | { lever: "grind"; direction: "finer" | "coarser"; from: number | null; to: number | null }
+  /** `steps` on the grinder's own scale; dial values only when its direction is known. */
+  | { lever: "grind"; direction: "finer" | "coarser"; steps: number; from: number | null; to: number | null }
   | { lever: "yield" | "dose" | "milk"; direction: "more" | "less"; from: number; to: number }
   /** Hotter or cooler; degrees only when the shot recorded its temperature. */
   | { lever: "temperature"; direction: "more" | "less"; from: number | null; to: number | null };
