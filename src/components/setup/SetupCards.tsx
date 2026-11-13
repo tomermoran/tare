@@ -1,3 +1,4 @@
+import { useId, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button/Button";
 import { Card } from "@/components/ui/Card/Card";
 import { Notice } from "@/components/ui/Notice/Notice";
@@ -5,8 +6,8 @@ import { Notice } from "@/components/ui/Notice/Notice";
 /*
  * Cards on the Setup tab (SCR-KIT). SetupOfferCard is the first-setup
  * shortcut, naming the three parts it will use (STORY-01-02-05 AC 4).
- * SetupCard is one setup: its name or parts name, its parts in kind order
- * and its recipe count. Props only.
+ * SetupCard is one setup: its name or parts name, its parts in kind order,
+ * its recipe count, when it was last used and its actions. Props only.
  */
 
 export function SetupOfferCard({
@@ -56,6 +57,8 @@ export function SetupCard({
   name,
   parts,
   recipeCount,
+  lastUsed,
+  actions,
 }: {
   /** "Current" on the current setup. */
   overline?: string;
@@ -63,19 +66,30 @@ export function SetupCard({
   name: string;
   parts: string[];
   recipeCount: string;
+  /** "Last used 3 May", already formatted. */
+  lastUsed?: string;
+  /** Use this, change a part, rename. */
+  actions?: ReactNode;
 }) {
+  const headingId = useId();
   return (
-    <Card className="flex flex-col gap-3">
+    <Card role="group" aria-labelledby={headingId} className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         {overline && <p className="text-overline uppercase text-ink-secondary">{overline}</p>}
-        <h3 className="text-h3 text-ink">{name}</h3>
+        <h3 id={headingId} className="text-h3 text-ink">
+          {name}
+        </h3>
       </div>
       <ul className="flex flex-col gap-1 text-label text-ink-secondary">
         {parts.map((p, i) => (
           <li key={`${i}-${p}`}>{p}</li>
         ))}
       </ul>
-      <p className="text-label text-ink-secondary">{recipeCount}</p>
+      <div className="flex flex-col gap-1 text-label text-ink-secondary">
+        <p>{recipeCount}</p>
+        {lastUsed && <p>{lastUsed}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </Card>
   );
 }

@@ -5,15 +5,18 @@ import type { HardwareKind } from "@/domain/capabilities";
 import { SETUP_KINDS } from "@/domain/setup";
 import { partsKey } from "@/domain/setupKey";
 import { safeReturnTo } from "@/lib/returnTo";
-import { setupName } from "@/lib/setupName";
+import { setupLabel } from "@/domain/setupName";
 import { getSetupTab } from "@/server/dal/parts";
 import { unlessSignedOut } from "@/server/dal/scope";
-import { suggestionFrom } from "@/server/dal/setups";
+import { getChangePartStart, suggestionFrom } from "@/server/dal/setups";
 
 /**
  * SCR-TOOLKIT: /setup/builder?machine=…&grinder=…&basket=…&name=…&returnTo=…
- * Without choices it starts from the most recently added part of each kind.
- * `selected` is a part just added from one of the rows.
+ * Explicit choices win. Otherwise it starts from a setup's parts (`from`,
+ * "change a part"), the current setup with a new part swapped in
+ * (`newPart`, "use the new part?"), or the current setup; with no setup,
+ * from the most recently added part of each kind. `selected` is a part
+ * just added from one of the rows.
  */
 export default function SetupBuilderPage({ searchParams }: PageProps<"/setup/builder">) {
   return (
@@ -27,7 +30,13 @@ const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : u
 
 async function Builder({ searchParams }: Pick<PageProps<"/setup/builder">, "searchParams">) {
   const params = await searchParams;
-  const [tab, t, format] = await Promise.all([unlessSignedOut(getSetupTab()), getTranslations("setup"), getFormatter()]);
+  const fromUrl = SETUP_KINDS.some((k) => one(params[k]));
+  const [tab, t, format, start] = await Promise.all([
+    unlessSignedOut(getSetupTab()),
+    getTranslations("setup"),
+    getFormatter(),
+    fromUrl ? null : unlessSignedOut(getChangePartStart({ setupId: one(params.from), newPartId: one(params.newPart) })),
+  ]);
   const parts = tab?.parts ?? { machine: [], grinder: [], basket: [] };
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
 
@@ -43,13 +52,12 @@ async function Builder({ searchParams }: Pick<PageProps<"/setup/builder">, "sear
   ) as Record<HardwareKind, { id: string; primary: string; secondary: string }[]>;
 
   const has = (kind: HardwareKind, id: string | undefined) => !!id && parts[kind].some((p) => p.id === id);
-  const fromUrl = SETUP_KINDS.some((k) => one(params[k]));
   const suggestion = suggestionFrom(parts, []);
   const initial = Object.fromEntries(
     SETUP_KINDS.map((k) => {
       const id = one(params[k]);
       if (fromUrl) return [k, has(k, id) ? id : null];
-      return [k, suggestion?.parts[k].id ?? parts[k].at(-1)?.id ?? null];
+      return [k, start?.[k] ?? suggestion?.parts[k].id ?? parts[k].at(-1)?.id ?? null];
     }),
   ) as Record<HardwareKind, string | null>;
   const selected = one(params.selected);
@@ -59,7 +67,7 @@ async function Builder({ searchParams }: Pick<PageProps<"/setup/builder">, "sear
     id: s.id,
     key: partsKey(s.parts.map((p) => p.id)),
     partIds: s.parts.map((p) => p.id),
-    name: setupName(s, list),
+    name: setupLabel(s, tab?.setups ?? [], list),
     recipeCount: t("recipeCount", { count: s.recipeCount }),
   }));
 

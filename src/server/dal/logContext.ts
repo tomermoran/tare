@@ -20,6 +20,7 @@ import { isOpen, portionState, type PortionState } from "@/domain/portionState";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
 import { assertOwned, requireHousehold } from "./scope";
+import { currentSetupOf } from "./setups";
 
 /*
  * What the shot log opens with (STORY-01-03-01): the household's setups,
@@ -205,8 +206,7 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
 
   return {
     setups,
-    // Milestone 1: the only setup (TASK-01-02-09-BE1 brings the current-setup rule).
-    defaultSetupId: setups[0]?.id ?? null,
+    defaultSetupId: await currentSetupOf(householdId, setups),
     drinks: drinks.map((d) => ({ ...d, typicalMilkMl: d.typicalMilkMl ?? null })),
     defaultDrinkId,
     milks,

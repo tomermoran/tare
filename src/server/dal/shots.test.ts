@@ -20,6 +20,7 @@ vi.mock("@/db/ids", async (importOriginal) => {
 });
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 vi.mock("@/server/time", () => ({ getTimeZone: async () => "Asia/Jerusalem" }));
 
 let k: Awaited<ReturnType<typeof makeKitchen>>;
@@ -27,6 +28,7 @@ const db = () => testContext.db!;
 const NOW = new Date("2026-01-20T07:30:00Z");
 
 beforeEach(async () => {
+  testContext.setupChoice = null;
   testContext.db = await createTestDb();
   k = await makeKitchen(testContext.db);
   signInAs(k.user.firebaseUid);

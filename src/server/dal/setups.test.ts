@@ -14,12 +14,13 @@ import {
   getSetupSuggestion,
   MissingPartsError,
   previewSetup,
+  renameSetup,
   resolveSetup,
-  SetupExistsError,
 } from "./setups";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 const BAMBINO = seedIds.model("breville", "bambino-plus");
 const ZERO = seedIds.model("niche", "zero");
@@ -28,8 +29,10 @@ const BASKET = seedIds.model("breville", "54mm-double-dual-wall");
 let me: Awaited<ReturnType<typeof makeHousehold>>;
 
 beforeEach(async () => {
+  testContext.setupChoice = null;
   testContext.db = await createTestDb();
   await loadSeed(testContext.db, hardware as HardwareSeed, coffee as CoffeeSeed);
+  testContext.setupChoice = null;
   me = await makeHousehold(testContext.db);
   signInAs(me.user.firebaseUid);
 });
@@ -75,30 +78,32 @@ describe("resolveSetup", () => {
 
   it("makes one setup from two quick calls", async () => {
     const ids = await three();
-    const results = await Promise.allSettled([resolveSetup(ids), resolveSetup(ids)]);
-    const made = results.filter((r) => r.status === "fulfilled");
-    expect(made.length).toBeGreaterThanOrEqual(1);
+    const [a, b] = await Promise.all([resolveSetup(ids), resolveSetup(ids)]);
+    expect(a.id).toBe(b.id);
     expect(await db().select().from(setups)).toHaveLength(1);
-    // A call that lost the race is told it's the same setup.
-    for (const r of results) {
-      if (r.status === "rejected") expect(r.reason).toMatchObject({ same: true });
-    }
   });
 
-  it("refuses a second setup and changes nothing (Milestone 1)", async () => {
+  it("makes a second setup from a second combination, and it becomes current (STORY-01-02-04 AC 4, AC 6)", async () => {
     const ids = await three();
-    const { id } = await resolveSetup(ids);
+    const first = await resolveSetup(ids);
+    expect(testContext.setupChoice?.setupId).toBe(first.id);
     const other = await addPart({ hardwareId: ZERO });
-    const error = await resolveSetup([ids[0], other.id, ids[2]]).catch((e) => e);
-    expect(error).toBeInstanceOf(SetupExistsError);
-    expect(error).toMatchObject({ setupId: id, same: false });
-    expect(await db().select().from(setups)).toHaveLength(1);
+    const second = await resolveSetup([ids[0], other.id, ids[2]]);
+    expect(second.id).not.toBe(first.id);
+    expect(await db().select().from(setups)).toHaveLength(2);
+    expect(testContext.setupChoice?.setupId).toBe(second.id);
   });
 
-  it("tells a repeat of the same combination that it's the same setup", async () => {
+  it("brings back a known combination's setup instead of making one (AC 3)", async () => {
     const ids = await three();
-    const { id } = await resolveSetup(ids);
-    await expect(resolveSetup([...ids].reverse())).rejects.toMatchObject({ setupId: id, same: true });
+    const { id } = await resolveSetup(ids, "Weekday");
+    const other = await addPart({ hardwareId: ZERO });
+    await resolveSetup([ids[0], other.id, ids[2]]);
+    await expect(resolveSetup([...ids].reverse(), "Ignored")).resolves.toEqual({ id });
+    expect(testContext.setupChoice?.setupId).toBe(id);
+    const [row] = await db().select().from(setups).where(eq(setups.id, id));
+    expect(row.name).toBe("Weekday");
+    expect(await db().select().from(setups)).toHaveLength(2);
   });
 
   it("won't use a part that isn't the household's", async () => {
@@ -157,6 +162,39 @@ describe("createFirstSetup", () => {
   it("reads a double tap as the same setup", async () => {
     await three();
     const { id } = await createFirstSetup();
-    await expect(createFirstSetup()).rejects.toMatchObject({ setupId: id, same: true });
+    await expect(createFirstSetup()).resolves.toEqual({ id });
+    expect(await db().select().from(setups)).toHaveLength(1);
+  });
+
+  it("never makes another setup from a stale offer", async () => {
+    const ids = await three();
+    const { id } = await createFirstSetup();
+    await addPart({ hardwareId: ZERO });
+    await expect(createFirstSetup()).resolves.toEqual({ id });
+    expect(await db().select().from(setups)).toHaveLength(1);
+    expect(ids).toHaveLength(3);
+  });
+});
+
+describe("renameSetup", () => {
+  it("changes only the name; empty clears it (STORY-01-02-09 AC 5)", async () => {
+    const ids = await three();
+    const { id } = await resolveSetup(ids);
+    await renameSetup(id, "  Weekend  ");
+    let [row] = await db().select().from(setups).where(eq(setups.id, id));
+    expect(row).toMatchObject({ id, name: "Weekend" });
+    await expect(previewSetup(ids)).resolves.toMatchObject({ kind: "existing", id, name: "Weekend" });
+    await renameSetup(id, "   ");
+    [row] = await db().select().from(setups).where(eq(setups.id, id));
+    expect(row.name).toBeNull();
+    const links = await db().select().from(setupParts).where(eq(setupParts.setupId, id));
+    expect(links).toHaveLength(3);
+  });
+
+  it("won't rename another household's setup", async () => {
+    const { id } = await resolveSetup(await three());
+    const other = await makeHousehold(db());
+    signInAs(other.user.firebaseUid);
+    await expect(renameSetup(id, "Mine")).rejects.toBeInstanceOf(NotFoundError);
   });
 });

@@ -13,3 +13,12 @@ beforeEach(async () => {
   signInAs(user.firebaseUid);
 });
 ```
+
+Code that reads or writes the device's current setup (`@/server/setupChoice`)
+needs its cookie mocked too; the choice then lives in `testContext.setupChoice`:
+
+```ts
+vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
+// in beforeEach:
+testContext.setupChoice = null;
+```

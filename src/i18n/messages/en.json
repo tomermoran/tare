@@ -254,8 +254,17 @@
     "suggestBody": "Your machine, grinder and basket, together:",
     "suggest": "Make these your setup",
     "current": "Current",
-    "existsNotice": "You already have a setup. More than one comes in a later version, so nothing was changed.",
-    "saveFailedTitle": "Couldn't save the setup"
+    "saveFailedTitle": "Couldn't save the setup",
+    "changePart": "Change a part",
+    "rename": "Rename",
+    "renameTitle": "Name this setup",
+    "older": "{count, plural, one {# older setup} other {# older setups}}",
+    "lastUsed": "Last used {date}",
+    "neverUsed": "Not used yet",
+    "useNewPartTitle": "Use it in your setup?",
+    "useNewPart": "Your current setup stays as it is. Using the new part starts from it with the {kind} swapped.",
+    "useNewPartAction": "Use it",
+    "notNow": "Not now"
   },
   "confirm": {
     "discardTitle": "Discard changes?",
