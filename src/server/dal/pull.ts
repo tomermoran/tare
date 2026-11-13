@@ -86,10 +86,7 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
   // The earliest-opened open portion; open is never frozen (AC 3).
   const portion = input.portionId ? portions.find((p) => p.id === input.portionId) : portions.find((p) => p.openedAt !== null);
   if (input.portionId && !portion) throw new NotFoundError();
-  if (!portion) {
-    const remaining = await getRemaining(portions.map((p) => p.id));
-    return { kind: "needsPortion", portions: portions.map((p) => ({ ...p, remaining: remaining.get(p.id) ?? null })) };
-  }
+  if (!portion) return { kind: "needsPortion", portions: await withRemaining(portions) };
 
   const shot = db.insert(extractions).values({
     id: input.clientId,
@@ -129,6 +126,22 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
     throw e;
   }
   return { kind: "pulled", shotId: input.clientId, openedPortion: opens };
+}
+
+async function withRemaining(portions: LogPortion[]): Promise<PortionChoice[]> {
+  const remaining = await getRemaining(portions.map((p) => p.id));
+  return portions.map((p) => ({ ...p, remaining: remaining.get(p.id) ?? null }));
+}
+
+/**
+ * Which bag a dial-in uses when none of the coffee is open, as for a pull
+ * (STORY-02-03-03 AC 4, AC 5): its unfinished portions; empty when none
+ * are left.
+ */
+export async function portionChoices(beanId: string, now = new Date()): Promise<PortionChoice[]> {
+  const { householdId } = await requireHousehold();
+  const id = (await resolveEntity(db, canonicalBeans, beanId)) ?? beanId;
+  return withRemaining((await unfinishedPortions(householdId, now)).filter((p) => p.bean.id === id));
 }
 
 async function madeAlready(shotId: string, householdId: string): Promise<PullResult | null> {

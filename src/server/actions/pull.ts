@@ -1,7 +1,7 @@
 "use server";
 
 import { fail, runAction, type ActionResult } from "@/lib/actionResult";
-import { pullShot, undoPull, type PullInput, type PullResult } from "@/server/dal/pull";
+import { portionChoices, pullShot, undoPull, type PortionChoice, type PullInput, type PullResult } from "@/server/dal/pull";
 
 /** Brew's "Pull this shot" (SCR-HOME); a retry sends the same `clientId`. */
 export async function pullShotAction(input: PullInput): Promise<ActionResult<PullResult>> {
@@ -15,4 +15,10 @@ export async function pullShotAction(input: PullInput): Promise<ActionResult<Pul
 export async function undoPullAction(shotId: string): Promise<ActionResult> {
   if (typeof shotId !== "string" || !shotId) return fail("notFound");
   return runAction(() => undoPull(shotId));
+}
+
+/** The bags a dial-in can use when none of the coffee is open (STORY-02-03-03 AC 4). */
+export async function portionChoicesAction(beanId: string): Promise<ActionResult<PortionChoice[]>> {
+  if (typeof beanId !== "string" || !beanId) return fail("notFound");
+  return runAction(() => portionChoices(beanId));
 }
