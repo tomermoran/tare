@@ -107,11 +107,11 @@ describe("opening and finishing (TASK-03-02-03-BE1)", () => {
   it("finishes, leaving the log's options, and the last finish leaves On hand with the shots kept (AC 4, AC 5)", async () => {
     await setPortionDate(k.portion.id, "open", when());
     await db().insert(extractions).values({ id: newId(), ...shotValues(k), loggedByUserId: k.user.id, portionId: k.portion.id, entryMode: "measured", createdAt: NOW });
-    expect((await getOnHand()).map((b) => b.id)).toContain(k.batch.id);
+    expect((await getOnHand()).flatMap((g) => g.bags.map((b) => b.id))).toContain(k.batch.id);
     await setPortionDate(k.portion.id, "finish", when());
     expect(await state()).toBe("finished");
     expect((await getLogContext()).portions.map((p) => p.id)).not.toContain(k.portion.id);
-    expect((await getOnHand()).map((b) => b.id)).not.toContain(k.batch.id);
+    expect((await getOnHand()).flatMap((g) => g.bags.map((b) => b.id))).not.toContain(k.batch.id);
     expect(await db().select().from(extractions)).toHaveLength(1);
     await expect(setPortionDate(k.portion.id, "open", when())).rejects.toBeInstanceOf(InvalidPortionActionError);
   });

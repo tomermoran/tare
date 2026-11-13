@@ -13,7 +13,9 @@ import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton/Skeleton";
  * Props only. Each bag on hand is a Card with its coffee, roaster and the
  * roasting clock, and its portions as rows. "Add a bag" is the header's
  * primary only when bags are on hand; otherwise an empty state carries it,
- * so every state has exactly one primary (AC 4, AC 5).
+ * so every state has exactly one primary (AC 4, AC 5). On hand comes in
+ * groups (STORY-03-02-05): open, unopened, frozen, each under its own
+ * subheading, with empty groups left out by the caller.
  */
 
 export type PortionRow = {
@@ -36,6 +38,13 @@ export type BagCard = {
   portions: PortionRow[];
 };
 
+export type BagGroup = {
+  /** "open", "unopened" or "frozen", for the heading's id. */
+  key: string;
+  title: string;
+  bags: BagCard[];
+};
+
 export type BeansLabels = {
   title: string;
   addBag: string;
@@ -52,7 +61,7 @@ export type BeansLabels = {
 export function BeansScreen({
   labels,
   state = "ready",
-  bags,
+  groups,
   tried,
   addBagHref,
   onPortion,
@@ -61,7 +70,8 @@ export function BeansScreen({
   state?: "loading" | "ready";
   /** A portion row opens its actions (EPIC-03-02). */
   onPortion?: (id: string) => void;
-  bags: BagCard[];
+  /** On hand, in groups; a group with no bags is not passed. */
+  groups: BagGroup[];
   /** The Tried rows (EPIC-03-06); none means nothing has been brewed yet. */
   tried?: ReactNode;
   addBagHref: string;
@@ -83,7 +93,8 @@ export function BeansScreen({
     );
   }
 
-  if (bags.length === 0 && !tried) {
+  const hasBags = groups.some((g) => g.bags.length > 0);
+  if (!hasBags && !tried) {
     return (
       <div className="flex flex-col gap-8">
         <PageHeader title={labels.title} />
@@ -99,7 +110,7 @@ export function BeansScreen({
       <PageHeader
         title={labels.title}
         end={
-          bags.length > 0 ? (
+          hasBags ? (
             <Link href={addBagHref} className={buttonClass({ variant: "primary", size: "sm" })}>
               {labels.addBag}
             </Link>
@@ -107,11 +118,11 @@ export function BeansScreen({
         }
       />
 
-      <section aria-labelledby="beans-on-hand" className="flex flex-col gap-4">
+      <section aria-labelledby="beans-on-hand" className="flex flex-col gap-6">
         <h2 id="beans-on-hand" className="text-h2 text-ink">
           {labels.onHand}
         </h2>
-        {bags.length === 0 ? (
+        {!hasBags ? (
           <EmptyState
             title={labels.onHandEmptyTitle}
             action={{ label: labels.addBag, href: addBagHref }}
@@ -120,37 +131,14 @@ export function BeansScreen({
             {labels.onHandEmpty}
           </EmptyState>
         ) : (
-          <ul className="flex flex-col gap-4">
-            {bags.map((bag) => (
-              <li key={bag.id}>
-                <Card className="flex flex-col gap-2">
-                  <Link href={bag.href} className="group flex items-start justify-between gap-4">
-                    <span className="flex min-w-0 flex-col gap-1">
-                      <span className="text-h3 text-ink group-hover:underline">{bag.bean}</span>
-                      <span className="text-label text-ink-secondary">
-                        {bag.roaster}
-                        {bag.clock && <span className="block">{bag.clock}</span>}
-                      </span>
-                    </span>
-                    <Icon name="chevron" className="mt-2 text-ink-secondary" />
-                  </Link>
-                  <ul>
-                    {bag.portions.map((p) => (
-                      <li key={p.id}>
-                        <ListRow
-                          className="last:border-b-0"
-                          primary={p.state}
-                          secondary={p.opened}
-                          end={<span className="text-body text-ink">{p.remaining}</span>}
-                          onClick={onPortion ? () => onPortion(p.id) : undefined}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              </li>
-            ))}
-          </ul>
+          groups.map((group) => (
+            <section key={group.key} aria-labelledby={`beans-group-${group.key}`} className="flex flex-col gap-3">
+              <h3 id={`beans-group-${group.key}`} className="text-overline uppercase text-ink-secondary">
+                {group.title}
+              </h3>
+              <BagList bags={group.bags} onPortion={onPortion} />
+            </section>
+          ))
         )}
       </section>
 
@@ -161,5 +149,41 @@ export function BeansScreen({
         {tried ?? <p className="text-body text-ink-secondary">{labels.triedEmpty}</p>}
       </section>
     </div>
+  );
+}
+
+function BagList({ bags, onPortion }: { bags: BagCard[]; onPortion?: (id: string) => void }) {
+  return (
+    <ul className="flex flex-col gap-4">
+      {bags.map((bag) => (
+        <li key={bag.id}>
+          <Card className="flex flex-col gap-2">
+            <Link href={bag.href} className="group flex items-start justify-between gap-4">
+              <span className="flex min-w-0 flex-col gap-1">
+                <span className="text-h3 text-ink group-hover:underline">{bag.bean}</span>
+                <span className="text-label text-ink-secondary">
+                  {bag.roaster}
+                  {bag.clock && <span className="block">{bag.clock}</span>}
+                </span>
+              </span>
+              <Icon name="chevron" className="mt-2 text-ink-secondary" />
+            </Link>
+            <ul>
+              {bag.portions.map((p) => (
+                <li key={p.id}>
+                  <ListRow
+                    className="last:border-b-0"
+                    primary={p.state}
+                    secondary={p.opened}
+                    end={<span className="text-body text-ink">{p.remaining}</span>}
+                    onClick={onPortion ? () => onPortion(p.id) : undefined}
+                  />
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </li>
+      ))}
+    </ul>
   );
 }
