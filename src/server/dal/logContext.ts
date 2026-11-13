@@ -9,14 +9,17 @@ import {
   drinkTypes,
   extractions,
   milkTypes,
+  ownedHardware,
   personas,
   roasters,
+  setupParts,
 } from "@/db/schema";
 import { parseCapabilities, type GrindScale } from "@/domain/capabilities";
+import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { isOpen, portionState, type PortionState } from "@/domain/portionState";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
-import { requireHousehold } from "./scope";
+import { assertOwned, requireHousehold } from "./scope";
 
 /*
  * What the shot log opens with (STORY-01-03-01): the household's setups,
@@ -212,4 +215,46 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
     missingSetup: setups.length === 0,
     missingCoffee: portions.length === 0,
   };
+}
+
+/** DQ-07: neutral starting values for a setup with no measured shot. */
+export const NEUTRAL_START = { dose: 18, yield: 36, timeMs: 28_000 } as const;
+
+export type StartingValues = { grind: number; dose: number; yield: number; timeMs: number };
+
+/**
+ * A blank log's values (STORY-01-03-02 AC 2): the latest measured shot on
+ * this setup, else DQ-07's neutral values with grind in the middle of the
+ * grinder's range. One-tap shots copy a recipe, so they never count.
+ */
+export async function getStartingValues(setupId: string): Promise<StartingValues> {
+  const { householdId } = await requireHousehold();
+  await assertOwned("setups", setupId, householdId);
+  const [last] = await db
+    .select({
+      grind: extractions.grindSize,
+      dose: extractions.doseWeight,
+      yield: extractions.yieldWeight,
+      timeMs: extractions.yieldTime,
+    })
+    .from(extractions)
+    .where(
+      and(
+        eq(extractions.householdId, householdId),
+        eq(extractions.setupId, setupId),
+        eq(extractions.entryMode, "measured"),
+      ),
+    )
+    .orderBy(desc(extractions.createdAt))
+    .limit(1);
+  if (last) return last;
+
+  const [grinder] = await db
+    .select({ capabilities: canonicalHardware.capabilities })
+    .from(setupParts)
+    .innerJoin(ownedHardware, eq(ownedHardware.id, setupParts.ownedHardwareId))
+    .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
+    .where(and(eq(setupParts.setupId, setupId), eq(canonicalHardware.kind, "grinder")));
+  const scale = grinder ? parseCapabilities("grinder", grinder.capabilities)?.grind : null;
+  return { grind: middleGrind(grindWheelConfig(scale)), ...NEUTRAL_START };
 }
