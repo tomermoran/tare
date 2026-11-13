@@ -7,6 +7,7 @@ import { openSince, portionState, type PortionState } from "@/domain/portionStat
 import { groupOnHand, pantryGroup, pantryOrder, type PantryGroup } from "@/domain/onHandGroups";
 import { openedClock, type OpenedClock } from "@/domain/openedClock";
 import { roastingClock, type RoastingClock } from "@/domain/roastingClock";
+import { bagStatus, type BagStatus } from "@/domain/bagStatus";
 import { getTimeZone } from "@/server/time";
 import type { Remaining } from "@/domain/remaining";
 import { getRemaining } from "./remaining";
@@ -121,6 +122,8 @@ export type BagView = {
   purchasedAt: Date | null;
   bagWeight: number;
   createdAt: Date;
+  /** Open, finished or neither (STORY-03-04-03), from all its portions. */
+  status: BagStatus;
   /** The bag's one roasting clock: that of the portion in use, else the bag's own (STORY-03-03-04 AC 3). */
   roasting: RoastingClock;
   portions: PortionView[];
@@ -185,6 +188,7 @@ async function bagsOf(householdId: string, batchIds?: string[], now = new Date()
       purchasedAt: r.purchasedAt,
       bagWeight: r.bagWeight,
       createdAt: r.createdAt,
+      status: bagStatus(own),
       roasting: inUse ? inUse.roasting : roastingClock(r, null, now, timeZone),
       portions: views,
     };

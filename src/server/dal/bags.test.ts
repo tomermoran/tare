@@ -158,7 +158,9 @@ describe("getOnHand", () => {
   });
 
   it("gives each portion its clocks and the bag the clock of the portion in use (STORY-03-03-04 AC 3)", async () => {
-    const now = new Date();
+    const now = new Date("2026-03-20T10:00:00Z");
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(now);
     const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000);
     const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250, roastDate: daysAgo(20) });
     await db().update(batchPortions).set({ openedAt: daysAgo(4) }).where(eq(batchPortions.id, portionId));
@@ -169,6 +171,22 @@ describe("getOnHand", () => {
       [{ kind: "paused" }, { kind: "roasted", days: 5, frozenDays: 15 }],
     ]);
     expect(b.roasting).toEqual({ kind: "roasted", days: 20, frozenDays: 0 });
+  });
+
+  it("follows the dates in the bag's status and group (STORY-03-04-03 AC 4)", async () => {
+    const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+    const set = (dates: Partial<typeof batchPortions.$inferInsert>) => db().update(batchPortions).set(dates).where(eq(batchPortions.id, portionId));
+    const look = async () => {
+      const groups = await getOnHand();
+      return { status: (await getBag(batchId)).status, group: groups.find((g) => g.bags.some((b) => b.id === batchId))?.group ?? null };
+    };
+    expect(await look()).toEqual({ status: null, group: "unopened" });
+    await set({ openedAt: new Date() });
+    expect(await look()).toEqual({ status: "open", group: "open" });
+    await set({ frozenAt: new Date() });
+    expect(await look()).toEqual({ status: null, group: "frozen" });
+    await set({ finishedAt: new Date() });
+    expect(await look()).toEqual({ status: "finished", group: null });
   });
 
   it("shows a merged coffee's survivor (AC 6)", async () => {

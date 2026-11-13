@@ -4,13 +4,13 @@ import { newId } from "@/db/ids";
 import { batches, batchPortions, extractions, stockChecks } from "@/db/schema";
 import { allowedActions } from "@/domain/portionActions";
 import { portionState } from "@/domain/portionState";
-import { setPortionDateAction, splitPortionAction } from "@/server/actions/portions";
+import { addStockCheckAction, setPortionDateAction, splitPortionAction } from "@/server/actions/portions";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
 import { getOnHand } from "./bags";
 import { getLogContext } from "./logContext";
-import { InvalidPortionActionError, setPortionDate, splitPortion } from "./portions";
+import { addStockCheck, InvalidPortionActionError, setPortionDate, splitPortion } from "./portions";
 import { getRemaining } from "./remaining";
 import { NotFoundError } from "./scope";
 import { saveMeasuredShot } from "./shots";
@@ -158,5 +158,53 @@ describe("splitting (TASK-03-02-01-BE1)", () => {
     await setPortionDate(k.portion.id, "freeze", when("2026-03-01"));
     await setPortionDate(k.portion.id, "thaw", when());
     await expect(splitPortion(k.portion.id, 10)).rejects.toMatchObject({ reason: "notAllowed" });
+  });
+});
+
+describe("weighing what's left (TASK-03-04-02-BE1)", () => {
+  const dose = (grams: number, at: Date) =>
+    db().insert(extractions).values({ id: newId(), ...shotValues(k), doseWeight: grams, loggedByUserId: k.user.id, portionId: k.portion.id, entryMode: "measured", createdAt: at });
+  const left = async () => (await getRemaining([k.portion.id])).get(k.portion.id)!;
+  const at = (minutes: number) => new Date(NOW.getTime() + minutes * 60_000);
+
+  beforeEach(() => setPortionDate(k.portion.id, "open", when("2026-03-01")));
+
+  it("shows the weight recorded now (AC 1)", async () => {
+    await dose(18, at(-60));
+    await addStockCheck(k.portion.id, 120, { now: NOW });
+    expect(await left()).toEqual({ grams: 120, overLogged: false });
+  });
+
+  it("takes later doses off the weight (AC 2) and uses the latest weighing (AC 3)", async () => {
+    await addStockCheck(k.portion.id, 150, { now: at(0) });
+    await addStockCheck(k.portion.id, 140, { now: at(10) });
+    await dose(18, at(5));
+    await dose(18.5, at(20));
+    expect(await left()).toEqual({ grams: 121.5, overLogged: false });
+  });
+
+  it("clears an over-logged portion", async () => {
+    await dose(260, at(-60));
+    expect(await left()).toEqual({ grams: 0, overLogged: true });
+    await addStockCheck(k.portion.id, 30, { now: NOW });
+    expect(await left()).toEqual({ grams: 30, overLogged: false });
+  });
+
+  it("accepts zero but not a negative or missing weight", async () => {
+    expect(await addStockCheckAction(k.portion.id, 0)).toMatchObject({ ok: true });
+    expect(await addStockCheckAction(k.portion.id, -1)).toEqual({ ok: false, error: "badWeight" });
+    expect(await addStockCheckAction(k.portion.id, Number.NaN)).toEqual({ ok: false, error: "badWeight" });
+    expect(await addStockCheckAction(k.portion.id, "12" as unknown as number)).toEqual({ ok: false, error: "badWeight" });
+  });
+
+  it("is only for open or thawed portions", async () => {
+    await setPortionDate(k.portion.id, "freeze", when());
+    await expect(addStockCheck(k.portion.id, 100)).rejects.toMatchObject({ reason: "notAllowed" });
+  });
+
+  it("can't weigh another household's portion", async () => {
+    const other = await makeHousehold(db());
+    signInAs(other.user.firebaseUid);
+    await expect(addStockCheck(k.portion.id, 100)).rejects.toBeInstanceOf(NotFoundError);
   });
 });

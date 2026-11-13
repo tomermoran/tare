@@ -6,6 +6,7 @@ import { batchPortions, stockChecks } from "@/db/schema";
 import { isValidDayKey, localDayKey, localNoon } from "@/domain/localDay";
 import { allowedActions, type DatedAction, type PortionAction } from "@/domain/portionActions";
 import { portionState } from "@/domain/portionState";
+import { MAX_BAG_GRAMS } from "./bags";
 import { getRemaining } from "./remaining";
 import { assertOwned, requireHousehold } from "./scope";
 
@@ -98,4 +99,16 @@ export async function splitPortion(
     }),
   ]);
   return { id };
+}
+
+/**
+ * Weigh what's left (STORY-03-04-02): a stock check on an open or thawed
+ * portion, now. Zero is allowed. The latest check wins and later doses come
+ * off it (AC 2, AC 3), through getRemaining.
+ */
+export async function addStockCheck(portionId: string, grams: number, { now = new Date() }: { now?: Date } = {}): Promise<void> {
+  const portion = await load(portionId);
+  check(portionState(portion), "weigh");
+  if (!Number.isFinite(grams) || grams < 0 || grams > MAX_BAG_GRAMS) throw new InvalidPortionActionError("badWeight");
+  await db.insert(stockChecks).values({ id: newId(), portionId, remainingWeight: Math.round(grams * 10) / 10, checkedAt: now });
 }

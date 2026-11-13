@@ -447,7 +447,10 @@
     "recipes": "Recipes",
     "noRecipes": "Recipes you pin for this coffee will show here.",
     "back": "Beans",
-    "fromFrozen": "From frozen"
+    "fromFrozen": "From frozen",
+    "statusOpen": "Bag open",
+    "statusFinished": "Bag finished",
+    "total": "{grams} left in this bag"
   },
   "portion": {
     "state": {
@@ -487,7 +490,16 @@
     "takeOut": "Take out",
     "splitRemainder": "{grams} stays in this portion",
     "freezeNew": "Freeze the new portion",
-    "splitConfirm": "Split"
+    "splitConfirm": "Split",
+    "remaining": "{grams} left",
+    "meterLabel": "Coffee left",
+    "meter": "{remaining} of {total} left",
+    "overLogged": "The shots logged add up to more than this portion held. Weigh what's left to set it right.",
+    "weigh": "Weigh what's left",
+    "stockTitle": "Weigh what's left",
+    "stockWeight": "Left in this portion",
+    "stockHint": "Weigh the beans without their bag or container.",
+    "saveWeight": "Save weight"
   },
   "milks": {
     "whole": "Whole",

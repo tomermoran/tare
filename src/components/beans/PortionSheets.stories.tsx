@@ -5,7 +5,7 @@ import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { allowedActions } from "@/domain/portionActions";
 import type { PortionState } from "@/domain/portionState";
-import { DateSheet, PortionActionsSheet, SplitSheet } from "./PortionSheets";
+import { DateSheet, PortionActionsSheet, SplitSheet, StockSheet } from "./PortionSheets";
 
 const t = createTranslator({ locale: "en", messages });
 const { actions, portion, states } = messages;
@@ -18,9 +18,7 @@ function Actions({ state }: { state: PortionState }) {
       onClose={fn()}
       title={t("portion.actionsTitle", { state: portion.state[state], remaining: grams(180) })}
       closeLabel={actions.close}
-      actions={allowedActions(state)
-        .filter((a) => a !== "weigh")
-        .map((a) => ({ action: a, label: portion.action[a] }))}
+      actions={allowedActions(state).map((a) => ({ action: a, label: portion.action[a] }))}
       onChoose={fn()}
     />
   );
@@ -50,7 +48,7 @@ export const OnTheCounter: Story = {
   render: () => <Actions state="counter" />,
   play: async () => {
     const canvas = within(document.body);
-    await expect(offered(canvas).map((b: HTMLElement) => b.textContent)).toEqual([portion.action.split, portion.action.freeze, portion.action.finish]);
+    await expect(offered(canvas).map((b: HTMLElement) => b.textContent)).toEqual([portion.action.weigh, portion.action.split, portion.action.freeze, portion.action.finish]);
   },
 };
 
@@ -68,7 +66,7 @@ export const Thawed: Story = {
   play: async () => {
     const canvas = within(document.body);
     // No second freeze after a thaw (AC 3).
-    await expect(offered(canvas).map((b: HTMLElement) => b.textContent)).toEqual([portion.action.open, portion.action.finish]);
+    await expect(offered(canvas).map((b: HTMLElement) => b.textContent)).toEqual([portion.action.open, portion.action.weigh, portion.action.finish]);
   },
 };
 
@@ -157,3 +155,43 @@ export const SplitInHalf: Story = {
 };
 
 export const RightToLeft: Story = { render: () => <Split />, globals: { direction: "rtl" } };
+
+function Stock({ failed, onSave = fn() }: { failed?: boolean; onSave?: () => void }) {
+  const [g, setG] = useState(120);
+  return (
+    <StockSheet
+      open
+      onClose={fn()}
+      labels={{ title: portion.stockTitle, close: actions.close, weight: portion.stockWeight, hint: portion.stockHint, save: portion.saveWeight }}
+      grams={g}
+      max={250}
+      onGramsChange={setG}
+      onSave={onSave}
+      failure={failed ? { message: states.saveFailed, retryLabel: actions.retry, onRetry: onSave } : undefined}
+    />
+  );
+}
+
+/** A grams wheel from zero, one primary to save (STORY-03-04-02 AC 1). */
+export const WeighWhatsLeft: Story = {
+  render: () => <Stock />,
+  play: async () => {
+    const canvas = within(document.body);
+    const wheel = await waitFor(() => canvas.getByRole("slider", { name: portion.stockWeight }));
+    await expect(wheel).toHaveAttribute("aria-valuemin", "0");
+    await expect(wheel).toHaveAttribute("aria-valuemax", "250");
+    await waitFor(() => expect(canvas.getByRole("button", { name: portion.saveWeight })).toBeVisible());
+  },
+};
+
+const retried = fn();
+/** A failed save keeps the sheet, with a retry (STORY-03-04-02 AC 4). */
+export const WeighFailed: Story = {
+  render: () => <Stock failed onSave={retried} />,
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByText(states.saveFailed)).toBeVisible());
+    await userEvent.click(canvas.getByRole("button", { name: actions.retry }));
+    await expect(retried).toHaveBeenCalled();
+  },
+};
