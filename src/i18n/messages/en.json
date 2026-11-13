@@ -95,6 +95,7 @@
     "reactionLabel": "How was it?",
     "reactionGood": "Good",
     "reactionOff": "Off",
+    "reactionFailed": "Couldn't save how it was. Nothing was recorded.",
     "remaining": "{amount} left in this bag",
     "noRecipe": "No recipe yet for this drink and coffee. Dial one in and pin it.",
     "noRecipeOnSetup": "No recipe on this setup yet.",
@@ -699,5 +700,11 @@
     "directionUnknown": "Tell Tare which way your grinder goes coarser",
     "dismiss": "Not now",
     "tryIt": "Dial in with this change"
+  },
+  "off": {
+    "title": "What was off?",
+    "fix": "Fix it",
+    "skip": "Skip",
+    "saveFailed": "Couldn't save what was off. Your answers are kept."
   }
 }
