@@ -69,6 +69,7 @@ async function Builder({ searchParams }: Pick<PageProps<"/setup/builder">, "sear
     partIds: s.parts.map((p) => p.id),
     name: setupLabel(s, tab?.setups ?? [], list),
     recipeCount: t("recipeCount", { count: s.recipeCount }),
+    hasRecipes: s.recipeCount > 0,
   }));
 
   const returnTo = one(params.returnTo);
