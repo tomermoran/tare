@@ -9,6 +9,7 @@ import { ShotDial, type DialField } from "@/components/ui/ShotDial/ShotDial";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { addStart, type BrewDial, type BrewTab, type BrewTabs } from "@/domain/brewControls";
+import { NO_PREP, type Prep, type PrepKey } from "@/domain/prep";
 import { msToSeconds, secondsToMs } from "@/lib/units";
 
 type Mode = "new" | "dialIn" | "fix" | "edit";
@@ -42,13 +43,16 @@ type ShotLogScreenProps = {
   onValuesChange?: (values: DialValues) => void;
   sweetened?: boolean;
   onSweetenedChange?: (sweetened: boolean) => void;
+  /** Puck prep ticks (STORY-01-03-06); controlled, or kept here from `prep`. */
+  prep?: Prep;
+  onPrepChange?: (key: PrepKey, value: boolean) => void;
   /** Fields that can't be changed here are shown read-only. */
   readOnly?: ContextField[];
   /** A Notice under the dial: what's missing, or a failed save. */
   notice?: ReactNode;
   saving?: boolean;
   onCancel?: () => void;
-  onSave?: (values: ShotValuesData, sweetened: boolean, brew: BrewDial) => void;
+  onSave?: (values: ShotValuesData, sweetened: boolean, brew: BrewDial, prep: Prep) => void;
   onPick?: (field: ContextField) => void;
 };
 
@@ -84,6 +88,8 @@ export function ShotLogScreen({
   onValuesChange,
   sweetened: controlledSweetened,
   onSweetenedChange,
+  prep: controlledPrep,
+  onPrepChange,
   readOnly = [],
   notice,
   saving = false,
@@ -102,6 +108,9 @@ export function ShotLogScreen({
   const [ownSweetened, setOwnSweetened] = useState(false);
   const sweetened = controlledSweetened ?? ownSweetened;
   const [selected, setSelected] = useState("grind");
+  const [ownPrep, setOwnPrep] = useState<Prep>(NO_PREP);
+  const prep = controlledPrep ?? ownPrep;
+  const setPrep = (key: PrepKey, value: boolean) => (onPrepChange ? onPrepChange(key, value) : setOwnPrep((p) => ({ ...p, [key]: value })));
 
   // Finer and coarser follow the grinder's direction; unknown shows neither (DQ-11).
   const captions =
@@ -182,11 +191,18 @@ export function ShotLogScreen({
       <p className="mt-2 text-center text-label text-ink-secondary">
         {tShot("ratio", { ratio: format.number(values.yield / values.dose, { maximumFractionDigits: 1 }) })}
       </p>
+      <section aria-labelledby="log-prep" className="mt-5 border-t border-line pt-4">
+        <h2 id="log-prep" className="text-overline uppercase text-ink-secondary">
+          {t("prep")}
+        </h2>
+        <Toggle label={t("prepWdt")} checked={prep.wdt} onChange={(v) => setPrep("wdt", v)} className="py-3" />
+        <Toggle label={t("prepPuckScreen")} checked={prep.puckScreen} onChange={(v) => setPrep("puckScreen", v)} className="py-3" />
+      </section>
       <Toggle
         label={t("sweetened")}
         checked={sweetened}
         onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
-        className="mt-5 border-t border-line py-4"
+        className="mt-2 border-t border-line py-4"
       />
       {notice && <div className="mt-2">{notice}</div>}
       {/* Pinned above the safe area, so Save is always in reach; the toggles may scroll under it. */}
@@ -201,6 +217,7 @@ export function ShotLogScreen({
               { grind: values.grind, dose: values.dose, yield: values.yield, timeMs: secondsToMs(values.time) },
               sweetened,
               { temperature: values.temperature ?? null, pressure: values.pressure ?? null },
+              prep,
             )
           }
         >

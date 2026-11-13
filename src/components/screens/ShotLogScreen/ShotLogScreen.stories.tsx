@@ -10,6 +10,7 @@ const { actions, log, shot, states } = messages;
 
 /** Temperature and pressure, untouched on a machine without them. */
 const unset = { temperature: null, pressure: null };
+const noPrep = { wdt: false, puckScreen: false };
 
 const meta = {
   title: "Screens/Shot log",
@@ -44,7 +45,7 @@ export const DialIn: Story = {
     wheel.focus();
     await userEvent.keyboard("{ArrowRight}{ArrowRight}");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, timeMs: 27_800 }, false, unset);
+    await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, timeMs: 27_800 }, false, unset, noPrep);
   },
 };
 
@@ -107,7 +108,7 @@ export const TimeInSeconds: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27.6");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ timeMs: 27_600 }), false, unset);
+    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ timeMs: 27_600 }), false, unset, noPrep);
   },
 };
 
@@ -149,7 +150,7 @@ export const Sweetened: Story = {
     await expect(toggle).not.toBeChecked();
     await userEvent.click(toggle);
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), true, unset);
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), true, unset, noPrep);
   },
 };
 
@@ -162,7 +163,7 @@ export const GermanNumbers: Story = {
     await expect(canvas.getByRole("tab", { name: /Dose/ })).toHaveTextContent("18,5");
     await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27,6");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ dose: 18.5, timeMs: 27_600 }), false, unset);
+    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ dose: 18.5, timeMs: 27_600 }), false, unset, noPrep);
   },
 };
 
@@ -203,7 +204,7 @@ export const WithTemperatureAndPressure: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: /Temperature/ }));
     await userEvent.click(canvas.getByRole("button", { name: messages.log.addTemperature }));
     await userEvent.click(canvas.getByRole("button", { name: messages.log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), false, { temperature: 2, pressure: null });
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), false, { temperature: 2, pressure: null }, noPrep);
   },
 };
 
@@ -211,5 +212,26 @@ export const WithTemperatureAndPressure: Story = {
 export const FixedMachine: Story = {
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getAllByRole("tab")).toHaveLength(4);
+  },
+};
+
+/** WDT and puck screen are separate one-tap ticks, saved with the shot (STORY-01-03-06 AC 1). */
+export const PuckPrep: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("region", { name: log.prep })).toBeVisible();
+    await userEvent.click(canvas.getByRole("switch", { name: log.prepWdt }));
+    await userEvent.click(canvas.getByRole("button", { name: log.save }));
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), false, unset, { wdt: true, puckScreen: false });
+  },
+};
+
+/** A blank log starts with the last shot's ticks on this setup (AC 3). */
+export const PrepFromLastShot: Story = {
+  args: { prep: { wdt: true, puckScreen: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("switch", { name: log.prepWdt })).toBeChecked();
+    await expect(canvas.getByRole("switch", { name: log.prepPuckScreen })).toBeChecked();
   },
 };
