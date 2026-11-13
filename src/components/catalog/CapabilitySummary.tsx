@@ -82,6 +82,7 @@ export function useCapabilityLines() {
       ];
     }
     const { dose } = capabilities as BasketCapabilities;
+    if (!dose) return [t("cap.doseUnknown")];
     return [t("cap.dose", { min: num(dose.min, "gram"), max: num(dose.max, "gram") })];
   };
 }

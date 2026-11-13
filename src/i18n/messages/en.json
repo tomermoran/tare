@@ -179,7 +179,8 @@
       "coarserHigher": "Higher numbers are coarser",
       "coarserLower": "Lower numbers are coarser",
       "coarserUnknown": "Which way is coarser: not sure",
-      "dose": "Made for {min} to {max} of coffee"
+      "dose": "Made for {min} to {max} of coffee",
+      "doseUnknown": "Dose range: not sure"
     },
     "barValue": "{value} bar",
     "addTitle": "Add a part",
@@ -309,7 +310,45 @@
     "addSoonTitle": "Adding to the catalog is coming",
     "addSoon": "For now, pick the closest match, or go back and try another search.",
     "boughtBefore": "Bought before",
-    "allRoasters": "All roasters"
+    "allRoasters": "All roasters",
+    "addTitle": {
+      "machine": "Add a machine",
+      "grinder": "Add a grinder",
+      "basket": "Add a basket",
+      "coffee": "Add a coffee"
+    },
+    "url": "Product page link",
+    "urlHint": "The maker's or a shop's page for it. Tare checks it isn't here already.",
+    "checking": "Checking the link…",
+    "checkFailed": "Couldn't check the link just now. You can still add it; it's checked again when you save.",
+    "urlMissing": "Add a link to its product page to save it.",
+    "duplicateFound": "“{name}” by {maker} is already in the catalog with this link.",
+    "useExisting": "Use it",
+    "maker": "Maker",
+    "chooseMaker": "Choose",
+    "newMaker": "New maker",
+    "makerName": "Maker name",
+    "makerUrl": "Maker's website",
+    "makerUrlHint": "A new maker needs a link too.",
+    "makerMissing": "Choose the maker, or add a new one.",
+    "makerNameMissing": "Add the maker's name.",
+    "makerUrlMissing": "Add a link to the maker's website.",
+    "model": "Model name",
+    "modelBasketHint": "Include what tells it apart, such as 18 g.",
+    "modelMissing": "Add the model's name.",
+    "kind": "What kind",
+    "save": "Add to the catalog",
+    "saveFailedTitle": "Couldn't add it",
+    "cap": {
+      "title": "What it can do",
+      "why": "So the shot log shows the right fields. Skip anything you're not sure of; it saves as not sure.",
+      "doseQ": "How many grams is it made for?",
+      "doseRange": "{min} to {max}",
+      "other": "Other",
+      "notSure": "Not sure",
+      "doseMin": "Lowest",
+      "doseMax": "Highest"
+    }
   },
   "bag": {
     "addTitle": "Add a bag",
