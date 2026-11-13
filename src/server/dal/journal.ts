@@ -16,6 +16,7 @@ import {
   setups,
 } from "@/db/schema";
 import type { HardwareKind } from "@/domain/capabilities";
+import { isFromFrozen } from "@/domain/frozen";
 import { localDayKey } from "@/domain/localDay";
 import type { BrewValues } from "@/domain/brewControls";
 import type { TasteTag } from "@/domain/taste";
@@ -63,11 +64,6 @@ export type JournalPage = { shots: JournalShot[]; older: JournalCursor | null };
 /** Before a cursor, in (created_at, id) order. */
 const beforeCursor = (c: JournalCursor): SQL =>
   or(lt(extractions.createdAt, new Date(c.at)), and(eq(extractions.createdAt, new Date(c.at)), lt(extractions.id, c.id)))!;
-
-const wasFrozen = (
-  at: Date,
-  p: { frozenAt: Date | null; thawedAt: Date | null },
-) => !!p.frozenAt && p.frozenAt <= at && !(p.thawedAt && p.thawedAt >= p.frozenAt && p.thawedAt <= at);
 
 export async function listJournal({
   before,
@@ -152,7 +148,7 @@ export async function listJournal({
       entryMode: r.entryMode,
       reaction: r.reaction ?? null,
       tags: r.tags ?? [],
-      fromFrozen: wasFrozen(r.at, r),
+      fromFrozen: isFromFrozen(r.at, r),
       grinderId: grinderOf.get(r.setupId) ?? null,
     })),
     older: more ? edge : null,
@@ -236,7 +232,7 @@ export async function getShot(id: string): Promise<ShotDetail> {
     entryMode: s.entryMode,
     reaction: s.reaction ?? null,
     tags: s.tasteTags ?? [],
-    fromFrozen: wasFrozen(s.createdAt, r),
+    fromFrozen: isFromFrozen(s.createdAt, r),
     setup: { id: s.setupId, name: r.setupName, parts },
     sweetened: s.sweetened === true,
     milkDrink: r.hasMilk,
