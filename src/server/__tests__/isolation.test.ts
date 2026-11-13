@@ -19,6 +19,7 @@ import {
 } from "@/server/dal/scope";
 import { addPart, getPart, getPartModel, getSetupTab } from "@/server/dal/parts";
 import { getSetupSuggestion, previewSetup, resolveSetup } from "@/server/dal/setups";
+import { addBag, getBagBean } from "@/server/dal/bags";
 import { createTestDb } from "@/test/db";
 import { makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -168,5 +169,24 @@ describe("setups", () => {
 
   it("bases the suggestion on my setups only", async () => {
     await expect(getSetupSuggestion()).resolves.toBeNull();
+  });
+});
+
+describe("bags", () => {
+  it("won't add a bag of another household's unverified coffee", async () => {
+    const db = testContext.db!;
+    const id = newId();
+    await db.insert(canonicalBeans).values({
+      id, roasterId: theirs.bean.roasterId, name: "Their private coffee", source: "user", status: "unverified",
+      createdByHouseholdId: theirs.household.id, createdAt: new Date(),
+    });
+    await expect(addBag({ beanId: id, bagWeight: 250 })).rejects.toBeInstanceOf(NotFoundError);
+    await expect(getBagBean(id)).resolves.toBeNull();
+  });
+
+  it("puts a new bag in my household", async () => {
+    const { batchId } = await addBag({ beanId: mine.bean.id, bagWeight: 250 });
+    const { householdId } = await requireHousehold();
+    await expect(assertOwned("batches", batchId, householdId)).resolves.toBeUndefined();
   });
 });
