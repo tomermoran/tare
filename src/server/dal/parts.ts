@@ -6,6 +6,7 @@ import { canonicalHardware, hardwareMakers, ownedHardware, pinnedRecipes, setupP
 import type { HardwareKind } from "@/domain/capabilities";
 import { resolveEntity } from "./catalogMerge";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
+import { canEditCapabilities } from "./modelCapabilities";
 
 /*
  * The household's parts (STORY-01-02-02): the machines, grinders and baskets
@@ -129,7 +130,9 @@ export async function getSetupTab(): Promise<{
 }
 
 /** One part, with the household's setups it's in (AC 5). */
-export async function getPart(id: string): Promise<Part & { capabilities: unknown; setups: SetupSummary[] }> {
+export async function getPart(
+  id: string,
+): Promise<Part & { capabilities: unknown; capabilitiesEditable: boolean; setups: SetupSummary[] }> {
   const { householdId } = await requireHousehold();
   await assertOwned("ownedHardware", id, householdId);
   const [part] = await partsOf(householdId, [id]);
@@ -138,7 +141,12 @@ export async function getPart(id: string): Promise<Part & { capabilities: unknow
     .from(canonicalHardware)
     .where(eq(canonicalHardware.id, part.hardwareId));
   const all = await setupsOf(householdId, await partsOf(householdId));
-  return { ...part, capabilities, setups: all.filter((s) => s.parts.some((p) => p.id === id)) };
+  return {
+    ...part,
+    capabilities,
+    capabilitiesEditable: await canEditCapabilities(householdId, part.hardwareId),
+    setups: all.filter((s) => s.parts.some((p) => p.id === id)),
+  };
 }
 
 export type PartModel = {

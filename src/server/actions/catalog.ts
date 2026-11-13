@@ -1,7 +1,7 @@
 "use server";
 
 import type { HardwareKind } from "@/domain/capabilities";
-import { runAction, type ActionError } from "@/lib/actionResult";
+import { fail, runAction, type ActionError, type ActionResult } from "@/lib/actionResult";
 import {
   createCoffeeEntry,
   createHardwareEntry,
@@ -12,6 +12,7 @@ import {
   type CoffeeEntryInput,
   type HardwareEntryInput,
 } from "@/server/dal/catalogAdd";
+import { updateModelCapabilities } from "@/server/dal/modelCapabilities";
 
 /**
  * What saving a catalog entry returns. Besides the usual failures: a link
@@ -45,4 +46,10 @@ export async function createHardwareEntryAction(input: HardwareEntryInput): Prom
 /** SCR-CATALOG-ADD's save for a coffee (STORY-01-06-02). */
 export async function createCoffeeEntryAction(input: CoffeeEntryInput): Promise<CatalogResult<{ id: string }>> {
   return run(() => createCoffeeEntry(input));
+}
+
+/** Answering later: new capabilities for the household's own unverified model (STORY-01-06-09). */
+export async function updateModelCapabilitiesAction(input: { hardwareId: string; capabilities: unknown }): Promise<ActionResult<{ id: string }>> {
+  if (typeof input?.hardwareId !== "string" || !input.hardwareId) return fail("notFound");
+  return runAction(() => updateModelCapabilities(input.hardwareId, input.capabilities));
 }

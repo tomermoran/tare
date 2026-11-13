@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { AnswerLater } from "@/components/catalog/AnswerLater";
 import { CapabilitySummary } from "@/components/catalog/CapabilitySummary";
 import { UnitScreen, type UnitFact } from "@/components/screens/UnitScreen/UnitScreen";
 import { setupLabel } from "@/domain/setupName";
@@ -43,6 +44,11 @@ export default async function PartPage({ params }: PageProps<"/setup/parts/[unit
       subtitle={t("setup.partName", { maker: part.maker, model: part.model })}
       facts={facts}
       capabilities={<CapabilitySummary kind={part.kind} capabilities={part.capabilities} />}
+      answerLater={
+        part.capabilitiesEditable ? (
+          <AnswerLater hardwareId={part.hardwareId} kind={part.kind} capabilities={part.capabilities} />
+        ) : undefined
+      }
       setups={setups
         .filter((s) => s.parts.some((p) => p.id === part.id))
         .map((s) => ({ id: s.id, name: setupLabel(s, setups, list), current: s.current }))}
