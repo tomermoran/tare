@@ -5,7 +5,7 @@
  * localised symbol ("g", "s", "°C") and no unit strings live in our code.
  * Pressure (bar) has no Intl unit; pass its label from the messages instead.
  */
-export type CanonicalUnit = "gram" | "second" | "celsius";
+export type CanonicalUnit = "gram" | "second" | "celsius" | "fahrenheit";
 
 /** Stored shot time (ms) → displayed seconds, to one decimal like a scale timer. */
 export function msToSeconds(ms: number) {
@@ -15,6 +15,20 @@ export function msToSeconds(ms: number) {
 /** Displayed seconds → stored shot time (whole ms). */
 export function secondsToMs(seconds: number) {
   return Math.round(seconds * 1000);
+}
+
+/**
+ * Temperature is stored in °C (S-08). A machine that shows °F is display
+ * only: the wheel works in °F at the machine's step, and saving converts
+ * back. Stored °C keeps four decimals, so every whole °F round-trips.
+ */
+export function celsiusToFahrenheit(c: number, step = 0) {
+  const f = (c * 9) / 5 + 32;
+  return step > 0 ? Number((Math.round(f / step) * step).toFixed(decimalsOf(step))) : f;
+}
+
+export function fahrenheitToCelsius(f: number) {
+  return Math.round((((f - 32) * 5) / 9) * 10_000) / 10_000;
 }
 
 /** The locale's decimal mark: "." in English, "," in German. */
@@ -78,7 +92,8 @@ export function formatValueParts(
   const parts = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-    ...(unit && { style: "unit", unit, unitDisplay: "narrow" }),
+    // Narrow drops the scale for temperature ("93°"), so °C and °F use short.
+    ...(unit && { style: "unit", unit, unitDisplay: unit === "celsius" || unit === "fahrenheit" ? "short" : "narrow" }),
   }).formatToParts(value);
   return {
     number: parts
