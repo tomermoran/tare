@@ -44,6 +44,9 @@ export type MeasuredShot = {
   /** Milliseconds. */
   timeMs: number;
   sweetened?: boolean;
+  /** Puck prep (STORY-01-03-06); never part of the setup. */
+  usedWdt?: boolean;
+  usedPuckScreen?: boolean;
 } & Partial<BrewValues>;
 
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -93,6 +96,8 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
     portionId: input.portionId,
     drinkTypeId: input.drinkTypeId,
     sweetened: input.sweetened === true,
+    usedWdt: input.usedWdt === true,
+    usedPuckScreen: input.usedPuckScreen === true,
     entryMode: "measured",
     grindSize: input.grind,
     doseWeight: input.dose,

@@ -16,6 +16,7 @@ import {
 } from "@/db/schema";
 import { parseCapabilities, type GrindScale, type MachineCapabilities } from "@/domain/capabilities";
 import { NO_BREW_VALUES, type BrewValues } from "@/domain/brewControls";
+import { prepStart, type Prep } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { isOpen, portionState, type PortionState } from "@/domain/portionState";
 import { resolveEntity } from "./catalogMerge";
@@ -247,6 +248,8 @@ export type StartingValues = {
   timeMs: number;
   /** The last temperature and pressure used on this setup, where "add" starts. New shots start unset (AC 2). */
   lastBrew: BrewValues;
+  /** Puck prep: as on the last shot on this setup, or both off (STORY-01-03-06 AC 3). */
+  prep: Prep;
 };
 
 /**
@@ -257,6 +260,14 @@ export type StartingValues = {
 export async function getStartingValues(setupId: string): Promise<StartingValues> {
   const { householdId } = await requireHousehold();
   await assertOwned("setups", setupId, householdId);
+  // Any shot counts for prep: a one-tap pull copies its recipe's ticks.
+  const [lastAny] = await db
+    .select({ wdt: extractions.usedWdt, puckScreen: extractions.usedPuckScreen })
+    .from(extractions)
+    .where(and(eq(extractions.householdId, householdId), eq(extractions.setupId, setupId)))
+    .orderBy(desc(extractions.createdAt))
+    .limit(1);
+  const prep = prepStart({ lastShotOnSetup: lastAny ?? null });
   const [last] = await db
     .select({
       grind: extractions.grindSize,
@@ -280,7 +291,7 @@ export async function getStartingValues(setupId: string): Promise<StartingValues
     .limit(1);
   if (last) {
     const { brewTempC, brewTempStep, pressureBar, pressureStep, ...values } = last;
-    return { ...values, lastBrew: { brewTempC, brewTempStep, pressureBar, pressureStep } };
+    return { ...values, lastBrew: { brewTempC, brewTempStep, pressureBar, pressureStep }, prep };
   }
 
   const [grinder] = await db
@@ -290,5 +301,5 @@ export async function getStartingValues(setupId: string): Promise<StartingValues
     .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
     .where(and(eq(setupParts.setupId, setupId), eq(canonicalHardware.kind, "grinder")));
   const scale = grinder ? parseCapabilities("grinder", grinder.capabilities)?.grind : null;
-  return { grind: middleGrind(grindWheelConfig(scale)), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES };
+  return { grind: middleGrind(grindWheelConfig(scale)), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES, prep };
 }
