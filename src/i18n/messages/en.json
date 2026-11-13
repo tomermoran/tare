@@ -166,10 +166,17 @@
   },
   "beans": {
     "title": "Beans",
-    "emptyTitle": "No coffee yet",
-    "empty": "Bags you add will show up here, with how much is left.",
+    "emptyTitle": "No beans yet",
+    "empty": "Add the bag you're brewing from. Tare keeps track of how much is left.",
     "roastDate": "Roast date",
-    "roastDateHint": "On the bag, often near the seal."
+    "roastDateHint": "On the bag, often near the seal.",
+    "addBag": "Add a bag",
+    "onHand": "On hand",
+    "onHandEmptyTitle": "Nothing on hand",
+    "onHandEmpty": "Add a bag when you buy more.",
+    "tried": "Tried",
+    "triedEmpty": "Coffees you brew will appear here.",
+    "portions": "Portions"
   },
   "setup": {
     "title": "Setup",
@@ -271,6 +278,21 @@
     "lot": "Lot code",
     "purchased": "Bought on",
     "save": "Add bag",
-    "saveFailedTitle": "Couldn't add the bag"
+    "saveFailedTitle": "Couldn't add the bag",
+    "facts": "About this bag",
+    "bagWeight": "Weight",
+    "notGiven": "Not on the bag",
+    "recipes": "Recipes",
+    "noRecipes": "Recipes you pin for this coffee will show here.",
+    "back": "Beans"
+  },
+  "portion": {
+    "state": {
+      "unopened": "Unopened",
+      "counter": "Open",
+      "thawed": "Thawed",
+      "frozen": "Frozen",
+      "finished": "Finished"
+    }
   }
 }
