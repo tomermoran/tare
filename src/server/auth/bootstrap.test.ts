@@ -1,8 +1,11 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/db/client";
-import { drinkTypes, householdMembers, households, personas, users } from "@/db/schema";
+import messages from "@/i18n/messages/en.json";
+import { drinkTypes, householdMembers, households, milkTypes, personas, users } from "@/db/schema";
+import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { STARTER_DRINKS } from "@/domain/starterDrinks";
+import { STARTER_MILKS } from "@/domain/starterMilks";
 import { createTestDb } from "@/test/db";
 import { ensureAccount } from "./bootstrap";
 
@@ -40,8 +43,23 @@ describe("ensureAccount", () => {
     expect(members[0].role).toBe("owner");
   });
 
-  // Starter milks arrive in wave 6; TASK-01-01-08-QA1 adds these checks.
-  it.todo("gives a new household the seven starter milks, atomically and idempotently");
+  it("gives a new household the seven starter milks, kinds not brands (STORY-01-01-08 AC 1, AC 4)", async () => {
+    const { householdId } = await ensureAccount(db, "test-uid-a");
+    const milks = await db.select().from(milkTypes).where(eq(milkTypes.householdId, householdId)).orderBy(milkTypes.sortOrder);
+    expect(milks.map((m) => m.nameKey)).toEqual(STARTER_MILKS.map((m) => m.nameKey));
+    expect(milks.every((m) => m.name === null && !m.hidden)).toBe(true);
+    const t = (key: MilkKey) => messages.milks[key.split(".")[1] as keyof typeof messages.milks];
+    expect(milks.map((m) => milkLabel(m, t))).toEqual(["Whole", "Semi-skimmed", "Skimmed", "Oat", "Soy", "Almond", "Lactose-free"]);
+  });
+
+  it("gives each household its own milks, once (STORY-01-01-08 AC 3)", async () => {
+    const a = await ensureAccount(db, "test-uid-a");
+    await ensureAccount(db, "test-uid-a");
+    const b = await ensureAccount(db, "test-uid-b");
+    const owners = (await db.select().from(milkTypes)).map((m) => m.householdId);
+    expect(owners.filter((h) => h === a.householdId)).toHaveLength(7);
+    expect(owners.filter((h) => h === b.householdId)).toHaveLength(7);
+  });
 
   it("returns the same account on a second launch and creates nothing", async () => {
     const first = await ensureAccount(db, "test-uid-a");
