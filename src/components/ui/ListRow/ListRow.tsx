@@ -10,11 +10,13 @@ type ListRowProps = {
   footer?: ReactNode;
   /** Makes the whole row one button. */
   onClick?: () => void;
+  /** Marks the row as the current choice for assistive tech (a button row only). */
+  current?: boolean;
   className?: string;
 };
 
 /** A hairline-separated list row (NC-03). Lighter than a Card, for lists. */
-export function ListRow({ primary, secondary, end, footer, onClick, className }: ListRowProps) {
+export function ListRow({ primary, secondary, end, footer, onClick, current, className }: ListRowProps) {
   const content = (
     <>
       <span className="flex min-w-0 flex-col">
@@ -30,7 +32,7 @@ export function ListRow({ primary, secondary, end, footer, onClick, className }:
     className,
   );
   return onClick ? (
-    <button type="button" onClick={onClick} className={cx(classes, "transition-colors hover:bg-surface")}>
+    <button type="button" onClick={onClick} aria-current={current || undefined} className={cx(classes, "transition-colors hover:bg-surface")}>
       {content}
     </button>
   ) : (
