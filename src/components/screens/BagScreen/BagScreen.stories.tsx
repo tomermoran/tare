@@ -36,12 +36,15 @@ type Story = StoryObj<typeof meta>;
 
 /** A new bag: one portion holding the whole bag, facts once at the top (AC 2). */
 export const OnePortion: Story = {
+  args: { labels: { ...labels, addRecipe: messages.recipe.add }, addRecipeHref: "/log?mode=recipe&batchId=b1" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("heading", { level: 1, name: "Morning Blend" })).toBeVisible();
     await expect(canvas.getAllByRole("term").map((t) => t.textContent)).toEqual(facts.map((f) => f.label));
     await expect(within(canvas.getByRole("region", { name: messages.beans.portions })).getAllByRole("listitem")).toHaveLength(1);
     await expect(canvas.getByText(bag.noRecipes)).toBeVisible();
+    // Typing in a recipe opens the log's recipe mode (STORY-02-01-02 AC 1).
+    await expect(canvas.getByRole("link", { name: messages.recipe.add })).toHaveAttribute("href", "/log?mode=recipe&batchId=b1");
   },
 };
 

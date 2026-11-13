@@ -336,3 +336,18 @@ export const EditKeepsAnOldValue: Story = {
     await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, grind: 44 }, false, unset, noPrep);
   },
 };
+
+/** Pinning a recipe, not logging a shot: its own title and button, no sweetened (STORY-02-01-02 AC 4). */
+export const RecipeMode: Story = {
+  args: { mode: "recipe", readOnly: ["coffee"], milk: { name: messages.milks.oat, startMl: 120 } },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: log.titleRecipe })).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: log.save })).toBeNull();
+    await expect(canvas.queryByRole("switch", { name: log.sweetened })).toBeNull();
+    await expect(canvas.getByRole("switch", { name: log.prepWdt })).toBeVisible();
+    await expect(canvas.getByRole("tab", { name: new RegExp(log.milkAmount) })).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: messages.recipe.pinThis }));
+    await expect(args.onSave).toHaveBeenCalled();
+  },
+};

@@ -306,3 +306,29 @@ export async function pinEnteredRecipe(input: EnteredRecipe, now = new Date()): 
   const { key, values } = await entered(input);
   return insert(householdId, key, values, null, now);
 }
+
+/**
+ * The recipe mode's start (STORY-02-01-02): the bag's coffee and the current
+ * recipe for it on this setup and drink, with the default persona. Another
+ * household's bag is not found.
+ */
+export async function getRecipeForBag(input: { batchId: string; setupId: string; drinkTypeId: string }): Promise<{
+  bean: { id: string; name: string };
+  recipe: Recipe | null;
+}> {
+  const { householdId } = await requireHousehold();
+  await Promise.all([
+    assertOwned("batches", input.batchId, householdId),
+    assertOwned("setups", input.setupId, householdId),
+    assertOwned("drinkTypes", input.drinkTypeId, householdId),
+  ]);
+  const [[bag], [persona]] = await Promise.all([
+    db.select({ beanId: batches.beanId }).from(batches).where(eq(batches.id, input.batchId)),
+    db.select({ id: personas.id }).from(personas).where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true))),
+  ]);
+  if (!persona) throw new NotFoundError();
+  const beanId = (await resolveEntity(db, canonicalBeans, bag.beanId)) ?? bag.beanId;
+  const [bean] = await db.select({ id: canonicalBeans.id, name: canonicalBeans.name }).from(canonicalBeans).where(eq(canonicalBeans.id, beanId));
+  const recipe = await getCurrentRecipe({ beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId });
+  return { bean, recipe };
+}

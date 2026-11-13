@@ -37,7 +37,9 @@ export default async function BagPage({ params }: PageProps<"/beans/[batchId]">)
         portions: t("beans.portions"),
         recipes: t("bag.recipes"),
         noRecipes: t("bag.noRecipes"),
+        addRecipe: t("recipe.add"),
       }}
+      addRecipeHref={`/log?mode=recipe&batchId=${bag.id}`}
       backHref="/beans"
       bean={bag.bean.name}
       roaster={bag.bean.roasterName}

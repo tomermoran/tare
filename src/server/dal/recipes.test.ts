@@ -7,6 +7,7 @@ import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
 import {
   enteredPinPreview,
+  getRecipeForBag,
   getCurrentRecipe,
   listCurrentRecipesForBean,
   OneTapPinError,
@@ -191,5 +192,21 @@ describe("pin actions", () => {
     ).toEqual({ ok: false, error: "saveFailed" });
     expect(await pinFromShotAction("")).toEqual({ ok: false, error: "notFound" });
     expect(await db().select().from(pinnedRecipes)).toEqual([]);
+  });
+});
+
+describe("getRecipeForBag", () => {
+  const input = () => ({ batchId: k.batch.id, setupId: k.setup.id, drinkTypeId: k.drinks.espresso.id });
+
+  it("gives the bag's coffee and its current recipe on this setup and drink", async () => {
+    expect(await getRecipeForBag(input())).toEqual({ bean: { id: k.bean.id, name: k.bean.name }, recipe: null });
+    await pinFromShot(await shot(), at(1));
+    expect((await getRecipeForBag(input())).recipe).toMatchObject({ grind: 15 });
+    expect((await getRecipeForBag({ ...input(), drinkTypeId: k.drinks.latte.id })).recipe).toBeNull();
+  });
+
+  it("doesn't find another household's bag", async () => {
+    signInAs((await makeHousehold(db())).user.firebaseUid);
+    await expect(getRecipeForBag(input())).rejects.toBeInstanceOf(NotFoundError);
   });
 });
