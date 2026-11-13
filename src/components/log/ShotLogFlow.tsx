@@ -11,6 +11,7 @@ import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/Sele
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { brewToStored, type BrewDial, type BrewTabs } from "@/domain/brewControls";
 import type { GrindWheel } from "@/domain/grind";
+import { milkAfterDrinkChange, milkStart, type MilkKey } from "@/domain/milk";
 import type { Prep, PrepKey } from "@/domain/prep";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
@@ -37,7 +38,14 @@ type Draft = {
   prep: Prep;
   /** Ticks the user changed, which a setup change leaves alone (STORY-01-03-06 AC 4). */
   prepTouched: PrepKey[];
+  /** A milk drink's milk; the amount is `values.milk`. */
+  milkTypeId: string | null;
+  /** Milk values the user changed, which a drink change leaves alone (STORY-01-03-07 AC 5). */
+  milkTouched: MilkKey[];
 };
+
+/** What the log needs about each drink's milk. */
+export type DrinkMilk = { hasMilk: boolean; typicalMilkMl: number | null; lastMilkTypeId: string | null };
 
 export function ShotLogFlow({
   setupId,
@@ -52,6 +60,8 @@ export function ShotLogFlow({
   brew,
   brewLast,
   prep,
+  drinkMilk,
+  milks,
   resume,
 }: {
   setupId: string | null;
@@ -71,14 +81,34 @@ export function ShotLogFlow({
   brewLast: BrewDial;
   /** Where the puck prep ticks start (prepStart). */
   prep: Prep;
+  /** Each drink's milk facts, by drink ID. */
+  drinkMilk: Record<string, DrinkMilk>;
+  /** The household's visible milks, in list order. */
+  milks: SelectOption[];
   resume: boolean;
 }) {
   const t = useTranslations();
   const router = useRouter();
 
-  const fresh = (): Draft => ({ drinkId: defaultDrinkId, portionId: defaultPortionId, values: toDial(start), sweetened: false, prep, prepTouched: [] });
+  const milkFor = (drinkId: string | null) => {
+    const drink = drinkId ? drinkMilk[drinkId] : undefined;
+    return drink ? milkStart({ drink, lastMilkOfDrink: drink.lastMilkTypeId, milks }) : null;
+  };
+  const fresh = (): Draft => {
+    const milk = milkFor(defaultDrinkId);
+    return {
+      drinkId: defaultDrinkId,
+      portionId: defaultPortionId,
+      values: { ...toDial(start), ...(milk && { milk: milk.ml }) },
+      sweetened: false,
+      prep,
+      prepTouched: [],
+      milkTypeId: milk?.milkTypeId ?? null,
+      milkTouched: [],
+    };
+  };
   const [draft, setDraft] = useState<Draft>(fresh);
-  const [sheet, setSheet] = useState<"drink" | "coffee" | null>(null);
+  const [sheet, setSheet] = useState<"drink" | "coffee" | "milk" | null>(null);
   const [missing, setMissing] = useState<"setup" | "coffee" | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed" | "portionFinished">("idle");
 
@@ -93,6 +123,8 @@ export function ShotLogFlow({
       // Drafts from before puck prep have no ticks.
       prep: saved.prep ?? prep,
       prepTouched: saved.prepTouched ?? [],
+      milkTypeId: known(saved.milkTypeId ?? null, milks),
+      milkTouched: saved.milkTouched ?? [],
       drinkId: known(saved.drinkId, drinks) ?? defaultDrinkId,
       portionId: selectedPortionId ?? known(saved.portionId, portions) ?? defaultPortionId,
     });
@@ -112,7 +144,11 @@ export function ShotLogFlow({
   );
 
   const startDial = toDial(start);
+  const startMilk = milkFor(draft.drinkId);
+  const freshMilk = milkFor(defaultDrinkId);
   const dirty =
+    draft.milkTouched.length > 0 ||
+    draft.milkTypeId !== (freshMilk?.milkTypeId ?? null) ||
     draft.drinkId !== defaultDrinkId ||
     draft.portionId !== defaultPortionId ||
     draft.sweetened ||
@@ -138,7 +174,7 @@ export function ShotLogFlow({
   const onPick = (field: ContextField) => {
     if (field === "setup") return setup ? undefined : sideTrip(BUILDER_PATH);
     if (field === "coffee" && portions.length === 0) return sideTrip(ADD_BAG_PATH);
-    setSheet(field === "drink" ? "drink" : "coffee");
+    setSheet(field);
   };
 
   const label = (list: SelectOption[], id: string | null) => list.find((o) => o.id === id)?.primary ?? "";
@@ -157,6 +193,10 @@ export function ShotLogFlow({
       sweetened,
       usedWdt: ticks.wdt,
       usedPuckScreen: ticks.puckScreen,
+      // Milk only for a milk drink with a milk chosen (STORY-01-03-07 AC 2, AC 6).
+      ...(startMilk && draft.milkTypeId
+        ? { milkTypeId: draft.milkTypeId, milkMl: draft.values.milk ?? startMilk.ml }
+        : { milkTypeId: null, milkMl: null }),
     });
     if (!result.ok) {
       // Values stay as they are, so trying again sends the same shot (AC 4).
@@ -190,7 +230,14 @@ export function ShotLogFlow({
         brew={brew}
         brewLast={brewLast}
         values={draft.values}
-        onValuesChange={(values) => setDraft((d) => ({ ...d, values }))}
+        onValuesChange={(values) =>
+          setDraft((d) => ({
+            ...d,
+            values,
+            milkTouched: values.milk !== d.values.milk ? [...new Set<MilkKey>([...d.milkTouched, "ml"])] : d.milkTouched,
+          }))
+        }
+        milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: startMilk.ml } : null}
         sweetened={draft.sweetened}
         onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened }))}
         prep={draft.prep}
@@ -222,7 +269,19 @@ export function ShotLogFlow({
         options={drinks}
         value={draft.drinkId}
         onChoose={(drinkId) => {
-          setDraft((d) => ({ ...d, drinkId }));
+          setDraft((d) => {
+            // Untouched milk values follow the new drink; none for a drink without milk (AC 5).
+            const current = milkFor(d.drinkId) ? { milkTypeId: d.milkTypeId, ml: d.values.milk ?? 0 } : null;
+            const next = milkAfterDrinkChange(current, new Set(d.milkTouched), milkFor(drinkId));
+            const { milk: _old, ...rest } = d.values;
+            void _old;
+            return {
+              ...d,
+              drinkId,
+              milkTypeId: next?.milkTypeId ?? null,
+              values: next ? { ...rest, milk: next.ml } : rest,
+            };
+          });
           setSheet(null);
         }}
       />
@@ -240,6 +299,18 @@ export function ShotLogFlow({
           setSheet(null);
         }}
         footerRow={{ label: t("log.addBag"), onClick: () => sideTrip(ADD_BAG_PATH) }}
+      />
+      <SelectSheet
+        open={sheet === "milk"}
+        onClose={() => setSheet(null)}
+        title={t("log.milk")}
+        closeLabel={t("actions.close")}
+        options={milks}
+        value={draft.milkTypeId}
+        onChoose={(milkTypeId) => {
+          setDraft((d) => ({ ...d, milkTypeId, milkTouched: [...new Set<MilkKey>([...d.milkTouched, "milkTypeId"])] }));
+          setSheet(null);
+        }}
       />
       {confirm}
     </>

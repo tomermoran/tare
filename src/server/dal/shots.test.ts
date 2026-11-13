@@ -1,6 +1,8 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { batchPortions, canonicalHardware, extractions, ownedHardware, setupParts } from "@/db/schema";
+import { newId } from "@/db/ids";
+import { batchPortions, canonicalHardware, extractions, milkTypes, ownedHardware, setupParts } from "@/db/schema";
+import { InvalidMilkError } from "@/domain/milk";
 import { InvalidBrewControlsError } from "@/domain/brewControls";
 import { celsiusToFahrenheit, fahrenheitToCelsius } from "@/lib/units";
 import coffee from "@/db/seed/coffee.json";
@@ -227,5 +229,35 @@ describe("puck prep (STORY-01-03-06)", () => {
     const { id } = await saveMeasuredShot(input(), NOW);
     const [shot] = await db().select().from(extractions).where(eq(extractions.id, id));
     expect(shot).toMatchObject({ usedWdt: false, usedPuckScreen: false });
+  });
+});
+
+describe("milk (STORY-01-03-07)", () => {
+  it("records the milk type and amount on a milk drink (AC 6)", async () => {
+    const { id } = await saveMeasuredShot(input({ drinkTypeId: k.drinks.latte.id, milkTypeId: k.milk.id, milkMl: 180 }), NOW);
+    const [shot] = await db().select().from(extractions).where(eq(extractions.id, id));
+    expect(shot).toMatchObject({ milkTypeId: k.milk.id, milkMl: 180 });
+  });
+
+  it("stores none for a drink without milk, and refuses milk on one (AC 2)", async () => {
+    const { id } = await saveMeasuredShot(input(), NOW);
+    expect((await db().select().from(extractions).where(eq(extractions.id, id)))[0]).toMatchObject({ milkTypeId: null, milkMl: null });
+    await expect(saveMeasuredShot(input({ milkTypeId: k.milk.id, milkMl: 180 }), NOW)).rejects.toBeInstanceOf(InvalidMilkError);
+  });
+
+  it("refuses another household's milk and amounts off the scale", async () => {
+    const other = await makeHousehold(db());
+    const theirs = { id: newId(), householdId: other.household.id, nameKey: "milks.soy", kind: "plant", sortOrder: 0 };
+    await db().insert(milkTypes).values(theirs);
+    for (const bad of [{ milkTypeId: theirs.id, milkMl: 180 }, { milkTypeId: k.milk.id, milkMl: 185 }, { milkTypeId: k.milk.id, milkMl: 600 }, { milkTypeId: k.milk.id }]) {
+      await expect(saveMeasuredShot(input({ drinkTypeId: k.drinks.latte.id, ...bad }), NOW)).rejects.toBeInstanceOf(InvalidMilkError);
+    }
+  });
+
+  it("gives each drink the milk of its last shot, where milk starts (AC 4)", async () => {
+    await saveMeasuredShot(input({ drinkTypeId: k.drinks.latte.id, milkTypeId: k.milk.id, milkMl: 180 }), NOW);
+    const drinks = (await getLogContext()).drinks;
+    expect(drinks.find((d) => d.id === k.drinks.latte.id)?.lastMilkTypeId).toBe(k.milk.id);
+    expect(drinks.find((d) => d.id === k.drinks.espresso.id)?.lastMilkTypeId).toBeNull();
   });
 });

@@ -1,10 +1,11 @@
 import { connection } from "next/server";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import { ShotLogFlow } from "@/components/log/ShotLogFlow";
+import { ShotLogFlow, type DrinkMilk } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { brewTabs, brewToDial, NO_BREW_VALUES } from "@/domain/brewControls";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
+import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { daysBetween, localDayKey } from "@/domain/localDay";
@@ -87,6 +88,13 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       brew={brew}
       brewLast={brewToDial(brew, start.lastBrew)}
       prep={start.prep}
+      drinkMilk={Object.fromEntries(
+        context.drinks.map((d): [string, DrinkMilk] => [
+          d.id,
+          { hasMilk: d.hasMilk, typicalMilkMl: d.typicalMilkMl, lastMilkTypeId: d.lastMilkTypeId },
+        ]),
+      )}
+      milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
       resume={one(params.resume) === "1"}
     />
   );
