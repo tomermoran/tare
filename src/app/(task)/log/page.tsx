@@ -70,6 +70,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   return (
     <ShotLogFlow
       key={selected ?? "none"}
+      setupId={setup?.id ?? null}
       setup={setup ? setupName(setup, list) : null}
       drinks={drinks}
       defaultDrinkId={context.defaultDrinkId}

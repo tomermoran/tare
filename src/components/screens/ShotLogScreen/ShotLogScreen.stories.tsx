@@ -6,7 +6,7 @@ import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { ShotLogScreen } from "./ShotLogScreen";
 
-const { log, shot } = messages;
+const { actions, log, shot, states } = messages;
 
 const meta = {
   title: "Screens/Shot log",
@@ -105,6 +105,48 @@ export const TimeInSeconds: Story = {
     await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27.6");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
     await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ timeMs: 27_600 }), false);
+  },
+};
+
+/** Saving failed: the values stay, and the notice offers to try again (AC 4). */
+export const SaveFailed: Story = {
+  args: {
+    mode: "new",
+    start: { ...exampleRecipe, timeMs: 31_200 },
+    notice: (
+      <Notice urgent title={log.saveFailedTitle} action={{ label: actions.retry, onClick: fn() }}>
+        {states.saveFailed}
+      </Notice>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("alert")).toHaveTextContent(log.saveFailedTitle);
+    await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("31.2");
+    await expect(canvas.getByRole("button", { name: actions.retry })).toBeVisible();
+  },
+};
+
+/** While saving, Save is busy and can't be pressed twice. */
+export const Saving: Story = {
+  args: { mode: "new", saving: true },
+  play: async ({ canvasElement }) => {
+    const save = within(canvasElement).getByRole("button", { name: log.save });
+    await expect(save).toBeDisabled();
+    await expect(save).toHaveAttribute("aria-busy", "true");
+  },
+};
+
+/** Sweetened starts off for any drink and is passed on save (STORY-01-03-04). */
+export const Sweetened: Story = {
+  args: { mode: "new", drink: messages.drinks.espresso },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const toggle = canvas.getByRole("switch", { name: log.sweetened });
+    await expect(toggle).not.toBeChecked();
+    await userEvent.click(toggle);
+    await userEvent.click(canvas.getByRole("button", { name: log.save }));
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), true);
   },
 };
 
