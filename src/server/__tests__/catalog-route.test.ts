@@ -44,7 +44,17 @@ describe("GET /api/catalog/search", () => {
 
   it("rejects an unknown catalog or kind", async () => {
     expect((await get("catalog=hardware&kind=tamper")).status).toBe(400);
-    expect((await get("catalog=coffee&kind=grinder")).status).toBe(400);
+    expect((await get("catalog=tea")).status).toBe(400);
+  });
+
+  it("searches and browses the coffee catalog", async () => {
+    const { results } = await (await get("catalog=coffee&q=house%20blend")).json();
+    expect(results[0]).toMatchObject({ id: seedIds.bean("portofino", "signia"), roasterName: "Portofino" });
+    const browse = await (await get("catalog=coffee&browse=roasters")).json();
+    expect(browse.roasters.map((r: { name: string }) => r.name)).toEqual(["Coffee4U", "Portofino"]);
+    expect(browse.recent).toEqual([]);
+    const one = await (await get(`catalog=coffee&roaster=${seedIds.roaster("coffee4u")}`)).json();
+    expect(one.results).toHaveLength(1);
   });
 
   it("needs a session", async () => {

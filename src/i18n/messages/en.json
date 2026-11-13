@@ -247,6 +247,8 @@
     "noMatch": "Nothing matches “{query}”.",
     "allMakers": "All makers",
     "addSoonTitle": "Adding to the catalog is coming",
-    "addSoon": "For now, pick the closest match, or go back and try another search."
+    "addSoon": "For now, pick the closest match, or go back and try another search.",
+    "boughtBefore": "Bought before",
+    "allRoasters": "All roasters"
   }
 }
