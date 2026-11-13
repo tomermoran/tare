@@ -332,3 +332,28 @@ export async function getRecipeForBag(input: { batchId: string; setupId: string;
   const recipe = await getCurrentRecipe({ beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId });
   return { bean, recipe };
 }
+
+/**
+ * The recipes on a bag's screen (STORY-02-01-04): the current recipe per
+ * drink and setup for the bag's coffee, newest pin first. They belong to the
+ * coffee, so every bag of it shows the same ones (AC 2), merges included
+ * (AC 5).
+ */
+export async function getBagRecipes(batchId: string): Promise<Recipe[]> {
+  const { householdId } = await requireHousehold();
+  await assertOwned("batches", batchId, householdId);
+  const [bag] = await db.select({ beanId: batches.beanId }).from(batches).where(eq(batches.id, batchId));
+  return getCoffeeRecipes(bag.beanId);
+}
+
+/** The same rows for a coffee (STORY-03-06-03), for the default persona. */
+export async function getCoffeeRecipes(beanId: string): Promise<Recipe[]> {
+  const { householdId } = await requireHousehold();
+  const [persona] = await db
+    .select({ id: personas.id })
+    .from(personas)
+    .where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
+  if (!persona) throw new NotFoundError();
+  const resolved = (await resolveEntity(db, canonicalBeans, beanId)) ?? beanId;
+  return listCurrentRecipesForBean(resolved, persona.id);
+}

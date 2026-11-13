@@ -545,7 +545,11 @@
     "confirmPin": "Pin this recipe",
     "pinned": "Pinned as your recipe.",
     "pinThis": "Pin this recipe",
-    "add": "Add a recipe"
+    "add": "Add a recipe",
+    "dialIn": "Dial in from this",
+    "changeRecipe": "Change this recipe",
+    "row": "{drink} · {setup}",
+    "pinnedOn": "Pinned {date}"
   },
   "taste": {
     "title": "Shot saved",

@@ -1,12 +1,14 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { canonicalBeans, extractions, pinnedRecipes, setups } from "@/db/schema";
+import { batches, canonicalBeans, extractions, pinnedRecipes, setups } from "@/db/schema";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
 import {
   enteredPinPreview,
+  getBagRecipes,
+  getCoffeeRecipes,
   getRecipeForBag,
   getCurrentRecipe,
   listCurrentRecipesForBean,
@@ -208,5 +210,44 @@ describe("getRecipeForBag", () => {
   it("doesn't find another household's bag", async () => {
     signInAs((await makeHousehold(db())).user.firebaseUid);
     await expect(getRecipeForBag(input())).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("bag and coffee recipes (STORY-02-01-04)", () => {
+  it("shows one current recipe per drink and setup (AC 1)", async () => {
+    await pinFromShot(await shot(), at(1));
+    await pinFromShot(await shot({ grindSize: 14 }), at(2));
+    await pinFromShot(await shot({ drinkTypeId: k.drinks.latte.id, milkTypeId: k.milk.id, milkMl: 150 }), at(3));
+    const rows = await getBagRecipes(k.batch.id);
+    expect(rows.map((r) => [r.drinkTypeId, r.grind])).toEqual([
+      [k.drinks.latte.id, 15],
+      [k.drinks.espresso.id, 14],
+    ]);
+    expect(rows[0]).toMatchObject({ milkTypeId: k.milk.id, milkMl: 150, pinnedAt: at(3) });
+  });
+
+  it("shows the coffee's recipes on a new bag of it (AC 2)", async () => {
+    await pinFromShot(await shot(), at(1));
+    const newBag = newId();
+    await db().insert(batches).values({ id: newBag, householdId: k.household.id, beanId: k.bean.id, bagWeight: 250, createdAt: at(5) });
+    expect(await getBagRecipes(newBag)).toHaveLength(1);
+  });
+
+  it("includes recipes pinned on either side of a merge (AC 5)", async () => {
+    await pinFromShot(await shot(), at(1));
+    const survivor = newId();
+    await db().insert(canonicalBeans).values({ id: survivor, roasterId: k.bean.roasterId, name: "House Blend (verified)", source: "seed", status: "verified", createdAt: at(0) });
+    await db().update(canonicalBeans).set({ mergedIntoId: survivor }).where(eq(canonicalBeans.id, k.bean.id));
+    expect(await getBagRecipes(k.batch.id)).toHaveLength(1);
+    expect(await getCoffeeRecipes(survivor)).toHaveLength(1);
+    expect(await getCoffeeRecipes(k.bean.id)).toHaveLength(1);
+  });
+
+  it("is empty with nothing pinned, and private to the household", async () => {
+    expect(await getBagRecipes(k.batch.id)).toEqual([]);
+    await pinFromShot(await shot(), at(1));
+    signInAs((await makeHousehold(db())).user.firebaseUid);
+    await expect(getBagRecipes(k.batch.id)).rejects.toBeInstanceOf(NotFoundError);
+    expect(await getCoffeeRecipes(k.bean.id)).toEqual([]);
   });
 });

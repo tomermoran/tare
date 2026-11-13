@@ -5,7 +5,6 @@ import { LogoMark } from "@/components/brand/Logo/Logo";
 import { BrewFlow, type BrewAction } from "@/components/home/BrewFlow";
 import { BrewSkeleton } from "@/components/ui/Skeleton/Skeleton";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
-import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { personaLabel } from "@/domain/personaLabel";
 import { setupLabel } from "@/domain/setupName";
 import { LOG_PATH } from "@/lib/logRoutes";
@@ -13,10 +12,10 @@ import { PROFILE_PATH } from "@/lib/profileRoutes";
 import { getHome, type Home } from "@/server/dal/home";
 import { getProfile } from "@/server/dal/profile";
 import { getSetupProgress } from "@/server/dal/progress";
-import type { Recipe } from "@/server/dal/recipes";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { FirstRun } from "./FirstRun";
+import { recipeLines } from "./recipeLines";
 
 /**
  * Brew (SCR-HOME): the persona label, which opens Profile (STORY-01-01-03),
@@ -95,7 +94,7 @@ async function Brew({ home }: { home: Home }) {
         coffee: home.coffee ? t("home.coffeeLine", { bean: home.coffee.name, roaster: home.coffee.roasterName }) : null,
         values: recipe ? { grind: recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
         quiet: state.kind === "finished",
-        lines: recipe ? recipeLines(recipe, home, t, format) : [],
+        lines: recipe ? recipeLines(recipe, { hasMilk: home.drink.hasMilk, milks: home.milks }, t, format) : [],
         message,
         note: state.kind === "noRecipeOnSetup" ? t("home.startsFrom", { setup: setup(state.from) }) : undefined,
         setup: setup(home.setup),
@@ -126,33 +125,6 @@ async function Brew({ home }: { home: Home }) {
       beanId={home.coffee?.id ?? null}
     />
   );
-}
-
-type T = Awaited<ReturnType<typeof getTranslations<never>>>;
-type F = Awaited<ReturnType<typeof getFormatter>>;
-
-/** The quiet lines under the values: milk, puck prep, temperature and pressure (design 2.3, item 4). */
-function recipeLines(recipe: Recipe, home: Home, t: T, format: F): string[] {
-  const lines: string[] = [];
-  const milk = home.milks.find((m) => m.id === recipe.milkTypeId);
-  if (home.drink.hasMilk && milk) {
-    const name = milkLabel(milk, (key: MilkKey) => t(key));
-    lines.push(
-      recipe.milkMl !== null
-        ? t("shot.milkLine", { milk: name, amount: format.number(recipe.milkMl, { style: "unit", unit: "milliliter", unitDisplay: "short" }) })
-        : name,
-    );
-  }
-  const tools = [recipe.usedWdt && t("log.prepWdt"), recipe.usedPuckScreen && t("log.prepPuckScreen")].filter((x): x is string => !!x);
-  if (tools.length) lines.push(t("home.prep", { tools: format.list(tools, { type: "conjunction" }) }));
-  const value = (field: string, v: string) => t("recipe.valueLine", { field, value: v });
-  if (recipe.brewTempC !== null)
-    lines.push(value(t("shot.temperature"), format.number(recipe.brewTempC, { style: "unit", unit: "celsius", maximumFractionDigits: 1 })));
-  else if (recipe.brewTempStep !== null) lines.push(value(t("shot.temperature"), t("recipe.step", { step: recipe.brewTempStep })));
-  if (recipe.pressureBar !== null)
-    lines.push(value(t("shot.pressure"), t("shot.units.barValue", { value: format.number(recipe.pressureBar, { maximumFractionDigits: 1 }) })));
-  else if (recipe.pressureStep !== null) lines.push(value(t("shot.pressure"), t("recipe.step", { step: recipe.pressureStep })));
-  return lines;
 }
 
 async function PersonaLink() {
