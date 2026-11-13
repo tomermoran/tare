@@ -11,8 +11,8 @@ const reactions = [
 ];
 const scale = ["1", "2", "3", "4", "5"].map((n) => ({ value: n, label: n }));
 const tags = [
-  { value: "tooFast", label: messages.shot.warnings.tooFast },
-  { value: "channelling", label: messages.shot.warnings.channelling },
+  { value: "dryFinish", label: messages.taste.tags.dryFinish },
+  { value: "channelling", label: messages.taste.tags.channelling },
 ];
 
 function Single() {
@@ -57,7 +57,7 @@ export const MultipleChoice: Story = {
   render: () => <Multiple />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const chip = canvas.getByRole("button", { name: messages.shot.warnings.channelling });
+    const chip = canvas.getByRole("button", { name: messages.taste.tags.channelling });
     await userEvent.click(chip);
     await expect(chip).toHaveAttribute("aria-pressed", "true");
   },
