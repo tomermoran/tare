@@ -47,6 +47,7 @@ async function AddPart({ searchParams }: Pick<PageProps<"/setup/add-part">, "sea
       walk={one(params.walk) === "1"}
       returnTo={returnTo ? safeReturnTo(returnTo, "/setup") : null}
       haveKinds={haveKinds}
+      hasSetup={!!tab?.setups.length}
       today={today}
     />
   );

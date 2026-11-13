@@ -5,11 +5,12 @@ import { useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { CapabilitySummary } from "@/components/catalog/CapabilitySummary";
 import { UnitAddScreen, UNIT_KINDS } from "@/components/screens/UnitAddScreen/UnitAddScreen";
+import { ConfirmSheet } from "@/components/ui/Sheet/ConfirmSheet";
 import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import type { HardwareKind } from "@/domain/capabilities";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { returnWithSelection, withReturnTo } from "@/lib/returnTo";
-import { ADD_PART_PATH, SETUP_PATH } from "@/lib/setupRoutes";
+import { ADD_PART_PATH, newPartBuilderHref, SETUP_PATH } from "@/lib/setupRoutes";
 import { addPartAction } from "@/server/actions/parts";
 import type { PartModel } from "@/server/dal/parts";
 
@@ -18,7 +19,10 @@ import type { PartModel } from "@/server/dal/parts";
  * picker, details, save. Going to the picker keeps the draft and comes back
  * with `?selected=`. After saving it returns to `returnTo`, continues the
  * walk-through to the next missing kind (machine, grinder, basket), or goes
- * to Setup, where the first-setup offer waits once all three exist.
+ * to Setup, where the first-setup offer waits once all three exist. When the
+ * household already has a setup, it asks once whether to use the new part
+ * (STORY-01-02-08 AC 5): yes opens the builder from the current setup with
+ * the part swapped in, no changes nothing.
  */
 
 const DRAFT = "add-part";
@@ -32,6 +36,7 @@ export function AddPartFlow({
   walk,
   returnTo,
   haveKinds,
+  hasSetup,
   today,
 }: {
   initialKind: HardwareKind;
@@ -44,6 +49,8 @@ export function AddPartFlow({
   returnTo: string | null;
   /** Kinds the household already has a part of. */
   haveKinds: HardwareKind[];
+  /** The household has a setup, so a new part may go into it. */
+  hasSetup: boolean;
   today: string;
 }) {
   const t = useTranslations();
@@ -64,6 +71,7 @@ export function AddPartFlow({
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const [error, setError] = useState<string>(t("states.saveFailed"));
   const [modelMissing, setModelMissing] = useState(false);
+  const [offer, setOffer] = useState<{ id: string; kind: HardwareKind } | null>(null);
 
   // Next keeps a left page's state for when it's shown again; a task starts
   // fresh each time (a side trip's values come back from the draft).
@@ -72,6 +80,7 @@ export function AddPartFlow({
       setDraft(fresh());
       setState("idle");
       setModelMissing(false);
+      setOffer(null);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reset on hide only
     [],
@@ -82,6 +91,12 @@ export function AddPartFlow({
     clearDraft(DRAFT);
     router.replace(returnTo ?? SETUP_PATH);
   });
+
+  const leaveTo = (to: string) =>
+    proceed(() => {
+      router.replace(to);
+      router.refresh();
+    });
 
   const update = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
 
@@ -116,6 +131,12 @@ export function AddPartFlow({
       return;
     }
     clearDraft(DRAFT);
+    const kind = result.data.kind as HardwareKind;
+    if (!returnTo && hasSetup && UNIT_KINDS.includes(kind)) {
+      setState("idle");
+      setOffer({ id: result.data.id, kind });
+      return;
+    }
     const have = new Set([...haveKinds, result.data.kind]);
     const next = UNIT_KINDS.find((k) => !have.has(k));
     const to = returnTo
@@ -176,6 +197,17 @@ export function AddPartFlow({
         onCancel={leave}
       />
       {confirm}
+      <ConfirmSheet
+        open={offer !== null}
+        title={t("setup.useNewPartTitle")}
+        confirmLabel={t("setup.useNewPartAction")}
+        cancelLabel={t("setup.notNow")}
+        closeLabel={t("actions.close")}
+        onConfirm={() => offer && leaveTo(newPartBuilderHref(offer.id))}
+        onCancel={() => leaveTo(SETUP_PATH)}
+      >
+        {offer ? t("setup.useNewPart", { kind: t(`setup.kindLower.${offer.kind}`) }) : ""}
+      </ConfirmSheet>
     </>
   );
 }
