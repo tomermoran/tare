@@ -13,8 +13,8 @@ import { addBagAction } from "@/server/actions/bags";
 /*
  * The add-a-bag flow (SCR-BAG-ADD): pick the coffee, then the bag's details,
  * then save. Started from a coffee, the coffee is already chosen. The draft
- * survives the trip to the picker. Saving lands on Beans, or on `returnTo`
- * with its one portion selected (the shot log's coffee field).
+ * survives the trip to the picker. Saving lands on the new bag, or on
+ * `returnTo` with its one portion selected (the shot log's coffee field).
  */
 
 export const ADD_BAG_PATH = "/beans/add";
@@ -126,7 +126,7 @@ export function AddBagFlow({
       return;
     }
     clearDraft(DRAFT);
-    const to = returnTo ? returnWithSelection(returnTo, result.data.portionId) : "/beans";
+    const to = returnTo ? returnWithSelection(returnTo, result.data.portionId) : `/beans/${result.data.batchId}`;
     proceed(() => {
       router.replace(to);
       router.refresh();

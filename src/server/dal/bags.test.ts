@@ -9,7 +9,7 @@ import { addBagAction } from "@/server/actions/bags";
 import { createTestDb } from "@/test/db";
 import { makeHousehold } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
-import { addBag, WeightRequiredError } from "./bags";
+import { addBag, getBag, getOnHand, WeightRequiredError } from "./bags";
 import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
@@ -107,5 +107,45 @@ describe("addBagAction", () => {
 
   it("rejects a malformed date", async () => {
     await expect(addBagAction({ beanId: SIGNIA, bagWeight: 250, roastDate: "02/01/2026" })).resolves.toEqual({ ok: false, error: "saveFailed" });
+  });
+});
+
+describe("getOnHand", () => {
+  const finish = (portionId: string) =>
+    db().update(batchPortions).set({ finishedAt: new Date() }).where(eq(batchPortions.id, portionId));
+
+  it("shows each bag with its coffee, roaster and portions (AC 1)", async () => {
+    const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+    const [b] = await getOnHand();
+    expect(b).toMatchObject({ id: batchId, bean: { id: SIGNIA, name: "Signia", roasterName: "Portofino" } });
+    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null }]);
+  });
+
+  it("drops a bag once every portion is finished (AC 3)", async () => {
+    const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+    const other = await db().insert(batchPortions).values({ id: newId(), batchId, weight: 100, createdAt: new Date() }).returning();
+    await finish(portionId);
+    const [b] = await getOnHand();
+    expect(b.portions.map((p) => p.id)).toEqual([other[0].id]);
+    await finish(other[0].id);
+    expect(await getOnHand()).toEqual([]);
+    // Still reachable on its own screen.
+    expect((await getBag(batchId)).portions.map((p) => p.state)).toEqual(["finished", "finished"]);
+  });
+
+  it("shows a merged coffee's survivor (AC 6)", async () => {
+    const dup = newId();
+    await db().insert(canonicalBeans).values({
+      id: dup, roasterId: seedIds.roaster("portofino"), name: "Signia (old)", source: "user", status: "verified", createdAt: new Date(),
+    });
+    const { batchId } = await addBag({ beanId: dup, bagWeight: 250 });
+    await db().update(canonicalBeans).set({ mergedIntoId: SIGNIA }).where(eq(canonicalBeans.id, dup));
+    expect((await getBag(batchId)).bean).toMatchObject({ id: SIGNIA, name: "Signia" });
+  });
+});
+
+describe("getBag", () => {
+  it("treats a missing bag as not found", async () => {
+    await expect(getBag("no-such-bag")).rejects.toBeInstanceOf(NotFoundError);
   });
 });

@@ -19,7 +19,7 @@ import {
 } from "@/server/dal/scope";
 import { addPart, getPart, getPartModel, getSetupTab } from "@/server/dal/parts";
 import { getSetupSuggestion, previewSetup, resolveSetup } from "@/server/dal/setups";
-import { addBag, getBagBean } from "@/server/dal/bags";
+import { addBag, getBag, getBagBean, getOnHand } from "@/server/dal/bags";
 import { createTestDb } from "@/test/db";
 import { makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -182,6 +182,11 @@ describe("bags", () => {
     });
     await expect(addBag({ beanId: id, bagWeight: 250 })).rejects.toBeInstanceOf(NotFoundError);
     await expect(getBagBean(id)).resolves.toBeNull();
+  });
+
+  it("lists only my bags on hand and won't open theirs", async () => {
+    expect((await getOnHand()).map((b) => b.id)).toEqual([mine.batch.id]);
+    await expect(getBag(theirs.batch.id)).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("puts a new bag in my household", async () => {

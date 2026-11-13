@@ -1,7 +1,6 @@
-import { getTranslations } from "next-intl/server";
-import { ListSkeleton } from "@/components/ui/Skeleton/Skeleton";
+import { BeansScreen } from "@/components/screens/BeansScreen/BeansScreen";
+import { ADD_BAG, beansLabels } from "./labels";
 
 export default async function BeansLoading() {
-  const t = await getTranslations("states");
-  return <ListSkeleton label={t("loading")} />;
+  return <BeansScreen state="loading" bags={[]} addBagHref={ADD_BAG} labels={await beansLabels()} />;
 }
