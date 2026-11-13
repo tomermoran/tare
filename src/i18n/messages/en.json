@@ -88,6 +88,7 @@
   "home": {
     "pull": "Pull this shot",
     "dialIn": "Dial in",
+    "dialInSuggested": "Dial in with the suggested change",
     "pulled": "Shot logged",
     "undone": "Shot removed",
     "pullFailed": "That shot wasn't logged. Nothing was recorded.",
@@ -140,6 +141,10 @@
     "save": "Save shot",
     "values": "Shot values",
     "was": "was {value}",
+    "fromRecipe": "Starting from your recipe.",
+    "fromSuggestion": "{change}, as suggested.",
+    "fromRecipeOn": "Starting from your recipe on {setup}.",
+    "grindNotCarried": "Grind wasn't carried over: it's a different grinder.",
     "setup": "Setup",
     "missingSetup": "Add your setup",
     "missingCoffee": "Add a bag",

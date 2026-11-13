@@ -169,7 +169,30 @@ export const GermanNumbers: Story = {
   },
 };
 
-export const FixAnOffShot: Story = { args: { mode: "fix" } };
+/**
+ * Fix an off shot with the suggestion applied (STORY-02-03-02 AC 2, AC 3):
+ * the note says what changed, the changed tab shows what it was, and the
+ * context is the one-tap shot's, read-only.
+ */
+export const FixAnOffShot: Story = {
+  args: {
+    mode: "fix",
+    readOnly: ["setup", "drink", "coffee"],
+    note: [t("log.fromSuggestion", { change: t("suggest.change.grindFiner", { steps: 2 }) })],
+    values: { grind: exampleRecipe.grind - 2, dose: exampleRecipe.dose, yield: exampleRecipe.yield, time: exampleRecipe.timeMs / 1000, ...unset },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: log.titleFix })).toBeVisible();
+    await expect(canvas.getByText(t("log.fromSuggestion", { change: t("suggest.change.grindFiner", { steps: 2 }) }))).toBeVisible();
+    // "was" only on the changed tab.
+    const grind = canvas.getByRole("tab", { name: /Grind/ });
+    await expect(grind).toHaveTextContent(/was/);
+    await expect(canvas.getByRole("tab", { name: /Dose/ })).not.toHaveTextContent(/was/);
+    // Read-only context isn't a button.
+    await expect(canvas.queryByRole("button", { name: new RegExp(log.drink) })).toBeNull();
+  },
+};
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
 
 /** On a short screen the log scrolls; nothing gets squashed or clipped. */

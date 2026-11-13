@@ -67,6 +67,8 @@ type ShotLogScreenProps = {
   taste?: ReactNode;
   /** A Notice under the dial: what's missing, or a failed save. */
   notice?: ReactNode;
+  /** One quiet line under the context: where the values came from, e.g. "suggested: grind 2 steps finer". */
+  note?: string[];
   saving?: boolean;
   onCancel?: () => void;
   onSave?: (values: ShotValuesData, sweetened: boolean, brew: BrewDial, prep: Prep) => void;
@@ -112,6 +114,7 @@ export function ShotLogScreen({
   capLink,
   taste,
   notice,
+  note = [],
   saving = false,
   onCancel = noop,
   onSave = noop,
@@ -225,6 +228,11 @@ export function ShotLogScreen({
         {milk && <SelectField label={t("milk")} value={milk.name ?? t("milkNone")} onClick={pick("milk")} />}
         <SelectField label={t("coffee")} value={coffee} onClick={pick("coffee")} />
       </div>
+      {note.map((line) => (
+        <p key={line} className="mt-2 text-label text-ink-secondary">
+          {line}
+        </p>
+      ))}
       <ShotDial
         label={t("values")}
         fields={fields}

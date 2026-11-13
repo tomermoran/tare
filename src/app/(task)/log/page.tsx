@@ -3,7 +3,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { RecipeLogFlow } from "@/components/log/RecipeLogFlow";
 import { ShotEditFlow } from "@/components/log/ShotEditFlow";
-import { ShotLogFlow, type DrinkMilk, type LogSetupChoice } from "@/components/log/ShotLogFlow";
+import { ShotLogFlow, type DrinkMilk, type LogApplied, type LogSetupChoice } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { brewTabs, brewToDial, NO_BREW_VALUES } from "@/domain/brewControls";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
@@ -16,6 +16,8 @@ import { getLogContext, getStartingValues, NEUTRAL_START, type LogContext, type 
 import { lastGrindOnPart } from "@/server/dal/dialIn";
 import { getShot } from "@/server/dal/journal";
 import { getRecipeForBag } from "@/server/dal/recipes";
+import { getDialInFromRecipe, getDialInFromShot, getFixStart, type LogStart } from "@/server/dal/logStart";
+import { suggestionWords } from "@/lib/suggestionWords";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { notFound, redirect } from "next/navigation";
 import { portionStateLabel } from "@/lib/portionStateLabel";
@@ -24,7 +26,11 @@ import { getTimeZone } from "@/server/time";
 /**
  * SCR-LOG, a new shot: /log?drinkId=…&portionId=…, a saved one in edit
  * mode: /log?mode=edit&shotId=…, or a recipe typed in for a bag:
- * /log?mode=recipe&batchId=…(&setupId=…&drinkId=…)
+ * /log?mode=recipe&batchId=…(&setupId=…&drinkId=…). Fix mode starts from
+ * a one-tap shot's recipe: /log?mode=fix&shotId=…; dial-in mode from Brew's
+ * recipe, /log?mode=dialIn&drinkId=…&beanId=…, or from a tasted shot,
+ * /log?mode=dialIn&fromShot=…. `suggested` names the shot whose suggestion
+ * starts applied.
  * `selected` is a portion just added from the log; `resume` restores the
  * values set before leaving for an add task.
  */
@@ -47,8 +53,35 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     return <RecipeLog batchId={batchId} setupId={one(params.setupId)} drinkId={one(params.drinkId)} />;
   }
   const selected = one(params.selected);
+  const suggested = one(params.suggested);
+  const notFoundIfMissing = (e: unknown) => {
+    if (e instanceof NotFoundError) notFound();
+    throw e;
+  };
+  let prefilled: { start: LogStart; mode: "fix" | "dialIn" } | null = null;
+  if (one(params.mode) === "fix" && shotId) {
+    const start = await unlessSignedOut(getFixStart(shotId, suggested)).catch(notFoundIfMissing);
+    if (!start) return null;
+    prefilled = { start, mode: "fix" };
+  } else if (one(params.mode) === "dialIn") {
+    const fromShot = one(params.fromShot);
+    const drinkTypeId = one(params.drinkId);
+    const beanId = one(params.beanId);
+    const start = fromShot
+      ? await unlessSignedOut(getDialInFromShot(fromShot, suggested)).catch(notFoundIfMissing)
+      : drinkTypeId && beanId
+        ? await unlessSignedOut(getDialInFromRecipe({ drinkTypeId, beanId, portionId: one(params.portionId), suggested }))
+        : null;
+    // No recipe anywhere: the dial-in starts blank (STORY-02-01-06 AC 6).
+    if (start) prefilled = { start, mode: "dialIn" };
+  }
   const [context, t, format, timeZone] = await Promise.all([
-    unlessSignedOut(getLogContext({ drinkId: one(params.drinkId), portionId: selected ?? one(params.portionId) })),
+    unlessSignedOut(
+      getLogContext({
+        drinkId: prefilled?.start.drinkTypeId ?? one(params.drinkId),
+        portionId: selected ?? prefilled?.start.portionId ?? one(params.portionId),
+      }),
+    ),
     getTranslations(),
     getFormatter(),
     getTimeZone(),
@@ -78,17 +111,42 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     marker: p.frozen ? portionStateLabel(t, "frozen") : undefined,
   }));
 
-  const setup = context.setups.find((s) => s.id === context.defaultSetupId);
+  const setup = context.setups.find((s) => s.id === (prefilled?.start.setupId ?? context.defaultSetupId));
   const grind = grindWheelConfig(setup?.grind);
   const start = setup
     ? await getStartingValues(setup.id)
     : { grind: middleGrind(grind), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES, prep: NO_PREP };
   const brew = brewTabs(setup?.machine);
-  const setupChoices = await logSetupChoices(context, list, t("setup.current"));
+  // A fix keeps the one-tap shot's setup, so there's nothing to switch to.
+  const setupChoices = prefilled?.mode === "fix" ? [] : await logSetupChoices(context, list, t("setup.current"));
+
+  const p = prefilled?.start;
+  const applied: LogApplied | undefined = p && {
+    values: { grind: p.applied.grind, dose: p.applied.dose, yield: p.applied.yield, timeMs: p.applied.timeMs },
+    brew: brewToDial(brew, p.applied.brew),
+    prep: p.applied.prep,
+    milk: p.milkTypeId || p.start.milkMl !== null ? { milkTypeId: p.milkTypeId, ml: p.applied.milkMl ?? MILK_FALLBACK_ML, wasMl: p.start.milkMl ?? MILK_FALLBACK_ML } : null,
+  };
+  const note: string[] = [];
+  if (p) {
+    const words = p.suggestion && suggestionWords(p.suggestion, { milkDrink: p.suggestion.context.shot.milkDrink, clocks: p.suggestion.context.clocks }, t, format);
+    if (words?.change) note.push(t("log.fromSuggestion", { change: words.change }));
+    else if (p.from) {
+      const fromSetup = context.setups.find((s) => s.id === p.from!.setupId);
+      if (fromSetup) note.push(t("log.fromRecipeOn", { setup: setupLabel(fromSetup, context.setups, list) }));
+    } else if (prefilled?.mode === "fix") note.push(t("log.fromRecipe"));
+    if (p.from && !p.from.grindCarried) note.push(t("log.grindNotCarried"));
+  }
 
   return (
     <ShotLogFlow
-      key={selected ?? "none"}
+      key={`${selected ?? "none"}|${prefilled?.mode ?? "new"}|${suggested ?? ""}`}
+      mode={prefilled?.mode ?? "new"}
+      applied={applied}
+      brewStart={p ? brewToDial(brew, p.start.brew) : undefined}
+      locked={prefilled?.mode === "fix"}
+      note={note}
+      tasteFrom={prefilled?.mode}
       setupId={setup?.id ?? null}
       setup={setup ? setupLabel(setup, context.setups, list) : null}
       drinks={drinks}
@@ -96,11 +154,11 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       portions={portions}
       defaultPortionId={context.defaultPortionId}
       selectedPortionId={selected && context.portions.some((p) => p.id === selected) ? selected : null}
-      start={start}
+      start={p ? { grind: p.start.grind, dose: p.start.dose, yield: p.start.yield, timeMs: p.start.timeMs } : start}
       grind={grind}
       brew={brew}
       brewLast={brewToDial(brew, start.lastBrew)}
-      prep={start.prep}
+      prep={p ? p.start.prep : start.prep}
       unknownPart={setup?.unknownPart ?? null}
       setupChoices={setupChoices}
       selectedSetupId={selected && context.setups.some((s) => s.id === selected) ? selected : null}

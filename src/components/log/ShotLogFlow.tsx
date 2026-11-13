@@ -66,6 +66,18 @@ export type LogSetupChoice = SelectOption & {
 /** What the log needs about each drink's milk. */
 export type DrinkMilk = { hasMilk: boolean; typicalMilkMl: number | null; lastMilkTypeId: string | null };
 
+/**
+ * Fix and dial-in modes (STORY-02-03-02, 03): the dial opens here, with a
+ * suggested change already made, while `start` and `brewStart` stay what
+ * "was" shows. Milk is the recipe's.
+ */
+export type LogApplied = {
+  values: ShotValuesData;
+  brew: BrewDial;
+  prep: Prep;
+  milk: { milkTypeId: string | null; ml: number; wasMl: number } | null;
+};
+
 export function ShotLogFlow({
   setupId,
   setup,
@@ -85,6 +97,12 @@ export function ShotLogFlow({
   setupChoices = [],
   selectedSetupId = null,
   resume,
+  mode = "new",
+  brewStart,
+  applied,
+  locked = false,
+  note,
+  tasteFrom,
 }: {
   setupId: string | null;
   /** The setup's name; null when there is none yet. */
@@ -114,6 +132,15 @@ export function ShotLogFlow({
   /** A setup the builder just made or chose (change a part came back with it). */
   selectedSetupId?: string | null;
   resume: boolean;
+  mode?: "new" | "fix" | "dialIn";
+  /** Prefilled temperature and pressure, before any change ("was"). */
+  brewStart?: BrewDial;
+  applied?: LogApplied;
+  /** Fix mode: setup, drink and coffee stay the one-tap shot's. */
+  locked?: boolean;
+  note?: string[];
+  /** Tasting after a fix or dial-in offers pinning first (STORY-02-03-02 AC 4). */
+  tasteFrom?: "fix" | "dialIn";
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -123,20 +150,23 @@ export function ShotLogFlow({
     return drink ? milkStart({ drink, lastMilkOfDrink: drink.lastMilkTypeId, milks }) : null;
   };
   const fresh = (): Draft => {
-    const milk = milkFor(defaultDrinkId);
+    const drinkHasMilk = defaultDrinkId ? !!drinkMilk[defaultDrinkId]?.hasMilk : false;
+    const milk = applied && drinkHasMilk ? (applied.milk ?? milkFor(defaultDrinkId)) : milkFor(defaultDrinkId);
     return {
       setupId,
       drinkId: defaultDrinkId,
       portionId: defaultPortionId,
-      values: { ...toDial(start), ...(milk && { milk: milk.ml }) },
+      values: { ...toDial(applied?.values ?? start, applied?.brew ?? brewStart), ...(milk && { milk: milk.ml }) },
       sweetened: false,
-      prep,
+      prep: applied?.prep ?? prep,
       prepTouched: [],
       milkTypeId: milk?.milkTypeId ?? null,
       milkTouched: [],
     };
   };
   const [draft, setDraft] = useState<Draft>(fresh);
+  // What the log opened with: leaving with nothing changed asks nothing.
+  const [initial] = useState<Draft>(fresh);
   const [sheet, setSheet] = useState<"setup" | "drink" | "coffee" | "milk" | null>(null);
   const [missing, setMissing] = useState<"setup" | "coffee" | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed" | "portionFinished">("idle");
@@ -205,21 +235,21 @@ export function ShotLogFlow({
     };
   }
 
-  const startDial = toDial(start);
   const startMilk = milkFor(draft.drinkId);
-  const freshMilk = milkFor(defaultDrinkId);
+  // The recipe's milk in fix and dial-in modes, while the drink is the one it was for.
+  const recipeMilk = applied?.milk && draft.drinkId === defaultDrinkId ? applied.milk : null;
   const dirty =
-    draft.setupId !== setupId ||
+    draft.setupId !== initial.setupId ||
     draft.milkTouched.length > 0 ||
-    draft.milkTypeId !== (freshMilk?.milkTypeId ?? null) ||
-    draft.drinkId !== defaultDrinkId ||
-    draft.portionId !== defaultPortionId ||
+    draft.milkTypeId !== initial.milkTypeId ||
+    draft.drinkId !== initial.drinkId ||
+    draft.portionId !== initial.portionId ||
     draft.sweetened ||
-    draft.prep.wdt !== prep.wdt ||
-    draft.prep.puckScreen !== prep.puckScreen ||
-    (Object.keys(startDial) as (keyof DialValues)[]).some((k) => {
+    draft.prep.wdt !== initial.prep.wdt ||
+    draft.prep.puckScreen !== initial.prep.puckScreen ||
+    (Object.keys(initial.values) as (keyof DialValues)[]).some((k) => {
       const a = draft.values[k] ?? null;
-      const b = startDial[k] ?? null;
+      const b = initial.values[k] ?? null;
       return a === null || b === null ? a !== b : Math.abs(a - b) > 1e-9;
     });
   const { leave, proceed, confirm } = useUnsavedChanges(dirty, () => {
@@ -268,7 +298,7 @@ export function ShotLogFlow({
     }
     clearDraft(DRAFT);
     // The shot is saved; tasting is optional (SCR-TASTE).
-    proceed(() => router.replace(`/taste/${result.data.id}`));
+    proceed(() => router.replace(`/taste/${result.data.id}${tasteFrom ? `?from=${tasteFrom}` : ""}`));
   };
   const retry = () => {
     const v = draft.values;
@@ -281,11 +311,12 @@ export function ShotLogFlow({
   return (
     <>
       <ShotLogScreen
-        mode="new"
+        mode={mode}
         setup={current.label ?? t("log.missingSetup")}
         drink={label(drinks, draft.drinkId)}
         coffee={portions.length ? label(portions, draft.portionId) : t("log.missingCoffee")}
         start={start}
+        brewStart={draft.setupId === setupId ? brewStart : undefined}
         grind={current.grind}
         brew={current.brew}
         brewLast={current.brewLast}
@@ -297,14 +328,15 @@ export function ShotLogFlow({
             milkTouched: values.milk !== d.values.milk ? [...new Set<MilkKey>([...d.milkTouched, "ml"])] : d.milkTouched,
           }))
         }
-        milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: startMilk.ml } : null}
+        milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: recipeMilk?.wasMl ?? startMilk.ml } : null}
+        note={note}
         sweetened={draft.sweetened}
         onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened }))}
         prep={draft.prep}
         onPrepChange={(key, value) =>
           setDraft((d) => ({ ...d, prep: { ...d.prep, [key]: value }, prepTouched: [...new Set([...d.prepTouched, key])] }))
         }
-        readOnly={setup && setupChoices.length < 2 ? ["setup"] : []}
+        readOnly={locked ? ["setup", "drink", "coffee"] : setup && setupChoices.length < 2 ? ["setup"] : []}
         capLink={
           current.unknownPart
             ? { label: t("log.capUnknown", { kind: current.unknownPart.kind }), onClick: () => sideTrip(partHref(current.unknownPart!.id)) }
