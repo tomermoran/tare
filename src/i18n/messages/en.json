@@ -118,6 +118,7 @@
     "titleNew": "New shot",
     "titleDialIn": "Dial in",
     "titleFix": "Fix this shot",
+    "titleRecipe": "New recipe",
     "titleEdit": "Edit shot",
     "drink": "Drink",
     "coffee": "Coffee",
@@ -509,6 +510,24 @@
     "soy": "Soy",
     "almond": "Almond",
     "lactoseFree": "Lactose-free"
+  },
+  "recipe": {
+    "pin": "Pin as recipe",
+    "pinTitle": "{drink} with {coffee} on {setup}",
+    "newRecipe": "New recipe",
+    "replaces": "Replaces",
+    "changes": "What changes",
+    "change": "{field}: {from} → {to}",
+    "prepLine": "{tools}",
+    "valueLine": "{field}: {value}",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "step": "Step {step}",
+    "confirmPin": "Pin this recipe",
+    "pinned": "Pinned as your recipe.",
+    "pinThis": "Pin this recipe",
+    "add": "Add a recipe"
   },
   "taste": {
     "title": "Shot saved",

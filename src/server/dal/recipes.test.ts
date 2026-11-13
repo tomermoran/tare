@@ -60,7 +60,7 @@ describe("pinning a shot (STORY-02-01-01)", () => {
   it("previews the key and values with nothing replaced, then saves every field (AC 1, AC 2)", async () => {
     const id = await shot({ drinkTypeId: k.drinks.latte.id, usedWdt: true, milkTypeId: k.milk.id, milkMl: 180 });
     const p = await pinPreview(id);
-    expect(p).toMatchObject({ key: key(k.drinks.latte.id), replaces: null, differences: [] });
+    expect(p).toMatchObject({ key: key(k.drinks.latte.id), replaces: null, differences: [], milks: { [k.milk.id]: { nameKey: "milks.oat" } } });
     expect(p.values).toMatchObject({ grind: 15, dose: 18, yield: 36, timeMs: 28_000, usedWdt: true, usedPuckScreen: false, milkTypeId: k.milk.id, milkMl: 180 });
 
     await pinFromShot(id, at(5));
