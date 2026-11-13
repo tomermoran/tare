@@ -37,6 +37,11 @@ type NumberWheelProps = {
   unit?: CanonicalUnit;
   /** For units Intl doesn't know (bar). Pass a translated string. */
   unitLabel?: string;
+  /**
+   * Captions for the ruler's two ends, by value: the grinder's "finer" and
+   * "coarser". They follow the ruler, so they mirror in right-to-left.
+   */
+  endCaptions?: { lower: string; higher: string };
   className?: string;
 };
 
@@ -67,6 +72,7 @@ export function NumberWheel({
   majorEvery = 10,
   unit,
   unitLabel,
+  endCaptions,
   className,
 }: NumberWheelProps) {
   const locale = useLocale();
@@ -433,6 +439,14 @@ export function NumberWheel({
         {/* The fixed needle marking the current value. */}
         <div className="pointer-events-none absolute top-0 start-1/2 h-11 w-0.5 -translate-x-1/2 rounded-full bg-ink rtl:translate-x-1/2" />
       </div>
+
+      {endCaptions && (
+        // Values grow towards the inline end, so the lower end's caption sits at the start.
+        <div data-testid="end-captions" className="-mt-2 flex w-full justify-between text-label text-ink-secondary">
+          <span>{endCaptions.lower}</span>
+          <span>{endCaptions.higher}</span>
+        </div>
+      )}
     </div>
   );
 }

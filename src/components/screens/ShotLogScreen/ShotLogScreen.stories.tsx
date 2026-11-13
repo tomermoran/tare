@@ -73,6 +73,41 @@ export const SetupReadOnly: Story = {
   },
 };
 
+/**
+ * A stepped grinder that goes coarser with lower numbers: grind snaps to its
+ * steps, captions point the right way, and the ratio follows dose and yield.
+ */
+export const SteppedGrinder: Story = {
+  args: { mode: "new", grind: { min: 1, max: 30, step: 1, majorEvery: 5, coarser: "lower" }, start: { ...exampleRecipe, grind: 12 } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [start, end] = canvas.getByTestId("end-captions").children;
+    await expect(start).toHaveTextContent(shot.coarser);
+    await expect(end).toHaveTextContent(shot.finer);
+    const wheel = canvas.getByRole("slider", { name: shot.grind });
+    wheel.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(wheel).toHaveAttribute("aria-valuenow", "13");
+
+    await userEvent.click(canvas.getByRole("tab", { name: /Yield/ }));
+    const yieldWheel = canvas.getByRole("slider", { name: shot.yield });
+    yieldWheel.focus();
+    await userEvent.keyboard("{End}");
+    await expect(canvas.getByText(/^1 : /)).toHaveTextContent(`1 : ${(100 / exampleRecipe.dose).toFixed(1)}`);
+  },
+};
+
+/** Time is shown in seconds with one decimal and saved in milliseconds. */
+export const TimeInSeconds: Story = {
+  args: { mode: "new", start: { ...exampleRecipe, timeMs: 27_600 } },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27.6");
+    await userEvent.click(canvas.getByRole("button", { name: log.save }));
+    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ timeMs: 27_600 }), false);
+  },
+};
+
 export const FixAnOffShot: Story = { args: { mode: "fix" } };
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
 
@@ -88,7 +123,12 @@ export const ShortScreen: Story = {
     ),
   ],
   play: async ({ canvasElement }) => {
-    const context = within(canvasElement).getByTestId("log-context");
+    const canvas = within(canvasElement);
+    const context = canvas.getByTestId("log-context");
     await expect(context.clientHeight).toBe(context.scrollHeight);
+    // Save stays pinned inside the visible area, even though the log scrolls.
+    const save = canvas.getByRole("button", { name: log.save }).getBoundingClientRect();
+    const frame = canvas.getByTestId("log-save").closest(".overflow-y-auto")!.getBoundingClientRect();
+    await expect(save.bottom).toBeLessThanOrEqual(frame.bottom);
   },
 };

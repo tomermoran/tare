@@ -24,8 +24,8 @@ type ShotLogScreenProps = {
   coffee: string;
   /** Starting values: the recipe, the last shot or the saved shot, per mode. */
   start: ShotValuesData;
-  /** The grinder's scale; the MVP default is a stepless 0-40 dial. */
-  grind?: { min: number; max: number; step: number };
+  /** The grinder's wheel (grindWheelConfig); the default is a stepless 0-40 dial. */
+  grind?: { min: number; max: number; step: number; majorEvery?: number; coarser?: "higher" | "lower" | null };
   /** Controlled values; without them the screen keeps its own. */
   values?: DialValues;
   onValuesChange?: (values: DialValues) => void;
@@ -61,7 +61,7 @@ export function ShotLogScreen({
   drink,
   coffee,
   start,
-  grind = { min: 0, max: 40, step: 0.5 },
+  grind = { min: 0, max: 40, step: 0.5, majorEvery: 2, coarser: null },
   values: controlled,
   onValuesChange,
   sweetened: controlledSweetened,
@@ -85,11 +85,29 @@ export function ShotLogScreen({
   const sweetened = controlledSweetened ?? ownSweetened;
   const [selected, setSelected] = useState("grind");
 
+  // Finer and coarser follow the grinder's direction; unknown shows neither (DQ-11).
+  const captions =
+    grind.coarser === "higher"
+      ? { lower: tShot("finer"), higher: tShot("coarser") }
+      : grind.coarser === "lower"
+        ? { lower: tShot("coarser"), higher: tShot("finer") }
+        : undefined;
+  // Ranges follow TQ-14.
   const fields: DialField[] = [
-    { key: "grind", label: tShot("grind"), value: values.grind, startValue: startSeconds.grind, ...grind, majorEvery: 2 },
+    {
+      key: "grind",
+      label: tShot("grind"),
+      value: values.grind,
+      startValue: startSeconds.grind,
+      min: grind.min,
+      max: grind.max,
+      step: grind.step,
+      majorEvery: grind.majorEvery ?? 2,
+      endCaptions: captions,
+    },
     { key: "dose", label: tShot("dose"), value: values.dose, startValue: startSeconds.dose, min: 5, max: 30, step: 0.1, majorEvery: 10, unit: "gram" },
-    { key: "yield", label: tShot("yield"), value: values.yield, startValue: startSeconds.yield, min: 10, max: 80, step: 0.1, majorEvery: 10, unit: "gram" },
-    { key: "time", label: tShot("time"), value: values.time, startValue: startSeconds.time, min: 0, max: 60, step: 0.1, majorEvery: 10, unit: "second" },
+    { key: "yield", label: tShot("yield"), value: values.yield, startValue: startSeconds.yield, min: 5, max: 100, step: 0.1, majorEvery: 10, unit: "gram" },
+    { key: "time", label: tShot("time"), value: values.time, startValue: startSeconds.time, min: 5, max: 90, step: 0.1, majorEvery: 10, unit: "second" },
   ];
   const pick = (field: ContextField) => (readOnly.includes(field) ? undefined : () => onPick(field));
 
@@ -127,7 +145,8 @@ export function ShotLogScreen({
         className="mt-5 border-t border-line py-4"
       />
       {notice && <div className="mt-2">{notice}</div>}
-      <div className="mt-auto pt-4">
+      {/* Pinned above the safe area, so Save is always in reach; the toggles may scroll under it. */}
+      <div data-testid="log-save" className="sticky bottom-0 -mx-4 mt-auto bg-paper px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <Button
           variant="primary"
           fullWidth

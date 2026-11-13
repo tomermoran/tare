@@ -5,7 +5,8 @@ import { batches, batchPortions, drinkTypes, extractions, setupParts, setups } f
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
-import { getLogContext } from "./logContext";
+import { getLogContext, getStartingValues } from "./logContext";
+import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
@@ -134,5 +135,23 @@ describe("getLogContext", () => {
     signInAs(other.user.firebaseUid);
     const c = await getLogContext({ portionId: k.portion.id, drinkId: k.drinks.latte.id });
     expect(c).toMatchObject({ setups: [], drinks: [], portions: [], milks: [], defaultPortionId: null, defaultDrinkId: null });
+  });
+});
+
+describe("getStartingValues", () => {
+  it("starts from DQ-07's neutral values, grind in the middle of the grinder", async () => {
+    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 25, dose: 18, yield: 36, timeMs: 28_000 });
+  });
+
+  it("starts from the latest measured shot on this setup, ignoring one-tap shots (AC 2)", async () => {
+    await shot({ grindSize: 12.5, doseWeight: 18.5, yieldWeight: 40, yieldTime: 27_600, createdAt: day(20) });
+    await shot({ grindSize: 14, doseWeight: 19, yieldWeight: 38, yieldTime: 30_000, createdAt: day(21), entryMode: "one-tap" });
+    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 12.5, dose: 18.5, yield: 40, timeMs: 27_600 });
+  });
+
+  it("refuses another household's setup", async () => {
+    const other = await makeHousehold(db());
+    signInAs(other.user.firebaseUid);
+    await expect(getStartingValues(k.setup.id)).rejects.toBeInstanceOf(NotFoundError);
   });
 });

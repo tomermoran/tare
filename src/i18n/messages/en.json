@@ -36,7 +36,9 @@
     },
     "compact": "{dose} → {yield} · {time}",
     "valuesLabel": "Shot values",
-    "grindValue": "Grind {grind}"
+    "grindValue": "Grind {grind}",
+    "finer": "Finer",
+    "coarser": "Coarser"
   },
   "nav": {
     "label": "Main",

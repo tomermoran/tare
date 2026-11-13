@@ -4,9 +4,10 @@ import { Suspense } from "react";
 import { ShotLogFlow } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
+import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { daysBetween, localDayKey } from "@/domain/localDay";
 import { setupName } from "@/lib/setupName";
-import { getLogContext, type LogPortion } from "@/server/dal/logContext";
+import { getLogContext, getStartingValues, NEUTRAL_START, type LogPortion } from "@/server/dal/logContext";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
 
@@ -24,9 +25,6 @@ export default function LogPage({ searchParams }: PageProps<"/log">) {
 }
 
 const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
-
-/** DQ-07: neutral starting values for a blank log. */
-const NEUTRAL = { dose: 18, yield: 36, timeMs: 28_000 };
 
 async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   const params = await searchParams;
@@ -66,12 +64,8 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   }));
 
   const setup = context.setups.find((s) => s.id === context.defaultSetupId);
-  const scale = setup?.grind;
-  const grind =
-    scale && scale.min !== null && scale.max !== null && scale.step !== null
-      ? { min: scale.min, max: scale.max, step: scale.step }
-      : undefined;
-  const middle = grind ? Number((Math.round((grind.min + grind.max) / 2 / grind.step) * grind.step).toFixed(4)) : 20;
+  const grind = grindWheelConfig(setup?.grind);
+  const start = setup ? await getStartingValues(setup.id) : { grind: middleGrind(grind), ...NEUTRAL_START };
 
   return (
     <ShotLogFlow
@@ -82,7 +76,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       portions={portions}
       defaultPortionId={context.defaultPortionId}
       selectedPortionId={selected && context.portions.some((p) => p.id === selected) ? selected : null}
-      start={{ grind: middle, ...NEUTRAL }}
+      start={start}
       grind={grind}
       resume={one(params.resume) === "1"}
     />

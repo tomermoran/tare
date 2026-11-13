@@ -125,3 +125,44 @@ export const RightToLeft: Story = {
   play: undefined,
   globals: { direction: "rtl" },
 };
+
+const grind = { label: shot.grind, value: 15, min: 0, max: 40, step: 0.5, majorEvery: 2 };
+
+/** A grinder that goes coarser with higher numbers: finer at the start. */
+export const GrindCoarserHigher: Story = {
+  args: { ...grind, endCaptions: { lower: shot.finer, higher: shot.coarser } },
+  play: async ({ canvasElement }) => {
+    const [start, end] = within(canvasElement).getByTestId("end-captions").children;
+    await expect(start).toHaveTextContent(shot.finer);
+    await expect(end).toHaveTextContent(shot.coarser);
+    await expect(start.getBoundingClientRect().left).toBeLessThan(end.getBoundingClientRect().left);
+  },
+};
+
+/** A grinder that goes coarser with lower numbers: coarser at the start. */
+export const GrindCoarserLower: Story = {
+  args: { ...grind, endCaptions: { lower: shot.coarser, higher: shot.finer } },
+  play: async ({ canvasElement }) => {
+    const [start] = within(canvasElement).getByTestId("end-captions").children;
+    await expect(start).toHaveTextContent(shot.coarser);
+  },
+};
+
+/** Direction not known: no captions. */
+export const GrindNoDirection: Story = {
+  args: grind,
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByTestId("end-captions")).toBeNull();
+  },
+};
+
+/** Right-to-left: the ruler grows leftwards, so "finer" moves to the right. */
+export const GrindRightToLeft: Story = {
+  args: GrindCoarserHigher.args,
+  globals: { direction: "rtl" },
+  play: async ({ canvasElement }) => {
+    const [lower, higher] = within(canvasElement).getByTestId("end-captions").children;
+    await expect(lower).toHaveTextContent(shot.finer);
+    await expect(lower.getBoundingClientRect().left).toBeGreaterThan(higher.getBoundingClientRect().left);
+  },
+};
