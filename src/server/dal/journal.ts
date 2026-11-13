@@ -8,16 +8,20 @@ import {
   canonicalHardware,
   drinkTypes,
   extractions,
+  hardwareMakers,
   milkTypes,
   ownedHardware,
   roasters,
   setupParts,
+  setups,
 } from "@/db/schema";
+import type { HardwareKind } from "@/domain/capabilities";
 import { localDayKey } from "@/domain/localDay";
 import type { TasteTag } from "@/domain/taste";
 import { getTimeZone } from "@/server/time";
 import { resolveEntity } from "./catalogMerge";
-import { requireHousehold } from "./scope";
+import { assertOwned, requireHousehold } from "./scope";
+import { PART_KINDS } from "./parts";
 
 /*
  * The Journal (STORY-02-06-01): the household's shots, newest first. The
@@ -151,5 +155,84 @@ export async function listJournal({
       grinderId: grinderOf.get(r.setupId) ?? null,
     })),
     older: more ? edge : null,
+  };
+}
+
+export type ShotDetail = Omit<JournalShot, "day" | "grinderId"> & {
+  setup: {
+    id: string;
+    name: string | null;
+    /** Machine, grinder and basket, in that order, by maker and model. */
+    parts: { kind: HardwareKind; maker: string; model: string; nickname: string | null }[];
+  };
+  sweetened: boolean;
+  prep: { wdt: boolean; puckScreen: boolean };
+  rating: number | null;
+  /** Just-right answers, -2..2 (sweetness -2..0); null when not answered. */
+  taste: { balance: number | null; strength: number | null; body: number | null; sweetness: number | null };
+};
+
+/**
+ * One shot with everything SCR-SHOT shows (STORY-02-06-03 AC 1, AC 2): its
+ * setup's parts by maker and model (setups never change, so these are what
+ * was used), milk, prep, sweetened and taste. Another household's shot is
+ * not found.
+ */
+export async function getShot(id: string): Promise<ShotDetail> {
+  const { householdId } = await requireHousehold();
+  await assertOwned("extractions", id, householdId);
+  const [r] = await db
+    .select({
+      shot: extractions,
+      drinkName: drinkTypes.name,
+      drinkKey: drinkTypes.nameKey,
+      beanId: batches.beanId,
+      milkName: milkTypes.name,
+      milkKey: milkTypes.nameKey,
+      frozenAt: batchPortions.frozenAt,
+      thawedAt: batchPortions.thawedAt,
+      setupName: setups.name,
+    })
+    .from(extractions)
+    .innerJoin(drinkTypes, eq(drinkTypes.id, extractions.drinkTypeId))
+    .innerJoin(batchPortions, eq(batchPortions.id, extractions.portionId))
+    .innerJoin(batches, eq(batches.id, batchPortions.batchId))
+    .innerJoin(setups, eq(setups.id, extractions.setupId))
+    .leftJoin(milkTypes, eq(milkTypes.id, extractions.milkTypeId))
+    .where(eq(extractions.id, id));
+
+  const survivor = (await resolveEntity(db, canonicalBeans, r.beanId)) ?? r.beanId;
+  const [coffee] = await db
+    .select({ name: canonicalBeans.name, roasterName: roasters.name })
+    .from(canonicalBeans)
+    .innerJoin(roasters, eq(roasters.id, canonicalBeans.roasterId))
+    .where(eq(canonicalBeans.id, survivor));
+
+  const parts = await db
+    .select({ kind: canonicalHardware.kind, maker: hardwareMakers.name, model: canonicalHardware.name, nickname: ownedHardware.nickname })
+    .from(setupParts)
+    .innerJoin(ownedHardware, eq(ownedHardware.id, setupParts.ownedHardwareId))
+    .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
+    .innerJoin(hardwareMakers, eq(hardwareMakers.id, canonicalHardware.makerId))
+    .where(eq(setupParts.setupId, r.shot.setupId));
+  parts.sort((a, b) => PART_KINDS.indexOf(a.kind) - PART_KINDS.indexOf(b.kind));
+
+  const s = r.shot;
+  return {
+    id: s.id,
+    at: s.createdAt,
+    drink: { name: r.drinkName, nameKey: r.drinkKey },
+    coffee,
+    milk: r.milkName || r.milkKey ? { name: r.milkName, nameKey: r.milkKey, ml: s.milkMl } : null,
+    values: { grind: s.grindSize, dose: s.doseWeight, yield: s.yieldWeight, timeMs: s.yieldTime },
+    entryMode: s.entryMode,
+    reaction: s.reaction ?? null,
+    tags: s.tasteTags ?? [],
+    fromFrozen: wasFrozen(s.createdAt, r),
+    setup: { id: s.setupId, name: r.setupName, parts },
+    sweetened: s.sweetened === true,
+    prep: { wdt: s.usedWdt, puckScreen: s.usedPuckScreen },
+    rating: s.userRating ?? null,
+    taste: { balance: s.tasteBalance, strength: s.tasteStrength, body: s.tasteBody, sweetness: s.tasteSweetness },
   };
 }

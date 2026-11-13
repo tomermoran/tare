@@ -5,7 +5,8 @@ import { batchPortions, extractions } from "@/db/schema";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
-import { listJournal, type JournalShot } from "./journal";
+import { getShot, listJournal, type JournalShot } from "./journal";
+import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
@@ -120,5 +121,54 @@ describe("listJournal", () => {
     const other = await makeHousehold(db());
     signInAs(other.user.firebaseUid);
     expect(await listJournal({ now: NOW })).toEqual({ shots: [], older: null });
+  });
+});
+
+describe("getShot", () => {
+  it("returns every field the detail shows (AC 1, AC 2)", async () => {
+    const id = await shot(daysAgo(1), {
+      drinkTypeId: k.drinks.latte.id,
+      milkTypeId: k.milk.id,
+      milkMl: 180,
+      sweetened: true,
+      usedWdt: true,
+      userRating: 4,
+      tasteBalance: -1,
+      tasteSweetness: 0,
+      tasteTags: ["flat"],
+    });
+    const detail = await getShot(id);
+    expect(detail).toMatchObject({
+      id,
+      at: daysAgo(1),
+      drink: { nameKey: "drinks.latte" },
+      coffee: { name: "House Blend", roasterName: "Example Roasters" },
+      milk: { nameKey: "milks.oat", ml: 180 },
+      values: { grind: 15, dose: 18, yield: 36, timeMs: 28_000 },
+      entryMode: "measured",
+      sweetened: true,
+      prep: { wdt: true, puckScreen: false },
+      rating: 4,
+      taste: { balance: -1, strength: null, body: null, sweetness: 0 },
+      tags: ["flat"],
+      setup: { id: k.setup.id, name: null },
+    });
+    expect(detail.setup.parts).toEqual([
+      { kind: "machine", maker: "Example Works", model: "Example Machine", nickname: null },
+      { kind: "grinder", maker: "Example Works", model: "Example Grinder", nickname: null },
+      { kind: "basket", maker: "Example Works", model: "Example Double Basket", nickname: null },
+    ]);
+  });
+
+  it("returns a one-tap shot's mode and reaction", async () => {
+    const id = await shot(daysAgo(1), { entryMode: "one-tap", reaction: "off" });
+    expect(await getShot(id)).toMatchObject({ entryMode: "one-tap", reaction: "off", rating: null, milk: null });
+  });
+
+  it("doesn't find another household's shot", async () => {
+    const id = await shot(daysAgo(1));
+    const other = await makeHousehold(db());
+    signInAs(other.user.firebaseUid);
+    await expect(getShot(id)).rejects.toBeInstanceOf(NotFoundError);
   });
 });
