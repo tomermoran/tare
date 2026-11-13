@@ -250,5 +250,27 @@
     "addSoon": "For now, pick the closest match, or go back and try another search.",
     "boughtBefore": "Bought before",
     "allRoasters": "All roasters"
+  },
+  "bag": {
+    "addTitle": "Add a bag",
+    "coffee": "Coffee",
+    "chooseCoffee": "Choose the coffee",
+    "change": "Change",
+    "coffeeMissing": "Choose the coffee first.",
+    "weight": "Bag weight",
+    "otherWeight": "Other",
+    "otherWeightLabel": "Weight of the bag",
+    "weightRequired": "How much coffee is in the bag?",
+    "roastDate": "Roast date",
+    "roastDateHint": "On the bag, often near the seal.",
+    "otherDates": "Other dates on the bag",
+    "packedDate": "Packing date",
+    "bestBefore": "Best before",
+    "datesHint": "Freshness counts from the roast date, or the packing date if that's all the bag shows. With only a best-before date, Tare shows the time left instead.",
+    "more": "Lot and purchase date",
+    "lot": "Lot code",
+    "purchased": "Bought on",
+    "save": "Add bag",
+    "saveFailedTitle": "Couldn't add the bag"
   }
 }

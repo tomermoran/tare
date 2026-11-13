@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { AddPartFlow } from "@/components/setup/AddPartFlow";
 import type { HardwareKind } from "@/domain/capabilities";
@@ -34,6 +35,9 @@ async function AddPart({ searchParams }: Pick<PageProps<"/setup/add-part">, "sea
   ]);
   const haveKinds = tab ? PART_KINDS.filter((k) => tab.parts[k].length > 0) : [];
 
+  // Today depends on the request time, so it is never prerendered.
+  await connection();
+  const today = localDayKey(new Date(), timeZone);
   return (
     <AddPartFlow
       key={selected ?? "none"}
@@ -43,7 +47,7 @@ async function AddPart({ searchParams }: Pick<PageProps<"/setup/add-part">, "sea
       walk={one(params.walk) === "1"}
       returnTo={returnTo ? safeReturnTo(returnTo, "/setup") : null}
       haveKinds={haveKinds}
-      today={localDayKey(new Date(), timeZone)}
+      today={today}
     />
   );
 }
