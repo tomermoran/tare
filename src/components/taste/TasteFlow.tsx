@@ -7,7 +7,9 @@ import { TasteScreen } from "@/components/screens/TasteScreen/TasteScreen";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import type { TasteTag } from "@/domain/taste";
 import type { Tasting } from "@/domain/tasting";
+import { shotWarnings } from "@/domain/shotWarnings";
 import { saveTastingAction } from "@/server/actions/shots";
+import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { TasteQuestions } from "./TasteQuestions";
 import { TasteTags } from "./TasteTags";
 import { useTasteLabels } from "./useTasteLabels";
@@ -132,6 +134,7 @@ export function TasteFlow({
       onRatingChange={(rating) => set({ rating })}
       questions={<TasteQuestions labels={words.questions} value={answers} onChange={set} />}
       tags={<TasteTags labels={words} value={answers.tags} onChange={(tags) => set({ tags })} />}
+      warning={<ShotWarnings warnings={shotWarnings(answers.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
       primary={{ label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) }}
       state={state}
       onClose={() => void saveThen(toLeaveTo)}
