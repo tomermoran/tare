@@ -1,4 +1,5 @@
 import type { GrindScale } from "./capabilities";
+import { effectiveGrind, FALLBACKS } from "./capabilityFallbacks";
 
 /*
  * The grind wheel for a setup's grinder (STORY-01-03-02 AC 3, AC 4). A
@@ -19,16 +20,12 @@ export type GrindWheel = {
 };
 
 /** DQ-11's fallbacks for a grinder whose scale isn't known. */
-export const GRIND_FALLBACK = { min: 0, max: 100, smoothStep: 0.1, clickStep: 1 } as const;
+export const GRIND_FALLBACK = FALLBACKS.grind;
 
 const majorFor = (step: number) => (step >= 1 ? 5 : Math.max(1, Math.round(1 / step)));
 
 export function grindWheelConfig(scale: GrindScale | null | undefined): GrindWheel {
-  const step = scale?.step ?? (scale?.type === "stepped" ? GRIND_FALLBACK.clickStep : GRIND_FALLBACK.smoothStep);
-  let min = scale?.min ?? GRIND_FALLBACK.min;
-  let max = scale?.max ?? GRIND_FALLBACK.max;
-  if (min >= max) [min, max] = [GRIND_FALLBACK.min, GRIND_FALLBACK.max];
-  const coarser = scale?.coarser === "higher" || scale?.coarser === "lower" ? scale.coarser : null;
+  const { min, max, step, coarser } = effectiveGrind(scale);
   return { min, max, step, majorEvery: majorFor(step), coarser };
 }
 
