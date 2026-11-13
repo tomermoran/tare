@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { HomeScreen } from "@/components/screens/HomeScreen/HomeScreen";
 import { Button, buttonClass } from "@/components/ui/Button/Button";
@@ -12,14 +12,13 @@ import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/Sele
 import { clearBrewChoice, saveBrewChoice, touchBrewChoice } from "@/lib/brewChoiceCookie";
 import { isSuggestionDismissed } from "@/lib/dismissals";
 import { dialInHref, fixHref } from "@/lib/fixRoutes";
-import { portionStateLabel } from "@/lib/portionStateLabel";
 import { portionChoicesAction, pullShotAction, undoPullAction } from "@/server/actions/pull";
 import { getOffContextAction, setReactionAction } from "@/server/actions/reaction";
 import { chooseSetupAction } from "@/server/actions/setups";
 import type { PortionChoice } from "@/server/dal/pull";
 import type { OffContext } from "@/server/dal/reaction";
 import { OffFlow } from "./OffFlow";
-import { PortionSheet, type PortionOption } from "./PortionSheet";
+import { PortionChooser } from "./PortionChooser";
 
 type Field = "drink" | "coffee" | "setup";
 
@@ -95,7 +94,6 @@ export function BrewFlow({
   addBagHref: string;
 }) {
   const t = useTranslations();
-  const format = useFormatter();
   const router = useRouter();
   const [picking, setPicking] = useState<Field | null>(null);
   const [pulled, setPulled] = useState<Pulled | null>(null);
@@ -245,15 +243,6 @@ export function BrewFlow({
     );
   };
 
-  const date = (d: Date) => format.dateTime(d, { day: "numeric", month: "short" });
-  const options: PortionOption[] = (choosing?.portions ?? []).map((p) => ({
-    id: p.id,
-    primary: p.roastDate ? t("portion.bagRoasted", { date: date(p.roastDate) }) : t("portion.bagAdded", { date: date(p.bagAddedAt) }),
-    secondary: portionStateLabel(t, p.state),
-    end: p.remaining ? t("portion.remaining", { grams: format.number(p.remaining.grams, { style: "unit", unit: "gram", unitDisplay: "short", maximumFractionDigits: 0 }) }) : undefined,
-    frozen: p.frozen,
-  }));
-
   const sheets = {
     drink: { title: t("log.drink"), options: drinks, value: drinkId },
     coffee: { title: t("shot.coffee"), options: coffees, value: beanId },
@@ -320,14 +309,13 @@ export function BrewFlow({
         footerRow={picking === "setup" ? { label: t("setup.changePart"), onClick: () => router.push(changePartHref) } : undefined}
       />
       {off && <OffFlow shotId={off.shotId} context={off.context} onClose={() => setOff(null)} />}
-      <PortionSheet
-        open={choosing !== null}
+      <PortionChooser
+        portions={choosing?.portions ?? null}
         onClose={() => {
           // Cancel records nothing (STORY-02-02-03 AC 5).
           setChoosing(null);
           clientId.current = null;
         }}
-        portions={options}
         onChoose={(id) => {
           const forDialIn = choosing?.dialIn;
           if (!forDialIn) return void doPull(id);
@@ -335,14 +323,6 @@ export function BrewFlow({
           router.push(dialInHref({ drinkId: forDialIn.drinkId, beanId: forDialIn.beanId, portionId: id, suggested: suggestedFor(forDialIn) }));
         }}
         addBagHref={addBagHref}
-        labels={{
-          title: t("portion.chooseTitle"),
-          body: t("portion.chooseBody"),
-          close: t("actions.close"),
-          grindFromFrozen: t("portion.grindFromFrozen"),
-          noneLeft: t("portion.noneLeft"),
-          addBag: t("home.addBag"),
-        }}
       />
     </>
   );
