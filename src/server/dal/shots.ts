@@ -5,6 +5,7 @@ import { newId } from "@/db/ids";
 import { batchPortions, drinkTypes, extractions, milkTypes, personas } from "@/db/schema";
 import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
 import { validateMilk } from "@/domain/milk";
+import { tastingColumns, type Tasting } from "@/domain/tasting";
 import { portionState } from "@/domain/portionState";
 import { setupMachine } from "./logContext";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
@@ -130,4 +131,88 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
     await shot;
   }
   return { id };
+}
+
+/**
+ * What edit mode can change on a saved shot (STORY-02-06-02): values,
+ * temperature and pressure, milk, prep, sweetened and taste. Context
+ * (portion, drink, setup, persona, logger, entry mode) can't change, so it
+ * isn't here. Each field left out keeps its stored value.
+ */
+export type ShotEdit = Partial<
+  {
+    grind: number;
+    dose: number;
+    yield: number;
+    timeMs: number;
+    sweetened: boolean;
+    usedWdt: boolean;
+    usedPuckScreen: boolean;
+    milkTypeId: string | null;
+    milkMl: number | null;
+  } & BrewValues
+> & { taste?: Tasting };
+
+const RANGES = {
+  grind: (v: number) => v >= 0,
+  dose: (v: number) => v > 0 && v <= 100,
+  yield: (v: number) => v > 0 && v <= 500,
+  timeMs: (v: number) => v >= 0 && v <= 600_000,
+} as const;
+const COLUMNS = { grind: "grindSize", dose: "doseWeight", yield: "yieldWeight", timeMs: "yieldTime" } as const;
+
+/**
+ * Saves an edited shot. A one-tap shot takes answers and tags but never a
+ * rating, and stays one-tap with its reaction. A stored value outside
+ * today's ranges may stay as it is (STORY-01-06-09 AC 4); only a changed
+ * value is checked. Remaining coffee follows the new dose, since it's
+ * derived from the shots; recipes are never touched.
+ */
+export async function updateShot(shotId: string, edit: ShotEdit): Promise<void> {
+  const { householdId } = await requireHousehold();
+  await assertOwned("extractions", shotId, householdId);
+  const [stored] = await db.select().from(extractions).where(eq(extractions.id, shotId));
+  const set: Partial<typeof extractions.$inferInsert> = {};
+
+  for (const key of ["grind", "dose", "yield", "timeMs"] as const) {
+    const v = edit[key];
+    if (v === undefined || v === stored[COLUMNS[key]]) continue;
+    if (!finite(v) || !RANGES[key](v)) throw new InvalidShotError(key);
+    set[COLUMNS[key]] = key === "timeMs" ? Math.round(v) : v;
+  }
+
+  // Temperature and pressure, a pair at a time: an unchanged pair stays as stored.
+  const pairs = { temperature: ["brewTempC", "brewTempStep"], pressure: ["pressureBar", "pressureStep"] } as const;
+  const changed: BrewValues = { brewTempC: null, brewTempStep: null, pressureBar: null, pressureStep: null };
+  let brewChanged = false;
+  for (const [a, b] of Object.values(pairs)) {
+    if (edit[a] === undefined && edit[b] === undefined) continue;
+    const next = { [a]: edit[a] ?? null, [b]: edit[b] ?? null } as Partial<BrewValues>;
+    if (next[a] === stored[a] && next[b] === stored[b]) continue;
+    Object.assign(changed, next);
+    Object.assign(set, next);
+    brewChanged = true;
+  }
+  if (brewChanged) validateBrewControls(await setupMachine(stored.setupId), changed);
+
+  if (edit.milkTypeId !== undefined || edit.milkMl !== undefined) {
+    const milk = { milkTypeId: edit.milkTypeId ?? null, ml: edit.milkMl ?? null };
+    if (milk.milkTypeId !== stored.milkTypeId || milk.ml !== stored.milkMl) {
+      const [[drink], milks] = await Promise.all([
+        db.select({ hasMilk: drinkTypes.hasMilk }).from(drinkTypes).where(eq(drinkTypes.id, stored.drinkTypeId)),
+        db.select({ id: milkTypes.id }).from(milkTypes).where(eq(milkTypes.householdId, householdId)),
+      ]);
+      validateMilk({ hasMilk: drink.hasMilk, ...milk, visibleMilkIds: milks.map((m) => m.id) });
+      set.milkTypeId = milk.milkTypeId;
+      set.milkMl = milk.ml;
+    }
+  }
+
+  if (edit.sweetened !== undefined) set.sweetened = edit.sweetened === true;
+  if (edit.usedWdt !== undefined) set.usedWdt = edit.usedWdt === true;
+  if (edit.usedPuckScreen !== undefined) set.usedPuckScreen = edit.usedPuckScreen === true;
+  if (edit.taste) Object.assign(set, tastingColumns(edit.taste, stored.entryMode));
+
+  if (Object.keys(set).length === 0) return;
+  await db.update(extractions).set(set).where(eq(extractions.id, shotId));
 }

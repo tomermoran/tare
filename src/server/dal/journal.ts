@@ -17,6 +17,7 @@ import {
 } from "@/db/schema";
 import type { HardwareKind } from "@/domain/capabilities";
 import { localDayKey } from "@/domain/localDay";
+import type { BrewValues } from "@/domain/brewControls";
 import type { TasteTag } from "@/domain/taste";
 import { getTimeZone } from "@/server/time";
 import { resolveEntity } from "./catalogMerge";
@@ -168,6 +169,10 @@ export type ShotDetail = Omit<JournalShot, "day" | "grinderId"> & {
   sweetened: boolean;
   /** The drink is a milk drink, which words strength differently. */
   milkDrink: boolean;
+  /** The household milk chosen, for editing. */
+  milkTypeId: string | null;
+  /** Temperature and pressure as stored, for editing. */
+  brew: BrewValues;
   prep: { wdt: boolean; puckScreen: boolean };
   rating: number | null;
   /** Just-right answers, -2..2 (sweetness -2..0); null when not answered. */
@@ -235,6 +240,8 @@ export async function getShot(id: string): Promise<ShotDetail> {
     setup: { id: s.setupId, name: r.setupName, parts },
     sweetened: s.sweetened === true,
     milkDrink: r.hasMilk,
+    milkTypeId: s.milkTypeId,
+    brew: { brewTempC: s.brewTempC, brewTempStep: s.brewTempStep, pressureBar: s.pressureBar, pressureStep: s.pressureStep },
     prep: { wdt: s.usedWdt, puckScreen: s.usedPuckScreen },
     rating: s.userRating ?? null,
     taste: { balance: s.tasteBalance, strength: s.tasteStrength, body: s.tasteBody, sweetness: s.tasteSweetness },
