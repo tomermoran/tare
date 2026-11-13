@@ -464,6 +464,11 @@
     "lactoseFree": "Lactose-free"
   },
   "taste": {
+    "title": "Shot saved",
+    "rating": "Overall",
+    "done": "Done",
+    "saveFailed": "Couldn't save how it tasted. Your choices are kept, and the shot itself is saved.",
+    "leaveWithout": "Leave without saving tasting",
     "balance": {
       "right": "Balanced",
       "more": "A bit bitter",
