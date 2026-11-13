@@ -199,7 +199,10 @@
     "details": "Details",
     "inSetups": "In your setups",
     "notInSetup": "Not in a setup yet. Use it from Setup with “Change a part”.",
-    "barSymbol": "bar"
+    "barSymbol": "bar",
+    "editCapabilities": "Answer these again",
+    "editCapabilitiesHint": "You added this model, so you can change your answers. Shots you've logged keep their values.",
+    "editCapabilitiesTitle": "What it can do"
   },
   "states": {
     "notBuilt": "This tab isn't built yet.",
