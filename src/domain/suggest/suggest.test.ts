@@ -10,6 +10,7 @@ const input = (over: Partial<SuggestInput> = {}): SuggestInput => ({
   answers: { balance: null, strength: null, body: null, sweetness: null },
   tags: [],
   recipe: { timeMs: 28_000 },
+  previous: null,
   setup: { grind: null, temperature: false, doseRange: null },
   clocks: { roasting: null, opened: null },
   ...over,
