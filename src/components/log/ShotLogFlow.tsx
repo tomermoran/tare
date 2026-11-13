@@ -17,7 +17,8 @@ import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
 import { secondsToMs } from "@/lib/units";
 import { withReturnTo } from "@/lib/returnTo";
-import { BUILDER_PATH } from "@/lib/setupRoutes";
+import { BUILDER_PATH, partHref } from "@/lib/setupRoutes";
+import type { HardwareKind } from "@/domain/capabilities";
 import { saveMeasuredShotAction } from "@/server/actions/shots";
 
 /*
@@ -62,6 +63,7 @@ export function ShotLogFlow({
   prep,
   drinkMilk,
   milks,
+  unknownPart = null,
   resume,
 }: {
   setupId: string | null;
@@ -85,6 +87,8 @@ export function ShotLogFlow({
   drinkMilk: Record<string, DrinkMilk>;
   /** The household's visible milks, in list order. */
   milks: SelectOption[];
+  /** A setup part with "not sure" answers, for the quiet link (STORY-01-06-08 AC 6). */
+  unknownPart?: { id: string; kind: HardwareKind } | null;
   resume: boolean;
 }) {
   const t = useTranslations();
@@ -245,6 +249,11 @@ export function ShotLogFlow({
           setDraft((d) => ({ ...d, prep: { ...d.prep, [key]: value }, prepTouched: [...new Set([...d.prepTouched, key])] }))
         }
         readOnly={setup ? ["setup"] : []}
+        capLink={
+          unknownPart
+            ? { label: t("log.capUnknown", { kind: unknownPart.kind }), onClick: () => sideTrip(partHref(unknownPart.id)) }
+            : undefined
+        }
         notice={
           missing ? (
             <Notice urgent>{t(missing === "setup" ? "log.missingSetupNote" : "log.missingCoffeeNote")}</Notice>

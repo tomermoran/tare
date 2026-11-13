@@ -58,6 +58,11 @@ type ShotLogScreenProps = {
   onPrepChange?: (key: PrepKey, value: boolean) => void;
   /** Fields that can't be changed here are shown read-only. */
   readOnly?: ContextField[];
+  /**
+   * A quiet ghost link under the dial when a part is "not sure", to tell Tare
+   * more (STORY-01-06-08 AC 6). Never a Notice, never signal; once per screen.
+   */
+  capLink?: { label: string; onClick: () => void };
   /** A Notice under the dial: what's missing, or a failed save. */
   notice?: ReactNode;
   saving?: boolean;
@@ -102,6 +107,7 @@ export function ShotLogScreen({
   prep: controlledPrep,
   onPrepChange,
   readOnly = [],
+  capLink,
   notice,
   saving = false,
   onCancel = noop,
@@ -212,6 +218,11 @@ export function ShotLogScreen({
         onChange={(key, v) => setValues({ ...values, [key]: v })}
         className="mt-6"
       />
+      {capLink && (
+        <Button variant="ghost" size="sm" className="mt-1 self-center" onClick={capLink.onClick}>
+          {capLink.label}
+        </Button>
+      )}
       <p className="mt-2 text-center text-label text-ink-secondary">
         {tShot("ratio", { ratio: format.number(values.yield / values.dose, { maximumFractionDigits: 1 }) })}
       </p>

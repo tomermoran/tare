@@ -147,7 +147,8 @@
     "unsetHint": "Optional. Leave it unset if you didn't change it.",
     "milk": "Milk",
     "milkAmount": "Milk",
-    "milkNone": "Choose a milk"
+    "milkNone": "Choose a milk",
+    "capUnknown": "Tell us about your {kind, select, machine {machine} grinder {grinder} other {basket}}"
   },
   "journal": {
     "title": "Journal",

@@ -4,15 +4,21 @@ import { AnswerLater } from "@/components/catalog/AnswerLater";
 import { CapabilitySummary } from "@/components/catalog/CapabilitySummary";
 import { UnitScreen, type UnitFact } from "@/components/screens/UnitScreen/UnitScreen";
 import { setupLabel } from "@/domain/setupName";
+import { safeReturnTo } from "@/lib/returnTo";
 import { SETUP_PATH } from "@/lib/setupRoutes";
 import { getPart } from "@/server/dal/parts";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getSetups } from "@/server/dal/setups";
 import { getTimeZone } from "@/server/time";
 
-/** SCR-UNIT: one part, with the setups it's in (STORY-01-02-02 AC 5). */
-export default async function PartPage({ params }: PageProps<"/setup/parts/[unitId]">) {
+/**
+ * SCR-UNIT: one part, with the setups it's in (STORY-01-02-02 AC 5).
+ * `returnTo` brings the user back to where they came from, such as the log.
+ */
+export default async function PartPage({ params, searchParams }: PageProps<"/setup/parts/[unitId]">) {
   const { unitId } = await params;
+  const returnParam = (await searchParams).returnTo;
+  const returnTo = typeof returnParam === "string" ? safeReturnTo(returnParam, SETUP_PATH) : null;
   const [t, format, timeZone] = await Promise.all([getTranslations(), getFormatter(), getTimeZone()]);
   const found = await unlessSignedOut(Promise.all([getPart(unitId), getSetups()])).catch((e) => {
     if (e instanceof NotFoundError) notFound();
@@ -32,14 +38,14 @@ export default async function PartPage({ params }: PageProps<"/setup/parts/[unit
   return (
     <UnitScreen
       labels={{
-        back: t("setup.title"),
+        back: returnTo ? t("actions.back") : t("setup.title"),
         details: t("unit.details"),
         capabilities: t("unit.aboutModel"),
         inSetups: t("unit.inSetups"),
         notInSetup: t("unit.notInSetup"),
         current: t("setup.current"),
       }}
-      backHref={SETUP_PATH}
+      backHref={returnTo ?? SETUP_PATH}
       title={part.nickname ?? part.model}
       subtitle={t("setup.partName", { maker: part.maker, model: part.model })}
       facts={facts}
