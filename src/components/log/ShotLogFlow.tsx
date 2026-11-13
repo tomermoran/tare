@@ -11,6 +11,7 @@ import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/Sele
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { brewToStored, type BrewDial, type BrewTabs } from "@/domain/brewControls";
 import type { GrindWheel } from "@/domain/grind";
+import type { Prep, PrepKey } from "@/domain/prep";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
 import { secondsToMs } from "@/lib/units";
@@ -28,7 +29,15 @@ import { saveMeasuredShotAction } from "@/server/actions/shots";
 
 const DRAFT = "log";
 
-type Draft = { drinkId: string | null; portionId: string | null; values: DialValues; sweetened: boolean };
+type Draft = {
+  drinkId: string | null;
+  portionId: string | null;
+  values: DialValues;
+  sweetened: boolean;
+  prep: Prep;
+  /** Ticks the user changed, which a setup change leaves alone (STORY-01-03-06 AC 4). */
+  prepTouched: PrepKey[];
+};
 
 export function ShotLogFlow({
   setupId,
@@ -42,6 +51,7 @@ export function ShotLogFlow({
   grind,
   brew,
   brewLast,
+  prep,
   resume,
 }: {
   setupId: string | null;
@@ -59,12 +69,14 @@ export function ShotLogFlow({
   brew: BrewTabs;
   /** The last temperature and pressure used, where "add" starts. */
   brewLast: BrewDial;
+  /** Where the puck prep ticks start (prepStart). */
+  prep: Prep;
   resume: boolean;
 }) {
   const t = useTranslations();
   const router = useRouter();
 
-  const fresh = (): Draft => ({ drinkId: defaultDrinkId, portionId: defaultPortionId, values: toDial(start), sweetened: false });
+  const fresh = (): Draft => ({ drinkId: defaultDrinkId, portionId: defaultPortionId, values: toDial(start), sweetened: false, prep, prepTouched: [] });
   const [draft, setDraft] = useState<Draft>(fresh);
   const [sheet, setSheet] = useState<"drink" | "coffee" | null>(null);
   const [missing, setMissing] = useState<"setup" | "coffee" | null>(null);
@@ -78,6 +90,9 @@ export function ShotLogFlow({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one restore on mount
     setDraft({
       ...saved,
+      // Drafts from before puck prep have no ticks.
+      prep: saved.prep ?? prep,
+      prepTouched: saved.prepTouched ?? [],
       drinkId: known(saved.drinkId, drinks) ?? defaultDrinkId,
       portionId: selectedPortionId ?? known(saved.portionId, portions) ?? defaultPortionId,
     });
@@ -101,6 +116,8 @@ export function ShotLogFlow({
     draft.drinkId !== defaultDrinkId ||
     draft.portionId !== defaultPortionId ||
     draft.sweetened ||
+    draft.prep.wdt !== prep.wdt ||
+    draft.prep.puckScreen !== prep.puckScreen ||
     (Object.keys(startDial) as (keyof DialValues)[]).some((k) => {
       const a = draft.values[k] ?? null;
       const b = startDial[k] ?? null;
@@ -126,7 +143,7 @@ export function ShotLogFlow({
 
   const label = (list: SelectOption[], id: string | null) => list.find((o) => o.id === id)?.primary ?? "";
 
-  const save = async (values: ShotValuesData, sweetened: boolean, dial: BrewDial) => {
+  const save = async (values: ShotValuesData, sweetened: boolean, dial: BrewDial, ticks: Prep) => {
     if (!setupId) return setMissing("setup");
     if (!draft.portionId || !draft.drinkId) return setMissing("coffee");
     setMissing(null);
@@ -138,6 +155,8 @@ export function ShotLogFlow({
       ...values,
       ...brewToStored(brew, dial),
       sweetened,
+      usedWdt: ticks.wdt,
+      usedPuckScreen: ticks.puckScreen,
     });
     if (!result.ok) {
       // Values stay as they are, so trying again sends the same shot (AC 4).
@@ -156,7 +175,7 @@ export function ShotLogFlow({
     void save({ grind: v.grind, dose: v.dose, yield: v.yield, timeMs: secondsToMs(v.time) }, draft.sweetened, {
       temperature: v.temperature ?? null,
       pressure: v.pressure ?? null,
-    });
+    }, draft.prep);
   };
 
   return (
@@ -174,6 +193,10 @@ export function ShotLogFlow({
         onValuesChange={(values) => setDraft((d) => ({ ...d, values }))}
         sweetened={draft.sweetened}
         onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened }))}
+        prep={draft.prep}
+        onPrepChange={(key, value) =>
+          setDraft((d) => ({ ...d, prep: { ...d.prep, [key]: value }, prepTouched: [...new Set([...d.prepTouched, key])] }))
+        }
         readOnly={setup ? ["setup"] : []}
         notice={
           missing ? (

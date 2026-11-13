@@ -5,6 +5,7 @@ import { ShotLogFlow } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { brewTabs, brewToDial, NO_BREW_VALUES } from "@/domain/brewControls";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
+import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { daysBetween, localDayKey } from "@/domain/localDay";
 import { setupLabel } from "@/domain/setupName";
@@ -68,7 +69,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   const grind = grindWheelConfig(setup?.grind);
   const start = setup
     ? await getStartingValues(setup.id)
-    : { grind: middleGrind(grind), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES };
+    : { grind: middleGrind(grind), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES, prep: NO_PREP };
   const brew = brewTabs(setup?.machine);
 
   return (
@@ -85,6 +86,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       grind={grind}
       brew={brew}
       brewLast={brewToDial(brew, start.lastBrew)}
+      prep={start.prep}
       resume={one(params.resume) === "1"}
     />
   );

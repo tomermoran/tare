@@ -142,6 +142,13 @@ describe("getLogContext", () => {
 });
 
 describe("getStartingValues", () => {
+  it("starts puck prep as on the last shot on this setup, one-tap included (STORY-01-03-06 AC 3)", async () => {
+    expect((await getStartingValues(k.setup.id)).prep).toEqual({ wdt: false, puckScreen: false });
+    await shot({ usedWdt: true, createdAt: day(20) });
+    await shot({ usedPuckScreen: true, createdAt: day(21), entryMode: "one-tap" });
+    expect((await getStartingValues(k.setup.id)).prep).toEqual({ wdt: false, puckScreen: true });
+  });
+
   it("carries the last temperature and pressure used, for add (EPIC-01-04)", async () => {
     await shot({ brewTempStep: 2, pressureBar: 9 });
     expect((await getStartingValues(k.setup.id)).lastBrew).toEqual({ ...NO_BREW_VALUES, brewTempStep: 2, pressureBar: 9 });
@@ -152,13 +159,13 @@ describe("getStartingValues", () => {
   });
 
   it("starts from DQ-07's neutral values, grind in the middle of the grinder", async () => {
-    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 25, dose: 18, yield: 36, timeMs: 28_000, lastBrew: NO_BREW_VALUES });
+    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 25, dose: 18, yield: 36, timeMs: 28_000, lastBrew: NO_BREW_VALUES, prep: { wdt: false, puckScreen: false } });
   });
 
   it("starts from the latest measured shot on this setup, ignoring one-tap shots (AC 2)", async () => {
     await shot({ grindSize: 12.5, doseWeight: 18.5, yieldWeight: 40, yieldTime: 27_600, createdAt: day(20) });
     await shot({ grindSize: 14, doseWeight: 19, yieldWeight: 38, yieldTime: 30_000, createdAt: day(21), entryMode: "one-tap" });
-    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 12.5, dose: 18.5, yield: 40, timeMs: 27_600, lastBrew: NO_BREW_VALUES });
+    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 12.5, dose: 18.5, yield: 40, timeMs: 27_600, lastBrew: NO_BREW_VALUES, prep: { wdt: false, puckScreen: false } });
   });
 
   it("refuses another household's setup", async () => {

@@ -213,3 +213,19 @@ describe("temperature and pressure (EPIC-01-04)", () => {
     expect(await saveMeasuredShotAction(input({ brewTempStep: 9 }))).toEqual({ ok: false, error: "saveFailed" });
   });
 });
+
+describe("puck prep (STORY-01-03-06)", () => {
+  it("records both ticks, and the setup stays the same (AC 1, AC 5)", async () => {
+    const setupsBefore = await db().select().from(setupParts);
+    const { id } = await saveMeasuredShot(input({ usedWdt: true, usedPuckScreen: false }), NOW);
+    const [shot] = await db().select().from(extractions).where(eq(extractions.id, id));
+    expect(shot).toMatchObject({ usedWdt: true, usedPuckScreen: false, setupId: k.setup.id });
+    expect(await db().select().from(setupParts)).toEqual(setupsBefore);
+  });
+
+  it("saves both off when not given", async () => {
+    const { id } = await saveMeasuredShot(input(), NOW);
+    const [shot] = await db().select().from(extractions).where(eq(extractions.id, id));
+    expect(shot).toMatchObject({ usedWdt: false, usedPuckScreen: false });
+  });
+});
