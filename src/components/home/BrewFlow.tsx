@@ -9,6 +9,7 @@ import { Button, buttonClass } from "@/components/ui/Button/Button";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { PulledState } from "@/components/ui/PulledState/PulledState";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
+import { clearBrewChoice, saveBrewChoice, touchBrewChoice } from "@/lib/brewChoiceCookie";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { pullShotAction, undoPullAction } from "@/server/actions/pull";
 import type { PortionChoice } from "@/server/dal/pull";
@@ -30,8 +31,9 @@ type Pulled = { shotId: string | null; undo: boolean };
 type Choosing = { portions: PortionChoice[] } | null;
 
 /**
- * Brew's client side. The drink and coffee selects put the choice in the
- * URL for this visit only, never as a setting (DQ-17). "Pull this shot"
+ * Brew's client side. The drink and coffee selects keep the choice in a
+ * cookie for the next pull only, never as a setting (DQ-17): a pull clears
+ * it, and 30 minutes away from Brew lapses it. "Pull this shot"
  * (STORY-02-02-02) shows the pulled state at once, then records the shot
  * with an ID made here, so a double tap or a retry makes one shot; when none
  * of the coffee is open it asks which bag first (STORY-02-02-03), and undo
@@ -82,13 +84,25 @@ export function BrewFlow({
     };
   }, [pulled?.shotId]);
 
+  // The 30 minutes away count from when Brew was last on screen (AC 6).
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") touchBrewChoice();
+      else if (!touchBrewChoice()) router.refresh();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      touchBrewChoice();
+    };
+  }, [router]);
+
+  // For the next pull only, never a setting (DQ-17). Changing ends the pulled state.
   const choose = (field: Field, id: string) => {
     setPicking(null);
     setPulled(null);
-    const params = new URLSearchParams({ drink: field === "drink" ? id : drinkId });
-    const coffee = field === "coffee" ? id : beanId;
-    if (coffee) params.set("coffee", coffee);
-    router.replace(`/?${params}`, { scroll: false });
+    saveBrewChoice(field === "drink" ? { drinkId: id } : { beanId: id });
+    router.refresh();
   };
 
   const doPull = async (portionId?: string) => {
@@ -116,6 +130,8 @@ export function BrewFlow({
       return;
     }
     clientId.current = null;
+    // What was pulled becomes the usual through history (AC 5).
+    clearBrewChoice();
     setPulled({ shotId: outcome.shotId, undo: true });
     router.refresh();
   };

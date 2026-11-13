@@ -12,6 +12,7 @@ import { PROFILE_PATH } from "@/lib/profileRoutes";
 import { getHome, type Home } from "@/server/dal/home";
 import { getProfile } from "@/server/dal/profile";
 import { getSetupProgress } from "@/server/dal/progress";
+import { readBrewChoice } from "@/server/brewChoice";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { FirstRun } from "./FirstRun";
@@ -22,9 +23,9 @@ import { recipeLines } from "./recipeLines";
  * then the first-run checklist until the first shot (STORY-01-01-07), then
  * the daily shot (STORY-02-02-01): the drink for this time of day, the
  * coffee in use, the recipe on the current setup and what's left.
- * `?drink=` and `?coffee=` are a choice for this visit only (DQ-17).
+ * A drink or coffee chosen here applies to the next pull only (DQ-17).
  */
-export default async function BrewPage({ searchParams }: PageProps<"/">) {
+export default async function BrewPage() {
   const t = await getTranslations();
   return (
     <div className="flex flex-1 flex-col">
@@ -35,20 +36,18 @@ export default async function BrewPage({ searchParams }: PageProps<"/">) {
         <LogoMark size={24} className="text-ink" />
       </div>
       <Suspense fallback={<BrewSkeleton label={t("states.loading")} />}>
-        <BrewBody searchParams={searchParams} />
+        <BrewBody />
       </Suspense>
     </div>
   );
 }
 
-const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
-
-async function BrewBody({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
-  const params = await searchParams;
+async function BrewBody() {
   const progress = await unlessSignedOut(getSetupProgress());
   if (!progress) return null;
   if (!progress.hasShot) return <FirstRun progress={progress} />;
-  const home = await getHome({ drinkId: one(params.drink), beanId: one(params.coffee) });
+  const choice = await readBrewChoice();
+  const home = await getHome({ drinkId: choice?.drinkId, beanId: choice?.beanId });
   if (!home) return <FirstRun progress={progress} />;
   return <Brew home={home} />;
 }
@@ -93,6 +92,7 @@ async function Brew({ home }: { home: Home }) {
         drink,
         coffee: home.coffee ? t("home.coffeeLine", { bean: home.coffee.name, roaster: home.coffee.roasterName }) : null,
         values: recipe ? { grind: recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
+        valuesKey: `${home.drink.id}|${home.coffee?.id ?? ""}`,
         quiet: state.kind === "finished",
         lines: recipe ? recipeLines(recipe, { hasMilk: home.drink.hasMilk, milks: home.milks }, t, format) : [],
         message,

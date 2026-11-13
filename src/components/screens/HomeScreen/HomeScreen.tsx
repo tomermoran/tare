@@ -12,6 +12,8 @@ type HomeScreenProps = {
   /** The recipe on this setup; with `quiet`, shown in ink-secondary (finished coffee). */
   values?: ShotValuesData;
   quiet?: boolean;
+  /** Changes when the drink or coffee does, so the values cross-fade in place. */
+  valuesKey?: string;
   /** Quiet lines under the values: milk, puck prep, temperature, pressure. */
   lines?: string[];
   /** A sentence in place of the values, or above quiet ones: no recipe, finished, no coffee. */
@@ -38,6 +40,7 @@ export function HomeScreen({
   drink,
   coffee,
   values,
+  valuesKey,
   quiet = false,
   lines = [],
   message,
@@ -70,18 +73,20 @@ export function HomeScreen({
         />
       )}
 
-      {message && <p className="mt-9 max-w-[30ch] text-body text-ink-secondary">{message}</p>}
-      {note && <p className="mt-1 text-label text-ink-secondary">{note}</p>}
-      {values && (
-        <div className={quiet ? "mt-6 text-ink-secondary" : "mt-9"}>
-          <ShotValues values={values} quiet={quiet} />
-          {lines.map((line) => (
-            <p key={line} className="mt-1 text-label text-ink-secondary">
-              {line}
-            </p>
-          ))}
-        </div>
-      )}
+      <div key={valuesKey} className="motion-safe:animate-fade-in">
+        {message && <p className="mt-9 max-w-[30ch] text-body text-ink-secondary">{message}</p>}
+        {note && <p className="mt-1 text-label text-ink-secondary">{note}</p>}
+        {values && (
+          <div className={quiet ? "mt-6 text-ink-secondary" : "mt-9"}>
+            <ShotValues values={values} quiet={quiet} />
+            {lines.map((line) => (
+              <p key={line} className="mt-1 text-label text-ink-secondary">
+                {line}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
       <p className="mt-3 text-label text-ink-secondary">{setup}</p>
 
       <div className="mt-auto grid min-h-38 content-end gap-2 pt-7">
