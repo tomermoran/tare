@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button/Button";
+import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
 import { TabBar } from "@/components/ui/TabBar/TabBar";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import messages from "@/i18n/messages/en.json";
@@ -11,6 +13,7 @@ import { RecentShotsScreen } from "./RecentShotsScreen/RecentShotsScreen";
 import { ShotLogScreen } from "./ShotLogScreen/ShotLogScreen";
 
 const { nav } = messages;
+const grams = new Intl.NumberFormat("en", { style: "unit", unit: "gram", unitDisplay: "short" });
 const tabs = [
   { id: "brew", label: nav.brew },
   { id: "journal", label: nav.journal },
@@ -76,32 +79,65 @@ function DailyFlow() {
     >
       {tab === "brew" && (
         <HomeScreen
-          state="recipe"
           drink={drink}
-          coffee={exampleCoffee}
-          recipe={recipe}
+          coffee={messages.home.coffeeLine.replace("{bean}", exampleCoffee.bean).replace("{roaster}", exampleCoffee.roaster)}
+          values={recipe}
           setup={exampleSetup}
-          remainingGrams={remaining}
-          pulled={pulled}
-          reaction={reaction}
-          onPull={() => {
-            addShot(recipe, true);
-            setPulled(true);
-            setReaction(null);
-          }}
-          onUndo={() => {
-            setShots((s) => s.slice(1));
-            setRemaining((g) => g + recipe.dose);
-            setPulled(false);
-          }}
-          onReaction={(r) => {
-            setReaction(r);
-            if (r === "off") {
-              setPulled(false);
-              setLogMode("fix");
-            }
-          }}
-          onDialIn={() => setLogMode("dialIn")}
+          footnote={messages.home.remaining.replace("{amount}", grams.format(remaining))}
+          labels={{ changeDrink: messages.home.changeDrink, changeCoffee: messages.home.changeCoffee }}
+          actions={
+            pulled ? (
+              <div className="grid justify-items-center gap-3 text-center">
+                <p className="text-h3" role="status">
+                  {messages.home.pulled}
+                </p>
+                <ChipGroup
+                  label={messages.home.reactionLabel}
+                  options={[
+                    { value: "good", label: messages.home.reactionGood },
+                    { value: "off", label: messages.home.reactionOff },
+                  ]}
+                  value={reaction}
+                  onChange={(v) => {
+                    const r = v as "good" | "off";
+                    setReaction(r);
+                    if (r === "off") {
+                      setPulled(false);
+                      setLogMode("fix");
+                    }
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShots((s) => s.slice(1));
+                    setRemaining((g) => g + recipe.dose);
+                    setPulled(false);
+                  }}
+                >
+                  {messages.home.undo}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  onClick={() => {
+                    addShot(recipe, true);
+                    setPulled(true);
+                    setReaction(null);
+                  }}
+                >
+                  {messages.home.pull}
+                </Button>
+                <Button variant="ghost" fullWidth onClick={() => setLogMode("dialIn")}>
+                  {messages.home.dialIn}
+                </Button>
+              </>
+            )
+          }
         />
       )}
       {tab === "journal" && <RecentShotsScreen items={shots} now={exampleNow} onOpen={() => {}} />}
