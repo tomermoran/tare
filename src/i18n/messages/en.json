@@ -111,7 +111,8 @@
     "bagAdded": "added {date}",
     "addBag": "Add a bag",
     "setupFixed": "More than one setup comes in a later version.",
-    "saveFailedTitle": "Couldn't save the shot"
+    "saveFailedTitle": "Couldn't save the shot",
+    "portionFinished": "That coffee is finished. Choose another to save this shot."
   },
   "journal": {
     "title": "Journal",

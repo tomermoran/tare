@@ -12,8 +12,10 @@ import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import type { GrindWheel } from "@/domain/grind";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
+import { secondsToMs } from "@/lib/units";
 import { withReturnTo } from "@/lib/returnTo";
 import { BUILDER_PATH } from "@/lib/setupRoutes";
+import { saveMeasuredShotAction } from "@/server/actions/shots";
 
 /*
  * The shot log, wired (STORY-01-03-01). Setup, drink and coffee arrive
@@ -28,6 +30,7 @@ const DRAFT = "log";
 type Draft = { drinkId: string | null; portionId: string | null; values: DialValues; sweetened: boolean };
 
 export function ShotLogFlow({
+  setupId,
   setup,
   drinks,
   defaultDrinkId,
@@ -38,6 +41,7 @@ export function ShotLogFlow({
   grind,
   resume,
 }: {
+  setupId: string | null;
   /** The setup's name; null when there is none yet. */
   setup: string | null;
   drinks: SelectOption[];
@@ -57,6 +61,7 @@ export function ShotLogFlow({
   const [draft, setDraft] = useState<Draft>(fresh);
   const [sheet, setSheet] = useState<"drink" | "coffee" | null>(null);
   const [missing, setMissing] = useState<"setup" | "coffee" | null>(null);
+  const [state, setState] = useState<"idle" | "saving" | "failed" | "portionFinished">("idle");
 
   // Session storage exists only in the browser: restore after hydration.
   useEffect(() => {
@@ -78,6 +83,7 @@ export function ShotLogFlow({
       setDraft(fresh());
       setSheet(null);
       setMissing(null);
+      setState("idle");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reset on hide only
     [],
@@ -109,11 +115,33 @@ export function ShotLogFlow({
 
   const label = (list: SelectOption[], id: string | null) => list.find((o) => o.id === id)?.primary ?? "";
 
-  const save = () => {
-    if (!setup) return setMissing("setup");
-    if (!draft.portionId) return setMissing("coffee");
+  const save = async (values: ShotValuesData, sweetened: boolean) => {
+    if (!setupId) return setMissing("setup");
+    if (!draft.portionId || !draft.drinkId) return setMissing("coffee");
     setMissing(null);
-    // Saving the shot lands with TASK-01-03-03-FE1.
+    setState("saving");
+    const result = await saveMeasuredShotAction({
+      setupId,
+      drinkTypeId: draft.drinkId,
+      portionId: draft.portionId,
+      ...values,
+      sweetened,
+    });
+    if (!result.ok) {
+      // Values stay as they are, so trying again sends the same shot (AC 4).
+      setState(result.error === "portionFinished" ? "portionFinished" : "failed");
+      return;
+    }
+    clearDraft(DRAFT);
+    // Tasting (SCR-TASTE) lands with EPIC-01-05; until then, back to Brew.
+    proceed(() => {
+      router.replace("/");
+      router.refresh();
+    });
+  };
+  const retry = () => {
+    const v = draft.values;
+    void save({ grind: v.grind, dose: v.dose, yield: v.yield, timeMs: secondsToMs(v.time) }, draft.sweetened);
   };
 
   return (
@@ -131,10 +159,17 @@ export function ShotLogFlow({
         onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened }))}
         readOnly={setup ? ["setup"] : []}
         notice={
-          missing && (
+          missing ? (
             <Notice urgent>{t(missing === "setup" ? "log.missingSetupNote" : "log.missingCoffeeNote")}</Notice>
-          )
+          ) : state === "failed" ? (
+            <Notice urgent title={t("log.saveFailedTitle")} action={{ label: t("actions.retry"), onClick: retry }}>
+              {t("states.saveFailed")}
+            </Notice>
+          ) : state === "portionFinished" ? (
+            <Notice urgent>{t("log.portionFinished")}</Notice>
+          ) : undefined
         }
+        saving={state === "saving"}
         onPick={onPick}
         onCancel={leave}
         onSave={save}
@@ -161,6 +196,7 @@ export function ShotLogFlow({
         onChoose={(portionId) => {
           setDraft((d) => ({ ...d, portionId }));
           setMissing(null);
+          setState("idle");
           setSheet(null);
         }}
         footerRow={{ label: t("log.addBag"), onClick: () => sideTrip(ADD_BAG_PATH) }}
