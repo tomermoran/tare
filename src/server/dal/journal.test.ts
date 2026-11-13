@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { batchPortions, extractions } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, extractions, setups } from "@/db/schema";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
-import { getShot, listJournal, type JournalShot } from "./journal";
+import { getJournalFilterOptions, getShot, listJournal, type JournalFilters, type JournalShot } from "./journal";
 import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
@@ -170,5 +170,103 @@ describe("getShot", () => {
     const other = await makeHousehold(db());
     signInAs(other.user.firebaseUid);
     await expect(getShot(id)).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("journal filters (STORY-02-06-04)", () => {
+  /** A bag of another coffee, optionally merged into an existing catalog entry. */
+  async function bagOf(name: string, mergedIntoId?: string) {
+    const beanId = newId();
+    await db()
+      .insert(canonicalBeans)
+      .values({ id: beanId, roasterId: k.bean.roasterId, name, source: "user", status: "verified", mergedIntoId, createdAt: NOW });
+    const batchId = newId();
+    await db().insert(batches).values({ id: batchId, householdId: k.household.id, beanId, bagWeight: 250, createdAt: NOW });
+    const portionId = newId();
+    await db().insert(batchPortions).values({ id: portionId, batchId, weight: 250, createdAt: NOW });
+    return { beanId, portionId };
+  }
+  async function secondSetup() {
+    const id = newId();
+    await db().insert(setups).values({ id, householdId: k.household.id, partsKey: "second", createdAt: NOW });
+    return id;
+  }
+  async function every(filters: JournalFilters) {
+    let page = await listJournal({ now: NOW, filters });
+    const out = [...page.shots];
+    while (page.older) {
+      page = await listJournal({ before: page.older, limit: 1, now: NOW, filters });
+      out.push(...page.shots);
+    }
+    return out.map((s) => s.id);
+  }
+
+  it("filters by drink, coffee and setup, and they combine", async () => {
+    const other = await bagOf("Example Single Origin");
+    const setupId = await secondSetup();
+    const espresso = await shot(daysAgo(1));
+    const latte = await shot(daysAgo(2), { drinkTypeId: k.drinks.latte.id });
+    const otherCoffee = await shot(daysAgo(3), { portionId: other.portionId });
+    const otherSetup = await shot(daysAgo(4), { setupId });
+    expect(await every({ drinkId: k.drinks.latte.id })).toEqual([latte]);
+    expect(await every({ beanId: other.beanId })).toEqual([otherCoffee]);
+    expect(await every({ setupId })).toEqual([otherSetup]);
+    expect(await every({ drinkId: k.drinks.espresso.id, beanId: k.bean.id })).toEqual([espresso, otherSetup]);
+    expect(await every({ drinkId: k.drinks.latte.id, setupId })).toEqual([]);
+  });
+
+  it("keeps the filters on older pages (AC 3)", async () => {
+    const old = [await shot(daysAgo(40)), await shot(daysAgo(41)), await shot(daysAgo(42))];
+    await shot(daysAgo(43), { drinkTypeId: k.drinks.latte.id });
+    await shot(daysAgo(1), { drinkTypeId: k.drinks.latte.id });
+    const first = await listJournal({ now: NOW, filters: { drinkId: k.drinks.espresso.id } });
+    // Nothing recent matches, but older shots do.
+    expect(first.shots).toEqual([]);
+    expect(first.older).not.toBeNull();
+    expect(await every({ drinkId: k.drinks.espresso.id })).toEqual(old);
+    // No more pages once the matching shots run out, even with others older.
+    const last = await listJournal({ before: first.older!, limit: 3, now: NOW, filters: { drinkId: k.drinks.espresso.id } });
+    expect(last.older).toBeNull();
+  });
+
+  it("counts a merged duplicate as the coffee it was merged into", async () => {
+    const dup = await bagOf("House Blend (duplicate)", k.bean.id);
+    const a = await shot(daysAgo(1));
+    const b = await shot(daysAgo(2), { portionId: dup.portionId });
+    expect(await every({ beanId: k.bean.id })).toEqual([a, b]);
+  });
+
+  it("offers drinks, coffees with shots, and every setup (AC 1)", async () => {
+    await bagOf("Never Brewed");
+    const dup = await bagOf("House Blend (duplicate)", k.bean.id);
+    await shot(daysAgo(1), { portionId: dup.portionId });
+    let options = await getJournalFilterOptions();
+    expect(options.drinks.map((d) => d.id).sort()).toEqual([k.drinks.espresso.id, k.drinks.latte.id].sort());
+    expect(options.coffees).toEqual([{ id: k.bean.id, name: k.bean.name, roasterName: "Example Roasters" }]);
+    // One setup: the setup filter isn't offered.
+    expect(options.setups).toHaveLength(1);
+    await secondSetup();
+    options = await getJournalFilterOptions();
+    expect(options.setups).toHaveLength(2);
+  });
+
+  it("offers Brew's coffee before its first shot, and a duplicate as its survivor (STORY-02-06-05 AC 1)", async () => {
+    const fresh = await bagOf("Fresh Bag");
+    let options = await getJournalFilterOptions({ beanId: fresh.beanId });
+    expect(options.beanId).toBe(fresh.beanId);
+    expect(options.coffees.map((c) => c.id)).toEqual([fresh.beanId]);
+    const dup = await bagOf("House Blend (duplicate)", k.bean.id);
+    options = await getJournalFilterOptions({ beanId: dup.beanId });
+    expect(options.beanId).toBe(k.bean.id);
+    // Not a coffee this household has: no filter.
+    expect((await getJournalFilterOptions({ beanId: newId() })).beanId).toBeNull();
+  });
+
+  it("only offers this household's", async () => {
+    await shot(daysAgo(1));
+    const other = await makeHousehold(db());
+    signInAs(other.user.firebaseUid);
+    expect(await getJournalFilterOptions()).toMatchObject({ coffees: [], setups: [] });
+    expect((await listJournal({ now: NOW, filters: { beanId: k.bean.id } })).shots).toEqual([]);
   });
 });

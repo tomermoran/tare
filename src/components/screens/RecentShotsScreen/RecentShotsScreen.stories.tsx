@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 import { Button } from "@/components/ui/Button/Button";
+import { FilterChips } from "@/components/ui/ChipGroup/FilterChips";
 import messages from "@/i18n/messages/en.json";
 import { exampleNow, exampleShots } from "../fixtures";
 import type { RecentItem } from "./RecentShotsScreen";
@@ -88,6 +89,49 @@ export const ServerDaysAndMarkers: Story = {
 /** Older shots exist past the 30 days: the list ends with "show older" (AC 3). */
 export const ShowOlder: Story = {
   args: { footer: <Button variant="ghost" fullWidth>{messages.journal.showOlder}</Button> },
+};
+
+const filterRow = (
+  <FilterChips
+    label={messages.journal.filters}
+    chips={[
+      {
+        id: "drink",
+        text: messages.drinks.flatWhite,
+        name: t("journal.filterName", { filter: messages.journal.filterDrink, value: messages.drinks.flatWhite }),
+        remove: t("journal.removeFilter", { filter: messages.journal.filterDrink, value: messages.drinks.flatWhite }),
+      },
+      { id: "coffee", text: messages.journal.filterAnyCoffee, name: t("journal.filterName", { filter: messages.journal.filterCoffee, value: messages.journal.filterAnyCoffee }) },
+    ]}
+    all={messages.journal.filterAll}
+    onOpen={() => {}}
+    onRemove={() => {}}
+    onClearAll={() => {}}
+  />
+);
+
+/** Filters sit under the title, and the list shows only what matches (STORY-02-06-04). */
+export const Filtered: Story = { args: { filters: filterRow } };
+
+/** Nothing matches: say so and offer to clear, with the filters still showing (AC 4). */
+export const EmptyFiltered: Story = {
+  args: {
+    items: [],
+    filters: filterRow,
+    emptyFiltered: {
+      title: messages.journal.emptyFilteredTitle,
+      body: t("journal.emptyFiltered", { filters: messages.drinks.flatWhite }),
+      action: { label: messages.journal.clearFilters, onClick: fn() },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: messages.journal.emptyFilteredTitle })).toBeVisible();
+    await expect(canvas.queryByRole("heading", { name: messages.journal.emptyTitle })).toBeNull();
+    await expect(canvas.getByRole("group", { name: messages.journal.filters })).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: messages.journal.clearFilters }));
+    await expect(args.emptyFiltered!.action.onClick).toHaveBeenCalled();
+  },
 };
 
 export const Loading: Story = { args: { state: "loading", items: [] } };

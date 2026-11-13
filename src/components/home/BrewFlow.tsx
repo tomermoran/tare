@@ -10,6 +10,7 @@ import { Notice } from "@/components/ui/Notice/Notice";
 import { PulledState, type Reaction } from "@/components/ui/PulledState/PulledState";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { clearBrewChoice, saveBrewChoice, touchBrewChoice } from "@/lib/brewChoiceCookie";
+import { rememberBrewSelection } from "@/lib/brewSelection";
 import { isSuggestionDismissed } from "@/lib/dismissals";
 import { dialInHref, fixHref } from "@/lib/fixRoutes";
 import { portionChoicesAction, pullShotAction, undoPullAction } from "@/server/actions/pull";
@@ -122,6 +123,11 @@ export function BrewFlow({
       clearTimeout(back);
     };
   }, [pulled?.shotId]);
+
+  // The Journal tab opens on what's shown here (STORY-02-06-05 AC 1).
+  useEffect(() => {
+    rememberBrewSelection(beanId ? { drinkId, beanId } : null);
+  }, [drinkId, beanId]);
 
   // The 30 minutes away count from when Brew was last on screen (AC 6).
   useEffect(() => {

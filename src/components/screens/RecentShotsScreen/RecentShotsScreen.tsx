@@ -39,6 +39,10 @@ type RecentShotsScreenProps = {
   state?: "loading" | "ready";
   /** The empty state's action: dial in a first shot. */
   emptyAction?: { label: string; href: string };
+  /** The filter row under the title (STORY-02-06-04). */
+  filters?: ReactNode;
+  /** With filters set and nothing matching: what to say and how to clear (AC 4). */
+  emptyFiltered?: { title: string; body: string; action: { label: string; onClick: () => void } };
   /** Under the list: "show older", its skeleton, or a failure. */
   footer?: ReactNode;
   onOpen?: (id: string) => void;
@@ -74,6 +78,8 @@ export function RecentShotsScreen({
   timeZone,
   state = "ready",
   emptyAction,
+  filters,
+  emptyFiltered,
   footer,
   onOpen,
 }: RecentShotsScreenProps) {
@@ -107,16 +113,24 @@ export function RecentShotsScreen({
   return (
     <div className="flex flex-1 flex-col [&>*]:shrink-0">
       <PageHeader title={t("title")} />
+      {filters && <div className="mt-4">{filters}</div>}
       {state === "loading" && (
         <div className="mt-6">
           <SkeletonRows label={t("loading")} count={5} />
         </div>
       )}
-      {state === "ready" && items.length === 0 && !footer && (
-        <EmptyState title={t("emptyTitle")} action={emptyAction}>
-          {t("empty")}
-        </EmptyState>
-      )}
+      {state === "ready" &&
+        items.length === 0 &&
+        !footer &&
+        (emptyFiltered ? (
+          <EmptyState title={emptyFiltered.title} action={emptyFiltered.action}>
+            {emptyFiltered.body}
+          </EmptyState>
+        ) : (
+          <EmptyState title={t("emptyTitle")} action={emptyAction}>
+            {t("empty")}
+          </EmptyState>
+        ))}
       {groups.map((g) => (
         <section key={g.label} aria-label={g.label} className="mt-6">
           <h2 className="mb-1 text-overline uppercase text-ink-secondary">{g.label}</h2>
