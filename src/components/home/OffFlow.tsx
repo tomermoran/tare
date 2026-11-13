@@ -12,6 +12,7 @@ import { SuggestionCard } from "@/components/ui/SuggestionCard/SuggestionCard";
 import { shotWarnings } from "@/domain/shotWarnings";
 import type { TasteTag } from "@/domain/taste";
 import type { Tasting } from "@/domain/tasting";
+import { dismissSuggestion } from "@/lib/dismissals";
 import { fixHref } from "@/lib/fixRoutes";
 import { partHref } from "@/lib/setupRoutes";
 import { saveOffAnswersAction } from "@/server/actions/reaction";
@@ -88,7 +89,10 @@ export function OffFlow({ shotId, context, onClose }: { shotId: string; context:
             reason={card.reason}
             freshness={card.freshness}
             link={card.askDirection && directionHref ? { label: t("suggest.directionUnknown"), href: directionHref } : undefined}
-            onDismiss={() => setDismissed(true)}
+            onDismiss={() => {
+              dismissSuggestion(shotId);
+              setDismissed(true);
+            }}
           />
         )
       }

@@ -13,16 +13,17 @@ import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
  * SCR-TASTE: say how a just-saved measured shot tasted (EPIC-01-05).
  * One-tap shots are never rated (DQ-23), so they go to their detail.
  */
-export default function TastePage({ params }: PageProps<"/taste/[shotId]">) {
+export default function TastePage({ params, searchParams }: PageProps<"/taste/[shotId]">) {
   return (
     <Suspense fallback={null}>
-      <Taste params={params} />
+      <Taste params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
+async function Taste({ params, searchParams }: Pick<PageProps<"/taste/[shotId]">, "params" | "searchParams">) {
   const { shotId } = await params;
+  const from = (await searchParams).from;
   const shot = await unlessSignedOut(getShot(shotId)).catch((e) => {
     if (e instanceof NotFoundError) notFound();
     throw e;
@@ -46,6 +47,7 @@ async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
       leaveTo="/"
       pinTitle={pinTitle}
       suggestion={{ context, directionHref }}
+      pinFirst={from === "fix" || from === "dialIn"}
     />
   );
 }
