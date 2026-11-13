@@ -4,6 +4,8 @@ import { db } from "@/db/client";
 import { newId } from "@/db/ids";
 import { batches, batchPortions, canonicalBeans, roasters } from "@/db/schema";
 import { portionState, type PortionState } from "@/domain/portionState";
+import type { Remaining } from "@/domain/remaining";
+import { getRemaining } from "./remaining";
 import { resolveEntity } from "./catalogMerge";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 
@@ -94,6 +96,9 @@ export type PortionView = {
   weight: number;
   state: PortionState;
   openedAt: Date | null;
+  frozenAt: Date | null;
+  /** What's left (STORY-03-04-01): grams, and whether the doses ran over. */
+  remaining: Remaining;
 };
 
 export type BagView = {
@@ -127,6 +132,7 @@ async function bagsOf(householdId: string, batchIds?: string[]): Promise<BagView
     .from(batchPortions)
     .where(inArray(batchPortions.batchId, rows.map((r) => r.id)))
     .orderBy(asc(batchPortions.createdAt));
+  const remaining = await getRemaining(portions.map((p) => p.id));
 
   const beans = new Map<string, BagView["bean"]>();
   for (const r of rows) {
@@ -152,7 +158,14 @@ async function bagsOf(householdId: string, batchIds?: string[]): Promise<BagView
     createdAt: r.createdAt,
     portions: portions
       .filter((p) => p.batchId === r.id)
-      .map((p) => ({ id: p.id, weight: p.weight, state: portionState(p), openedAt: p.openedAt })),
+      .map((p) => ({
+        id: p.id,
+        weight: p.weight,
+        state: portionState(p),
+        openedAt: p.openedAt,
+        frozenAt: p.frozenAt,
+        remaining: remaining.get(p.id) ?? { grams: p.weight, overLogged: false },
+      })),
   }));
 }
 

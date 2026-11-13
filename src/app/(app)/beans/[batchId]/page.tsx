@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { BagScreen, type BagFact } from "@/components/screens/BagScreen/BagScreen";
+import { BagFlow } from "@/components/beans/BagFlow";
+import type { BagFact } from "@/components/screens/BagScreen/BagScreen";
 import { getBag } from "@/server/dal/bags";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
@@ -27,7 +28,7 @@ export default async function BagPage({ params }: PageProps<"/beans/[batchId]">)
   ];
 
   return (
-    <BagScreen
+    <BagFlow
       labels={{
         back: t("bag.back"),
         facts: t("bag.facts"),
@@ -39,7 +40,14 @@ export default async function BagPage({ params }: PageProps<"/beans/[batchId]">)
       bean={bag.bean.name}
       roaster={bag.bean.roasterName}
       facts={facts}
-      portions={bag.portions.map((p) => ({ id: p.id, state: t(`portion.state.${p.state}`), remaining: grams(p.weight) }))}
+      portions={bag.portions.map((p) => ({ id: p.id, state: t(`portion.state.${p.state}`), remaining: grams(p.remaining.grams) }))}
+      info={bag.portions.map((p) => ({
+        id: p.id,
+        state: p.state,
+        stateLabel: t(`portion.state.${p.state}`),
+        remaining: p.remaining.grams,
+        frozenOn: p.frozenAt ? day(p.frozenAt) : null,
+      }))}
     />
   );
 }

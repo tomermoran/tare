@@ -118,7 +118,7 @@ describe("getOnHand", () => {
     const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
     const [b] = await getOnHand();
     expect(b).toMatchObject({ id: batchId, bean: { id: SIGNIA, name: "Signia", roasterName: "Portofino" } });
-    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null }]);
+    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null, frozenAt: null, remaining: { grams: 250, overLogged: false } }]);
   });
 
   it("drops a bag once every portion is finished (AC 3)", async () => {
