@@ -4,7 +4,9 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { TasteFlow } from "@/components/taste/TasteFlow";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { shotSetupName } from "@/domain/shotSetupName";
+import { partHref } from "@/lib/setupRoutes";
 import { getShot } from "@/server/dal/journal";
+import { getSuggestContext } from "@/server/dal/suggestContext";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 
 /**
@@ -27,7 +29,8 @@ async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
   });
   if (!shot) return null;
   if (shot.entryMode !== "measured") redirect(`/journal/${shot.id}`);
-  const [t, format] = await Promise.all([getTranslations(), getFormatter()]);
+  const [t, format, { grinderPartId, ...context }] = await Promise.all([getTranslations(), getFormatter(), getSuggestContext(shot.id)]);
+  const directionHref = grinderPartId ? `${partHref(grinderPartId)}?${new URLSearchParams({ returnTo: `/taste/${shot.id}` })}` : null;
   const pinTitle = t("recipe.pinTitle", {
     drink: drinkLabel(shot.drink, (key: DrinkKey) => t(key)),
     coffee: shot.coffee.name,
@@ -42,6 +45,7 @@ async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
       initial={{ rating: shot.rating, ...shot.taste, tags: shot.tags }}
       leaveTo="/"
       pinTitle={pinTitle}
+      suggestion={{ context, directionHref }}
     />
   );
 }
