@@ -12,12 +12,13 @@ import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { brewToStored, type BrewDial, type BrewTabs } from "@/domain/brewControls";
 import type { GrindWheel } from "@/domain/grind";
 import { milkAfterDrinkChange, milkStart, type MilkKey } from "@/domain/milk";
-import type { Prep, PrepKey } from "@/domain/prep";
+import { sameParts, type SetupPartIds } from "@/domain/carryOver";
+import { prepAfterSetupChange, type Prep, type PrepKey } from "@/domain/prep";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
 import { secondsToMs } from "@/lib/units";
 import { withReturnTo } from "@/lib/returnTo";
-import { BUILDER_PATH, partHref } from "@/lib/setupRoutes";
+import { BUILDER_PATH, changePartHref, partHref } from "@/lib/setupRoutes";
 import type { HardwareKind } from "@/domain/capabilities";
 import { saveMeasuredShotAction } from "@/server/actions/shots";
 
@@ -26,12 +27,16 @@ import { saveMeasuredShotAction } from "@/server/actions/shots";
  * chosen; drink and coffee change through SH-SELECT. A missing setup or
  * coffee opens its add task, which comes back here with the new item
  * chosen; the dial's values travel in a draft so nothing set is lost
- * (AC 5). In Milestone 1 there is only one setup, so its field is read-only.
+ * (AC 5). With more than one setup, the setup can change here too
+ * (STORY-02-02-07): dose, yield and time stay; grind and temperature and
+ * pressure only with the same grinder or machine (DQ-20); untouched prep
+ * ticks follow the new setup. Saving on it makes it current.
  */
 
 const DRAFT = "log";
 
 type Draft = {
+  setupId: string | null;
   drinkId: string | null;
   portionId: string | null;
   values: DialValues;
@@ -43,6 +48,19 @@ type Draft = {
   milkTypeId: string | null;
   /** Milk values the user changed, which a drink change leaves alone (STORY-01-03-07 AC 5). */
   milkTouched: MilkKey[];
+};
+
+/** What the log needs about each setup it can switch to. */
+export type LogSetupChoice = SelectOption & {
+  grind: GrindWheel;
+  brew: BrewTabs;
+  brewLast: BrewDial;
+  /** Where prep ticks start on this setup. */
+  prep: Prep;
+  /** Grind on this setup's grinder when it doesn't carry: its last measured value, else the middle. */
+  startGrind: number;
+  parts: SetupPartIds;
+  unknownPart: { id: string; kind: HardwareKind } | null;
 };
 
 /** What the log needs about each drink's milk. */
@@ -64,6 +82,8 @@ export function ShotLogFlow({
   drinkMilk,
   milks,
   unknownPart = null,
+  setupChoices = [],
+  selectedSetupId = null,
   resume,
 }: {
   setupId: string | null;
@@ -89,6 +109,10 @@ export function ShotLogFlow({
   milks: SelectOption[];
   /** A setup part with "not sure" answers, for the quiet link (STORY-01-06-08 AC 6). */
   unknownPart?: { id: string; kind: HardwareKind } | null;
+  /** The household's setups, current first; with two or more the setup can change here. */
+  setupChoices?: LogSetupChoice[];
+  /** A setup the builder just made or chose (change a part came back with it). */
+  selectedSetupId?: string | null;
   resume: boolean;
 }) {
   const t = useTranslations();
@@ -101,6 +125,7 @@ export function ShotLogFlow({
   const fresh = (): Draft => {
     const milk = milkFor(defaultDrinkId);
     return {
+      setupId,
       drinkId: defaultDrinkId,
       portionId: defaultPortionId,
       values: { ...toDial(start), ...(milk && { milk: milk.ml }) },
@@ -112,7 +137,7 @@ export function ShotLogFlow({
     };
   };
   const [draft, setDraft] = useState<Draft>(fresh);
-  const [sheet, setSheet] = useState<"drink" | "coffee" | "milk" | null>(null);
+  const [sheet, setSheet] = useState<"setup" | "drink" | "coffee" | "milk" | null>(null);
   const [missing, setMissing] = useState<"setup" | "coffee" | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed" | "portionFinished">("idle");
 
@@ -121,9 +146,9 @@ export function ShotLogFlow({
     const saved = resume ? loadDraft<Draft>(DRAFT) : null;
     if (!saved) return;
     const known = (id: string | null, list: SelectOption[]) => (id && list.some((o) => o.id === id) ? id : null);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one restore on mount
-    setDraft({
+    const restored: Draft = {
       ...saved,
+      setupId: known(saved.setupId ?? null, setupChoices) ?? setupId,
       // Drafts from before puck prep have no ticks.
       prep: saved.prep ?? prep,
       prepTouched: saved.prepTouched ?? [],
@@ -131,7 +156,11 @@ export function ShotLogFlow({
       milkTouched: saved.milkTouched ?? [],
       drinkId: known(saved.drinkId, drinks) ?? defaultDrinkId,
       portionId: selectedPortionId ?? known(saved.portionId, portions) ?? defaultPortionId,
-    });
+    };
+    // Back from change a part: carry the values over to the setup it made (AC 3).
+    const next = known(selectedSetupId, setupChoices);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one restore on mount
+    setDraft(next ? switchSetup(restored, next) : restored);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
   }, []);
 
@@ -147,10 +176,40 @@ export function ShotLogFlow({
     [],
   );
 
+  const choice = (id: string | null) => setupChoices.find((c) => c.id === id);
+  const active = choice(draft.setupId);
+  const current = {
+    label: active?.primary ?? setup,
+    grind: active?.grind ?? grind,
+    brew: active?.brew ?? brew,
+    brewLast: active?.brewLast ?? brewLast,
+    unknownPart: active ? active.unknownPart : unknownPart,
+  };
+
+  /** STORY-02-02-07 AC 4 and AC 5, DQ-20. */
+  function switchSetup(d: Draft, id: string): Draft {
+    const from = choice(d.setupId);
+    const to = choice(id);
+    if (!to || id === d.setupId) return d;
+    const same = from ? sameParts(from.parts, to.parts) : { grinder: false, machine: false };
+    return {
+      ...d,
+      setupId: id,
+      values: {
+        ...d.values,
+        grind: same.grinder ? d.values.grind : to.startGrind,
+        temperature: same.machine ? d.values.temperature : null,
+        pressure: same.machine ? d.values.pressure : null,
+      },
+      prep: prepAfterSetupChange(d.prep, new Set(d.prepTouched), to.prep),
+    };
+  }
+
   const startDial = toDial(start);
   const startMilk = milkFor(draft.drinkId);
   const freshMilk = milkFor(defaultDrinkId);
   const dirty =
+    draft.setupId !== setupId ||
     draft.milkTouched.length > 0 ||
     draft.milkTypeId !== (freshMilk?.milkTypeId ?? null) ||
     draft.drinkId !== defaultDrinkId ||
@@ -176,7 +235,7 @@ export function ShotLogFlow({
   };
 
   const onPick = (field: ContextField) => {
-    if (field === "setup") return setup ? undefined : sideTrip(BUILDER_PATH);
+    if (field === "setup") return setupChoices.length > 1 ? setSheet("setup") : setup ? undefined : sideTrip(BUILDER_PATH);
     if (field === "coffee" && portions.length === 0) return sideTrip(ADD_BAG_PATH);
     setSheet(field);
   };
@@ -184,16 +243,16 @@ export function ShotLogFlow({
   const label = (list: SelectOption[], id: string | null) => list.find((o) => o.id === id)?.primary ?? "";
 
   const save = async (values: ShotValuesData, sweetened: boolean, dial: BrewDial, ticks: Prep) => {
-    if (!setupId) return setMissing("setup");
+    if (!draft.setupId) return setMissing("setup");
     if (!draft.portionId || !draft.drinkId) return setMissing("coffee");
     setMissing(null);
     setState("saving");
     const result = await saveMeasuredShotAction({
-      setupId,
+      setupId: draft.setupId,
       drinkTypeId: draft.drinkId,
       portionId: draft.portionId,
       ...values,
-      ...brewToStored(brew, dial),
+      ...brewToStored(current.brew, dial),
       sweetened,
       usedWdt: ticks.wdt,
       usedPuckScreen: ticks.puckScreen,
@@ -223,13 +282,13 @@ export function ShotLogFlow({
     <>
       <ShotLogScreen
         mode="new"
-        setup={setup ?? t("log.missingSetup")}
+        setup={current.label ?? t("log.missingSetup")}
         drink={label(drinks, draft.drinkId)}
         coffee={portions.length ? label(portions, draft.portionId) : t("log.missingCoffee")}
         start={start}
-        grind={grind}
-        brew={brew}
-        brewLast={brewLast}
+        grind={current.grind}
+        brew={current.brew}
+        brewLast={current.brewLast}
         values={draft.values}
         onValuesChange={(values) =>
           setDraft((d) => ({
@@ -245,10 +304,10 @@ export function ShotLogFlow({
         onPrepChange={(key, value) =>
           setDraft((d) => ({ ...d, prep: { ...d.prep, [key]: value }, prepTouched: [...new Set([...d.prepTouched, key])] }))
         }
-        readOnly={setup ? ["setup"] : []}
+        readOnly={setup && setupChoices.length < 2 ? ["setup"] : []}
         capLink={
-          unknownPart
-            ? { label: t("log.capUnknown", { kind: unknownPart.kind }), onClick: () => sideTrip(partHref(unknownPart.id)) }
+          current.unknownPart
+            ? { label: t("log.capUnknown", { kind: current.unknownPart.kind }), onClick: () => sideTrip(partHref(current.unknownPart!.id)) }
             : undefined
         }
         notice={
@@ -266,6 +325,19 @@ export function ShotLogFlow({
         onPick={onPick}
         onCancel={leave}
         onSave={save}
+      />
+      <SelectSheet
+        open={sheet === "setup"}
+        onClose={() => setSheet(null)}
+        title={t("log.setup")}
+        closeLabel={t("actions.close")}
+        options={setupChoices}
+        value={draft.setupId}
+        onChoose={(id) => {
+          setDraft((d) => switchSetup(d, id));
+          setSheet(null);
+        }}
+        footerRow={draft.setupId ? { label: t("setup.changePart"), onClick: () => sideTrip(changePartHref(draft.setupId!)) } : undefined}
       />
       <SelectSheet
         open={sheet === "drink"}

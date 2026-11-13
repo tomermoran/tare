@@ -3,7 +3,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { RecipeLogFlow } from "@/components/log/RecipeLogFlow";
 import { ShotEditFlow } from "@/components/log/ShotEditFlow";
-import { ShotLogFlow, type DrinkMilk } from "@/components/log/ShotLogFlow";
+import { ShotLogFlow, type DrinkMilk, type LogSetupChoice } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { brewTabs, brewToDial, NO_BREW_VALUES } from "@/domain/brewControls";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
@@ -12,7 +12,8 @@ import { MILK_FALLBACK_ML, milkStart } from "@/domain/milk";
 import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { setupLabel } from "@/domain/setupName";
-import { getLogContext, getStartingValues, NEUTRAL_START, type LogPortion } from "@/server/dal/logContext";
+import { getLogContext, getStartingValues, NEUTRAL_START, type LogContext, type LogPortion } from "@/server/dal/logContext";
+import { lastGrindOnPart } from "@/server/dal/dialIn";
 import { getShot } from "@/server/dal/journal";
 import { getRecipeForBag } from "@/server/dal/recipes";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
@@ -83,6 +84,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     ? await getStartingValues(setup.id)
     : { grind: middleGrind(grind), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES, prep: NO_PREP };
   const brew = brewTabs(setup?.machine);
+  const setupChoices = await logSetupChoices(context, list, t("setup.current"));
 
   return (
     <ShotLogFlow
@@ -100,6 +102,8 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       brewLast={brewToDial(brew, start.lastBrew)}
       prep={start.prep}
       unknownPart={setup?.unknownPart ?? null}
+      setupChoices={setupChoices}
+      selectedSetupId={selected && context.setups.some((s) => s.id === selected) ? selected : null}
       drinkMilk={Object.fromEntries(
         context.drinks.map((d): [string, DrinkMilk] => [
           d.id,
@@ -205,5 +209,36 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
       pinTitle={t("recipe.pinTitle", { drink: drinkName, coffee: bean.name, setup: setupName })}
       backTo={`/beans/${batchId}`}
     />
+  );
+}
+
+/**
+ * Each setup the log can switch to (STORY-02-02-07), current first: its
+ * dials, where prep starts, and where grind starts when it doesn't carry
+ * over (the grinder's last measured grind, else the middle, DQ-20).
+ */
+async function logSetupChoices(context: LogContext, list: (items: string[]) => string, currentLabel: string): Promise<LogSetupChoice[]> {
+  if (context.setups.length < 2) return [];
+  const ordered = [...context.setups].sort((a, b) => Number(b.id === context.defaultSetupId) - Number(a.id === context.defaultSetupId));
+  return Promise.all(
+    ordered.map(async (s) => {
+      const grinder = s.parts.find((p) => p.kind === "grinder")?.id ?? null;
+      const machine = s.parts.find((p) => p.kind === "machine")?.id ?? null;
+      const wheel = grindWheelConfig(s.grind);
+      const [start, last] = await Promise.all([getStartingValues(s.id), grinder ? lastGrindOnPart(grinder) : null]);
+      const brew = brewTabs(s.machine);
+      return {
+        id: s.id,
+        primary: setupLabel(s, context.setups, list),
+        marker: s.id === context.defaultSetupId ? currentLabel : undefined,
+        grind: wheel,
+        brew,
+        brewLast: brewToDial(brew, start.lastBrew),
+        prep: start.prep,
+        startGrind: last ?? middleGrind(wheel),
+        parts: { grinderId: grinder, machineId: machine },
+        unknownPart: s.unknownPart,
+      };
+    }),
   );
 }
