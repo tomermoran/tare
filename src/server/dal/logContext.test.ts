@@ -12,6 +12,7 @@ import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/time", () => ({ getTimeZone: async () => "UTC" }));
 vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 let k: Awaited<ReturnType<typeof makeKitchen>>;
@@ -123,6 +124,9 @@ describe("getLogContext", () => {
     const thawed = await addPortion({ bagAt: day(2), openedAt: day(2), frozenAt: day(3), thawedAt: day(6) });
     const c = await getLogContext();
     expect(c.portions[0]).toMatchObject({ id: thawed, state: "thawed", openedAt: day(6), frozen: false });
+    // Open a day, frozen three, then four more since the thaw (STORY-03-03-02 AC 2).
+    const later = await getLogContext({}, day(10));
+    expect(later.portions[0].opened).toEqual({ kind: "open", days: 5 });
   });
 
   it("keeps a sealed thawed portion with the unopened ones", async () => {

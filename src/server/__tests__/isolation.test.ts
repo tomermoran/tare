@@ -26,6 +26,7 @@ import { signInAs, testContext } from "@/test/mocks/context";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/time", () => ({ getTimeZone: async () => "UTC" }));
 vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 // Two households with a full kitchen each. Every data access read and action

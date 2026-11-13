@@ -119,7 +119,8 @@ describe("getOnHand", () => {
     const [{ group, bags: [b] }] = await getOnHand();
     expect(group).toBe("unopened");
     expect(b).toMatchObject({ id: batchId, bean: { id: SIGNIA, name: "Signia", roasterName: "Portofino" } });
-    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null, openSince: null, frozenAt: null, remaining: { grams: 250, overLogged: false } }]);
+    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null, openSince: null, frozenAt: null,
+      opened: { kind: "notOpened" }, roasting: { kind: "unknown" }, remaining: { grams: 250, overLogged: false } }]);
   });
 
   it("drops a bag once every portion is finished (AC 3)", async () => {
@@ -154,6 +155,20 @@ describe("getOnHand", () => {
       ["frozen", [ice]],
     ]);
     expect(groups[0].bags[1].portions.map((p) => p.state)).toEqual(["counter", "frozen"]);
+  });
+
+  it("gives each portion its clocks and the bag the clock of the portion in use (STORY-03-03-04 AC 3)", async () => {
+    const now = new Date();
+    const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000);
+    const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250, roastDate: daysAgo(20) });
+    await db().update(batchPortions).set({ openedAt: daysAgo(4) }).where(eq(batchPortions.id, portionId));
+    await db().insert(batchPortions).values({ id: newId(), batchId, weight: 100, createdAt: now, frozenAt: daysAgo(15) });
+    const b = await getBag(batchId);
+    expect(b.portions.map((p) => [p.opened, p.roasting])).toEqual([
+      [{ kind: "open", days: 4 }, { kind: "roasted", days: 20, frozenDays: 0 }],
+      [{ kind: "paused" }, { kind: "roasted", days: 5, frozenDays: 15 }],
+    ]);
+    expect(b.roasting).toEqual({ kind: "roasted", days: 20, frozenDays: 0 });
   });
 
   it("shows a merged coffee's survivor (AC 6)", async () => {
