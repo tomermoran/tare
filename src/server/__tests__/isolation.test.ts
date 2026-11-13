@@ -187,7 +187,7 @@ describe("bags", () => {
   });
 
   it("lists only my bags on hand and won't open theirs", async () => {
-    expect((await getOnHand()).map((b) => b.id)).toEqual([mine.batch.id]);
+    expect((await getOnHand()).flatMap((g) => g.bags.map((b) => b.id))).toEqual([mine.batch.id]);
     await expect(getBag(theirs.batch.id)).rejects.toBeInstanceOf(NotFoundError);
   });
 

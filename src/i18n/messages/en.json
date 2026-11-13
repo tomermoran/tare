@@ -236,6 +236,9 @@
     "onHand": "On hand",
     "onHandEmptyTitle": "Nothing on hand",
     "onHandEmpty": "Add a bag when you buy more.",
+    "groupOpen": "Open",
+    "groupUnopened": "Unopened",
+    "groupFrozen": "In the freezer",
     "tried": "Tried",
     "triedEmpty": "Coffees you brew will appear here.",
     "portions": "Portions"

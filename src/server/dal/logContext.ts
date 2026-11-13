@@ -19,7 +19,8 @@ import { NO_BREW_VALUES, type BrewValues } from "@/domain/brewControls";
 import { hasUnknowns } from "@/domain/capabilityFallbacks";
 import { prepStart, type Prep } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
-import { isOpen, portionState, type PortionState } from "@/domain/portionState";
+import { openSince, portionState, type PortionState } from "@/domain/portionState";
+import { pantryGroup, pantryOrder, type PantryItem } from "@/domain/onHandGroups";
 import { ensureStarterMilks } from "@/server/auth/bootstrap";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
@@ -69,7 +70,7 @@ export type LogPortion = {
   /** When the bag was added, to tell bags apart without a roast date. */
   bagAddedAt: Date;
   state: Exclude<PortionState, "finished">;
-  /** When it was opened, or thawed if it never was; null while unopened. */
+  /** When it became open (openSince); null while not open. */
   openedAt: Date | null;
   weight: number;
   /** Frozen portions come last and are marked (AC 3). */
@@ -88,18 +89,13 @@ export type LogContext = {
   missingCoffee: boolean;
 };
 
-/**
- * Options in the order the log offers them (AC 2, AC 3): open portions by
- * when they were opened, then unopened ones newest bag first, then frozen.
- */
-function portionOrder(a: LogPortion, b: LogPortion) {
-  const rank = (p: LogPortion) => (p.frozen ? 2 : p.openedAt ? 0 : 1);
-  return (
-    rank(a) - rank(b) ||
-    (rank(a) === 0 ? a.openedAt!.getTime() - b.openedAt!.getTime() : 0) ||
-    b.bagAddedAt.getTime() - a.bagAddedAt.getTime()
-  );
-}
+/** Options in the shared pantry order (AC 2, AC 3), so the default matches On hand. */
+const portionOrder = (a: LogPortion, b: LogPortion) => pantryOrder(pantryItem(a), pantryItem(b));
+const pantryItem = (p: LogPortion): PantryItem => ({
+  group: pantryGroup({ state: p.state, openSince: p.openedAt })!,
+  openSince: p.openedAt,
+  addedAt: p.bagAddedAt,
+});
 
 async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
   const rows = await db
@@ -141,7 +137,7 @@ async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
         bean: beans.get(r.beanId)!,
         roastDate: r.roastDate,
         state,
-        openedAt: isOpen(r) ? (r.openedAt ?? r.thawedAt) : null,
+        openedAt: openSince(r),
         weight: r.weight,
         frozen: state === "frozen",
         bagAddedAt: r.batchCreatedAt,

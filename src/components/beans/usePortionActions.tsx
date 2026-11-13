@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { allowedActions, isDatedAction, type DatedAction, type PortionAction } from "@/domain/portionActions";
 import type { PortionState } from "@/domain/portionState";
 import { localDayKey } from "@/domain/localDay";
+import { portionStateLabel } from "@/lib/portionStateLabel";
 import { setPortionDateAction, splitPortionAction, type PortionResult } from "@/server/actions/portions";
 import { DateSheet, PortionActionsSheet, SplitSheet } from "./PortionSheets";
 
@@ -19,8 +20,6 @@ import { DateSheet, PortionActionsSheet, SplitSheet } from "./PortionSheets";
 export type PortionInfo = {
   id: string;
   state: PortionState;
-  /** "Open", "Frozen"… */
-  stateLabel: string;
   /** Grams left. */
   remaining: number;
   /** When it went in the freezer, already formatted, for the thaw error. */
@@ -107,7 +106,7 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
       <PortionActionsSheet
         open={step === "actions" && !!portion}
         onClose={close}
-        title={portion ? t("portion.actionsTitle", { state: portion.stateLabel, remaining: grams(portion.remaining) }) : ""}
+        title={portion ? t("portion.actionsTitle", { state: portionStateLabel(t, portion.state), remaining: grams(portion.remaining) }) : ""}
         closeLabel={t("actions.close")}
         actions={(portion ? allowedActions(portion.state).filter(OFFERED) : []).map((a) => ({ action: a, label: t(`portion.action.${a}`) }))}
         onChoose={choose}

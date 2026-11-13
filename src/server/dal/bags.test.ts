@@ -116,21 +116,44 @@ describe("getOnHand", () => {
 
   it("shows each bag with its coffee, roaster and portions (AC 1)", async () => {
     const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
-    const [b] = await getOnHand();
+    const [{ group, bags: [b] }] = await getOnHand();
+    expect(group).toBe("unopened");
     expect(b).toMatchObject({ id: batchId, bean: { id: SIGNIA, name: "Signia", roasterName: "Portofino" } });
-    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null, frozenAt: null, remaining: { grams: 250, overLogged: false } }]);
+    expect(b.portions).toEqual([{ id: portionId, weight: 250, state: "unopened", openedAt: null, openSince: null, frozenAt: null, remaining: { grams: 250, overLogged: false } }]);
   });
 
   it("drops a bag once every portion is finished (AC 3)", async () => {
     const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
     const other = await db().insert(batchPortions).values({ id: newId(), batchId, weight: 100, createdAt: new Date() }).returning();
     await finish(portionId);
-    const [b] = await getOnHand();
+    const [b] = (await getOnHand())[0].bags;
     expect(b.portions.map((p) => p.id)).toEqual([other[0].id]);
     await finish(other[0].id);
     expect(await getOnHand()).toEqual([]);
     // Still reachable on its own screen.
     expect((await getBag(batchId)).portions.map((p) => p.state)).toEqual(["finished", "finished"]);
+  });
+
+  it("groups bags into open, unopened and frozen, each bag once (STORY-03-02-05)", async () => {
+    const day = (n: number) => new Date(Date.UTC(2026, 0, n));
+    const add = async (dates: Partial<typeof batchPortions.$inferInsert>[]) => {
+      const { batchId, portionId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+      await db().update(batchPortions).set(dates[0]).where(eq(batchPortions.id, portionId));
+      for (const d of dates.slice(1)) await db().insert(batchPortions).values({ id: newId(), batchId, weight: 100, createdAt: new Date(), ...d });
+      return batchId;
+    };
+    const ice = await add([{ frozenAt: day(2) }]);
+    const half = await add([{ openedAt: day(5) }, { frozenAt: day(5) }]);
+    const sealed = await add([{ frozenAt: day(2), thawedAt: day(6) }]);
+    const early = await add([{ openedAt: day(3) }]);
+
+    const groups = await getOnHand();
+    expect(groups.map((g) => [g.group, g.bags.map((b) => b.id)])).toEqual([
+      ["open", [early, half]],
+      ["unopened", [sealed]],
+      ["frozen", [ice]],
+    ]);
+    expect(groups[0].bags[1].portions.map((p) => p.state)).toEqual(["counter", "frozen"]);
   });
 
   it("shows a merged coffee's survivor (AC 6)", async () => {

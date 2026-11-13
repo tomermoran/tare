@@ -3,7 +3,8 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
 import { batches, batchPortions, canonicalBeans, roasters } from "@/db/schema";
-import { portionState, type PortionState } from "@/domain/portionState";
+import { openSince, portionState, type PortionState } from "@/domain/portionState";
+import { groupOnHand, type PantryGroup } from "@/domain/onHandGroups";
 import type { Remaining } from "@/domain/remaining";
 import { getRemaining } from "./remaining";
 import { resolveEntity } from "./catalogMerge";
@@ -96,6 +97,8 @@ export type PortionView = {
   weight: number;
   state: PortionState;
   openedAt: Date | null;
+  /** When it became open (openSince); null while not open. */
+  openSince: Date | null;
   frozenAt: Date | null;
   /** What's left (STORY-03-04-01): grams, and whether the doses ran over. */
   remaining: Remaining;
@@ -163,22 +166,27 @@ async function bagsOf(householdId: string, batchIds?: string[]): Promise<BagView
         weight: p.weight,
         state: portionState(p),
         openedAt: p.openedAt,
+        openSince: openSince(p),
         frozenAt: p.frozenAt,
         remaining: remaining.get(p.id) ?? { grams: p.weight, overLogged: false },
       })),
   }));
 }
 
+export type OnHandGroup = { group: PantryGroup; bags: BagView[] };
+
 /**
- * On hand (STORY-03-01-04): bags with any portion not finished, newest
- * first, each with its unfinished portions (AC 1). A bag whose portions are
- * all finished leaves (AC 3). Grouping by state comes with TASK-03-02-05-BE1.
+ * On hand (STORY-03-01-04, STORY-03-02-05): bags with any portion not
+ * finished, each with its unfinished portions (AC 1), in groups: open,
+ * unopened, frozen. A bag sits once, in its first qualifying group; a bag
+ * whose portions are all finished leaves (AC 3); empty groups are left out.
  */
-export async function getOnHand(): Promise<BagView[]> {
+export async function getOnHand(): Promise<OnHandGroup[]> {
   const { householdId } = await requireHousehold();
-  return (await bagsOf(householdId))
+  const bags = (await bagsOf(householdId))
     .map((b) => ({ ...b, portions: b.portions.filter((p) => p.state !== "finished") }))
     .filter((b) => b.portions.length > 0);
+  return groupOnHand(bags);
 }
 
 /** One bag with its facts and every portion (AC 2). */
