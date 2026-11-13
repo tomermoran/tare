@@ -140,10 +140,36 @@ export const Failed: Story = {
   },
 };
 
+/** Coffee: beans bought before first, then roasters to browse (STORY-03-01-01 AC 2). */
 export const Coffee: Story = {
   args: {
     labels: labels(catalog.pickTitle.coffee, catalog.searchCoffeeHint),
-    groups: [{ label: catalog.roasters, rows: [{ id: "r1", primary: "Example Roasters", drillIn: true }] }],
+    groups: [
+      { label: catalog.boughtBefore, rows: [{ id: "c1", primary: "Morning Blend", secondary: "Example Roasters" }] },
+      { label: catalog.roasters, rows: [{ id: "r1", primary: "Example Roasters", drillIn: true }] },
+    ],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const headings = canvas.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    await expect(headings).toEqual([catalog.boughtBefore, catalog.roasters]);
+    await userEvent.click(canvas.getByRole("button", { name: /Morning Blend/ }));
+    await expect(args.onPick).toHaveBeenCalledWith(expect.objectContaining({ id: "c1" }));
+  },
+};
+
+/** No coffee matches: say so, and offer to add it (STORY-03-01-01 AC 6). */
+export const CoffeeNoMatch: Story = {
+  args: {
+    labels: labels(catalog.pickTitle.coffee, catalog.searchCoffeeHint, "unknown roast"),
+    query: "unknown roast",
+    groups: [],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("status")).toHaveTextContent("unknown roast");
+    await userEvent.click(canvas.getByRole("button", { name: catalog.cantFind }));
+    await expect(args.onCantFind).toHaveBeenCalledOnce();
   },
 };
 
