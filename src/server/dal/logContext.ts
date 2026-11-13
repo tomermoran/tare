@@ -14,8 +14,9 @@ import {
   roasters,
   setupParts,
 } from "@/db/schema";
-import { parseCapabilities, type GrindScale, type MachineCapabilities } from "@/domain/capabilities";
+import { parseCapabilities, type GrindScale, type HardwareKind, type MachineCapabilities } from "@/domain/capabilities";
 import { NO_BREW_VALUES, type BrewValues } from "@/domain/brewControls";
+import { hasUnknowns } from "@/domain/capabilityFallbacks";
 import { prepStart, type Prep } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { isOpen, portionState, type PortionState } from "@/domain/portionState";
@@ -41,6 +42,11 @@ export type LogSetup = SetupSummary & {
   grind: GrindScale | null;
   /** The setup machine's temperature and pressure (EPIC-01-04), when parseable. */
   machine: MachineCapabilities | null;
+  /**
+   * The first part with a "not sure" answer (grinder, then machine, then
+   * basket), for the log's quiet "tell us" link (STORY-01-06-08 AC 6).
+   */
+  unknownPart: { id: string; kind: HardwareKind } | null;
 };
 
 export type LogDrink = {
@@ -144,6 +150,25 @@ async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
     .sort(portionOrder);
 }
 
+const UNKNOWN_ORDER: HardwareKind[] = ["grinder", "machine", "basket"];
+
+/** The setup's first part whose model has a "not sure" answer. */
+function firstUnknown(parts: SetupSummary["parts"], caps: Map<string, unknown>): LogSetup["unknownPart"] {
+  for (const kind of UNKNOWN_ORDER) {
+    const part = parts.find((p) => p.kind === kind);
+    if (!part) continue;
+    const c = caps.get(part.hardwareId);
+    const unknown =
+      kind === "machine"
+        ? hasUnknowns({ machine: parseCapabilities("machine", c) })
+        : kind === "grinder"
+          ? hasUnknowns({ grinder: parseCapabilities("grinder", c)?.grind })
+          : hasUnknowns({ basket: parseCapabilities("basket", c) });
+    if (unknown) return { id: part.id, kind };
+  }
+  return null;
+}
+
 /** The default persona's latest milk for each drink, from shots that had one. */
 async function lastMilkByDrink(householdId: string): Promise<Map<string, string>> {
   const rows = await db
@@ -159,7 +184,7 @@ async function lastMilkByDrink(householdId: string): Promise<Map<string, string>
 
 /** Each setup part's model capabilities, by hardware ID. */
 async function modelCapabilities(setupList: SetupSummary[]): Promise<Map<string, unknown>> {
-  const ids = [...new Set(setupList.flatMap((s) => s.parts.filter((p) => p.kind !== "basket").map((p) => p.hardwareId)))];
+  const ids = [...new Set(setupList.flatMap((s) => s.parts.map((p) => p.hardwareId)))];
   if (!ids.length) return new Map();
   const rows = await db
     .select({ id: canonicalHardware.id, capabilities: canonicalHardware.capabilities })
@@ -227,6 +252,7 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
         ...s,
         grind: grinder ? (parseCapabilities("grinder", caps.get(grinder.hardwareId))?.grind ?? null) : null,
         machine: machine ? parseCapabilities("machine", caps.get(machine.hardwareId)) : null,
+        unknownPart: firstUnknown(s.parts, caps),
       };
     });
 
