@@ -10,7 +10,6 @@ import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { MILK_FALLBACK_ML } from "@/domain/milk";
 import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
-import { daysBetween, localDayKey } from "@/domain/localDay";
 import { setupLabel } from "@/domain/setupName";
 import { getLogContext, getStartingValues, NEUTRAL_START, type LogPortion } from "@/server/dal/logContext";
 import { getShot } from "@/server/dal/journal";
@@ -50,13 +49,10 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   await connection();
   if (!context) return null;
 
-  const today = localDayKey(new Date(), timeZone);
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
   const date = (d: Date) => format.dateTime(d, { day: "numeric", month: "short", timeZone });
-  const state = (p: LogPortion) =>
-    p.openedAt
-      ? t("portion.openFor", { days: daysBetween(localDayKey(p.openedAt, timeZone), today) })
-      : portionStateLabel(t, p.state);
+  // The opened clock, less freezer days (STORY-03-03-04).
+  const state = (p: LogPortion) => (p.opened.kind === "open" ? t("portion.openFor", { days: p.opened.days }) : portionStateLabel(t, p.state));
 
   const drinks: SelectOption[] = context.drinks.map((d) => ({
     id: d.id,

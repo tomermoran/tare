@@ -4,7 +4,10 @@ import { db } from "@/db/client";
 import { newId } from "@/db/ids";
 import { batches, batchPortions, canonicalBeans, roasters } from "@/db/schema";
 import { openSince, portionState, type PortionState } from "@/domain/portionState";
-import { groupOnHand, type PantryGroup } from "@/domain/onHandGroups";
+import { groupOnHand, pantryGroup, pantryOrder, type PantryGroup } from "@/domain/onHandGroups";
+import { openedClock, type OpenedClock } from "@/domain/openedClock";
+import { roastingClock, type RoastingClock } from "@/domain/roastingClock";
+import { getTimeZone } from "@/server/time";
 import type { Remaining } from "@/domain/remaining";
 import { getRemaining } from "./remaining";
 import { resolveEntity } from "./catalogMerge";
@@ -100,6 +103,10 @@ export type PortionView = {
   /** When it became open (openSince); null while not open. */
   openSince: Date | null;
   frozenAt: Date | null;
+  /** How long it's been open, less freezer days (STORY-03-03-04). */
+  opened: OpenedClock;
+  /** How old its coffee is, less its own freezer days (STORY-03-03-01, STORY-03-03-02). */
+  roasting: RoastingClock;
   /** What's left (STORY-03-04-01): grams, and whether the doses ran over. */
   remaining: Remaining;
 };
@@ -114,11 +121,14 @@ export type BagView = {
   purchasedAt: Date | null;
   bagWeight: number;
   createdAt: Date;
+  /** The bag's one roasting clock: that of the portion in use, else the bag's own (STORY-03-03-04 AC 3). */
+  roasting: RoastingClock;
   portions: PortionView[];
 };
 
 /** The household's bags with their portions, beans followed to survivors (AC 6). */
-async function bagsOf(householdId: string, batchIds?: string[]): Promise<BagView[]> {
+async function bagsOf(householdId: string, batchIds?: string[], now = new Date()): Promise<BagView[]> {
+  const timeZone = await getTimeZone();
   const rows = await db
     .select()
     .from(batches)
@@ -149,28 +159,36 @@ async function bagsOf(householdId: string, batchIds?: string[]): Promise<BagView
     beans.set(r.beanId, bean);
   }
 
-  return rows.map((r) => ({
-    id: r.id,
-    bean: beans.get(r.beanId)!,
-    roastDate: r.roastDate,
-    packedAt: r.packedAt,
-    bestBefore: r.bestBefore,
-    lotCode: r.lotCode,
-    purchasedAt: r.purchasedAt,
-    bagWeight: r.bagWeight,
-    createdAt: r.createdAt,
-    portions: portions
-      .filter((p) => p.batchId === r.id)
-      .map((p) => ({
-        id: p.id,
-        weight: p.weight,
-        state: portionState(p),
-        openedAt: p.openedAt,
-        openSince: openSince(p),
-        frozenAt: p.frozenAt,
-        remaining: remaining.get(p.id) ?? { grams: p.weight, overLogged: false },
-      })),
-  }));
+  return rows.map((r) => {
+    const own = portions.filter((p) => p.batchId === r.id);
+    const views: PortionView[] = own.map((p) => ({
+      id: p.id,
+      weight: p.weight,
+      state: portionState(p),
+      openedAt: p.openedAt,
+      openSince: openSince(p),
+      frozenAt: p.frozenAt,
+      opened: openedClock(p, now, timeZone),
+      roasting: roastingClock(r, p, now, timeZone),
+      remaining: remaining.get(p.id) ?? { grams: p.weight, overLogged: false },
+    }));
+    // The portion in use is the first unfinished one in pantry order.
+    const item = (v: PortionView) => ({ group: pantryGroup(v)!, openSince: v.openSince, addedAt: r.createdAt });
+    const [inUse] = views.filter((v) => pantryGroup(v)).sort((a, b) => pantryOrder(item(a), item(b)));
+    return {
+      id: r.id,
+      bean: beans.get(r.beanId)!,
+      roastDate: r.roastDate,
+      packedAt: r.packedAt,
+      bestBefore: r.bestBefore,
+      lotCode: r.lotCode,
+      purchasedAt: r.purchasedAt,
+      bagWeight: r.bagWeight,
+      createdAt: r.createdAt,
+      roasting: inUse ? inUse.roasting : roastingClock(r, null, now, timeZone),
+      portions: views,
+    };
+  });
 }
 
 export type OnHandGroup = { group: PantryGroup; bags: BagView[] };

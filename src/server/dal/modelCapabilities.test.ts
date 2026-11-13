@@ -14,6 +14,7 @@ import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/time", () => ({ getTimeZone: async () => "UTC" }));
 vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 let k: Awaited<ReturnType<typeof makeKitchen>>;

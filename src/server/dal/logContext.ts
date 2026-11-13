@@ -21,6 +21,9 @@ import { prepStart, type Prep } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { openSince, portionState, type PortionState } from "@/domain/portionState";
 import { pantryGroup, pantryOrder, type PantryItem } from "@/domain/onHandGroups";
+import { openedClock, type OpenedClock } from "@/domain/openedClock";
+import { roastingClock, type RoastingClock } from "@/domain/roastingClock";
+import { getTimeZone } from "@/server/time";
 import { ensureStarterMilks } from "@/server/auth/bootstrap";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
@@ -75,6 +78,10 @@ export type LogPortion = {
   weight: number;
   /** Frozen portions come last and are marked (AC 3). */
   frozen: boolean;
+  /** How long it's been open, less freezer days (STORY-03-03-04). */
+  opened: OpenedClock;
+  /** How old the coffee is, less this portion's freezer days (STORY-03-03-01). */
+  roasting: RoastingClock;
 };
 
 export type LogContext = {
@@ -97,13 +104,16 @@ const pantryItem = (p: LogPortion): PantryItem => ({
   addedAt: p.bagAddedAt,
 });
 
-async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
+async function unfinishedPortions(householdId: string, now: Date): Promise<LogPortion[]> {
+  const timeZone = await getTimeZone();
   const rows = await db
     .select({
       id: batchPortions.id,
       batchId: batches.id,
       beanId: batches.beanId,
       roastDate: batches.roastDate,
+      packedAt: batches.packedAt,
+      bestBefore: batches.bestBefore,
       batchCreatedAt: batches.createdAt,
       weight: batchPortions.weight,
       frozenAt: batchPortions.frozenAt,
@@ -141,6 +151,8 @@ async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
         weight: r.weight,
         frozen: state === "frozen",
         bagAddedAt: r.batchCreatedAt,
+        opened: openedClock(r, now, timeZone),
+        roasting: roastingClock(r, r, now, timeZone),
       };
     })
     .sort(portionOrder);
@@ -204,8 +216,13 @@ export async function setupMachine(setupId: string): Promise<MachineCapabilities
  * The shot log's context. `drinkId` and `portionId` are what Brew (or a
  * side task coming back) chose; each is used when it's one of the options.
  */
-export async function getLogContext(chosen: { drinkId?: string; portionId?: string } = {}): Promise<LogContext> {
+export async function getLogContext(
+  chosen: { drinkId?: string; portionId?: string } = {},
+  at?: Date,
+): Promise<LogContext> {
   const { householdId } = await requireHousehold();
+  // Read the clock only after the request's cookies, so the page stays dynamic.
+  const now = at ?? new Date();
   // Households from before the starter milk list need one to log milk drinks.
   await ensureStarterMilks(db, householdId);
 
@@ -227,7 +244,7 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
       .from(milkTypes)
       .where(and(eq(milkTypes.householdId, householdId), or(isNull(milkTypes.hidden), eq(milkTypes.hidden, false))))
       .orderBy(asc(milkTypes.sortOrder)),
-    unfinishedPortions(householdId),
+    unfinishedPortions(householdId, now),
     db
       .select({ drinkTypeId: extractions.drinkTypeId, portionId: extractions.portionId })
       .from(extractions)
