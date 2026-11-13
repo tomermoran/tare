@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AppTabBar } from "@/components/navigation/AppTabBar";
+import { AppTabBar, AppTabBarFallback } from "@/components/navigation/AppTabBar";
 import { SessionGate } from "@/components/session/SessionGate";
 import { APP_SHELL_ID } from "@/components/session/StartGate";
 
@@ -16,7 +16,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pt-12">
           {children}
         </main>
-        <AppTabBar className="sticky bottom-0" />
+        <Suspense fallback={<AppTabBarFallback className="sticky bottom-0" />}>
+          <AppTabBar className="sticky bottom-0" />
+        </Suspense>
       </div>
       <Suspense fallback={null}>
         <SessionGate />
