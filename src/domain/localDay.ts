@@ -90,3 +90,12 @@ export function isValidDayKey(value: string): boolean {
   const d = new Date(Date.UTC(year, month - 1, day));
   return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
 }
+
+/** Whole calendar days from one day key to a later one ("YYYY-MM-DD"). */
+export function daysBetween(fromKey: string, toKey: string): number {
+  const utc = (key: string) => {
+    const [year, month, day] = key.split("-").map(Number);
+    return Date.UTC(year, month - 1, day);
+  };
+  return Math.round((utc(toKey) - utc(fromKey)) / 86_400_000);
+}

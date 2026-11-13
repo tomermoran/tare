@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidDayKey, localDayKey, localNoon, startOfLocalDay } from "./localDay";
+import { daysBetween, isValidDayKey, localDayKey, localNoon, startOfLocalDay } from "./localDay";
 
 const at = (iso: string) => new Date(iso);
 
@@ -77,4 +77,12 @@ describe("isValidDayKey", () => {
       expect(isValidDayKey(v)).toBe(false);
     },
   );
+});
+
+describe("daysBetween", () => {
+  it("counts calendar days, across months and a daylight-saving change", () => {
+    expect(daysBetween("2026-11-13", "2026-11-13")).toBe(0);
+    expect(daysBetween("2026-10-30", "2026-11-02")).toBe(3);
+    expect(daysBetween("2026-03-28", "2026-03-30")).toBe(2);
+  });
 });
