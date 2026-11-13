@@ -9,8 +9,8 @@ import { ConfirmSheet } from "@/components/ui/Sheet/ConfirmSheet";
 import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import type { HardwareKind } from "@/domain/capabilities";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
-import { returnWithSelection, withReturnTo } from "@/lib/returnTo";
-import { ADD_PART_PATH, newPartBuilderHref, SETUP_PATH } from "@/lib/setupRoutes";
+import { withReturnTo } from "@/lib/returnTo";
+import { ADD_PART_PATH, afterAddPart, newPartBuilderHref, SETUP_PATH } from "@/lib/setupRoutes";
 import { addPartAction } from "@/server/actions/parts";
 import type { PartModel } from "@/server/dal/parts";
 
@@ -19,7 +19,8 @@ import type { PartModel } from "@/server/dal/parts";
  * picker, details, save. Going to the picker keeps the draft and comes back
  * with `?selected=`. After saving it returns to `returnTo`, continues the
  * walk-through to the next missing kind (machine, grinder, basket), or goes
- * to Setup, where the first-setup offer waits once all three exist. When the
+ * to Setup, where the first-setup offer waits once all three exist; a walk
+ * started from the checklist ends back at its `returnTo`. When the
  * household already has a setup, it asks once whether to use the new part
  * (STORY-01-02-08 AC 5): yes opens the builder from the current setup with
  * the part swapped in, no changes nothing.
@@ -137,13 +138,7 @@ export function AddPartFlow({
       setOffer({ id: result.data.id, kind });
       return;
     }
-    const have = new Set([...haveKinds, result.data.kind]);
-    const next = UNIT_KINDS.find((k) => !have.has(k));
-    const to = returnTo
-      ? returnWithSelection(returnTo, result.data.id)
-      : walk && next
-        ? `${ADD_PART_PATH}?kind=${next}&walk=1`
-        : SETUP_PATH;
+    const to = afterAddPart({ partId: result.data.id, have: new Set([...haveKinds, kind]), walk, returnTo });
     proceed(() => {
       router.replace(to);
       router.refresh();
