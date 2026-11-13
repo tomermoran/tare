@@ -7,13 +7,17 @@ import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { HomeScreen } from "@/components/screens/HomeScreen/HomeScreen";
 import { Button, buttonClass } from "@/components/ui/Button/Button";
 import { Notice } from "@/components/ui/Notice/Notice";
-import { PulledState } from "@/components/ui/PulledState/PulledState";
+import { PulledState, type Reaction } from "@/components/ui/PulledState/PulledState";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { clearBrewChoice, saveBrewChoice, touchBrewChoice } from "@/lib/brewChoiceCookie";
+import { fixHref } from "@/lib/fixRoutes";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { pullShotAction, undoPullAction } from "@/server/actions/pull";
+import { getOffContextAction, setReactionAction } from "@/server/actions/reaction";
 import { chooseSetupAction } from "@/server/actions/setups";
 import type { PortionChoice } from "@/server/dal/pull";
+import type { OffContext } from "@/server/dal/reaction";
+import { OffFlow } from "./OffFlow";
 import { PortionSheet, type PortionOption } from "./PortionSheet";
 
 type Field = "drink" | "coffee" | "setup";
@@ -28,7 +32,7 @@ export const UNDO_MS = 8_000;
 /** The card returns to its normal state after this long (design 2.3). */
 export const PULLED_MS = 30_000;
 
-type Pulled = { shotId: string | null; undo: boolean };
+type Pulled = { shotId: string | null; undo: boolean; reaction?: Reaction | null; reactionFailed?: Reaction };
 type Choosing = { portions: PortionChoice[] } | null;
 
 /**
@@ -78,6 +82,7 @@ export function BrewFlow({
   const [choosing, setChoosing] = useState<Choosing>(null);
   const [failed, setFailed] = useState(false);
   const [said, setSaid] = useState("");
+  const [off, setOff] = useState<{ shotId: string; context: OffContext } | null>(null);
   // One ID per intended shot: retries and a second tap reuse it.
   const clientId = useRef<string | null>(null);
   const busy = useRef(false);
@@ -163,6 +168,24 @@ export function BrewFlow({
     router.refresh();
   };
 
+  // Good saves and that's all; off saves, then asks what was off (STORY-02-03-01).
+  const react = async (reaction: Reaction) => {
+    const shotId = pulled?.shotId;
+    if (!shotId) return;
+    const before = pulled.reaction ?? null;
+    setPulled((p) => p && { ...p, reaction, reactionFailed: undefined });
+    const result = await setReactionAction(shotId, reaction);
+    if (!result.ok) {
+      // Not recorded: the chip goes back, and off can still go on to the fix (AC 5).
+      setPulled((p) => p && { ...p, reaction: before, reactionFailed: reaction });
+      return;
+    }
+    if (reaction !== "off") return;
+    const context = await getOffContextAction(shotId);
+    if (context.ok) setOff({ shotId, context: context.data });
+    else router.push(fixHref(shotId));
+  };
+
   const action = (a: BrewAction, variant: "primary" | "ghost") => {
     if (a.kind === "link")
       return (
@@ -206,7 +229,30 @@ export function BrewFlow({
               {said}
             </p>
             {pulled ? (
-              <PulledState labels={{ pulled: t("home.pulled"), undo: t("home.undo") }} undoAvailable={!!pulled.shotId && pulled.undo} onUndo={() => void undo()} />
+              <PulledState
+                labels={{
+                  pulled: t("home.pulled"),
+                  undo: t("home.undo"),
+                  reaction: { label: t("home.reactionLabel"), good: t("home.reactionGood"), off: t("home.reactionOff") },
+                }}
+                undoAvailable={!!pulled.shotId && pulled.undo}
+                onUndo={() => void undo()}
+                reaction={pulled.reaction ?? null}
+                onReaction={pulled.shotId ? (r) => void react(r) : undefined}
+                notice={
+                  pulled.reactionFailed && (
+                    <Notice
+                      action={
+                        pulled.reactionFailed === "off" && pulled.shotId
+                          ? { label: t("off.fix"), onClick: () => router.push(fixHref(pulled.shotId!)) }
+                          : undefined
+                      }
+                    >
+                      {t("home.reactionFailed")}
+                    </Notice>
+                  )
+                }
+              />
             ) : (
               <>
                 {failed && (
@@ -229,6 +275,7 @@ export function BrewFlow({
         onChoose={(id) => picking && void choose(picking, id)}
         footerRow={picking === "setup" ? { label: t("setup.changePart"), onClick: () => router.push(changePartHref) } : undefined}
       />
+      {off && <OffFlow shotId={off.shotId} context={off.context} onClose={() => setOff(null)} />}
       <PortionSheet
         open={choosing !== null}
         onClose={() => {

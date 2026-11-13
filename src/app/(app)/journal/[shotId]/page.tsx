@@ -6,6 +6,7 @@ import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetail
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { PinAction } from "@/components/recipes/PinAction";
+import { ReactionChips } from "@/components/shot/ReactionChips";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { shotSetupName } from "@/domain/shotSetupName";
 import { shotWarnings } from "@/domain/shotWarnings";
@@ -55,7 +56,9 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
 
   const phrases = tastePhraseKeys(shot.taste, shot.milkDrink).map((key) => t(key));
   const rating = shot.rating !== null ? { label: t("shot.rating"), value: t("shot.ratingValue", { rating: shot.rating }) } : undefined;
-  const reaction = shot.reaction ? { label: t("shot.reaction"), value: t(`journal.${shot.reaction}`) } : undefined;
+  // A one-tap shot's reaction is its chips, so it can be changed (STORY-02-03-01 AC 4).
+  const oneTap = shot.entryMode === "one-tap";
+  const reaction = shot.reaction && !oneTap ? { label: t("shot.reaction"), value: t(`journal.${shot.reaction}`) } : undefined;
   const noticed = shot.tags.length
     ? { label: t("shot.noticed"), value: format.list(shot.tags.map((tag) => t(`taste.tags.${tag}`)), { type: "conjunction" }) }
     : undefined;
@@ -79,6 +82,7 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
       taste={rating || reaction || noticed || phrases.length ? { rating, reaction, phrases, noticed } : undefined}
       actions={
         <>
+          {oneTap && <ReactionChips shotId={shot.id} initial={shot.reaction} />}
           {shot.entryMode === "measured" && <PinAction shotId={shot.id} title={pinTitle} label={t("recipe.pin")} />}
           <Link
             href={`/log?mode=edit&shotId=${shot.id}`}
