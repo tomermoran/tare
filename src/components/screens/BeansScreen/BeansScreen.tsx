@@ -55,9 +55,12 @@ export function BeansScreen({
   bags,
   tried,
   addBagHref,
+  onPortion,
 }: {
   labels: BeansLabels;
   state?: "loading" | "ready";
+  /** A portion row opens its actions (EPIC-03-02). */
+  onPortion?: (id: string) => void;
   bags: BagCard[];
   /** The Tried rows (EPIC-03-06); none means nothing has been brewed yet. */
   tried?: ReactNode;
@@ -139,6 +142,7 @@ export function BeansScreen({
                           primary={p.state}
                           secondary={p.opened}
                           end={<span className="text-body text-ink">{p.remaining}</span>}
+                          onClick={onPortion ? () => onPortion(p.id) : undefined}
                         />
                       </li>
                     ))}
