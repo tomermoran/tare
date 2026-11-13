@@ -95,3 +95,21 @@ export async function findAccount(
     .limit(1);
   return row ?? null;
 }
+
+/**
+ * Gives a household made before the starter milk list (wave 6) its milks,
+ * once: only when it has none at all, so a household that hid or renamed
+ * its milks is never touched. Idempotent under concurrent calls.
+ */
+export async function ensureStarterMilks(db: Db, householdId: string): Promise<void> {
+  await db.transaction(
+    async (tx) => {
+      const [any] = await tx.select({ id: milkTypes.id }).from(milkTypes).where(eq(milkTypes.householdId, householdId)).limit(1);
+      if (any) return;
+      await tx.insert(milkTypes).values(
+        STARTER_MILKS.map((milk, sortOrder) => ({ id: newId(), householdId, ...milk, sortOrder })),
+      );
+    },
+    { behavior: "immediate" },
+  );
+}

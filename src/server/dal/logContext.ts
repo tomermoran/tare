@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   batches,
@@ -19,6 +19,7 @@ import { NO_BREW_VALUES, type BrewValues } from "@/domain/brewControls";
 import { prepStart, type Prep } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { isOpen, portionState, type PortionState } from "@/domain/portionState";
+import { ensureStarterMilks } from "@/server/auth/bootstrap";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
 import { assertOwned, requireHousehold } from "./scope";
@@ -48,6 +49,8 @@ export type LogDrink = {
   nameKey: string | null;
   hasMilk: boolean;
   typicalMilkMl: number | null;
+  /** The milk of the persona's last shot of this drink, where milk starts (STORY-01-03-07 AC 4). */
+  lastMilkTypeId: string | null;
 };
 
 export type LogMilk = { id: string; name: string | null; nameKey: string | null };
@@ -141,6 +144,19 @@ async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
     .sort(portionOrder);
 }
 
+/** The default persona's latest milk for each drink, from shots that had one. */
+async function lastMilkByDrink(householdId: string): Promise<Map<string, string>> {
+  const rows = await db
+    .select({ drinkTypeId: extractions.drinkTypeId, milkTypeId: extractions.milkTypeId })
+    .from(extractions)
+    .innerJoin(personas, eq(personas.id, extractions.personaId))
+    .where(and(eq(extractions.householdId, householdId), eq(personas.isDefault, true), isNotNull(extractions.milkTypeId)))
+    .orderBy(desc(extractions.createdAt));
+  const last = new Map<string, string>();
+  for (const r of rows) if (!last.has(r.drinkTypeId)) last.set(r.drinkTypeId, r.milkTypeId!);
+  return last;
+}
+
 /** Each setup part's model capabilities, by hardware ID. */
 async function modelCapabilities(setupList: SetupSummary[]): Promise<Map<string, unknown>> {
   const ids = [...new Set(setupList.flatMap((s) => s.parts.filter((p) => p.kind !== "basket").map((p) => p.hardwareId)))];
@@ -169,6 +185,8 @@ export async function setupMachine(setupId: string): Promise<MachineCapabilities
  */
 export async function getLogContext(chosen: { drinkId?: string; portionId?: string } = {}): Promise<LogContext> {
   const { householdId } = await requireHousehold();
+  // Households from before the starter milk list need one to log milk drinks.
+  await ensureStarterMilks(db, householdId);
 
   const [setupList, drinks, milks, portions, latest] = await Promise.all([
     partsOf(householdId).then((parts) => setupsOf(householdId, parts)),
@@ -199,7 +217,7 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
       .then((r) => r[0] ?? null),
   ]);
 
-  const caps = await modelCapabilities(setupList);
+  const [caps, lastMilks] = await Promise.all([modelCapabilities(setupList), lastMilkByDrink(householdId)]);
   const setups: LogSetup[] = setupList
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .map((s) => {
@@ -228,7 +246,7 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
   return {
     setups,
     defaultSetupId: await currentSetupOf(householdId, setups),
-    drinks: drinks.map((d) => ({ ...d, typicalMilkMl: d.typicalMilkMl ?? null })),
+    drinks: drinks.map((d) => ({ ...d, typicalMilkMl: d.typicalMilkMl ?? null, lastMilkTypeId: lastMilks.get(d.id) ?? null })),
     defaultDrinkId,
     milks,
     portions,
