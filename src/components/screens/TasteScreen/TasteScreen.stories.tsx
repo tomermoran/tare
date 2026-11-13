@@ -7,6 +7,8 @@ import { PhoneFrame } from "../PhoneFrame";
 import { TasteQuestions, type TasteAnswerValues } from "@/components/taste/TasteQuestions";
 import { TasteTags } from "@/components/taste/TasteTags";
 import { useTasteLabels } from "@/components/taste/useTasteLabels";
+import { ShotWarnings } from "@/components/shot/ShotWarnings";
+import { shotWarnings } from "@/domain/shotWarnings";
 import type { TasteTag } from "@/domain/taste";
 import { TasteScreen } from "./TasteScreen";
 
@@ -48,6 +50,7 @@ function Full({ onDone, milkDrink = false }: { onDone?: () => void; milkDrink?: 
       primary={{ label: taste.done, onClick: onDone ?? fn() }}
       questions={<TasteQuestions labels={words.questions} value={answers} onChange={(p) => setAnswers((a) => ({ ...a, ...p }))} />}
       tags={<TasteTags labels={words} value={tags} onChange={setTags} />}
+      warning={<ShotWarnings warnings={shotWarnings(tags)} labels={{ channelling: messages.shot.warnings.channelling }} />}
     />
   );
 }
@@ -147,6 +150,25 @@ export const SmallPhone: Story = {
     const frame = canvas.getByTestId("phone-frame").getBoundingClientRect();
     const done = canvas.getByRole("button", { name: taste.done }).getBoundingClientRect();
     await expect(done.bottom).toBeLessThanOrEqual(frame.bottom);
+  },
+};
+
+/** Ticking channelling seen shows the warning at once; unticking removes it (STORY-01-05-04 AC 1). */
+export const ChannellingWarning: Story = {
+  render: () => <Full />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const warning = () => canvas.queryByText(messages.shot.warnings.channelling);
+    await userEvent.click(canvas.getByRole("button", { name: taste.tags.dryFinish }));
+    await userEvent.click(canvas.getByRole("button", { name: taste.tags.sourAndBitter }));
+    await expect(warning()).toBeNull();
+    const tag = canvas.getByRole("button", { name: taste.tags.channelling });
+    await userEvent.click(tag);
+    await expect(warning()).toBeVisible();
+    // The chip itself stays monochrome: the warning is the Notice.
+    await expect(tag.className).not.toMatch(/signal/);
+    await userEvent.click(tag);
+    await expect(warning()).toBeNull();
   },
 };
 

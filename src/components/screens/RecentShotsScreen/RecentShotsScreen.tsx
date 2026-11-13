@@ -2,9 +2,9 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { EmptyState } from "@/components/ui/EmptyState/EmptyState";
 import { ListRow } from "@/components/ui/ListRow/ListRow";
-import { Notice } from "@/components/ui/Notice/Notice";
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton/Skeleton";
@@ -148,11 +148,11 @@ export function RecentShotsScreen({
                           {item.oneTap && marker(t("oneTap"))}
                           {item.reaction && marker(t(item.reaction))}
                           {item.fromFrozen && marker(tBag("fromFrozen"))}
-                          {item.channelling && (
-                            <Notice size="inline" tone="warning" warning="channelling">
-                              {tShot("warnings.channelling")}
-                            </Notice>
-                          )}
+                          <ShotWarnings
+                            size="inline"
+                            warnings={item.channelling ? ["channelling"] : []}
+                            labels={{ channelling: tShot("warnings.channelling") }}
+                          />
                         </>
                       ) : undefined
                     }

@@ -51,4 +51,18 @@ describe("the signal rule", () => {
     expect(SIGNAL_CLASS.test('className="bg-signal-subtle"')).toBe(true);
     expect(SIGNAL_CLASS.test("// signal is reserved for shot warnings")).toBe(false);
   });
+
+  it("renders shot warnings only through ShotWarnings (STORY-01-05-04)", () => {
+    const WARNING = /tone="warning"/;
+    const offenders = files(SRC)
+      .map((path) => relative(ROOT, path))
+      .filter(
+        (path) =>
+          path !== "src/components/shot/ShotWarnings.tsx" &&
+          !path.endsWith(".stories.tsx") &&
+          path !== "src/lib/__tests__/signal-rule.test.ts",
+      )
+      .filter((path) => WARNING.test(readFileSync(join(ROOT, path), "utf8")));
+    expect(offenders).toEqual([]);
+  });
 });

@@ -28,7 +28,6 @@
     "doseRequired": "Enter a dose to log this shot.",
     "ratio": "1 : {ratio}",
     "warnings": {
-      "tooFast": "Ran fast",
       "channelling": "Possible channelling"
     },
     "units": {
