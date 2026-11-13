@@ -6,12 +6,15 @@ import { personaLabel } from "@/domain/personaLabel";
 import { LOG_PATH } from "@/lib/logRoutes";
 import { PROFILE_PATH } from "@/lib/profileRoutes";
 import { getProfile } from "@/server/dal/profile";
+import { getSetupProgress } from "@/server/dal/progress";
 import { unlessSignedOut } from "@/server/dal/scope";
+import { FirstRun } from "./FirstRun";
 
 /**
- * Brew (SCR-HOME). Interim until EPIC-02-02 and the first-run checklist
- * ship: the persona label, which opens Profile (STORY-01-01-03), and a way
- * to log a shot. TASK-02-02-01-FE1 keeps the label when it rebuilds Brew.
+ * Brew (SCR-HOME): the persona label, which opens Profile (STORY-01-01-03),
+ * then the first-run checklist until the first shot (STORY-01-01-07).
+ * Interim after that until EPIC-02-02 ships; TASK-02-02-01-FE1 keeps the
+ * label when it rebuilds Brew.
  */
 export default async function BrewPage() {
   const t = await getTranslations();
@@ -22,10 +25,21 @@ export default async function BrewPage() {
           <PersonaLink />
         </Suspense>
       </div>
-      <EmptyState title={t("home.interimTitle")} action={{ label: t("actions.logShot"), href: LOG_PATH }}>
-        {t("home.interim")}
-      </EmptyState>
+      <Suspense>
+        <BrewBody />
+      </Suspense>
     </div>
+  );
+}
+
+async function BrewBody() {
+  const [t, progress] = await Promise.all([getTranslations(), unlessSignedOut(getSetupProgress())]);
+  if (!progress) return null;
+  if (!progress.hasShot) return <FirstRun progress={progress} />;
+  return (
+    <EmptyState title={t("home.interimTitle")} action={{ label: t("actions.logShot"), href: LOG_PATH }}>
+      {t("home.interim")}
+    </EmptyState>
   );
 }
 
