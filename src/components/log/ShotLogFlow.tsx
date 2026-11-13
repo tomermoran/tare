@@ -208,11 +208,8 @@ export function ShotLogFlow({
       return;
     }
     clearDraft(DRAFT);
-    // Tasting (SCR-TASTE) lands with EPIC-01-05; until then, back to Brew.
-    proceed(() => {
-      router.replace("/");
-      router.refresh();
-    });
+    // The shot is saved; tasting is optional (SCR-TASTE).
+    proceed(() => router.replace(`/taste/${result.data.id}`));
   };
   const retry = () => {
     const v = draft.values;

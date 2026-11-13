@@ -19,13 +19,15 @@ type ShotValuesProps = {
   values: ShotValuesData;
   /** large: 2 x 2 grid (home, shot detail). compact: two short lines (list rows). */
   size?: "large" | "compact";
+  /** Compact only: end-aligned in a list row, start-aligned under a heading. */
+  align?: "start" | "end";
   className?: string;
 };
 
 const grindDecimals = (grind: number) => (Number.isInteger(grind) ? 0 : 1);
 
 /** Read-only grind, dose, yield and time (NC-08). */
-export function ShotValues({ values, size = "large", className }: ShotValuesProps) {
+export function ShotValues({ values, size = "large", align = "end", className }: ShotValuesProps) {
   const t = useTranslations("shot");
   const locale = useLocale();
   const format = useFormatter();
@@ -41,7 +43,7 @@ export function ShotValues({ values, size = "large", className }: ShotValuesProp
 
   if (size === "compact") {
     return (
-      <span className={cx("flex flex-col text-end", className)}>
+      <span className={cx("flex flex-col", align === "start" ? "text-start" : "text-end", className)}>
         <span className="text-label text-ink">
           {t("compact", {
             dose: full(values.dose, 1, "gram"),
