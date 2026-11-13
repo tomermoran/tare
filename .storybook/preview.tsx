@@ -25,9 +25,12 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 function AppShell({
   dir,
+  locale,
   children,
 }: {
   dir: "ltr" | "rtl";
+  /** For number formats: the copy stays English, numbers follow the locale. */
+  locale: string;
   children: React.ReactNode;
 }) {
   useEffect(() => {
@@ -35,14 +38,17 @@ function AppShell({
     document.documentElement.dir = dir;
   }, [dir]);
   return (
-    <NextIntlClientProvider locale={defaultLocale} messages={messages} timeZone={timeZone}>
+    <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
       {children}
     </NextIntlClientProvider>
   );
 }
 
 const withAppShell: Decorator = (Story, context) => (
-  <AppShell dir={context.globals.direction === "rtl" ? "rtl" : "ltr"}>
+  <AppShell
+    dir={context.globals.direction === "rtl" ? "rtl" : "ltr"}
+    locale={typeof context.globals.locale === "string" ? context.globals.locale : defaultLocale}
+  >
     <Story />
   </AppShell>
 );
@@ -62,9 +68,22 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    locale: {
+      description: "Number format locale",
+      toolbar: {
+        title: "Numbers",
+        icon: "globe",
+        items: [
+          { value: "en", title: "1,234.5 (en)" },
+          { value: "de-DE", title: "1.234,5 (de-DE)" },
+        ],
+        dynamicTitle: true,
+      },
+    },
   },
   initialGlobals: {
     direction: "ltr",
+    locale: defaultLocale,
     backgrounds: { value: "paper" },
   },
   parameters: {

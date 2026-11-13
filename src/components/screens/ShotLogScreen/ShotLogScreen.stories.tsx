@@ -150,6 +150,19 @@ export const Sweetened: Story = {
   },
 };
 
+/** German numbers: commas on screen, canonical grams and ms saved (STORY-01-03-05). */
+export const GermanNumbers: Story = {
+  args: { mode: "new", start: { ...exampleRecipe, dose: 18.5, timeMs: 27_600 } },
+  globals: { locale: "de-DE" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("tab", { name: /Dose/ })).toHaveTextContent("18,5");
+    await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27,6");
+    await userEvent.click(canvas.getByRole("button", { name: log.save }));
+    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ dose: 18.5, timeMs: 27_600 }), false);
+  },
+};
+
 export const FixAnOffShot: Story = { args: { mode: "fix" } };
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
 

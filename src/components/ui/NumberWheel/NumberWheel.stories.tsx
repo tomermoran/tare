@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState, type ComponentProps } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { msToSeconds } from "@/lib/units";
 import { NumberWheel } from "./NumberWheel";
+import { createTranslator } from "next-intl";
 
 const { shot } = messages;
+const t = createTranslator({ locale: "en", messages });
 
 /** Stories keep their own state so the wheel can be dragged freely. */
 function Controlled(props: ComponentProps<typeof NumberWheel>) {
@@ -115,7 +117,11 @@ export const Pressure: Story = {
     max: 12,
     step: 0.5,
     majorEvery: 2,
-    unitLabel: shot.units.bar,
+    unitLabel: { symbol: shot.units.bar, valueText: (value) => t("shot.units.barValue", { value }) },
+  },
+  play: async ({ canvasElement }) => {
+    const slider = within(canvasElement).getByRole("slider", { name: shot.pressure });
+    await expect(slider).toHaveAttribute("aria-valuetext", t("shot.units.barValue", { value: "9.0" }));
   },
 };
 
@@ -164,5 +170,38 @@ export const GrindRightToLeft: Story = {
     const [lower, higher] = within(canvasElement).getByTestId("end-captions").children;
     await expect(lower).toHaveTextContent(shot.finer);
     await expect(lower.getBoundingClientRect().left).toBeGreaterThan(higher.getBoundingClientRect().left);
+  },
+};
+
+/** German numbers: a decimal comma shown, typed and read; the value stays canonical. */
+export const GermanDecimalComma: Story = {
+  args: { ...Dose.args, onChange: fn() },
+  globals: { locale: "de-DE" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("textbox", { name: shot.dose });
+    await expect(field).toHaveValue("18,0");
+    await userEvent.click(field);
+    await userEvent.keyboard("{Control>}a{/Control}18,5{Enter}");
+    await expect(args.onChange).toHaveBeenLastCalledWith(18.5);
+    await expect(field).toHaveValue("18,5");
+    // A point typed on a keypad becomes the German mark.
+    await userEvent.click(field);
+    await userEvent.keyboard("{Control>}a{/Control}19.2{Enter}");
+    await expect(args.onChange).toHaveBeenLastCalledWith(19.2);
+    await expect(field).toHaveValue("19,2");
+  },
+};
+
+/** English numbers: a decimal point. */
+export const EnglishDecimalPoint: Story = {
+  args: { ...Dose.args, onChange: fn() },
+  globals: { locale: "en" },
+  play: async ({ canvasElement, args }) => {
+    const field = within(canvasElement).getByRole("textbox", { name: shot.dose });
+    await expect(field).toHaveValue("18.0");
+    await userEvent.click(field);
+    await userEvent.keyboard("{Control>}a{/Control}18.5{Enter}");
+    await expect(args.onChange).toHaveBeenLastCalledWith(18.5);
   },
 };

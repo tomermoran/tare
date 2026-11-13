@@ -32,7 +32,8 @@
       "channelling": "Possible channelling"
     },
     "units": {
-      "bar": "bar"
+      "bar": "bar",
+      "barValue": "{value} bar"
     },
     "compact": "{dose} → {yield} · {time}",
     "valuesLabel": "Shot values",
