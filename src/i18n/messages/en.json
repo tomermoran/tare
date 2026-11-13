@@ -61,7 +61,17 @@
     "setup": "Setup"
   },
   "profile": {
-    "defaultName": "Me"
+    "defaultName": "Me",
+    "title": "Profile",
+    "name": "Your name",
+    "nameHint": "Optional. Without one, you're shown as “{role}”.",
+    "save": "Save name",
+    "saved": "Saved.",
+    "saveFailed": "Couldn't save your name. Your text is kept, so you can try again.",
+    "deviceTitle": "Your history",
+    "device": "Your shots and recipes are kept with this device's account for now. A way to take them to another device comes later.",
+    "about": "About",
+    "version": "Version {version}"
   },
   "drinks": {
     "espresso": "Espresso",
