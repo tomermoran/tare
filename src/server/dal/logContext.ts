@@ -104,7 +104,8 @@ const pantryItem = (p: LogPortion): PantryItem => ({
   addedAt: p.bagAddedAt,
 });
 
-async function unfinishedPortions(householdId: string, now: Date): Promise<LogPortion[]> {
+/** The household's unfinished portions in the pantry order, with their clocks. */
+export async function unfinishedPortions(householdId: string, now: Date): Promise<LogPortion[]> {
   const timeZone = await getTimeZone();
   const rows = await db
     .select({
