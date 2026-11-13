@@ -23,6 +23,8 @@ export type PartRow = {
   primary: string;
   /** Maker and model, so a nicknamed part still says what it is. */
   secondary: string;
+  /** Opens the part (SCR-UNIT). */
+  href?: string;
 };
 
 export type SetupLabels = {
@@ -122,7 +124,7 @@ export function SetupScreen({
             <ul>
               {parts[kind].map((p) => (
                 <li key={p.id}>
-                  <ListRow primary={p.primary} secondary={p.secondary} />
+                  <ListRow primary={p.primary} secondary={p.secondary} href={p.href} />
                 </li>
               ))}
             </ul>

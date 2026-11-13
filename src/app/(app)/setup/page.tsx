@@ -6,7 +6,7 @@ import { SetupOffer } from "@/components/setup/SetupOffer";
 import type { HardwareKind } from "@/domain/capabilities";
 import { SETUP_KINDS } from "@/domain/setup";
 import { setupLabel } from "@/domain/setupName";
-import { ADD_PART_PATH, BUILDER_PATH, changePartHref } from "@/lib/setupRoutes";
+import { ADD_PART_PATH, BUILDER_PATH, changePartHref, partHref } from "@/lib/setupRoutes";
 import { getSetupTab, type Part } from "@/server/dal/parts";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { getSetups, suggestionFrom } from "@/server/dal/setups";
@@ -26,7 +26,7 @@ export default async function SetupPage() {
   ]);
 
   const partName = (p: Part) => t("setup.partName", { maker: p.maker, model: p.model });
-  const row = (p: Part): PartRow => ({ id: p.id, primary: p.nickname ?? p.model, secondary: partName(p) });
+  const row = (p: Part): PartRow => ({ id: p.id, primary: p.nickname ?? p.model, secondary: partName(p), href: partHref(p.id) });
   const rows = (kind: HardwareKind) => (tab?.parts[kind] ?? []).map(row);
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
 
