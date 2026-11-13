@@ -18,6 +18,7 @@ import {
   type PressureAnswer,
   type TemperatureAnswer,
 } from "./capabilityQuestions";
+import { grindWheelConfig } from "./grind";
 
 describe("the basket dose question", () => {
   it("maps each chip to its range", () => {
@@ -153,5 +154,17 @@ describe("the grinder questions (STORY-01-06-07)", () => {
       expect(grinderFromAnswers(answersFromGrinder(c))).toEqual(c);
       expect(parseCapabilities("grinder", c)).not.toBeNull();
     }
+  });
+});
+
+describe("saved grinder answers drive the grind wheel (STORY-01-06-07 AC 4)", () => {
+  it("snaps to the dial's clicks, with captions the right way", () => {
+    const { grind } = grinderFromAnswers({ dial: "stepped", min: "1", max: "30", step: "1", coarser: "lower" });
+    expect(grindWheelConfig(grind)).toEqual({ min: 1, max: 30, step: 1, majorEvery: 5, coarser: "lower" });
+  });
+
+  it("falls back for not sure, with no captions", () => {
+    const { grind } = grinderFromAnswers({ dial: "notSure", min: "", max: "", step: "", coarser: "notSure" });
+    expect(grindWheelConfig(grind)).toEqual({ min: 0, max: 100, step: 0.1, majorEvery: 10, coarser: null });
   });
 });
