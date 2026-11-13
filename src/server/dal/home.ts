@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, gte, max } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db/client";
 import { batches, batchPortions, canonicalBeans, extractions, personas, roasters } from "@/db/schema";
 import { closestSetup } from "@/domain/closestSetup";
@@ -11,6 +11,7 @@ import { resolveEntity } from "./catalogMerge";
 import { getLogContext, type LogDrink, type LogMilk, type LogPortion, type LogSetup } from "./logContext";
 import { getCurrentRecipe, listCurrentRecipesForBean, type Recipe } from "./recipes";
 import { getRemaining } from "./remaining";
+import { setupsLastUsed } from "./setups";
 import { requireHousehold } from "./scope";
 
 /*
@@ -177,14 +178,4 @@ async function beanOf(beanId: string): Promise<HomeCoffee["bean"] | null> {
     .innerJoin(roasters, eq(roasters.id, canonicalBeans.roasterId))
     .where(eq(canonicalBeans.id, beanId));
   return bean ?? null;
-}
-
-/** When each setup last made a shot, for the closest-setup tie-break. */
-async function setupsLastUsed(householdId: string): Promise<Map<string, Date>> {
-  const rows = await db
-    .select({ setupId: extractions.setupId, at: max(extractions.createdAt) })
-    .from(extractions)
-    .where(eq(extractions.householdId, householdId))
-    .groupBy(extractions.setupId);
-  return new Map(rows.filter((r) => r.at !== null).map((r) => [r.setupId, new Date(r.at as unknown as number)]));
 }

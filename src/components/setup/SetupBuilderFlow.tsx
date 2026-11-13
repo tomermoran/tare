@@ -10,6 +10,7 @@ import {
 } from "@/components/screens/SetupBuilderScreen/SetupBuilderScreen";
 import type { HardwareKind } from "@/domain/capabilities";
 import { matchSetup, SETUP_KINDS } from "@/domain/setup";
+import { closestSetup } from "@/domain/closestSetup";
 import { returnWithSelection, withReturnTo } from "@/lib/returnTo";
 import { resolveSetupAction } from "@/server/actions/setups";
 import { ADD_PART_PATH, BUILDER_PATH, SETUP_PATH } from "@/lib/setupRoutes";
@@ -30,6 +31,8 @@ export type BuilderSetup = {
   name: string;
   /** Already formatted. */
   recipeCount: string;
+  /** Has a recipe, so a dial-in on a new combination can start from it. */
+  hasRecipes: boolean;
 };
 
 type Chosen = Record<HardwareKind, string | null>;
@@ -78,12 +81,15 @@ export function SetupBuilderFlow({
     if (ids.length !== SETUP_KINDS.length) return null;
     const found = matchSetup(ids, setups);
     if (found) return { kind: "existing", name: found.name, recipeCount: found.recipeCount };
-    // The setup sharing the most parts gives the dial-in a head start (DQ-19).
-    const closest = setups
-      .map((s) => ({ s, shared: s.partIds.filter((id) => ids.includes(id)).length }))
-      .filter((c) => c.shared > 0)
-      .sort((a, b) => b.shared - a.shared)[0];
-    return { kind: "new", closest: closest?.s.name };
+    // The closest setup with recipes gives the dial-in a head start (DQ-19, STORY-02-01-06).
+    const closest = closestSetup(
+      { id: "", partIds: ids },
+      setups,
+      (id) => setups.some((s) => s.id === id && s.hasRecipes),
+      new Map(),
+    );
+    const name = closest && closest.shared > 0 ? setups.find((s) => s.id === closest.id)?.name : undefined;
+    return { kind: "new", closest: name };
   }, [ids, setups]);
 
   const here = () => {

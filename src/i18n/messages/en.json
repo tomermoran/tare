@@ -107,6 +107,7 @@
     "usual": "usual",
     "changeDrink": "Change drink",
     "changeCoffee": "Change coffee",
+    "changeSetup": "Change setup",
     "coffeeLine": "{bean} · {roaster}",
     "firstRun": {
       "title": "Let's get your first shot",

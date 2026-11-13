@@ -8,6 +8,7 @@ import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { personaLabel } from "@/domain/personaLabel";
 import { setupLabel } from "@/domain/setupName";
 import { LOG_PATH } from "@/lib/logRoutes";
+import { changePartHref } from "@/lib/setupRoutes";
 import { PROFILE_PATH } from "@/lib/profileRoutes";
 import { getHome, type Home } from "@/server/dal/home";
 import { getProfile } from "@/server/dal/profile";
@@ -104,7 +105,7 @@ async function Brew({ home }: { home: Home }) {
                 amount: format.number(home.remaining.grams, { style: "unit", unit: "gram", unitDisplay: "short", maximumFractionDigits: 0 }),
               })
             : undefined,
-        labels: { changeDrink: t("home.changeDrink"), changeCoffee: t("home.changeCoffee") },
+        labels: { changeDrink: t("home.changeDrink"), changeCoffee: t("home.changeCoffee"), changeSetup: t("home.changeSetup") },
       }}
       primary={primary}
       secondary={secondary}
@@ -121,6 +122,13 @@ async function Brew({ home }: { home: Home }) {
         secondary: c.bean.roasterName,
         marker: c.frozenOnly ? portionStateLabel(t, "frozen") : c.bean.id === home.usual.beanId ? t("home.usual") : undefined,
       }))}
+      setups={[home.setup, ...home.setups.filter((s) => s.id !== home.setup.id)].map((s) => ({
+        id: s.id,
+        primary: setup(s),
+        marker: s.id === home.setup.id ? t("setup.current") : undefined,
+      }))}
+      setupId={home.setup.id}
+      changePartHref={`${changePartHref(home.setup.id)}&${new URLSearchParams({ returnTo: "/" })}`}
       drinkId={home.drink.id}
       beanId={home.coffee?.id ?? null}
     />
