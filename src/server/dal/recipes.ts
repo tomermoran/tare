@@ -5,6 +5,7 @@ import { newId } from "@/db/ids";
 import { batches, batchPortions, canonicalBeans, drinkTypes, extractions, milkTypes, personas, pinnedRecipes } from "@/db/schema";
 import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
 import { validateMilk } from "@/domain/milk";
+import type { NamedMilk } from "@/domain/milkName";
 import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { setupMachine } from "./logContext";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
@@ -153,6 +154,8 @@ export type PinPreview = {
   replaces: Recipe | null;
   /** Fields that differ from the replaced recipe. */
   differences: RecipeField[];
+  /** The milks named, for the milk lines. */
+  milks: Record<string, NamedMilk>;
 };
 
 const differ = (values: RecipeValues, old: Recipe | null): RecipeField[] =>
@@ -160,7 +163,12 @@ const differ = (values: RecipeValues, old: Recipe | null): RecipeField[] =>
 
 async function preview(key: RecipeKey, values: RecipeValues): Promise<PinPreview> {
   const replaces = await getCurrentRecipe(key);
-  return { key, values, replaces, differences: differ(values, replaces) };
+  const ids = [values.milkTypeId, replaces?.milkTypeId].filter((id): id is string => !!id);
+  const rows = ids.length
+    ? await db.select({ id: milkTypes.id, name: milkTypes.name, nameKey: milkTypes.nameKey }).from(milkTypes).where(inArray(milkTypes.id, ids))
+    : [];
+  const milks = Object.fromEntries(rows.map((m) => [m.id, { name: m.name, nameKey: m.nameKey }]));
+  return { key, values, replaces, differences: differ(values, replaces), milks };
 }
 
 /** What pinning a shot would save, and what it replaces. Measured shots only. */

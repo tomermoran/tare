@@ -9,6 +9,7 @@ import type { TasteTag } from "@/domain/taste";
 import type { Tasting } from "@/domain/tasting";
 import { shotWarnings } from "@/domain/shotWarnings";
 import { saveTastingAction } from "@/server/actions/shots";
+import { usePinFlow } from "@/components/recipes/usePinFlow";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { TasteQuestions } from "./TasteQuestions";
 import { TasteTags } from "./TasteTags";
@@ -47,6 +48,7 @@ export function TasteFlow({
   milkDrink,
   initial,
   leaveTo,
+  pinTitle,
 }: {
   shotId: string;
   values: ShotValuesData;
@@ -54,17 +56,22 @@ export function TasteFlow({
   initial: TasteAnswers;
   /** Where Done and close go. */
   leaveTo: string;
+  /** SH-PIN's title: the drink, coffee and setup (STORY-02-01-01 AC 1). */
+  pinTitle: string;
 }) {
   const t = useTranslations();
   const words = useTasteLabels(milkDrink);
   const router = useRouter();
   const [answers, setAnswers] = useState(initial);
+  // What the shot holds now: the answers it opened with, then each save.
+  const [saved, setSaved] = useState(initial);
+  const pin = usePinFlow({ title: pinTitle });
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const pending = useRef<() => void>(() => {});
   const guarded = useRef(false);
   const leaving = useRef(false);
 
-  const tasting = changes(initial, answers);
+  const tasting = changes(saved, answers);
   const dirty = Object.keys(tasting).length > 0;
   const toLeaveTo = () => {
     router.replace(leaveTo);
@@ -94,6 +101,21 @@ export function TasteFlow({
     setState("failed");
   };
 
+  // Pinning saves the choices first and stays on the screen (STORY-02-01-01 AC 1).
+  const saveThenPin = async () => {
+    if (dirty) {
+      setState("saving");
+      const result = await saveTastingAction(shotId, tasting);
+      if (!result.ok) {
+        pending.current = () => void pin.pinShot(shotId);
+        return setState("failed");
+      }
+      setSaved(answers);
+      setState("idle");
+    }
+    await pin.pinShot(shotId);
+  };
+
   // The system back gesture saves too: one guard entry while there are choices.
   const latest = useRef(saveThen);
   useEffect(() => {
@@ -120,26 +142,31 @@ export function TasteFlow({
   };
 
   return (
-    <TasteScreen
-      labels={{
-        title: t("taste.title"),
-        close: t("actions.close"),
-        rating: t("taste.rating"),
-        saveFailed: t("taste.saveFailed"),
-        retry: t("actions.retry"),
-        leaveWithout: t("taste.leaveWithout"),
-      }}
-      values={values}
-      rating={answers.rating}
-      onRatingChange={(rating) => set({ rating })}
-      questions={<TasteQuestions labels={words.questions} value={answers} onChange={set} />}
-      tags={<TasteTags labels={words} value={answers.tags} onChange={(tags) => set({ tags })} />}
-      warning={<ShotWarnings warnings={shotWarnings(answers.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
-      primary={{ label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) }}
-      state={state}
-      onClose={() => void saveThen(toLeaveTo)}
-      onRetry={() => void saveThen(pending.current)}
-      onLeaveWithout={() => leave(pending.current)}
-    />
+    <>
+      <TasteScreen
+        labels={{
+          title: t("taste.title"),
+          close: t("actions.close"),
+          rating: t("taste.rating"),
+          saveFailed: t("taste.saveFailed"),
+          retry: t("actions.retry"),
+          leaveWithout: t("taste.leaveWithout"),
+        }}
+        values={values}
+        rating={answers.rating}
+        onRatingChange={(rating) => set({ rating })}
+        questions={<TasteQuestions labels={words.questions} value={answers} onChange={set} />}
+        tags={<TasteTags labels={words} value={answers.tags} onChange={(tags) => set({ tags })} />}
+        warning={<ShotWarnings warnings={shotWarnings(answers.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}
+        primary={{ label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) }}
+        secondary={[{ label: t("recipe.pin"), onClick: () => void saveThenPin() }]}
+        status={pin.status}
+        state={state}
+        onClose={() => void saveThen(toLeaveTo)}
+        onRetry={() => void saveThen(pending.current)}
+        onLeaveWithout={() => leave(pending.current)}
+      />
+      {pin.sheet}
+    </>
   );
 }

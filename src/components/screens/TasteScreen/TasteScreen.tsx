@@ -36,6 +36,7 @@ export function TasteScreen({
   tags,
   warning,
   suggestion,
+  status,
   primary,
   secondary = [],
   state = "idle",
@@ -55,6 +56,8 @@ export function TasteScreen({
   warning?: ReactNode;
   /** A SuggestionCard, above the actions. */
   suggestion?: ReactNode;
+  /** A live line above the actions, e.g. "Pinned as your recipe". */
+  status?: ReactNode;
   primary: TasteAction;
   secondary?: TasteAction[];
   state?: "idle" | "saving" | "failed";
@@ -102,6 +105,7 @@ export function TasteScreen({
         {state !== "failed" && (
           <>
             {suggestion}
+            {status}
             <Button variant="primary" fullWidth disabled={saving} aria-busy={saving || undefined} onClick={primary.onClick}>
               {primary.label}
             </Button>
