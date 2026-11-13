@@ -99,7 +99,17 @@
     "save": "Save shot",
     "values": "Shot values",
     "was": "was {value}",
-    "setup": "Setup"
+    "setup": "Setup",
+    "missingSetup": "Add your setup",
+    "missingCoffee": "Add a bag",
+    "missingSetupNote": "No setup yet. Add your machine, grinder and basket; your values stay here.",
+    "missingCoffeeNote": "No coffee on hand. Add the bag you're brewing from; your values stay here.",
+    "portionLine": "{roaster} · {bag} · {state}",
+    "bagRoasted": "roasted {date}",
+    "bagAdded": "added {date}",
+    "addBag": "Add a bag",
+    "setupFixed": "More than one setup comes in a later version.",
+    "saveFailedTitle": "Couldn't save the shot"
   },
   "journal": {
     "title": "Journal",
@@ -293,6 +303,7 @@
       "thawed": "Thawed",
       "frozen": "Frozen",
       "finished": "Finished"
-    }
+    },
+    "openFor": "{days, plural, =0 {opened today} one {open # day} other {open # days}}"
   }
 }

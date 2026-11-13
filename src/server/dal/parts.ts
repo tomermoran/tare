@@ -49,7 +49,7 @@ const partColumns = {
 const kindOrder = (p: Part) => PART_KINDS.indexOf(p.kind);
 const collator = new Intl.Collator("en", { sensitivity: "base", numeric: true });
 
-async function partsOf(householdId: string, ids?: string[]): Promise<Part[]> {
+export async function partsOf(householdId: string, ids?: string[]): Promise<Part[]> {
   return db
     .select(partColumns)
     .from(ownedHardware)
@@ -63,7 +63,7 @@ async function partsOf(householdId: string, ids?: string[]): Promise<Part[]> {
     );
 }
 
-async function setupsOf(householdId: string, parts: Part[]): Promise<SetupSummary[]> {
+export async function setupsOf(householdId: string, parts: Part[]): Promise<SetupSummary[]> {
   const rows = await db.select().from(setups).where(eq(setups.householdId, householdId));
   if (rows.length === 0) return [];
   const links = await db
