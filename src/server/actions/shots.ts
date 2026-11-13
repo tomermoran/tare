@@ -4,7 +4,7 @@ import { fail, ok, runAction, type ActionError, type ActionResult } from "@/lib/
 import { InvalidBrewControlsError } from "@/domain/brewControls";
 import { InvalidMilkError } from "@/domain/milk";
 import { InvalidTastingError, type Tasting } from "@/domain/tasting";
-import { InvalidShotError, PortionFinishedError, saveMeasuredShot, type MeasuredShot } from "@/server/dal/shots";
+import { InvalidShotError, PortionFinishedError, saveMeasuredShot, updateShot, type MeasuredShot, type ShotEdit } from "@/server/dal/shots";
 import { saveTasting } from "@/server/dal/tasting";
 
 export type SaveShotResult =
@@ -32,6 +32,20 @@ export async function saveTastingAction(shotId: string, tasting: Tasting): Promi
     return ok();
   } catch (e) {
     if (e instanceof InvalidTastingError) return fail("saveFailed");
+    return runAction(() => Promise.reject(e));
+  }
+}
+
+/** Edit mode's "save changes" (STORY-02-06-02 AC 4). */
+export async function updateShotAction(shotId: string, edit: ShotEdit): Promise<ActionResult> {
+  if (typeof shotId !== "string" || !shotId || !edit || typeof edit !== "object") return fail("notFound");
+  try {
+    await updateShot(shotId, edit);
+    return ok();
+  } catch (e) {
+    if (e instanceof InvalidShotError || e instanceof InvalidBrewControlsError || e instanceof InvalidMilkError || e instanceof InvalidTastingError) {
+      return fail("saveFailed");
+    }
     return runAction(() => Promise.reject(e));
   }
 }
