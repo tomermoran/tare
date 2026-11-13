@@ -8,6 +8,9 @@ import { ShotLogScreen } from "./ShotLogScreen";
 
 const { actions, log, shot, states } = messages;
 
+/** Temperature and pressure, untouched on a machine without them. */
+const unset = { temperature: null, pressure: null };
+
 const meta = {
   title: "Screens/Shot log",
   component: ShotLogScreen,
@@ -41,7 +44,7 @@ export const DialIn: Story = {
     wheel.focus();
     await userEvent.keyboard("{ArrowRight}{ArrowRight}");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, timeMs: 27_800 }, false);
+    await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, timeMs: 27_800 }, false, unset);
   },
 };
 
@@ -104,7 +107,7 @@ export const TimeInSeconds: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27.6");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ timeMs: 27_600 }), false);
+    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ timeMs: 27_600 }), false, unset);
   },
 };
 
@@ -146,7 +149,7 @@ export const Sweetened: Story = {
     await expect(toggle).not.toBeChecked();
     await userEvent.click(toggle);
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), true);
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), true, unset);
   },
 };
 
@@ -159,7 +162,7 @@ export const GermanNumbers: Story = {
     await expect(canvas.getByRole("tab", { name: /Dose/ })).toHaveTextContent("18,5");
     await expect(canvas.getByRole("tab", { name: /Time/ })).toHaveTextContent("27,6");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
-    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ dose: 18.5, timeMs: 27_600 }), false);
+    await expect(args.onSave).toHaveBeenCalledWith(expect.objectContaining({ dose: 18.5, timeMs: 27_600 }), false, unset);
   },
 };
 
@@ -185,5 +188,28 @@ export const ShortScreen: Story = {
     const save = canvas.getByRole("button", { name: log.save }).getBoundingClientRect();
     const frame = canvas.getByTestId("log-save").closest(".overflow-y-auto")!.getBoundingClientRect();
     await expect(save.bottom).toBeLessThanOrEqual(frame.bottom);
+  },
+};
+
+/** A machine with temperature steps and exact pressure: six tabs, both unset (STORY-01-04-01 AC 2). */
+export const WithTemperatureAndPressure: Story = {
+  args: {
+    brew: { temperature: { kind: "steps", count: 3 }, pressure: { kind: "wheel", min: 0, max: 12, step: 0.5, unit: "bar" } },
+    brewLast: { temperature: 2, pressure: 9 },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("tab")).toHaveLength(6);
+    await userEvent.click(canvas.getByRole("tab", { name: /Temperature/ }));
+    await userEvent.click(canvas.getByRole("button", { name: messages.log.addTemperature }));
+    await userEvent.click(canvas.getByRole("button", { name: messages.log.save }));
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), false, { temperature: 2, pressure: null });
+  },
+};
+
+/** A machine with no controls shows exactly the four core tabs (AC 1). */
+export const FixedMachine: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getAllByRole("tab")).toHaveLength(4);
   },
 };

@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
 import { batches, batchPortions, drinkTypes, extractions, setupParts, setups } from "@/db/schema";
+import { NO_BREW_VALUES } from "@/domain/brewControls";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -141,14 +142,23 @@ describe("getLogContext", () => {
 });
 
 describe("getStartingValues", () => {
+  it("carries the last temperature and pressure used, for add (EPIC-01-04)", async () => {
+    await shot({ brewTempStep: 2, pressureBar: 9 });
+    expect((await getStartingValues(k.setup.id)).lastBrew).toEqual({ ...NO_BREW_VALUES, brewTempStep: 2, pressureBar: 9 });
+  });
+
+  it("gives each setup its machine's capabilities", async () => {
+    expect((await getLogContext()).setups[0].machine).toEqual({ temperature: { control: "none" }, pressure: { control: "none", gauge: false } });
+  });
+
   it("starts from DQ-07's neutral values, grind in the middle of the grinder", async () => {
-    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 25, dose: 18, yield: 36, timeMs: 28_000 });
+    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 25, dose: 18, yield: 36, timeMs: 28_000, lastBrew: NO_BREW_VALUES });
   });
 
   it("starts from the latest measured shot on this setup, ignoring one-tap shots (AC 2)", async () => {
     await shot({ grindSize: 12.5, doseWeight: 18.5, yieldWeight: 40, yieldTime: 27_600, createdAt: day(20) });
     await shot({ grindSize: 14, doseWeight: 19, yieldWeight: 38, yieldTime: 30_000, createdAt: day(21), entryMode: "one-tap" });
-    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 12.5, dose: 18.5, yield: 40, timeMs: 27_600 });
+    expect(await getStartingValues(k.setup.id)).toEqual({ grind: 12.5, dose: 18.5, yield: 40, timeMs: 27_600, lastBrew: NO_BREW_VALUES });
   });
 
   it("refuses another household's setup", async () => {

@@ -3,6 +3,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { ShotLogFlow } from "@/components/log/ShotLogFlow";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
+import { brewTabs, brewToDial, NO_BREW_VALUES } from "@/domain/brewControls";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { daysBetween, localDayKey } from "@/domain/localDay";
@@ -65,7 +66,10 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
 
   const setup = context.setups.find((s) => s.id === context.defaultSetupId);
   const grind = grindWheelConfig(setup?.grind);
-  const start = setup ? await getStartingValues(setup.id) : { grind: middleGrind(grind), ...NEUTRAL_START };
+  const start = setup
+    ? await getStartingValues(setup.id)
+    : { grind: middleGrind(grind), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES };
+  const brew = brewTabs(setup?.machine);
 
   return (
     <ShotLogFlow
@@ -79,6 +83,8 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       selectedPortionId={selected && context.portions.some((p) => p.id === selected) ? selected : null}
       start={start}
       grind={grind}
+      brew={brew}
+      brewLast={brewToDial(brew, start.lastBrew)}
       resume={one(params.resume) === "1"}
     />
   );
