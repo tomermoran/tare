@@ -1,14 +1,25 @@
-import { getTranslations } from "next-intl/server";
-import { EmptyState } from "@/components/ui/EmptyState/EmptyState";
-import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
+import { connection } from "next/server";
+import { Suspense } from "react";
+import { JournalList } from "@/components/journal/JournalList";
+import { RecentShotsScreen } from "@/components/screens/RecentShotsScreen/RecentShotsScreen";
+import { localDayKey } from "@/domain/localDay";
+import { listJournal } from "@/server/dal/journal";
+import { unlessSignedOut } from "@/server/dal/scope";
+import { getTimeZone } from "@/server/time";
 
-/** Journal tab. Interim empty state until its own epic fills it (DES-01-01-06). */
-export default async function JournalPage() {
-  const t = await getTranslations("journal");
+/** SCR-SHOTS, the Journal tab: the last 30 days, then older on request. */
+export default function JournalPage() {
   return (
-    <>
-      <PageHeader title={t("title")} />
-      <EmptyState title={t("emptyTitle")}>{t("empty")}</EmptyState>
-    </>
+    <Suspense fallback={<RecentShotsScreen state="loading" items={[]} now={new Date(0)} />}>
+      <Journal />
+    </Suspense>
   );
+}
+
+async function Journal() {
+  // The 30-day window and "today" depend on the request time.
+  await connection();
+  const [page, timeZone] = await Promise.all([unlessSignedOut(listJournal()), getTimeZone()]);
+  if (!page) return <RecentShotsScreen state="loading" items={[]} now={new Date(0)} />;
+  return <JournalList shots={page.shots} older={page.older} today={localDayKey(new Date(), timeZone)} timeZone={timeZone} />;
 }

@@ -39,7 +39,8 @@
     "valuesLabel": "Shot values",
     "grindValue": "Grind {grind}",
     "finer": "Finer",
-    "coarser": "Coarser"
+    "coarser": "Coarser",
+    "milkLine": "{milk}, {amount}"
   },
   "nav": {
     "label": "Main",
@@ -123,9 +124,12 @@
     "good": "Good",
     "off": "Off",
     "maintenanceDivider": "{unit}: {work}, {date}",
-    "empty": "Your first shot will show up here.",
+    "empty": "Your first shot will show up here. Dial one in to start.",
     "rowTitle": "{drink} · {time}",
-    "emptyTitle": "No shots yet"
+    "emptyTitle": "No shots yet",
+    "showOlder": "Show older shots",
+    "coffeeAndMilk": "{coffee} · {milk}",
+    "loading": "Loading your shots"
   },
   "maintenance": {
     "burrs": "New burrs",
@@ -298,7 +302,8 @@
     "notGiven": "Not on the bag",
     "recipes": "Recipes",
     "noRecipes": "Recipes you pin for this coffee will show here.",
-    "back": "Beans"
+    "back": "Beans",
+    "fromFrozen": "From frozen"
   },
   "portion": {
     "state": {
@@ -309,5 +314,14 @@
       "finished": "Finished"
     },
     "openFor": "{days, plural, =0 {opened today} one {open # day} other {open # days}}"
+  },
+  "milks": {
+    "whole": "Whole",
+    "semiSkimmed": "Semi-skimmed",
+    "skimmed": "Skimmed",
+    "oat": "Oat",
+    "soy": "Soy",
+    "almond": "Almond",
+    "lactoseFree": "Lactose-free"
   }
 }
