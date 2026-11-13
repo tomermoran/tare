@@ -10,12 +10,14 @@ import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 let k: Awaited<ReturnType<typeof makeKitchen>>;
 const db = () => testContext.db!;
 const day = (d: number) => new Date(Date.UTC(2026, 0, d, 8));
 
 beforeEach(async () => {
+  testContext.setupChoice = null;
   testContext.db = await createTestDb();
   k = await makeKitchen(testContext.db);
   signInAs(k.user.firebaseUid);
@@ -46,7 +48,7 @@ async function shot(values: Partial<typeof extractions.$inferInsert> = {}) {
 }
 
 describe("getLogContext", () => {
-  it("defaults to the only setup, with its grinder's scale (Milestone 1)", async () => {
+  it("defaults to the current setup, with its grinder's scale", async () => {
     const c = await getLogContext();
     expect(c.setups).toHaveLength(1);
     expect(c.defaultSetupId).toBe(k.setup.id);

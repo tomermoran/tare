@@ -26,6 +26,7 @@ import { signInAs, testContext } from "@/test/mocks/context";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 // Two households with a full kitchen each. Every data access read and action
 // adds its case here (tasks section 5): the other household's rows must be
@@ -61,6 +62,7 @@ async function addRows(k: Kitchen): Promise<Record<OwnedTable, string>> {
 }
 
 beforeEach(async () => {
+  testContext.setupChoice = null;
   testContext.db = await createTestDb();
   mine = await makeKitchen(testContext.db);
   theirs = await makeKitchen(testContext.db);

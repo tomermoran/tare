@@ -3,6 +3,7 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -63,6 +64,17 @@ export function Sheet({
 
   // Closing by any route (including unmounting while open) returns focus.
   useEffect(() => () => opener.current?.focus(), []);
+
+  // Next keeps a left page mounted but hidden; an open modal would stay in
+  // the top layer and make the next page inert. Layout effects are cleaned
+  // up when the page hides, and the effect above reopens it if it's shown
+  // again still open.
+  useLayoutEffect(() => {
+    const dialog = ref.current;
+    return () => {
+      if (dialog?.open) dialog.close();
+    };
+  }, []);
 
   function onKeyDown(e: KeyboardEvent<HTMLDialogElement>) {
     if (e.key === "Escape") {

@@ -6,7 +6,7 @@ import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { daysBetween, localDayKey } from "@/domain/localDay";
-import { setupName } from "@/lib/setupName";
+import { setupLabel } from "@/domain/setupName";
 import { getLogContext, getStartingValues, NEUTRAL_START, type LogPortion } from "@/server/dal/logContext";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
@@ -71,7 +71,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     <ShotLogFlow
       key={selected ?? "none"}
       setupId={setup?.id ?? null}
-      setup={setup ? setupName(setup, list) : null}
+      setup={setup ? setupLabel(setup, context.setups, list) : null}
       drinks={drinks}
       defaultDrinkId={context.defaultDrinkId}
       portions={portions}

@@ -12,15 +12,14 @@ import type { HardwareKind } from "@/domain/capabilities";
 import { matchSetup, SETUP_KINDS } from "@/domain/setup";
 import { returnWithSelection, withReturnTo } from "@/lib/returnTo";
 import { resolveSetupAction } from "@/server/actions/setups";
-import { ADD_PART_PATH, BUILDER_PATH, SETUP_EXISTS_NOTICE, SETUP_PATH } from "@/lib/setupRoutes";
+import { ADD_PART_PATH, BUILDER_PATH, SETUP_PATH } from "@/lib/setupRoutes";
 
 /*
  * The setup builder, wired (STORY-01-02-04). Matching is by the exact set of
  * parts, done here from the household's setups, so the line is instant.
  * "Add a part" from a row goes to the add-part task and comes back with the
- * new part chosen. Saving makes the setup, or in Milestone 1 finds that one
- * already exists: the same combination counts as done, a different one
- * goes back to Setup with a notice.
+ * new part chosen. Saving finds or makes the setup, which becomes current,
+ * and goes back where the builder was opened from.
  */
 
 export type BuilderSetup = {
@@ -110,11 +109,6 @@ export function SetupBuilderFlow({
     setState("saving");
     const result = await resolveSetupAction({ partIds: ids, name: match?.kind === "new" ? name : undefined });
     if (result.ok) return done(result.data.id);
-    if (result.error === "setupExists") {
-      if (result.same) return done(result.setupId);
-      router.replace(SETUP_EXISTS_NOTICE);
-      return;
-    }
     if (result.error === "missingParts") {
       setMissing([...result.missing, ...result.extra]);
       setState("idle");

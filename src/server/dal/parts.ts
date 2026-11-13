@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
 import { canonicalHardware, hardwareMakers, ownedHardware, pinnedRecipes, setupParts, setups } from "@/db/schema";
@@ -63,6 +63,27 @@ export async function partsOf(householdId: string, ids?: string[]): Promise<Part
     );
 }
 
+/**
+ * Recipes per setup, counting each recipe once: a re-pin adds a newer row
+ * for the same bean, persona, drink and bag, and only the latest is the
+ * recipe.
+ */
+export async function recipeCounts(householdId: string): Promise<Map<string, number>> {
+  const rows = await db
+    .selectDistinct({
+      setupId: pinnedRecipes.setupId,
+      beanId: pinnedRecipes.beanId,
+      personaId: pinnedRecipes.personaId,
+      drinkTypeId: pinnedRecipes.drinkTypeId,
+      batchId: pinnedRecipes.batchId,
+    })
+    .from(pinnedRecipes)
+    .where(eq(pinnedRecipes.householdId, householdId));
+  const counts = new Map<string, number>();
+  for (const r of rows) counts.set(r.setupId, (counts.get(r.setupId) ?? 0) + 1);
+  return counts;
+}
+
 export async function setupsOf(householdId: string, parts: Part[]): Promise<SetupSummary[]> {
   const rows = await db.select().from(setups).where(eq(setups.householdId, householdId));
   if (rows.length === 0) return [];
@@ -71,12 +92,7 @@ export async function setupsOf(householdId: string, parts: Part[]): Promise<Setu
     .from(setupParts)
     .where(inArray(setupParts.setupId, rows.map((r) => r.id)));
   const byId = new Map(parts.map((p) => [p.id, p]));
-  const counts = await db
-    .select({ setupId: pinnedRecipes.setupId, n: count() })
-    .from(pinnedRecipes)
-    .where(eq(pinnedRecipes.householdId, householdId))
-    .groupBy(pinnedRecipes.setupId);
-  const recipes = new Map(counts.map((c) => [c.setupId, c.n]));
+  const recipes = await recipeCounts(householdId);
   return rows.map((s) => ({
     recipeCount: recipes.get(s.id) ?? 0,
     id: s.id,

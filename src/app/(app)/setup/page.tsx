@@ -1,24 +1,28 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SetupScreen, type PartRow } from "@/components/screens/SetupScreen/SetupScreen";
-import { SetupCard } from "@/components/setup/SetupCards";
+import { connection } from "next/server";
+import { SetupList } from "@/components/setup/SetupList";
 import { SetupOffer } from "@/components/setup/SetupOffer";
-import { Notice } from "@/components/ui/Notice/Notice";
 import type { HardwareKind } from "@/domain/capabilities";
 import { SETUP_KINDS } from "@/domain/setup";
-import { setupName } from "@/lib/setupName";
-import { ADD_PART_PATH, BUILDER_PATH } from "@/lib/setupRoutes";
+import { setupLabel } from "@/domain/setupName";
+import { ADD_PART_PATH, BUILDER_PATH, changePartHref } from "@/lib/setupRoutes";
 import { getSetupTab, type Part } from "@/server/dal/parts";
 import { unlessSignedOut } from "@/server/dal/scope";
-import { suggestionFrom } from "@/server/dal/setups";
+import { getSetups, suggestionFrom } from "@/server/dal/setups";
+import { getTimeZone } from "@/server/time";
 import { setupLabels } from "./labels";
 
-/** SCR-KIT, the Setup tab: setups, then parts grouped by kind. */
-export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
-  const [t, format, tab, params] = await Promise.all([
+/** SCR-KIT, the Setup tab: setups (current first), then parts grouped by kind. */
+export default async function SetupPage() {
+  // "Older" and "last used" depend on the request time.
+  await connection();
+  const [t, format, tab, setups, timeZone] = await Promise.all([
     getTranslations(),
     getFormatter(),
     unlessSignedOut(getSetupTab()),
-    searchParams,
+    unlessSignedOut(getSetups()),
+    getTimeZone(),
   ]);
 
   const partName = (p: Part) => t("setup.partName", { maker: p.maker, model: p.model });
@@ -38,7 +42,6 @@ export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
       parts={{ machine: rows("machine"), grinder: rows("grinder"), basket: rows("basket") }}
       addPartHref={ADD_PART_PATH}
       addMachineHref={`${ADD_PART_PATH}?kind=machine`}
-      notice={params.notice === "setupExists" ? <Notice>{t("setup.existsNotice")}</Notice> : undefined}
       setupOffer={
         suggestion && (
           <SetupOffer
@@ -53,19 +56,35 @@ export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
         )
       }
       setups={
-        tab?.setups.length ? (
-          <div className="flex flex-col gap-4">
-            {tab.setups.map((s, i) => (
-              <SetupCard
-                key={s.id}
-                // Milestone 1 has one setup, so it's the current one.
-                overline={i === 0 ? t("setup.current") : undefined}
-                name={setupName(s, list)}
-                parts={s.parts.map(partName)}
-                recipeCount={t("setup.recipeCount", { count: s.recipeCount })}
-              />
-            ))}
-          </div>
+        setups?.length ? (
+          <SetupList
+            labels={{
+              current: t("setup.current"),
+              useThis: t("setup.useThis"),
+              changePart: t("setup.changePart"),
+              rename: t("setup.rename"),
+              renameTitle: t("setup.renameTitle"),
+              name: t("setup.name"),
+              nameHint: t("setup.nameHint"),
+              save: t("actions.save"),
+              close: t("actions.close"),
+              older: t("setup.older", { count: setups.filter((s) => s.older).length }),
+              saveFailed: t("states.saveFailed"),
+            }}
+            items={setups.map((s) => ({
+              id: s.id,
+              label: setupLabel(s, setups, list),
+              name: s.name,
+              current: s.current,
+              older: s.older,
+              parts: s.parts.map(partName),
+              recipeCount: t("setup.recipeCount", { count: s.recipeCount }),
+              lastUsed: s.lastUsedAt
+                ? t("setup.lastUsed", { date: format.dateTime(s.lastUsedAt, { day: "numeric", month: "long", timeZone }) })
+                : t("setup.neverUsed"),
+              changePartHref: changePartHref(s.id),
+            }))}
+          />
         ) : undefined
       }
     />

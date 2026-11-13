@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createFirstSetupAction } from "@/server/actions/setups";
-import { SETUP_EXISTS_NOTICE } from "@/lib/setupRoutes";
 import { SetupOfferCard } from "./SetupCards";
 
 /**
@@ -42,10 +41,7 @@ export function SetupOffer({
     setFailed(false);
     const result = await createFirstSetupAction();
     setBusy(false);
-    const done = result.ok || (result.error === "setupExists" && result.same);
-    if (!result.ok && result.error === "setupExists" && !result.same) {
-      router.replace(SETUP_EXISTS_NOTICE);
-    } else if (!done && result.error !== "missingParts") {
+    if (!result.ok && result.error !== "missingParts") {
       setFailed(true);
       return;
     }
