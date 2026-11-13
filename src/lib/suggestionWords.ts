@@ -1,9 +1,11 @@
 import type { useFormatter, useTranslations } from "next-intl";
+import type { getFormatter, getTranslations } from "next-intl/server";
 import type { Change, Freshness, ReasonPart, SuggestInput, Suggestion } from "@/domain/suggest";
 import { tastePhraseKeys } from "@/domain/tastePhrase";
 
-type T = ReturnType<typeof useTranslations<never>>;
-type F = ReturnType<typeof useFormatter>;
+/** From useTranslations() on the device, or getTranslations() on the server. */
+type T = ReturnType<typeof useTranslations<never>> | Awaited<ReturnType<typeof getTranslations<never>>>;
+type F = ReturnType<typeof useFormatter> | Awaited<ReturnType<typeof getFormatter>>;
 
 /** A suggestion in words, for SuggestionCard (design "the suggestion", DES-02-03-05). */
 export type SuggestionWords = {
