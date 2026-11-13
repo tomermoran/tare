@@ -111,6 +111,7 @@
     "changeCoffee": "Change coffee",
     "changeSetup": "Change setup",
     "coffeeLine": "{bean} · {roaster}",
+    "coffeeClocks": "{roasting} · {opened}",
     "firstRun": {
       "title": "Let's get your first shot",
       "body": "Three steps, about two minutes.",
@@ -137,6 +138,7 @@
     "titleEdit": "Edit shot",
     "drink": "Drink",
     "coffee": "Coffee",
+    "coffeeClock": "{coffee} · {clock}",
     "sweetened": "Sweetened",
     "save": "Save shot",
     "values": "Shot values",
@@ -470,7 +472,14 @@
     "fromFrozen": "From frozen",
     "statusOpen": "Bag open",
     "statusFinished": "Bag finished",
-    "total": "{grams} left in this bag"
+    "total": "{grams} left in this bag",
+    "daysSinceRoast": "{days, plural, =0 {Roasted today} one {# day since roast} other {# days since roast}}",
+    "daysSincePacked": "{days, plural, =0 {Packed today} one {# day since packing} other {# days since packing}}",
+    "bestBeforeIn": "{days, plural, =0 {Best before today} one {Best before in # day} other {Best before in # days}}",
+    "bestBeforePassed": "{days, plural, one {Best before passed # day ago} other {Best before passed # days ago}}",
+    "ageUnknown": "Age unknown",
+    "addRoastDate": "Add a roast date",
+    "datesSaveFailed": "Couldn't save the date. Try again."
   },
   "portion": {
     "state": {
@@ -481,6 +490,8 @@
       "finished": "Finished"
     },
     "openFor": "{days, plural, =0 {opened today} one {open # day} other {open # days}}",
+    "agePaused": "Paused in the freezer",
+    "frozenDays": "{days, plural, one {# day in the freezer, not counted} other {# days in the freezer, not counted}}",
     "chooseTitle": "Which bag?",
     "chooseBody": "None of this coffee is open. Choose the one you're using.",
     "grindFromFrozen": "Ground straight from the freezer",
