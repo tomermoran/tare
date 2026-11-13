@@ -4,9 +4,9 @@ import { buttonClass } from "@/components/ui/Button/Button";
 import { Card } from "@/components/ui/Card/Card";
 import { EmptyState } from "@/components/ui/EmptyState/EmptyState";
 import { Icon } from "@/components/ui/Icon/Icon";
-import { ListRow } from "@/components/ui/ListRow/ListRow";
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton/Skeleton";
+import { PortionRows } from "./PortionRows";
 
 /*
  * SCR-PANTRY, the Beans tab (STORY-03-01-04): On hand first, then Tried.
@@ -18,15 +18,8 @@ import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton/Skeleton";
  * subheading, with empty groups left out by the caller.
  */
 
-export type PortionRow = {
-  id: string;
-  /** "Unopened", "Open", "Frozen"… */
-  state: string;
-  /** How long it has been open, when it is. */
-  opened?: string;
-  /** The amount left, formatted. */
-  remaining: string;
-};
+import type { PortionRow } from "./PortionRows";
+export type { PortionRow };
 
 export type BagCard = {
   id: string;
@@ -35,6 +28,10 @@ export type BagCard = {
   roaster: string;
   /** The since-roasting clock (EPIC-03-03), when there's a date for it. */
   clock?: string;
+  /** "Open" or "Finished" as text (STORY-03-04-03); none when neither. */
+  status?: string;
+  /** The total left in the bag, formatted (STORY-03-04-01 AC 2). */
+  total?: string;
   portions: PortionRow[];
 };
 
@@ -65,11 +62,14 @@ export function BeansScreen({
   tried,
   addBagHref,
   onPortion,
+  onWeigh,
 }: {
   labels: BeansLabels;
   state?: "loading" | "ready";
   /** A portion row opens its actions (EPIC-03-02). */
   onPortion?: (id: string) => void;
+  /** An over-logged portion's Notice opens SH-STOCK. */
+  onWeigh?: (id: string) => void;
   /** On hand, in groups; a group with no bags is not passed. */
   groups: BagGroup[];
   /** The Tried rows (EPIC-03-06); none means nothing has been brewed yet. */
@@ -136,7 +136,7 @@ export function BeansScreen({
               <h3 id={`beans-group-${group.key}`} className="text-overline uppercase text-ink-secondary">
                 {group.title}
               </h3>
-              <BagList bags={group.bags} onPortion={onPortion} />
+              <BagList bags={group.bags} onPortion={onPortion} onWeigh={onWeigh} />
             </section>
           ))
         )}
@@ -152,7 +152,7 @@ export function BeansScreen({
   );
 }
 
-function BagList({ bags, onPortion }: { bags: BagCard[]; onPortion?: (id: string) => void }) {
+function BagList({ bags, onPortion, onWeigh }: { bags: BagCard[]; onPortion?: (id: string) => void; onWeigh?: (id: string) => void }) {
   return (
     <ul className="flex flex-col gap-4">
       {bags.map((bag) => (
@@ -163,24 +163,14 @@ function BagList({ bags, onPortion }: { bags: BagCard[]; onPortion?: (id: string
                 <span className="text-h3 text-ink group-hover:underline">{bag.bean}</span>
                 <span className="text-label text-ink-secondary">
                   {bag.roaster}
+                  {bag.status && <span className="block">{bag.status}</span>}
                   {bag.clock && <span className="block">{bag.clock}</span>}
                 </span>
               </span>
               <Icon name="chevron" className="mt-2 text-ink-secondary" />
             </Link>
-            <ul>
-              {bag.portions.map((p) => (
-                <li key={p.id}>
-                  <ListRow
-                    className="last:border-b-0"
-                    primary={p.state}
-                    secondary={p.opened}
-                    end={<span className="text-body text-ink">{p.remaining}</span>}
-                    onClick={onPortion ? () => onPortion(p.id) : undefined}
-                  />
-                </li>
-              ))}
-            </ul>
+            {bag.total && <p className="text-label text-ink-secondary">{bag.total}</p>}
+            <PortionRows portions={bag.portions} onPortion={onPortion} onWeigh={onWeigh} />
           </Card>
         </li>
       ))}

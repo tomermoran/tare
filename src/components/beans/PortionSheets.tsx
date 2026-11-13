@@ -14,7 +14,9 @@ import { Toggle } from "@/components/ui/Toggle/Toggle";
  * - SH-DATE confirms a dated action, today by default, with an error in
  *   ink (never signal) for a date that can't be;
  * - SH-SPLIT takes grams out with a wheel that can't pass what's left, the
- *   remainder live as text, and "freeze the new portion" on by default.
+ *   remainder live as text, and "freeze the new portion" on by default;
+ * - SH-STOCK records what's left, read off a scale, with a grams wheel
+ *   whose big number can be typed into.
  * A failed action keeps its sheet open with a Notice and retry.
  */
 
@@ -158,6 +160,53 @@ export function SplitSheet({
           {labels.remainder(Math.max(0, Math.round((remaining - take) * 10) / 10))}
         </p>
         <Toggle label={labels.freezeNew} checked={freezeNew} onChange={onFreezeNewChange} className="border-t border-line py-3" />
+        {failure && (
+          <Notice urgent action={{ label: failure.retryLabel, onClick: failure.onRetry }}>
+            {failure.message}
+          </Notice>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
+export function StockSheet({
+  open,
+  onClose,
+  labels,
+  grams,
+  max,
+  onGramsChange,
+  onSave,
+  saving = false,
+  failure,
+}: {
+  open: boolean;
+  onClose: () => void;
+  labels: { title: string; close: string; weight: string; hint: string; save: string };
+  grams: number;
+  /** The wheel's top: the portion's weight, or more if what's left says so. */
+  max: number;
+  onGramsChange: (grams: number) => void;
+  onSave: () => void;
+  saving?: boolean;
+  failure?: Failure;
+}) {
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={labels.title}
+      closeLabel={labels.close}
+      footer={
+        <Button variant="primary" fullWidth disabled={saving} aria-busy={saving || undefined} onClick={onSave}>
+          {labels.save}
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <NumberWheel label={labels.weight} value={grams} onChange={onGramsChange} min={0} max={Math.max(1, Math.ceil(max))} step={1} majorEvery={10} unit="gram" />
+        <p className="text-center text-label text-ink-secondary">{labels.hint}</p>
         {failure && (
           <Notice urgent action={{ label: failure.retryLabel, onClick: failure.onRetry }}>
             {failure.message}

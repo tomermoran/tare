@@ -62,8 +62,29 @@ export const SplitPortions: Story = {
   },
 };
 
+/** Every portion finished: the bag says so in words (STORY-03-04-03 AC 2). */
 export const Finished: Story = {
-  args: { portions: [{ id: "p1", state: portion.state.finished, remaining: grams.format(0) }] },
+  args: { status: bag.statusFinished, portions: [{ id: "p1", state: portion.state.finished, remaining: grams.format(0) }] },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(bag.statusFinished)).toBeVisible();
+  },
+};
+
+/** Open, with the total left across portions (STORY-03-04-03 AC 1, STORY-03-04-01 AC 2). */
+export const OpenWithTotal: Story = {
+  args: {
+    status: bag.statusOpen,
+    total: bag.total.replace("{grams}", grams.format(450)),
+    portions: [
+      { id: "p1", state: portion.state.counter, remaining: grams.format(200) },
+      { id: "p2", state: portion.state.frozen, remaining: grams.format(250) },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(bag.statusOpen)).toBeVisible();
+    await expect(canvas.getByText(bag.total.replace("{grams}", grams.format(450)))).toBeVisible();
+  },
 };
 
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

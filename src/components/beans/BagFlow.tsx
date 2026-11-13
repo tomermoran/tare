@@ -5,11 +5,11 @@ import { BagScreen } from "@/components/screens/BagScreen/BagScreen";
 import { usePortionActions, type PortionInfo } from "./usePortionActions";
 
 /** SCR-BAG with its portion rows opening the portion actions. */
-export function BagFlow({ info, ...props }: Omit<ComponentProps<typeof BagScreen>, "onPortion"> & { info: PortionInfo[] }) {
-  const { open, sheets } = usePortionActions(info);
+export function BagFlow({ info, ...props }: Omit<ComponentProps<typeof BagScreen>, "onPortion" | "onWeigh"> & { info: PortionInfo[] }) {
+  const { open, weigh, sheets } = usePortionActions(info);
   return (
     <>
-      <BagScreen {...props} onPortion={open} />
+      <BagScreen {...props} onPortion={open} onWeigh={weigh} />
       {sheets}
     </>
   );

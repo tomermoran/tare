@@ -7,8 +7,8 @@ import { allowedActions, isDatedAction, type DatedAction, type PortionAction } f
 import type { PortionState } from "@/domain/portionState";
 import { localDayKey } from "@/domain/localDay";
 import { portionStateLabel } from "@/lib/portionStateLabel";
-import { setPortionDateAction, splitPortionAction, type PortionResult } from "@/server/actions/portions";
-import { DateSheet, PortionActionsSheet, SplitSheet } from "./PortionSheets";
+import { addStockCheckAction, setPortionDateAction, splitPortionAction, type PortionResult } from "@/server/actions/portions";
+import { DateSheet, PortionActionsSheet, SplitSheet, StockSheet } from "./PortionSheets";
 
 /*
  * Portion actions, wired (TASK-03-02-02-FE2, 03-02-01-FE1): a portion row
@@ -22,21 +22,23 @@ export type PortionInfo = {
   state: PortionState;
   /** Grams left. */
   remaining: number;
+  /** Grams the portion was made with. */
+  weight: number;
   /** When it went in the freezer, already formatted, for the thaw error. */
   frozenOn: string | null;
 };
 
-const OFFERED = (a: PortionAction) => a !== "weigh";
 const today = () => localDayKey(new Date(), Intl.DateTimeFormat().resolvedOptions().timeZone);
 
-export function usePortionActions(portions: PortionInfo[]): { open: (id: string) => void; sheets: ReactNode } {
+export function usePortionActions(portions: PortionInfo[]): { open: (id: string) => void; weigh: (id: string) => void; sheets: ReactNode } {
   const t = useTranslations();
   const format = useFormatter();
   const router = useRouter();
   const [chosen, setChosen] = useState<string | null>(null);
-  const [step, setStep] = useState<"actions" | DatedAction | "split" | null>(null);
+  const [step, setStep] = useState<"actions" | DatedAction | "split" | "weigh" | null>(null);
   const [day, setDay] = useState("");
   const [take, setTake] = useState(1);
+  const [weighed, setWeighed] = useState(0);
   const [freezeNew, setFreezeNew] = useState(true);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const [dateError, setDateError] = useState<string | undefined>();
@@ -57,6 +59,14 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
     setChosen(id);
     setStep("actions");
   };
+  /** Straight to SH-STOCK, from the over-logged Notice. */
+  const weigh = (id: string) => {
+    const p = portions.find((x) => x.id === id);
+    setChosen(id);
+    setState("idle");
+    setWeighed(Math.round(p?.remaining ?? 0));
+    setStep("weigh");
+  };
 
   const choose = (action: string) => {
     if (!portion) return;
@@ -65,6 +75,9 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
     if (isDatedAction(action as PortionAction)) {
       setDay(today());
       setStep(action as DatedAction);
+    } else if (action === "weigh") {
+      setWeighed(Math.round(portion.remaining));
+      setStep("weigh");
     } else if (action === "split") {
       setTake(Math.max(1, Math.floor(portion.remaining / 2)));
       setFreezeNew(true);
@@ -85,11 +98,12 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
     setState("failed");
   };
 
+  const dated = step && step !== "actions" && step !== "split" && step !== "weigh" ? step : null;
   const confirmDate = async () => {
-    if (!portion || !step || step === "actions" || step === "split") return;
+    if (!portion || !dated) return;
     if (day > today()) return setDateError(t("portion.dateFuture"));
     setState("saving");
-    settle(await setPortionDateAction(portion.id, step, day));
+    settle(await setPortionDateAction(portion.id, dated, day));
   };
   const confirmSplit = async () => {
     if (!portion) return;
@@ -97,9 +111,14 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
     settle(await splitPortionAction(portion.id, take, freezeNew));
   };
 
+  const confirmWeigh = async () => {
+    if (!portion) return;
+    setState("saving");
+    settle(await addStockCheckAction(portion.id, weighed));
+  };
+
   const failure = (retry: () => void) =>
     state === "failed" ? { message: t("states.saveFailed"), retryLabel: t("actions.retry"), onRetry: retry } : undefined;
-  const dated = step && step !== "actions" && step !== "split" ? step : null;
 
   const sheets = (
     <>
@@ -108,7 +127,7 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
         onClose={close}
         title={portion ? t("portion.actionsTitle", { state: portionStateLabel(t, portion.state), remaining: grams(portion.remaining) }) : ""}
         closeLabel={t("actions.close")}
-        actions={(portion ? allowedActions(portion.state).filter(OFFERED) : []).map((a) => ({ action: a, label: t(`portion.action.${a}`) }))}
+        actions={(portion ? allowedActions(portion.state) : []).map((a) => ({ action: a, label: t(`portion.action.${a}`) }))}
         onChoose={choose}
       />
       <DateSheet
@@ -150,8 +169,25 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
         saving={state === "saving"}
         failure={failure(() => void confirmSplit())}
       />
+      <StockSheet
+        open={step === "weigh" && !!portion}
+        onClose={close}
+        labels={{
+          title: t("portion.stockTitle"),
+          close: t("actions.close"),
+          weight: t("portion.stockWeight"),
+          hint: t("portion.stockHint"),
+          save: t("portion.saveWeight"),
+        }}
+        grams={weighed}
+        max={Math.max(portion?.weight ?? 0, portion?.remaining ?? 0)}
+        onGramsChange={setWeighed}
+        onSave={() => void confirmWeigh()}
+        saving={state === "saving"}
+        failure={failure(() => void confirmWeigh())}
+      />
     </>
   );
 
-  return { open, sheets };
+  return { open, weigh, sheets };
 }

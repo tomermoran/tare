@@ -2,9 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { buttonClass } from "@/components/ui/Button/Button";
 import { Icon } from "@/components/ui/Icon/Icon";
-import { ListRow } from "@/components/ui/ListRow/ListRow";
 import { cx } from "@/lib/cx";
-import type { PortionRow } from "../BeansScreen/BeansScreen";
+import { PortionRows, type PortionRow } from "../BeansScreen/PortionRows";
 
 /*
  * SCR-BAG, one bag (STORY-03-01-04 AC 2): its facts once at the top, then
@@ -32,6 +31,9 @@ export function BagScreen({
   clocks,
   portions,
   onPortion,
+  onWeigh,
+  status,
+  total,
   recipes,
 }: {
   labels: BagLabels;
@@ -44,6 +46,12 @@ export function BagScreen({
   clocks?: ReactNode;
   portions: PortionRow[];
   onPortion?: (id: string) => void;
+  /** An over-logged portion's Notice opens SH-STOCK. */
+  onWeigh?: (id: string) => void;
+  /** "Open" or "Finished" as text (STORY-03-04-03). */
+  status?: string;
+  /** The total left in the bag, formatted. */
+  total?: string;
   /** Recipe rows for this coffee (EPIC-02-01). */
   recipes?: ReactNode;
 }) {
@@ -57,6 +65,7 @@ export function BagScreen({
         <header className="flex flex-col gap-1">
           <h1 className="text-h1">{bean}</h1>
           <p className="text-body text-ink-secondary">{roaster}</p>
+          {status && <p className="text-label text-ink-secondary">{status}</p>}
         </header>
       </div>
 
@@ -79,18 +88,8 @@ export function BagScreen({
         <h2 id="bag-portions" className="text-h3 text-ink">
           {labels.portions}
         </h2>
-        <ul>
-          {portions.map((p) => (
-            <li key={p.id}>
-              <ListRow
-                primary={p.state}
-                secondary={p.opened}
-                end={<span className="text-body text-ink">{p.remaining}</span>}
-                onClick={onPortion ? () => onPortion(p.id) : undefined}
-              />
-            </li>
-          ))}
-        </ul>
+        {total && <p className="text-label text-ink-secondary">{total}</p>}
+        <PortionRows portions={portions} onPortion={onPortion} onWeigh={onWeigh} />
       </section>
 
       <section aria-labelledby="bag-recipes" className="flex flex-col gap-2">

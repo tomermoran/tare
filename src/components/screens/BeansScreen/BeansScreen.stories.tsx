@@ -27,8 +27,15 @@ const morning: BagCard = {
   href: "/beans/b1",
   bean: "Morning Blend",
   roaster: "Example Roasters",
+  status: messages.bag.statusOpen,
+  total: messages.bag.total.replace("{grams}", grams.format(370)),
   portions: [
-    { id: "p1", state: portion.state.counter, remaining: grams.format(120) },
+    {
+      id: "p1",
+      state: portion.state.counter,
+      remaining: grams.format(120),
+      meter: { label: portion.meterLabel, value: 120, max: 250, text: portion.meter.replace("{remaining}", grams.format(120)).replace("{total}", grams.format(250)) },
+    },
     { id: "p2", state: portion.state.frozen, remaining: grams.format(250) },
   ],
 };
@@ -83,6 +90,9 @@ export const OnHand: Story = {
     await expect(open.getByRole("link", { name: /Morning Blend/ })).toBeVisible();
     await expect(open.getByText(portion.state.frozen)).toBeVisible();
     await expect(canvas.getAllByRole("link", { name: /Morning Blend/ })).toHaveLength(1);
+    // The bag's status and total as text (STORY-03-04-03 AC 1, STORY-03-04-01 AC 2).
+    await expect(open.getByText(messages.bag.statusOpen)).toBeVisible();
+    await expect(open.getByText(messages.bag.total.replace("{grams}", grams.format(370)))).toBeVisible();
     await expect(canvas.getByRole("link", { name: /Morning Blend/ })).toHaveAttribute("href", "/beans/b1");
     await expect(canvas.getByText(beans.triedEmpty)).toBeVisible();
     await expect(primaries(canvasElement)).toHaveLength(1);
