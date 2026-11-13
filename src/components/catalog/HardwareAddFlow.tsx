@@ -13,6 +13,7 @@ import { returnWithSelection } from "@/lib/returnTo";
 import { createHardwareEntryAction } from "@/server/actions/catalog";
 import type { CatalogMatch } from "@/server/dal/catalogAdd";
 import { BasketQuestions, CapabilitySection } from "./BasketQuestions";
+import { useCatalogExtras } from "./useCatalogExtras";
 
 /*
  * SCR-CATALOG-ADD for a machine, grinder or basket, wired (STORY-01-06-01,
@@ -53,6 +54,9 @@ export function HardwareAddFlow({
   const [errors, setErrors] = useState<CatalogAddErrors>({});
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const checked = useRef<string | null>(null);
+  const describe = (m: CatalogMatch) =>
+    t("catalog.duplicateFound", { name: m.name, maker: m.catalog === "hardware" ? m.makerName : m.roasterName });
+  const extras = useCatalogExtras({ catalog: "hardware", describe, onUseExisting: (id) => backWith(id) });
 
   // Next keeps a left page's state; the task starts fresh each time.
   useLayoutEffect(
@@ -64,12 +68,13 @@ export function HardwareAddFlow({
       setErrors({});
       setState("idle");
       checked.current = null;
+      extras.reset();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reset on hide only
     [],
   );
 
-  const dirty = url.trim() !== "" || makerId !== null || name !== initialName || dose.choice !== null;
+  const dirty = url.trim() !== "" || makerId !== null || name !== initialName || dose.choice !== null || extras.dirty;
   const { leave, proceed, confirm } = useUnsavedChanges(dirty, () => router.replace(returnTo));
   const backWith = (id: string) => proceed(() => router.replace(returnWithSelection(returnTo, id)));
 
@@ -106,6 +111,7 @@ export function HardwareAddFlow({
     const result = await createHardwareEntryAction({
       maker: makerId === NEW_MAKER ? { name: makerName, url: makerUrl } : { id: makerId! },
       model: { name, kind, url, capabilities: kind === "basket" ? { dose: doseFromAnswer(dose) } : undefined },
+      ...extras.input,
     });
     if (result.ok) return backWith(result.data.id);
     setState("idle");
@@ -157,7 +163,7 @@ export function HardwareAddFlow({
         }}
         onUrlBlur={checkUrl}
         check={check}
-        duplicate={duplicate ? t("catalog.duplicateFound", { name: duplicate.name, maker: duplicate.catalog === "hardware" ? duplicate.makerName : duplicate.roasterName }) : undefined}
+        duplicate={duplicate ? describe(duplicate) : undefined}
         onUseExisting={duplicate ? () => backWith(duplicate.id) : undefined}
         parent={chosenMaker}
         onChooseParent={() => setPickingMaker(true)}
@@ -192,6 +198,7 @@ export function HardwareAddFlow({
             </CapabilitySection>
           ) : undefined
         }
+        more={extras.more}
         errors={errors}
         state={state}
         onSave={save}
@@ -219,6 +226,7 @@ export function HardwareAddFlow({
           },
         }}
       />
+      {extras.marketSheet}
       {confirm}
     </>
   );
