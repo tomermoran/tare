@@ -494,6 +494,51 @@
       "right": "Sweet enough",
       "muchLess": "Not sweet at all",
       "less": "Not sweet enough"
+    },
+    "strengthMilk": {
+      "right": "Strength just right",
+      "more": "A bit overpowering",
+      "muchMore": "Overpowering",
+      "muchLess": "Lost in the milk",
+      "less": "A bit lost in the milk"
+    },
+    "justRight": "Just right",
+    "allJustRight": "All just right",
+    "question": {
+      "balance": "Balance",
+      "strength": "Strength",
+      "body": "Body",
+      "sweetness": "Sweetness"
+    },
+    "ends": {
+      "balance": {
+        "start": "Too sour",
+        "end": "Too bitter"
+      },
+      "strength": {
+        "start": "Too weak",
+        "end": "Too strong"
+      },
+      "strengthMilk": {
+        "start": "Lost in the milk",
+        "end": "Overpowering"
+      },
+      "body": {
+        "start": "Too thin",
+        "end": "Too heavy"
+      },
+      "sweetness": {
+        "start": "Not sweet enough"
+      }
+    },
+    "observed": "Noticed anything?",
+    "tags": {
+      "sourAndBitter": "Sour and bitter at once",
+      "dryFinish": "Dry finish",
+      "flat": "Flat",
+      "burnt": "Burnt",
+      "littleCrema": "Little crema",
+      "channelling": "Channelling seen"
     }
   }
 }

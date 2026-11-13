@@ -29,6 +29,7 @@ async function Taste({ params }: Pick<PageProps<"/taste/[shotId]">, "params">) {
     <TasteFlow
       shotId={shot.id}
       values={shot.values}
+      milkDrink={shot.milkDrink}
       initial={{ rating: shot.rating, ...shot.taste, tags: shot.tags }}
       leaveTo="/"
     />

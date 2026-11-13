@@ -4,6 +4,10 @@ import { expect, fn, userEvent, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { exampleRecipe } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
+import { TasteQuestions, type TasteAnswerValues } from "@/components/taste/TasteQuestions";
+import { TasteTags } from "@/components/taste/TasteTags";
+import { useTasteLabels } from "@/components/taste/useTasteLabels";
+import type { TasteTag } from "@/domain/taste";
 import { TasteScreen } from "./TasteScreen";
 
 const { actions, taste } = messages;
@@ -30,6 +34,20 @@ function Rated(props: Partial<ComponentProps<typeof TasteScreen>>) {
       onRetry={fn()}
       onLeaveWithout={fn()}
       {...props}
+    />
+  );
+}
+
+/** Everything in place: rating, the four questions and the tags. */
+function Full({ onDone, milkDrink = false }: { onDone?: () => void; milkDrink?: boolean }) {
+  const words = useTasteLabels(milkDrink);
+  const [answers, setAnswers] = useState<TasteAnswerValues>({ balance: null, strength: null, body: null, sweetness: null });
+  const [tags, setTags] = useState<TasteTag[]>([]);
+  return (
+    <Rated
+      primary={{ label: taste.done, onClick: onDone ?? fn() }}
+      questions={<TasteQuestions labels={words.questions} value={answers} onChange={(p) => setAnswers((a) => ({ ...a, ...p }))} />}
+      tags={<TasteTags labels={words} value={tags} onChange={setTags} />}
     />
   );
 }
@@ -107,10 +125,23 @@ export const SaveFailed: Story = {
   },
 };
 
-/** On a 375 x 667 phone the primary stays in view. */
+/** A good shot in three taps: rating, all just right, Done (STORY-01-05-02 AC 6). */
+export const GoodShot: Story = {
+  render: (args) => <Full onDone={args.primary.onClick} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("radio", { name: "5" }));
+    await userEvent.click(canvas.getByRole("button", { name: taste.allJustRight }));
+    await userEvent.click(canvas.getByRole("button", { name: taste.done }));
+    await expect(args.primary.onClick).toHaveBeenCalledTimes(1);
+    await expect(canvas.getAllByRole("radio", { checked: true })).toHaveLength(5);
+  },
+};
+
+/** On a 375 x 667 phone the tags may scroll, but the primary stays in view. */
 export const SmallPhone: Story = {
   parameters: { smallPhone: true },
-  render: () => <Rated />,
+  render: () => <Full />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const frame = canvas.getByTestId("phone-frame").getBoundingClientRect();
@@ -119,4 +150,6 @@ export const SmallPhone: Story = {
   },
 };
 
-export const RightToLeft: Story = { render: () => <Rated />, globals: { direction: "rtl" } };
+export const MilkDrink: Story = { render: () => <Full milkDrink /> };
+
+export const RightToLeft: Story = { render: () => <Full />, globals: { direction: "rtl" } };
