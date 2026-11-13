@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { batches, batchPortions, drinkTypes, extractions, milkTypes, setupParts, setups } from "@/db/schema";
+import { batches, batchPortions, canonicalHardware, drinkTypes, extractions, milkTypes, setupParts, setups } from "@/db/schema";
 import { NO_BREW_VALUES } from "@/domain/brewControls";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
@@ -189,5 +189,23 @@ describe("starter milks for older households", () => {
     const before = await db().select().from(milkTypes);
     await getLogContext();
     expect(await db().select().from(milkTypes)).toEqual(before);
+  });
+});
+
+describe("the quiet link's part (STORY-01-06-08 AC 6)", () => {
+  const setCaps = (i: number, capabilities: unknown) =>
+    db().update(canonicalHardware).set({ capabilities }).where(eq(canonicalHardware.id, k.parts[i].hardwareId));
+
+  it("is none when everything is known", async () => {
+    expect((await getLogContext()).setups[0].unknownPart).toBeNull();
+  });
+
+  it("names the grinder first, then the machine, then the basket", async () => {
+    await setCaps(2, { dose: null });
+    expect((await getLogContext()).setups[0].unknownPart).toEqual({ id: k.parts[2].id, kind: "basket" });
+    await setCaps(0, { temperature: { control: "unknown" }, pressure: { control: "none", gauge: false } });
+    expect((await getLogContext()).setups[0].unknownPart).toEqual({ id: k.parts[0].id, kind: "machine" });
+    await setCaps(1, { grind: { type: "stepless", min: 0, max: 50, step: 0.5, coarser: "unknown" } });
+    expect((await getLogContext()).setups[0].unknownPart).toEqual({ id: k.parts[1].id, kind: "grinder" });
   });
 });

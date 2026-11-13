@@ -261,3 +261,14 @@ describe("milk (STORY-01-03-07)", () => {
     expect(drinks.find((d) => d.id === k.drinks.espresso.id)?.lastMilkTypeId).toBeNull();
   });
 });
+
+describe("a setup that's all \"not sure\" (STORY-01-06-08)", () => {
+  it("still saves a shot, with any grind in the wide default range", async () => {
+    await db().update(canonicalHardware).set({ capabilities: { grind: { type: "unknown", min: null, max: null, step: null, coarser: "unknown" } } }).where(eq(canonicalHardware.id, k.parts[1].hardwareId));
+    await db().update(canonicalHardware).set({ capabilities: { temperature: { control: "unknown" }, pressure: { control: "unknown" } } }).where(eq(canonicalHardware.id, k.parts[0].hardwareId));
+    const { id } = await saveMeasuredShot(input({ grind: 87.3 }), NOW);
+    expect((await db().select().from(extractions).where(eq(extractions.id, id)))[0].grindSize).toBe(87.3);
+    // An unknown temperature control isn't asked, so a value for it is refused (AC 1).
+    await expect(saveMeasuredShot(input({ brewTempC: 93 }), NOW)).rejects.toBeInstanceOf(InvalidBrewControlsError);
+  });
+});

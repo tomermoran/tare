@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 import { Notice } from "@/components/ui/Notice/Notice";
+import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { ShotLogScreen } from "./ShotLogScreen";
 
 const { actions, log, shot, states } = messages;
+const t = createTranslator({ locale: "en", messages });
 
 /** Temperature and pressure, untouched on a machine without them. */
 const unset = { temperature: null, pressure: null };
@@ -258,5 +260,36 @@ export const NoMilkForEspresso: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.queryByText(log.milk)).toBeNull();
     await expect(canvas.queryByRole("tab", { name: new RegExp(log.milkAmount) })).toBeNull();
+  },
+};
+
+/**
+ * Everything "not sure" (STORY-01-06-08): a wide grind wheel with no finer or
+ * coarser captions, no temperature or pressure tabs, nothing shown as a
+ * warning, and one quiet link to tell Tare more (AC 1, AC 3, AC 4, AC 6).
+ */
+export const NotSureSetup: Story = {
+  args: {
+    grind: { min: 0, max: 100, step: 0.1, majorEvery: 10, coarser: null },
+    capLink: { label: t("log.capUnknown", { kind: "grinder" }), onClick: fn() },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("tab")).toHaveLength(4);
+    const wheel = canvas.getByRole("slider", { name: shot.grind });
+    await expect(wheel).toHaveAttribute("aria-valuemax", "100");
+    await expect(canvas.queryByText(shot.finer)).toBeNull();
+    await expect(canvas.queryByText(shot.coarser)).toBeNull();
+    const links = canvas.getAllByRole("button", { name: t("log.capUnknown", { kind: "grinder" }) });
+    await expect(links).toHaveLength(1);
+    await userEvent.click(links[0]);
+    await expect(args.capLink!.onClick).toHaveBeenCalledOnce();
+  },
+};
+
+/** Everything known: no link (AC 6). */
+export const NoLinkWhenKnown: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByRole("button", { name: /Tell us about/ })).toBeNull();
   },
 };

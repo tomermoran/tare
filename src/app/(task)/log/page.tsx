@@ -88,6 +88,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       brew={brew}
       brewLast={brewToDial(brew, start.lastBrew)}
       prep={start.prep}
+      unknownPart={setup?.unknownPart ?? null}
       drinkMilk={Object.fromEntries(
         context.drinks.map((d): [string, DrinkMilk] => [
           d.id,
