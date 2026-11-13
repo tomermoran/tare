@@ -245,3 +245,13 @@ export async function getChangePartStart({
   if (fresh && SETUP_KINDS.includes(fresh.kind as (typeof SETUP_KINDS)[number])) start[fresh.kind] = fresh.id;
   return start;
 }
+
+/** When each setup last made a shot, for the closest-setup tie-break. */
+export async function setupsLastUsed(householdId: string): Promise<Map<string, Date>> {
+  const rows = await db
+    .select({ setupId: extractions.setupId, at: max(extractions.createdAt) })
+    .from(extractions)
+    .where(eq(extractions.householdId, householdId))
+    .groupBy(extractions.setupId);
+  return new Map(rows.filter((r) => r.at !== null).map((r) => [r.setupId, new Date(r.at as unknown as number)]));
+}
