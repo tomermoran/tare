@@ -16,6 +16,7 @@ import { getLogContext, getStartingValues, NEUTRAL_START, type LogPortion } from
 import { getShot } from "@/server/dal/journal";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { notFound } from "next/navigation";
+import { portionStateLabel } from "@/lib/portionStateLabel";
 import { getTimeZone } from "@/server/time";
 
 /**
@@ -55,7 +56,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   const state = (p: LogPortion) =>
     p.openedAt
       ? t("portion.openFor", { days: daysBetween(localDayKey(p.openedAt, timeZone), today) })
-      : t(`portion.state.${p.state}`);
+      : portionStateLabel(t, p.state);
 
   const drinks: SelectOption[] = context.drinks.map((d) => ({
     id: d.id,
@@ -70,7 +71,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       bag: p.roastDate ? t("log.bagRoasted", { date: date(p.roastDate) }) : t("log.bagAdded", { date: date(p.bagAddedAt) }),
       state: state(p),
     }),
-    marker: p.frozen ? t("portion.state.frozen") : undefined,
+    marker: p.frozen ? portionStateLabel(t, "frozen") : undefined,
   }));
 
   const setup = context.setups.find((s) => s.id === context.defaultSetupId);

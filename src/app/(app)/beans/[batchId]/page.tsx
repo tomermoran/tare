@@ -4,6 +4,7 @@ import { BagFlow } from "@/components/beans/BagFlow";
 import type { BagFact } from "@/components/screens/BagScreen/BagScreen";
 import { getBag } from "@/server/dal/bags";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
+import { portionStateLabel } from "@/lib/portionStateLabel";
 import { getTimeZone } from "@/server/time";
 
 /** SCR-BAG: one bag's facts, portions and recipes. */
@@ -40,11 +41,10 @@ export default async function BagPage({ params }: PageProps<"/beans/[batchId]">)
       bean={bag.bean.name}
       roaster={bag.bean.roasterName}
       facts={facts}
-      portions={bag.portions.map((p) => ({ id: p.id, state: t(`portion.state.${p.state}`), remaining: grams(p.remaining.grams) }))}
+      portions={bag.portions.map((p) => ({ id: p.id, state: portionStateLabel(t, p.state), remaining: grams(p.remaining.grams) }))}
       info={bag.portions.map((p) => ({
         id: p.id,
         state: p.state,
-        stateLabel: t(`portion.state.${p.state}`),
         remaining: p.remaining.grams,
         frozenOn: p.frozenAt ? day(p.frozenAt) : null,
       }))}
