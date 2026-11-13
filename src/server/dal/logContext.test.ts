@@ -2,7 +2,8 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
 import { batches, batchPortions, canonicalHardware, drinkTypes, extractions, milkTypes, setupParts, setups } from "@/db/schema";
-import { NO_BREW_VALUES } from "@/domain/brewControls";
+import { brewTabs, NO_BREW_VALUES } from "@/domain/brewControls";
+import { emptyMachineAnswers, machineFromAnswers } from "@/domain/capabilityQuestions";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -154,6 +155,16 @@ describe("getStartingValues", () => {
   it("carries the last temperature and pressure used, for add (EPIC-01-04)", async () => {
     await shot({ brewTempStep: 2, pressureBar: 9 });
     expect((await getStartingValues(k.setup.id)).lastBrew).toEqual({ ...NO_BREW_VALUES, brewTempStep: 2, pressureBar: 9 });
+  });
+
+  it("offers temperature and pressure in the form the machine was described (STORY-01-06-06 AC 5)", async () => {
+    const answers = emptyMachineAnswers();
+    answers.temperature = { ...answers.temperature, choice: "steps", count: 3 };
+    answers.pressure = { ...answers.pressure, choice: "manual", gauge: "yes" };
+    await db().update(canonicalHardware).set({ capabilities: machineFromAnswers(answers) }).where(eq(canonicalHardware.id, k.parts[0].hardwareId));
+    const tabs = brewTabs((await getLogContext()).setups[0].machine);
+    expect(tabs.temperature).toEqual({ kind: "steps", count: 3 });
+    expect(tabs.pressure).toMatchObject({ kind: "wheel", peak: true });
   });
 
   it("gives each setup its machine's capabilities", async () => {
