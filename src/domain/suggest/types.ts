@@ -37,6 +37,13 @@ export type SuggestInput = {
     /** The basket's dose range in grams; null when "not sure". */
     doseRange: { min: number; max: number } | null;
   };
+  /**
+   * The shot before this one on the same coffee, setup and drink, only when
+   * it's in the grinder's current grind period (STORY-04-01-03): shots
+   * across a recalibration aren't comparable. Tells whether a grind change
+   * helped the balance.
+   */
+  previous: { grind: number; balance: number | null } | null;
   /** The portion's clocks (EPIC-03-03); absent until known. */
   clocks: { roasting: RoastingClock | null; opened: OpenedClock | null };
 };
@@ -47,7 +54,9 @@ export type Lever = "prep" | "grind" | "yield" | "dose" | "temperature" | "milk"
 export type Change =
   | { lever: "prep"; tool: "wdt" | "puckScreen" | "checkDistribution" }
   | { lever: "grind"; direction: "finer" | "coarser"; from: number | null; to: number | null }
-  | { lever: "yield" | "dose" | "temperature" | "milk"; direction: "more" | "less"; from: number; to: number };
+  | { lever: "yield" | "dose" | "milk"; direction: "more" | "less"; from: number; to: number }
+  /** Hotter or cooler; degrees only when the shot recorded its temperature. */
+  | { lever: "temperature"; direction: "more" | "less"; from: number | null; to: number | null };
 
 /** What the one-line reason is drawn from, in order. */
 export type ReasonPart =
