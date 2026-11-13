@@ -1,52 +1,47 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
+import { Button } from "@/components/ui/Button/Button";
 import messages from "@/i18n/messages/en.json";
-import { exampleCoffee, exampleRecipe, exampleRemainingGrams, exampleSetup } from "../fixtures";
+import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { HomeScreen } from "./HomeScreen";
 
 const { home } = messages;
+const unit = (n: number, u: string) => new Intl.NumberFormat("en", { style: "unit", unit: u, unitDisplay: "short" }).format(n);
+const coffeeLine = home.coffeeLine.replace("{bean}", exampleCoffee.bean).replace("{roaster}", exampleCoffee.roaster);
 
-const base = {
-  state: "recipe" as const,
-  drink: messages.drinks.latte,
-  coffee: exampleCoffee,
-  recipe: exampleRecipe,
-  setup: exampleSetup,
-  remainingGrams: exampleRemainingGrams,
-};
-
-/** Pull, react and undo, with the remaining coffee going down by the dose. */
-function Interactive() {
-  const [pulled, setPulled] = useState(false);
-  const [reaction, setReaction] = useState<"good" | "off" | null>(null);
-  const [remaining, setRemaining] = useState(exampleRemainingGrams);
-  return (
-    <HomeScreen
-      {...base}
-      remainingGrams={remaining}
-      pulled={pulled}
-      reaction={reaction}
-      onPull={() => {
-        setPulled(true);
-        setReaction(null);
-        setRemaining((g) => g - exampleRecipe.dose);
-      }}
-      onUndo={() => {
-        setPulled(false);
-        setRemaining((g) => g + exampleRecipe.dose);
-      }}
-      onReaction={setReaction}
-    />
-  );
-}
+const buttons = (primary: string, secondary?: string) => (
+  <>
+    <Button variant="primary" fullWidth>
+      {primary}
+    </Button>
+    {secondary && (
+      <Button variant="ghost" fullWidth>
+        {secondary}
+      </Button>
+    )}
+  </>
+);
 
 const meta = {
   title: "Screens/Home",
   component: HomeScreen,
   parameters: { layout: "centered" },
-  args: base,
+  args: {
+    drink: messages.drinks.latte,
+    coffee: coffeeLine,
+    values: exampleRecipe,
+    lines: [
+      messages.shot.milkLine.replace("{milk}", messages.milks.oat).replace("{amount}", unit(150, "milliliter")),
+      home.prep.replace("{tools}", messages.log.prepWdt),
+    ],
+    setup: exampleSetup,
+    actions: buttons(home.pull, home.dialIn),
+    footnote: home.remaining.replace("{amount}", unit(142, "gram")),
+    labels: { changeDrink: home.changeDrink, changeCoffee: home.changeCoffee },
+    onChangeDrink: fn(),
+    onChangeCoffee: fn(),
+  },
   decorators: [
     (Story) => (
       <PhoneFrame>
@@ -59,20 +54,38 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Everyday: Story = {
-  render: () => <Interactive />,
-  play: async ({ canvasElement }) => {
+/** The daily driver: recipe, milk and prep lines, setup, one primary. */
+export const Recipe: Story = {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: home.pull }));
-    await expect(canvas.getByRole("radio", { name: home.reactionGood })).toBeInTheDocument();
-    await expect(canvas.getByText("124 g left in this bag")).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: home.undo }));
-    await expect(canvas.getByRole("button", { name: home.pull })).toBeInTheDocument();
-    await expect(canvas.getByText("142 g left in this bag")).toBeInTheDocument();
+    await expect(canvas.getAllByRole("button", { name: home.pull })).toHaveLength(1);
+    await expect(canvas.getByText(exampleSetup)).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: new RegExp(home.changeCoffee) }));
+    await expect(args.onChangeCoffee).toHaveBeenCalled();
   },
 };
 
-export const AfterPull: Story = { args: { pulled: true, reaction: "good" } };
-export const NoRecipeYet: Story = { args: { state: "noRecipe", recipe: undefined } };
-export const FirstRun: Story = { args: { state: "firstRun" } };
+export const NoRecipe: Story = {
+  args: { values: undefined, lines: [], message: home.noRecipe, actions: buttons(home.dialIn) },
+};
+
+export const NoRecipeOnSetup: Story = {
+  args: {
+    values: undefined,
+    lines: [],
+    message: home.noRecipeOnSetup,
+    note: home.startsFrom.replace("{setup}", "Weekend setup"),
+    actions: buttons(home.dialIn),
+  },
+};
+
+/** The recipe stays, quietly; choose another coffee or add a bag. */
+export const Finished: Story = {
+  args: { quiet: true, message: home.coffeeFinished, footnote: undefined, actions: buttons(home.chooseCoffee, home.addBag) },
+};
+
+export const NoCoffee: Story = {
+  args: { coffee: null, values: undefined, lines: [], message: home.noCoffee, footnote: undefined, actions: buttons(home.addBag) },
+};
+
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

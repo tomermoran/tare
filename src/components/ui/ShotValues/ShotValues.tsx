@@ -21,7 +21,7 @@ type ShotValuesProps = {
   size?: "large" | "compact";
   /** Compact only: end-aligned in a list row, start-aligned under a heading. */
   align?: "start" | "end";
-  /** Compact only: all in ink-secondary, for values being replaced. */
+  /** All in ink-secondary: values being replaced, or a finished coffee's recipe. */
   quiet?: boolean;
   className?: string;
 };
@@ -81,7 +81,7 @@ export function ShotValues({ values, size = "large", align = "end", quiet = fals
             <div key={c.label} className="flex flex-col">
               <dt className="text-overline uppercase text-ink-secondary">{c.label}</dt>
               <dd className="flex items-baseline gap-1.5">
-                <span className="text-display">{parts.number}</span>
+                <span className={cx("text-display", quiet && "text-ink-secondary")}>{parts.number}</span>
                 {parts.unit && <span className="text-h2 text-ink-tertiary">{parts.unit}</span>}
               </dd>
             </div>
