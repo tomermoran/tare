@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
+import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { PhoneFrame } from "../PhoneFrame";
 import { BagScreen, type BagLabels } from "./BagScreen";
 
 const { bag, portion } = messages;
+const t = createTranslator({ locale: "en", messages });
 const grams = new Intl.NumberFormat("en", { style: "unit", unit: "gram", unitDisplay: "narrow" });
 const day = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" });
 
@@ -87,6 +89,35 @@ export const OpenWithTotal: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(bag.statusOpen)).toBeVisible();
     await expect(canvas.getByText(bag.total.replace("{grams}", grams.format(450)))).toBeVisible();
+  },
+};
+
+/**
+ * Both clocks (EPIC-03-03): the bag's one roasting clock, each portion's own
+ * opened clock, a frozen portion paused, and the freezer days left out. Text
+ * only, no colour.
+ */
+export const Clocks: Story = {
+  args: {
+    clocks: <p className="text-body text-ink">{t("bag.daysSinceRoast", { days: 12 })}</p>,
+    portions: [
+      { id: "p1", state: portion.state.counter, opened: t("portion.openFor", { days: 3 }), remaining: grams.format(200) },
+      {
+        id: "p2",
+        state: portion.state.frozen,
+        opened: t("portion.agePaused"),
+        frozenDays: t("portion.frozenDays", { days: 9 }),
+        remaining: grams.format(250),
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(t("bag.daysSinceRoast", { days: 12 }))).toBeVisible();
+    await expect(canvas.getByText(t("portion.openFor", { days: 3 }))).toBeVisible();
+    await expect(canvas.getByText(t("portion.agePaused"))).toBeVisible();
+    await expect(canvas.getByText(t("portion.frozenDays", { days: 9 }))).toBeVisible();
+    await expect(canvasElement.innerHTML).not.toMatch(/signal/);
   },
 };
 

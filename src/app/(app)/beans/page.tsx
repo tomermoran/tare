@@ -17,6 +17,7 @@ export default async function BeansPage() {
     href: `/beans/${b.id}`,
     bean: b.bean.name,
     roaster: b.bean.roasterName,
+    clock: rows.clock(b),
     status: rows.status(b),
     total: b.portions.length > 1 ? rows.total(b.portions) : undefined,
     portions: b.portions.map(rows.row),

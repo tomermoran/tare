@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { BagClock } from "@/components/beans/BagClock";
 import { BagFlow } from "@/components/beans/BagFlow";
+import { localDayKey } from "@/domain/localDay";
 import type { BagFact } from "@/components/screens/BagScreen/BagScreen";
 import { RecipeRows } from "@/components/recipes/RecipeRows";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
@@ -86,6 +88,7 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
       bean={bag.bean.name}
       roaster={bag.bean.roasterName}
       facts={facts}
+      clocks={<BagClock batchId={bag.id} label={rows.clock(bag)} unknown={bag.roasting.kind === "unknown"} today={localDayKey(new Date(), timeZone)} />}
       status={rows.status(bag)}
       total={rows.total(bag.portions.filter((p) => p.state !== "finished"))}
       portions={bag.portions.map(rows.row)}

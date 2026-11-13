@@ -3,6 +3,7 @@ import type { PortionRow } from "@/components/screens/BeansScreen/PortionRows";
 import type { PortionInfo } from "@/components/beans/usePortionActions";
 import { allowedActions } from "@/domain/portionActions";
 import { totalRemaining } from "@/domain/remaining";
+import { openedClockLabel, roastingClockLabel } from "@/lib/clockLabels";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import type { BagView, PortionView } from "@/server/dal/bags";
 
@@ -14,6 +15,8 @@ export async function bagRows(timeZone: string) {
   const row = (p: PortionView): PortionRow => ({
     id: p.id,
     state: portionStateLabel(t, p.state),
+    opened: openedClockLabel(t, p.opened) ?? undefined,
+    frozenDays: p.roasting.kind !== "unknown" && p.roasting.frozenDays > 0 ? t("portion.frozenDays", { days: p.roasting.frozenDays }) : undefined,
     remaining: t("portion.remaining", { grams: grams(p.remaining.grams) }),
     meter: {
       label: t("portion.meterLabel"),
@@ -38,5 +41,7 @@ export async function bagRows(timeZone: string) {
 
   const total = (portions: PortionView[]) => t("bag.total", { grams: grams(totalRemaining(portions.map((p) => p.remaining)).grams) });
 
-  return { grams, row, info, status, total };
+  const clock = (b: BagView) => roastingClockLabel(t, b.roasting);
+
+  return { grams, row, info, status, total, clock };
 }

@@ -16,6 +16,7 @@ import { getProfile } from "@/server/dal/profile";
 import { getSetupProgress } from "@/server/dal/progress";
 import { readBrewChoice } from "@/server/brewChoice";
 import { unlessSignedOut } from "@/server/dal/scope";
+import { openedClockLabel, roastingClockLabel } from "@/lib/clockLabels";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { FirstRun } from "./FirstRun";
 import { recipeLines } from "./recipeLines";
@@ -60,6 +61,10 @@ async function Brew({ home }: { home: Home }) {
   const drink = drinkLabel(home.drink, (key: DrinkKey) => t(key));
   const setup = (s: Home["setup"]) => setupLabel(s, home.setups, list);
   const { state } = home;
+  // The portion in use: how old the coffee is, and how long it's been open (EPIC-03-03).
+  const roasting = home.portion ? roastingClockLabel(t, home.portion.roasting) : null;
+  const opened = home.portion ? openedClockLabel(t, home.portion.opened) : null;
+  const clocks = roasting && opened ? t("home.coffeeClocks", { roasting, opened }) : (roasting ?? undefined);
 
   // A coffee's dial-in starts from its recipe, here or on the closest setup, with a pending suggestion.
   const pending = home.coffee ? await getPendingSuggestion({ beanId: home.coffee.id, setupId: home.setup.id, drinkTypeId: home.drink.id }) : null;
@@ -105,6 +110,7 @@ async function Brew({ home }: { home: Home }) {
       screen={{
         drink,
         coffee: home.coffee ? t("home.coffeeLine", { bean: home.coffee.name, roaster: home.coffee.roasterName }) : null,
+        clocks,
         values: recipe ? { grind: recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
         valuesKey: `${home.drink.id}|${home.coffee?.id ?? ""}`,
         quiet: state.kind === "finished",

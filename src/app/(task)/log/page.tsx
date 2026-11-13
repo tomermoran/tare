@@ -170,6 +170,11 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       )}
       milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
       resume={one(params.resume) === "1"}
+      portionClocks={Object.fromEntries(
+        context.portions.flatMap((p): [string, string][] =>
+          p.frozen ? [[p.id, t("bag.fromFrozen")]] : p.opened.kind === "open" ? [[p.id, t("portion.openFor", { days: p.opened.days })]] : [],
+        ),
+      )}
     />
   );
 }
