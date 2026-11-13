@@ -89,6 +89,8 @@
     "pull": "Pull this shot",
     "dialIn": "Dial in",
     "pulled": "Shot logged",
+    "undone": "Shot removed",
+    "pullFailed": "That shot wasn't logged. Nothing was recorded.",
     "undo": "Undo",
     "reactionLabel": "How was it?",
     "reactionGood": "Good",
@@ -472,6 +474,12 @@
       "finished": "Finished"
     },
     "openFor": "{days, plural, =0 {opened today} one {open # day} other {open # days}}",
+    "chooseTitle": "Which bag?",
+    "chooseBody": "None of this coffee is open. Choose the one you're using.",
+    "grindFromFrozen": "Ground straight from the freezer",
+    "noneLeft": "There's none of this coffee left.",
+    "bagRoasted": "Roasted {date}",
+    "bagAdded": "Added {date}",
     "action": {
       "open": "Mark as open",
       "freeze": "Freeze",
