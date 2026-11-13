@@ -183,8 +183,10 @@ export type SetupListItem = SetupSummary & {
  * last used (or made, if never used), each with its parts, recipe count and
  * last use.
  */
-export async function getSetups(now = new Date()): Promise<SetupListItem[]> {
+export async function getSetups(now?: Date): Promise<SetupListItem[]> {
   const { householdId } = await requireHousehold();
+  // After the session read, so a page never reads the clock while prerendering.
+  const at = now ?? new Date();
   const list = await setupsOf(householdId, await partsOf(householdId));
   if (list.length === 0) return [];
   const [current, used] = await Promise.all([
@@ -201,7 +203,7 @@ export async function getSetups(now = new Date()): Promise<SetupListItem[]> {
   return list
     .map((s) => {
       const lastUsedAt = lastUsed.get(s.id) ?? null;
-      return { ...s, current: s.id === current, lastUsedAt, older: isOlder({ ...s, lastUsedAt }, current, now) };
+      return { ...s, current: s.id === current, lastUsedAt, older: isOlder({ ...s, lastUsedAt }, current, at) };
     })
     .sort((a, b) => Number(b.current) - Number(a.current) || recency(b) - recency(a));
 }
