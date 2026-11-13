@@ -5,8 +5,8 @@ import { cx } from "@/lib/cx";
  * The minimal icon set (NC-14): four strokes drawn like the Logo, with round
  * caps and currentColor, so colour comes from a text-* token class. Icons are
  * decorative by default; pass `label` when one stands alone, e.g. a close
- * button with no visible text. The chevron points to the inline end and
- * back to the inline start; both mirror in right-to-left.
+ * button with no visible text. The chevron and arrow point to the inline
+ * end and back to the inline start; all three mirror in right-to-left.
  */
 
 const paths = {
@@ -16,7 +16,11 @@ const paths = {
   check: "M5 12.5 10 17.5 19 7",
   plus: "M12 5v14M5 12h14",
   close: "M6.5 6.5l11 11M17.5 6.5l-11 11",
+  /** From one value to the next, as in "15 → 13". */
+  arrow: "M5 12h14M13.5 6.5 19 12l-5.5 5.5",
 };
+
+const MIRRORED: ReadonlySet<IconName> = new Set(["chevron", "back", "arrow"]);
 
 export type IconName = keyof typeof paths;
 
@@ -42,7 +46,7 @@ export function Icon({ name, size = 20, label, className, ...props }: IconProps)
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      className={cx("shrink-0", (name === "chevron" || name === "back") && "rtl:-scale-x-100", className)}
+      className={cx("shrink-0", MIRRORED.has(name) && "rtl:-scale-x-100", className)}
       {...props}
     >
       <path d={paths[name]} />
