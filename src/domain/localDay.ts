@@ -99,3 +99,9 @@ export function daysBetween(fromKey: string, toKey: string): number {
   };
   return Math.round((utc(toKey) - utc(fromKey)) / 86_400_000);
 }
+
+/** Minutes since local midnight, by the wall clock (0 to 1439). */
+export function localMinuteOfDay(at: Date, timeZone: string): number {
+  const { hour, minute } = parts(at, timeZone);
+  return hour * 60 + minute;
+}
