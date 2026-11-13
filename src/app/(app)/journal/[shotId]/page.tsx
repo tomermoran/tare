@@ -6,6 +6,7 @@ import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetail
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { PinAction } from "@/components/recipes/PinAction";
+import { DialInFromShot } from "@/components/shot/DialInFromShot";
 import { ReactionChips } from "@/components/shot/ReactionChips";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { shotSetupName } from "@/domain/shotSetupName";
@@ -18,7 +19,8 @@ import { getTimeZone } from "@/server/time";
 /**
  * SCR-SHOT: one shot. Edit is primary on a one-tap shot and a quiet ghost
  * on a measured one, where "pin as recipe" is the primary (STORY-02-06-03
- * AC 3); one-tap shots can't be pinned. Dial in from this joins later.
+ * AC 3); one-tap shots can't be pinned. "Dial in from this" is secondary on
+ * both (STORY-02-06-06).
  */
 export default async function ShotPage({ params }: PageProps<"/journal/[shotId]">) {
   const { shotId } = await params;
@@ -67,6 +69,14 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
   const setup = shotSetupName(shot.setup, (items) => format.list(items, { type: "conjunction" }));
   const pinTitle = t("recipe.pinTitle", { drink, coffee: shot.coffee.name, setup });
 
+  const dialIn = (
+    <DialInFromShot
+      shotId={shot.id}
+      label={t("shot.dialInFromThis")}
+      addBagHref={`/beans/add?${new URLSearchParams({ returnTo: `/journal/${shot.id}` })}`}
+    />
+  );
+
   return (
     <ShotDetailScreen
       labels={{ back: t("journal.title"), details: t("shot.details"), taste: t("shot.taste") }}
@@ -84,6 +94,7 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
         <>
           {oneTap && <ReactionChips shotId={shot.id} initial={shot.reaction} />}
           {shot.entryMode === "measured" && <PinAction shotId={shot.id} title={pinTitle} label={t("recipe.pin")} />}
+          {!oneTap && dialIn}
           <Link
             href={`/log?mode=edit&shotId=${shot.id}`}
             className={
@@ -94,6 +105,7 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
           >
             {t("actions.edit")}
           </Link>
+          {oneTap && dialIn}
         </>
       }
       warning={<ShotWarnings warnings={shotWarnings(shot.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}

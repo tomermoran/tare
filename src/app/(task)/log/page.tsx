@@ -68,7 +68,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     const drinkTypeId = one(params.drinkId);
     const beanId = one(params.beanId);
     const start = fromShot
-      ? await unlessSignedOut(getDialInFromShot(fromShot, suggested)).catch(notFoundIfMissing)
+      ? await unlessSignedOut(getDialInFromShot(fromShot, suggested, one(params.portionId))).catch(notFoundIfMissing)
       : drinkTypeId && beanId
         ? await unlessSignedOut(getDialInFromRecipe({ drinkTypeId, beanId, portionId: one(params.portionId), suggested }))
         : null;
@@ -134,13 +134,15 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     else if (p.from) {
       const fromSetup = context.setups.find((s) => s.id === p.from!.setupId);
       if (fromSetup) note.push(t("log.fromRecipeOn", { setup: setupLabel(fromSetup, context.setups, list) }));
+    } else if (p.fromShot) {
+      note.push(t("log.fromShot", { when: format.dateTime(p.fromShot.at, { dateStyle: "medium", timeStyle: "short", timeZone }) }));
     } else if (prefilled?.mode === "fix") note.push(t("log.fromRecipe"));
     if (p.from && !p.from.grindCarried) note.push(t("log.grindNotCarried"));
   }
 
   return (
     <ShotLogFlow
-      key={`${selected ?? "none"}|${prefilled?.mode ?? "new"}|${suggested ?? ""}`}
+      key={`${selected ?? "none"}|${prefilled?.mode ?? "new"}|${suggested ?? ""}|${one(params.fromShot) ?? ""}`}
       mode={prefilled?.mode ?? "new"}
       applied={applied}
       brewStart={p ? brewToDial(brew, p.start.brew) : undefined}

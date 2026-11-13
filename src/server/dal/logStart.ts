@@ -7,6 +7,8 @@ import { applyChange, type StartValues } from "@/domain/suggest/apply";
 import { suggest, type Suggestion } from "@/domain/suggest";
 import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { getDialInStart } from "./dialIn";
+import { unfinishedPortions } from "./logContext";
+import { portionChoices, type PortionChoice } from "./pull";
 import { getCurrentRecipe } from "./recipes";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
@@ -83,6 +85,8 @@ export type LogStart = {
   suggestion: ShotSuggestion | null;
   /** Dial-in from another setup's recipe (STORY-02-01-06 AC 3, AC 4). */
   from: { setupId: string; grindCarried: boolean } | null;
+  /** "Dial in from this": when the past shot was made, for the log's note (STORY-02-06-06 AC 1). */
+  fromShot: { at: Date } | null;
 };
 
 type Row = typeof extractions.$inferSelect;
@@ -153,27 +157,60 @@ export async function getFixStart(shotId: string, suggested?: string): Promise<L
     milkTypeId: recipe ? recipe.milkTypeId : s.milkTypeId,
     suggestion,
     from: null,
+    fromShot: null,
   };
 }
 
-/** "Dial in with this change" after tasting (STORY-02-03-07 AC 1): that shot's values plus the change. */
-export async function getDialInFromShot(shotId: string, suggested?: string): Promise<LogStart> {
+/**
+ * Dial in from a past shot (STORY-02-06-06), or "dial in with this change"
+ * after tasting (STORY-02-03-07 AC 1): that shot's values, prep, milk, setup
+ * and drink, plus the change when `suggested`. The coffee stays the shot's:
+ * `portionId` is a bag of it chosen on SH-PORTION, else the shot's own while
+ * it lasts. The past shot is only read (AC 5).
+ */
+export async function getDialInFromShot(shotId: string, suggested?: string, portionId?: string, now = new Date()): Promise<LogStart> {
   const r = await shotRow(shotId);
   const s = r.shot;
   const start = valuesOf(s, "shot");
   const suggestion = await applying(suggested);
+  const chosen = portionId ? (await portionsOf(r.beanId, now)).find((p) => p.id === portionId) : undefined;
+  if (portionId && !chosen) throw new NotFoundError();
   return {
     setupId: s.setupId,
     drinkTypeId: s.drinkTypeId,
-    // The same bag while it lasts.
-    portionId: portionState(r.portion) === "finished" ? null : s.portionId,
+    portionId: chosen?.id ?? (portionState(r.portion) === "finished" ? null : s.portionId),
     locked: false,
     start,
     applied: applyChange(start, suggestion?.change ?? null),
     milkTypeId: s.milkTypeId,
     suggestion,
     from: null,
+    fromShot: suggested ? null : { at: s.createdAt },
   };
+}
+
+/** The coffee's unfinished portions, by its surviving catalog entry. */
+async function portionsOf(beanId: string, now: Date) {
+  const { householdId } = await requireHousehold();
+  const id = (await resolveEntity(db, canonicalBeans, beanId)) ?? beanId;
+  return (await unfinishedPortions(householdId, now)).filter((p) => p.bean.id === id);
+}
+
+export type DialInPortion =
+  | { kind: "portion"; portionId: string }
+  /** None of the coffee is open: which bag (STORY-02-06-06 AC 2); empty when it's finished (AC 3). */
+  | { kind: "choose"; portions: PortionChoice[] };
+
+/**
+ * Which bag "dial in from this" uses, by the one-tap rule: the shot's own
+ * portion while it's open, else the earliest-opened open one of that coffee.
+ */
+export async function dialInPortion(shotId: string, now = new Date()): Promise<DialInPortion> {
+  const r = await shotRow(shotId);
+  const portions = await portionsOf(r.beanId, now);
+  const open = portions.find((p) => p.id === r.shot.portionId && p.openedAt !== null) ?? portions.find((p) => p.openedAt !== null);
+  if (open) return { kind: "portion", portionId: open.id };
+  return { kind: "choose", portions: await portionChoices(r.beanId, now) };
 }
 
 /**
@@ -202,5 +239,6 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
     milkTypeId: dialIn.milk.milkTypeId,
     suggestion,
     from: dialIn.fromSetupId === setupId ? null : { setupId: dialIn.fromSetupId, grindCarried: dialIn.grindCarried },
+    fromShot: null,
   };
 }

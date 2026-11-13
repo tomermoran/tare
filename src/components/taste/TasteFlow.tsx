@@ -158,7 +158,7 @@ export function TasteFlow({
   const done = { label: t("taste.done"), onClick: () => void saveThen(toLeaveTo) };
   const pinAction = { label: t("recipe.pin"), onClick: () => void saveThenPin() };
   // Saves the tasting, then the log opens with this shot plus the change (STORY-02-03-07 AC 1).
-  const tryIt = { label: t("suggest.tryIt"), onClick: () => void saveThen(() => router.replace(dialInFromShotHref(shotId))) };
+  const tryIt = { label: t("suggest.tryIt"), onClick: () => void saveThen(() => router.replace(dialInFromShotHref(shotId, { suggested: true }))) };
   const [primary, ...secondary] = suggesting ? [tryIt, done, pinAction] : pinFirst ? [pinAction, done] : [done, pinAction];
 
   const set = (patch: Partial<TasteAnswers>) => {
