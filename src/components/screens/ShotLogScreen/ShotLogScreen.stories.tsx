@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
+import { Notice } from "@/components/ui/Notice/Notice";
 import messages from "@/i18n/messages/en.json";
 import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
@@ -41,6 +42,34 @@ export const DialIn: Story = {
     await userEvent.keyboard("{ArrowRight}{ArrowRight}");
     await userEvent.click(canvas.getByRole("button", { name: log.save }));
     await expect(args.onSave).toHaveBeenCalledWith({ ...exampleRecipe, timeMs: 27_800 }, false);
+  },
+};
+
+/** Nothing set up yet: the fields say what to add and open the add tasks (AC 5). */
+export const MissingContext: Story = {
+  args: {
+    mode: "new",
+    setup: log.missingSetup,
+    coffee: log.missingCoffee,
+    onPick: fn(),
+    notice: <Notice urgent>{log.missingSetupNote}</Notice>,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: new RegExp(log.missingSetup) }));
+    await expect(args.onPick).toHaveBeenCalledWith("setup");
+    await userEvent.click(canvas.getByRole("button", { name: new RegExp(log.missingCoffee) }));
+    await expect(args.onPick).toHaveBeenCalledWith("coffee");
+    await expect(canvas.getByText(log.missingSetupNote)).toBeVisible();
+  },
+};
+
+/** Milestone 1: one setup, so its field is shown but can't be changed. */
+export const SetupReadOnly: Story = {
+  args: { mode: "new", readOnly: ["setup"] },
+  play: async ({ canvasElement }) => {
+    const context = within(within(canvasElement).getByTestId("log-context"));
+    await expect(context.getAllByRole("button")).toHaveLength(2);
   },
 };
 

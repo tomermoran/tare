@@ -3,7 +3,8 @@ import { cx } from "@/lib/cx";
 type SelectFieldProps = {
   /** The current choice, as shown. */
   value: string;
-  onClick: () => void;
+  /** Without it the field is read-only: shown, not a button. */
+  onClick?: () => void;
   /**
    * field: a labelled row on surface-sunken, like Input (shot log context).
    * quiet: the value alone with a chevron (the home screen's drink and coffee).
@@ -62,6 +63,14 @@ export function SelectField({
       </button>
     );
   }
+  if (!onClick) {
+    return (
+      <div className={cx("flex w-full items-center justify-between gap-3 bg-surface-sunken px-4 py-2.5", className)}>
+        <span className="shrink-0 text-overline uppercase text-ink-secondary">{label}</span>
+        <span className="min-w-0 text-end text-body text-ink">{value}</span>
+      </div>
+    );
+  }
   return (
     <button
       type="button"
@@ -72,8 +81,8 @@ export function SelectField({
         className,
       )}
     >
-      <span className="text-overline uppercase text-ink-secondary">{label}</span>
-      <span className="flex items-center gap-2 text-body text-ink">
+      <span className="shrink-0 text-overline uppercase text-ink-secondary">{label}</span>
+      <span className="flex min-w-0 items-center gap-2 text-end text-body text-ink">
         {value}
         <Chevron />
       </span>

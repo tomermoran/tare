@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button/Button";
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { SelectField } from "@/components/ui/SelectField/SelectField";
@@ -12,6 +12,11 @@ import { msToSeconds, secondsToMs } from "@/lib/units";
 
 type Mode = "new" | "dialIn" | "fix" | "edit";
 
+/** The dial's values in display units: grinder units, grams, seconds. */
+export type DialValues = { grind: number; dose: number; yield: number; time: number };
+
+export type ContextField = "setup" | "drink" | "coffee";
+
 type ShotLogScreenProps = {
   mode: Mode;
   setup: string;
@@ -21,13 +26,30 @@ type ShotLogScreenProps = {
   start: ShotValuesData;
   /** The grinder's scale; the MVP default is a stepless 0-40 dial. */
   grind?: { min: number; max: number; step: number };
+  /** Controlled values; without them the screen keeps its own. */
+  values?: DialValues;
+  onValuesChange?: (values: DialValues) => void;
+  sweetened?: boolean;
+  onSweetenedChange?: (sweetened: boolean) => void;
+  /** Fields that can't be changed here are shown read-only. */
+  readOnly?: ContextField[];
+  /** A Notice under the dial: what's missing, or a failed save. */
+  notice?: ReactNode;
+  saving?: boolean;
   onCancel?: () => void;
   onSave?: (values: ShotValuesData, sweetened: boolean) => void;
-  onPick?: (field: "setup" | "drink" | "coffee") => void;
+  onPick?: (field: ContextField) => void;
 };
 
 const titleKey = { new: "titleNew", dialIn: "titleDialIn", fix: "titleFix", edit: "titleEdit" } as const;
 const noop = () => {};
+
+export const toDial = (v: ShotValuesData): DialValues => ({
+  grind: v.grind,
+  dose: v.dose,
+  yield: v.yield,
+  time: msToSeconds(v.timeMs),
+});
 
 /**
  * The shot log (SCR-LOG): context arrives pre-chosen, one value is edited at
@@ -40,6 +62,13 @@ export function ShotLogScreen({
   coffee,
   start,
   grind = { min: 0, max: 40, step: 0.5 },
+  values: controlled,
+  onValuesChange,
+  sweetened: controlledSweetened,
+  onSweetenedChange,
+  readOnly = [],
+  notice,
+  saving = false,
   onCancel = noop,
   onSave = noop,
   onPick = noop,
@@ -48,10 +77,13 @@ export function ShotLogScreen({
   const tShot = useTranslations("shot");
   const tActions = useTranslations("actions");
   const format = useFormatter();
-  const startSeconds = { grind: start.grind, dose: start.dose, yield: start.yield, time: msToSeconds(start.timeMs) };
-  const [values, setValues] = useState(startSeconds);
+  const startSeconds = toDial(start);
+  const [own, setOwn] = useState(startSeconds);
+  const values = controlled ?? own;
+  const setValues = (next: DialValues) => (onValuesChange ? onValuesChange(next) : setOwn(next));
+  const [ownSweetened, setOwnSweetened] = useState(false);
+  const sweetened = controlledSweetened ?? ownSweetened;
   const [selected, setSelected] = useState("grind");
-  const [sweetened, setSweetened] = useState(false);
 
   const fields: DialField[] = [
     { key: "grind", label: tShot("grind"), value: values.grind, startValue: startSeconds.grind, ...grind, majorEvery: 2 },
@@ -59,6 +91,7 @@ export function ShotLogScreen({
     { key: "yield", label: tShot("yield"), value: values.yield, startValue: startSeconds.yield, min: 10, max: 80, step: 0.1, majorEvery: 10, unit: "gram" },
     { key: "time", label: tShot("time"), value: values.time, startValue: startSeconds.time, min: 0, max: 60, step: 0.1, majorEvery: 10, unit: "second" },
   ];
+  const pick = (field: ContextField) => (readOnly.includes(field) ? undefined : () => onPick(field));
 
   return (
     <div className="flex flex-1 flex-col [&>*]:shrink-0">
@@ -72,26 +105,34 @@ export function ShotLogScreen({
         }
       />
       <div data-testid="log-context" className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
-        <SelectField label={t("setup")} value={setup} onClick={() => onPick("setup")} />
-        <SelectField label={t("drink")} value={drink} onClick={() => onPick("drink")} />
-        <SelectField label={t("coffee")} value={coffee} onClick={() => onPick("coffee")} />
+        <SelectField label={t("setup")} value={setup} onClick={pick("setup")} />
+        <SelectField label={t("drink")} value={drink} onClick={pick("drink")} />
+        <SelectField label={t("coffee")} value={coffee} onClick={pick("coffee")} />
       </div>
       <ShotDial
         label={t("values")}
         fields={fields}
         selected={selected}
         onSelect={setSelected}
-        onChange={(key, v) => setValues((s) => ({ ...s, [key]: v }))}
+        onChange={(key, v) => setValues({ ...values, [key]: v })}
         className="mt-6"
       />
       <p className="mt-2 text-center text-label text-ink-secondary">
         {tShot("ratio", { ratio: format.number(values.yield / values.dose, { maximumFractionDigits: 1 }) })}
       </p>
-      <Toggle label={t("sweetened")} checked={sweetened} onChange={setSweetened} className="mt-5 border-t border-line py-4" />
+      <Toggle
+        label={t("sweetened")}
+        checked={sweetened}
+        onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
+        className="mt-5 border-t border-line py-4"
+      />
+      {notice && <div className="mt-2">{notice}</div>}
       <div className="mt-auto pt-4">
         <Button
           variant="primary"
           fullWidth
+          disabled={saving}
+          aria-busy={saving || undefined}
           onClick={() =>
             onSave(
               { grind: values.grind, dose: values.dose, yield: values.yield, timeMs: secondsToMs(values.time) },

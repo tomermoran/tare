@@ -38,3 +38,9 @@ export const Quiet: Story = {
 };
 
 export const QuietRightToLeft: Story = { ...Quiet, globals: { direction: "rtl" } };
+
+/** Read-only: shown without a chevron, not a button (the log's setup in Milestone 1). */
+export const ReadOnly: Story = {
+  args: { label: messages.log.setup, value: messages.setup.kind.machine, onClick: undefined },
+  decorators: Field.decorators,
+};
