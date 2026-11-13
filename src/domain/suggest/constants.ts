@@ -1,8 +1,8 @@
 /*
  * The suggestion engine's numbers, in one place (EPIC-02-03). The step sizes
- * are the Head of Product's starting values (answer 1, SQ-19). The freshness
- * thresholds are DQ-24's working values, still to be confirmed before the
- * wave 12 suggestion tests; tests refer to these names, not the numbers.
+ *  are the Head of Product's starting values (answer 1, SQ-19). The freshness
+ * thresholds are DQ-24, confirmed by the Head of Product; tests refer to
+ * these names, not the numbers.
  */
 
 /** Grind steps for "a bit" (±1) and "much" (±2) off. */

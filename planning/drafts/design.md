@@ -2326,8 +2326,8 @@ reversed without changing the structure.
 - **DQ-24** (round 5) Freshness thresholds for the explanations: assumed
   "very fresh, may channel" under 5 days since roast (or packing), and
   "likely past its peak" over 35 days since roast or over 21 days open, with
-  freezer time excluded as usual. **Still awaiting confirmation** from the
-  Head of Product; these numbers are placeholders, not a decision. These are rule parameters, to be tuned by
+  freezer time excluded as usual. **Confirmed** by the Head of Product
+  before wave 12. These are rule parameters, to be tuned by
   the rule evals; the design only needs the two phrases.
 - **DQ-25** (round 5) How long a dismissal lasts: assumed until the next shot
   on that coffee, setup and drink. A new shot gives a fresh suggestion. On
