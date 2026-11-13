@@ -2,6 +2,7 @@
 
 import { fail, runAction, type ActionError } from "@/lib/actionResult";
 import { InvalidBrewControlsError } from "@/domain/brewControls";
+import { InvalidMilkError } from "@/domain/milk";
 import { InvalidShotError, PortionFinishedError, saveMeasuredShot, type MeasuredShot } from "@/server/dal/shots";
 
 export type SaveShotResult =
@@ -16,7 +17,7 @@ export async function saveMeasuredShotAction(input: MeasuredShot): Promise<SaveS
     return { ok: true, data: await saveMeasuredShot(input) };
   } catch (e) {
     if (e instanceof PortionFinishedError) return { ok: false, error: "portionFinished" };
-    if (e instanceof InvalidShotError || e instanceof InvalidBrewControlsError) return fail("saveFailed");
+    if (e instanceof InvalidShotError || e instanceof InvalidBrewControlsError || e instanceof InvalidMilkError) return fail("saveFailed");
     return runAction(() => Promise.reject(e));
   }
 }

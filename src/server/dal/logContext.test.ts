@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { batches, batchPortions, drinkTypes, extractions, setupParts, setups } from "@/db/schema";
+import { batches, batchPortions, drinkTypes, extractions, milkTypes, setupParts, setups } from "@/db/schema";
 import { NO_BREW_VALUES } from "@/domain/brewControls";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
@@ -137,7 +137,9 @@ describe("getLogContext", () => {
     const other = await makeHousehold(db());
     signInAs(other.user.firebaseUid);
     const c = await getLogContext({ portionId: k.portion.id, drinkId: k.drinks.latte.id });
-    expect(c).toMatchObject({ setups: [], drinks: [], portions: [], milks: [], defaultPortionId: null, defaultDrinkId: null });
+    expect(c).toMatchObject({ setups: [], drinks: [], portions: [], defaultPortionId: null, defaultDrinkId: null });
+    // Only its own starter milks, never the other household's.
+    expect(c.milks.map((m) => m.id)).not.toContain(k.milk.id);
   });
 });
 
@@ -172,5 +174,20 @@ describe("getStartingValues", () => {
     const other = await makeHousehold(db());
     signInAs(other.user.firebaseUid);
     await expect(getStartingValues(k.setup.id)).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("starter milks for older households", () => {
+  it("adds the starter list once to a household with no milks", async () => {
+    await db().delete(milkTypes);
+    expect((await getLogContext()).milks).toHaveLength(7);
+    await getLogContext();
+    expect(await db().select().from(milkTypes)).toHaveLength(7);
+  });
+
+  it("leaves a household that has milks alone", async () => {
+    const before = await db().select().from(milkTypes);
+    await getLogContext();
+    expect(await db().select().from(milkTypes)).toEqual(before);
   });
 });

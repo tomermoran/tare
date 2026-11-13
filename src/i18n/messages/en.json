@@ -144,7 +144,10 @@
     "addPressure": "Add pressure",
     "clear": "Clear",
     "peakPressure": "Peak pressure",
-    "unsetHint": "Optional. Leave it unset if you didn't change it."
+    "unsetHint": "Optional. Leave it unset if you didn't change it.",
+    "milk": "Milk",
+    "milkAmount": "Milk",
+    "milkNone": "Choose a milk"
   },
   "journal": {
     "title": "Journal",

@@ -9,6 +9,7 @@ import { ShotDial, type DialField } from "@/components/ui/ShotDial/ShotDial";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { addStart, type BrewDial, type BrewTab, type BrewTabs } from "@/domain/brewControls";
+import { MILK_RANGE } from "@/domain/milk";
 import { NO_PREP, type Prep, type PrepKey } from "@/domain/prep";
 import { msToSeconds, secondsToMs } from "@/lib/units";
 
@@ -19,9 +20,12 @@ type Mode = "new" | "dialIn" | "fix" | "edit";
  * the optional temperature and pressure in their tab's terms (a step, °C or
  * °F, bar), null while unset.
  */
-export type DialValues = { grind: number; dose: number; yield: number; time: number } & BrewDial;
+export type DialValues = { grind: number; dose: number; yield: number; time: number } & BrewDial & {
+  /** Millilitres of milk, for a milk drink. */
+  milk?: number;
+};
 
-export type ContextField = "setup" | "drink" | "coffee";
+export type ContextField = "setup" | "drink" | "coffee" | "milk";
 
 type ShotLogScreenProps = {
   mode: Mode;
@@ -38,6 +42,12 @@ type ShotLogScreenProps = {
   brewStart?: BrewDial;
   /** The last used temperature and pressure, where "add" starts. */
   brewLast?: BrewDial;
+  /**
+   * A milk drink's milk (STORY-01-03-07): the chosen milk's name (null when
+   * none is chosen) and where the amount started. Absent for drinks without
+   * milk, which hides the field and the tab.
+   */
+  milk?: { name: string | null; startMl: number } | null;
   /** Controlled values; without them the screen keeps its own. */
   values?: DialValues;
   onValuesChange?: (values: DialValues) => void;
@@ -84,6 +94,7 @@ export function ShotLogScreen({
   brew = NO_TABS,
   brewStart = NO_BREW,
   brewLast = NO_BREW,
+  milk,
   values: controlled,
   onValuesChange,
   sweetened: controlledSweetened,
@@ -102,7 +113,7 @@ export function ShotLogScreen({
   const tActions = useTranslations("actions");
   const format = useFormatter();
   const startSeconds = toDial(start, brewStart);
-  const [own, setOwn] = useState(startSeconds);
+  const [own, setOwn] = useState<DialValues>(() => (milk ? { ...startSeconds, milk: milk.startMl } : startSeconds));
   const values = controlled ?? own;
   const setValues = (next: DialValues) => (onValuesChange ? onValuesChange(next) : setOwn(next));
   const [ownSweetened, setOwnSweetened] = useState(false);
@@ -162,6 +173,18 @@ export function ShotLogScreen({
     const label = brew.pressure.kind === "wheel" && brew.pressure.peak ? t("peakPressure") : tShot("pressure");
     fields.push(optional("pressure", brew.pressure, label, t("addPressure")));
   }
+  // The milk amount comes last, by dragging only: no keyboard in the log (AC 1).
+  if (milk) {
+    fields.push({
+      key: "milk",
+      label: t("milkAmount"),
+      value: values.milk ?? milk.startMl,
+      startValue: milk.startMl,
+      ...MILK_RANGE,
+      majorEvery: 5,
+      unit: "milliliter",
+    });
+  }
   const pick = (field: ContextField) => (readOnly.includes(field) ? undefined : () => onPick(field));
 
   return (
@@ -178,6 +201,7 @@ export function ShotLogScreen({
       <div data-testid="log-context" className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
         <SelectField label={t("setup")} value={setup} onClick={pick("setup")} />
         <SelectField label={t("drink")} value={drink} onClick={pick("drink")} />
+        {milk && <SelectField label={t("milk")} value={milk.name ?? t("milkNone")} onClick={pick("milk")} />}
         <SelectField label={t("coffee")} value={coffee} onClick={pick("coffee")} />
       </div>
       <ShotDial

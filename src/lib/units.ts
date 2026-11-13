@@ -5,7 +5,7 @@
  * localised symbol ("g", "s", "°C") and no unit strings live in our code.
  * Pressure (bar) has no Intl unit; pass its label from the messages instead.
  */
-export type CanonicalUnit = "gram" | "second" | "celsius" | "fahrenheit";
+export type CanonicalUnit = "gram" | "second" | "celsius" | "fahrenheit" | "milliliter";
 
 /** Stored shot time (ms) → displayed seconds, to one decimal like a scale timer. */
 export function msToSeconds(ms: number) {

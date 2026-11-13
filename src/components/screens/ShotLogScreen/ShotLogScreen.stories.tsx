@@ -235,3 +235,28 @@ export const PrepFromLastShot: Story = {
     await expect(canvas.getByRole("switch", { name: log.prepPuckScreen })).toBeChecked();
   },
 };
+
+/** A milk drink: a milk field under the drink and an amount tab, set by dragging (STORY-01-03-07 AC 1). */
+export const MilkDrink: Story = {
+  args: { drink: messages.drinks.latte, milk: { name: messages.milks.oat, startMl: 180 }, onPick: fn() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: new RegExp(messages.milks.oat) }));
+    await expect(args.onPick).toHaveBeenCalledWith("milk");
+    await userEvent.click(canvas.getByRole("tab", { name: new RegExp(log.milkAmount) }));
+    const wheel = canvas.getByRole("slider", { name: log.milkAmount });
+    await expect(wheel).toHaveAttribute("aria-valuenow", "180");
+    wheel.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(wheel).toHaveAttribute("aria-valuenow", "190");
+  },
+};
+
+/** An espresso asks no milk (AC 2). */
+export const NoMilkForEspresso: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByText(log.milk)).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: new RegExp(log.milkAmount) })).toBeNull();
+  },
+};

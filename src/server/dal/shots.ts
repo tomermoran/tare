@@ -2,8 +2,9 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { batchPortions, extractions, personas } from "@/db/schema";
+import { batchPortions, drinkTypes, extractions, milkTypes, personas } from "@/db/schema";
 import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
+import { validateMilk } from "@/domain/milk";
 import { portionState } from "@/domain/portionState";
 import { setupMachine } from "./logContext";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
@@ -47,6 +48,9 @@ export type MeasuredShot = {
   /** Puck prep (STORY-01-03-06); never part of the setup. */
   usedWdt?: boolean;
   usedPuckScreen?: boolean;
+  /** Milk drinks only (STORY-01-03-07): a household milk and 0 to 500 ml. */
+  milkTypeId?: string | null;
+  milkMl?: number | null;
 } & Partial<BrewValues>;
 
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -76,6 +80,16 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
   };
   if (Object.values(brew).some((v) => v !== null)) validateBrewControls(await setupMachine(input.setupId), brew);
 
+  // Milk only for a drink with milk, from the household's own list (STORY-01-03-07).
+  const milk = { milkTypeId: input.milkTypeId ?? null, ml: input.milkMl ?? null };
+  if (milk.milkTypeId !== null || milk.ml !== null) {
+    const [[drink], milks] = await Promise.all([
+      db.select({ hasMilk: drinkTypes.hasMilk }).from(drinkTypes).where(eq(drinkTypes.id, input.drinkTypeId)),
+      db.select({ id: milkTypes.id }).from(milkTypes).where(eq(milkTypes.householdId, householdId)),
+    ]);
+    validateMilk({ hasMilk: drink.hasMilk, ...milk, visibleMilkIds: milks.map((m) => m.id) });
+  }
+
   const [portion] = await db.select().from(batchPortions).where(eq(batchPortions.id, input.portionId));
   const state = portionState(portion);
   if (state === "finished") throw new PortionFinishedError();
@@ -98,6 +112,8 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
     sweetened: input.sweetened === true,
     usedWdt: input.usedWdt === true,
     usedPuckScreen: input.usedPuckScreen === true,
+    milkTypeId: milk.milkTypeId,
+    milkMl: milk.ml,
     entryMode: "measured",
     grindSize: input.grind,
     doseWeight: input.dose,
