@@ -6,8 +6,10 @@ export type PortionRow = {
   id: string;
   /** "Unopened", "Open", "Frozen"… */
   state: string;
-  /** How long it has been open, when it is. */
+  /** How long it has been open, or paused in the freezer (EPIC-03-03). */
   opened?: string;
+  /** Freezer days the clocks leave out, when there are any (STORY-03-03-02 AC 4). */
+  frozenDays?: string;
   /** The amount left, formatted: a number first (EPIC-03-04). */
   remaining: string;
   /** What's left against the portion's weight, supporting the number. */
@@ -41,7 +43,14 @@ export function PortionRows({
             primary={p.state}
             secondary={p.opened}
             end={<span className="text-body text-ink">{p.remaining}</span>}
-            footer={p.meter && <Meter label={p.meter.label} value={p.meter.value} max={p.meter.max} valueText={p.meter.text} className="mt-1 basis-full" />}
+            footer={
+              (p.meter || p.frozenDays) && (
+                <>
+                  {p.meter && <Meter label={p.meter.label} value={p.meter.value} max={p.meter.max} valueText={p.meter.text} className="mt-1 basis-full" />}
+                  {p.frozenDays && <span className="basis-full text-label text-ink-secondary">{p.frozenDays}</span>}
+                </>
+              )
+            }
             onClick={onPortion ? () => onPortion(p.id) : undefined}
           />
           {p.overLogged && (

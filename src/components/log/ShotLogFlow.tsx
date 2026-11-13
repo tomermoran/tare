@@ -103,6 +103,7 @@ export function ShotLogFlow({
   locked = false,
   note,
   tasteFrom,
+  portionClocks = {},
 }: {
   setupId: string | null;
   /** The setup's name; null when there is none yet. */
@@ -141,6 +142,8 @@ export function ShotLogFlow({
   note?: string[];
   /** Tasting after a fix or dial-in offers pinning first (STORY-02-03-02 AC 4). */
   tasteFrom?: "fix" | "dialIn";
+  /** By portion: how long it's been open, or "from frozen" (STORY-03-03-03 AC 1). */
+  portionClocks?: Record<string, string>;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -314,7 +317,13 @@ export function ShotLogFlow({
         mode={mode}
         setup={current.label ?? t("log.missingSetup")}
         drink={label(drinks, draft.drinkId)}
-        coffee={portions.length ? label(portions, draft.portionId) : t("log.missingCoffee")}
+        coffee={
+          !portions.length
+            ? t("log.missingCoffee")
+            : draft.portionId && portionClocks[draft.portionId]
+              ? t("log.coffeeClock", { coffee: label(portions, draft.portionId), clock: portionClocks[draft.portionId] })
+              : label(portions, draft.portionId)
+        }
         start={start}
         brewStart={draft.setupId === setupId ? brewStart : undefined}
         grind={current.grind}

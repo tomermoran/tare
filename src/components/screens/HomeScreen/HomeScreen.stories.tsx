@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 import { Button } from "@/components/ui/Button/Button";
+import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
 import { HomeScreen } from "./HomeScreen";
 
 const { home } = messages;
+const t = createTranslator({ locale: "en", messages });
 const unit = (n: number, u: string) => new Intl.NumberFormat("en", { style: "unit", unit: u, unitDisplay: "short" }).format(n);
 const coffeeLine = home.coffeeLine.replace("{bean}", exampleCoffee.bean).replace("{roaster}", exampleCoffee.roaster);
 
@@ -30,6 +32,7 @@ const meta = {
   args: {
     drink: messages.drinks.latte,
     coffee: coffeeLine,
+    clocks: t("home.coffeeClocks", { roasting: t("bag.daysSinceRoast", { days: 12 }), opened: t("portion.openFor", { days: 3 }) }),
     values: exampleRecipe,
     lines: [
       messages.shot.milkLine.replace("{milk}", messages.milks.oat).replace("{amount}", unit(150, "milliliter")),
@@ -86,6 +89,13 @@ export const Finished: Story = {
 
 export const NoCoffee: Story = {
   args: { coffee: null, values: undefined, lines: [], message: home.noCoffee, footnote: undefined, actions: buttons(home.addBag) },
+};
+
+/** Both clocks on one line, worded so they can't be confused (STORY-03-03-04 AC 4). */
+export const Clocks: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText("12 days since roast · open 3 days")).toBeVisible();
+  },
 };
 
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

@@ -212,6 +212,18 @@ export async function getOnHand(): Promise<OnHandGroup[]> {
 }
 
 /** One bag with its facts and every portion (AC 2). */
+/**
+ * Adds or corrects a bag's printed dates (STORY-03-03-01 AC 4): an age
+ * unknown until now gets one. Only the dates given change; null clears one.
+ */
+export async function updateBagDates(batchId: string, dates: { roastDate?: Date | null; packedAt?: Date | null; bestBefore?: Date | null }): Promise<void> {
+  const { householdId } = await requireHousehold();
+  await assertOwned("batches", batchId, householdId);
+  const set = Object.fromEntries(Object.entries(dates).filter(([k, v]) => ["roastDate", "packedAt", "bestBefore"].includes(k) && v !== undefined));
+  if (!Object.keys(set).length) return;
+  await db.update(batches).set(set).where(eq(batches.id, batchId));
+}
+
 export async function getBag(batchId: string): Promise<BagView> {
   const { householdId } = await requireHousehold();
   await assertOwned("batches", batchId, householdId);

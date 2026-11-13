@@ -5,7 +5,7 @@ import { batches, batchPortions, canonicalBeans } from "@/db/schema";
 import coffee from "@/db/seed/coffee.json";
 import hardware from "@/db/seed/hardware.json";
 import { loadSeed, seedIds, type CoffeeSeed, type HardwareSeed } from "@/db/seed/load";
-import { addBagAction } from "@/server/actions/bags";
+import { addBagAction, updateBagRoastDateAction } from "@/server/actions/bags";
 import { createTestDb } from "@/test/db";
 import { makeHousehold } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -203,5 +203,29 @@ describe("getOnHand", () => {
 describe("getBag", () => {
   it("treats a missing bag as not found", async () => {
     await expect(getBag("no-such-bag")).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("updateBagRoastDateAction (STORY-03-03-01 AC 4)", () => {
+  it("gives an undated bag a roast date at local noon, so its age is known", async () => {
+    const { batchId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+    expect((await getBag(batchId)).roasting).toEqual({ kind: "unknown" });
+    expect(await updateBagRoastDateAction(batchId, "2026-01-05")).toEqual({ ok: true, data: undefined });
+    const bag = await getBag(batchId);
+    expect(bag.roastDate?.toISOString()).toBe("2026-01-05T10:00:00.000Z");
+    expect(bag.roasting.kind).toBe("roasted");
+  });
+
+  it("refuses a malformed or future day", async () => {
+    const { batchId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+    expect(await updateBagRoastDateAction(batchId, "5 Jan")).toEqual({ ok: false, error: "saveFailed" });
+    expect(await updateBagRoastDateAction(batchId, "2999-01-01")).toEqual({ ok: false, error: "saveFailed" });
+  });
+
+  it("doesn't touch another household's bag", async () => {
+    signInAs((await makeHousehold(testContext.db!)).user.firebaseUid);
+    const { batchId } = await addBag({ beanId: SIGNIA, bagWeight: 250 });
+    signInAs((await makeHousehold(testContext.db!)).user.firebaseUid);
+    expect(await updateBagRoastDateAction(batchId, "2026-01-05")).toEqual({ ok: false, error: "notFound" });
   });
 });

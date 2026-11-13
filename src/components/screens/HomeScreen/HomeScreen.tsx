@@ -9,6 +9,8 @@ type HomeScreenProps = {
   drink: string;
   /** The coffee line: bean and roaster (the clocks join in wave 12b). Null when there's no coffee. */
   coffee: string | null;
+  /** Both freshness clocks on one line, worded apart (STORY-03-03-04 AC 4); the roasting clock alone when unopened. */
+  clocks?: string;
   /** The recipe on this setup; with `quiet`, shown in ink-secondary (finished coffee). */
   values?: ShotValuesData;
   quiet?: boolean;
@@ -41,6 +43,7 @@ type HomeScreenProps = {
 export function HomeScreen({
   drink,
   coffee,
+  clocks,
   values,
   valuesKey,
   quiet = false,
@@ -75,6 +78,7 @@ export function HomeScreen({
           className="mt-1.5 text-ink-secondary"
         />
       )}
+      {coffee && clocks && <p className="mt-0.5 text-label text-ink-secondary">{clocks}</p>}
 
       <div key={valuesKey} className="motion-safe:animate-fade-in">
         {message && <p className="mt-9 max-w-[30ch] text-body text-ink-secondary">{message}</p>}

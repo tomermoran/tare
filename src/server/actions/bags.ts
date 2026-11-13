@@ -1,8 +1,8 @@
 "use server";
 
 import { isValidDayKey, localDayKey, localNoon } from "@/domain/localDay";
-import { fail, runAction, type ActionError } from "@/lib/actionResult";
-import { addBag, WeightRequiredError } from "@/server/dal/bags";
+import { fail, runAction, type ActionError, type ActionResult } from "@/lib/actionResult";
+import { addBag, updateBagDates, WeightRequiredError } from "@/server/dal/bags";
 import { getTimeZone } from "@/server/time";
 
 export type AddBagResult =
@@ -44,4 +44,13 @@ export async function addBagAction(input: {
     if (e instanceof WeightRequiredError) return { ok: false, error: "weightRequired" };
     return runAction(() => Promise.reject(e));
   }
+}
+
+/** "Add a roast date" on a bag whose age is unknown (STORY-03-03-01 AC 4): a local day, stored at local noon. */
+export async function updateBagRoastDateAction(batchId: string, roastDate: string): Promise<ActionResult> {
+  if (typeof batchId !== "string" || !batchId || typeof roastDate !== "string" || !isValidDayKey(roastDate)) return fail("saveFailed");
+  const zone = await getTimeZone();
+  // Never a day after today there.
+  if (roastDate > localDayKey(new Date(), zone)) return fail("saveFailed");
+  return runAction(() => updateBagDates(batchId, { roastDate: localNoon(roastDate, zone) }));
 }
