@@ -14,7 +14,8 @@ import {
   roasters,
   setupParts,
 } from "@/db/schema";
-import { parseCapabilities, type GrindScale } from "@/domain/capabilities";
+import { parseCapabilities, type GrindScale, type MachineCapabilities } from "@/domain/capabilities";
+import { NO_BREW_VALUES, type BrewValues } from "@/domain/brewControls";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { isOpen, portionState, type PortionState } from "@/domain/portionState";
 import { resolveEntity } from "./catalogMerge";
@@ -36,6 +37,8 @@ import { currentSetupOf } from "./setups";
 export type LogSetup = SetupSummary & {
   /** The setup grinder's scale, when its capabilities are known. */
   grind: GrindScale | null;
+  /** The setup machine's temperature and pressure (EPIC-01-04), when parseable. */
+  machine: MachineCapabilities | null;
 };
 
 export type LogDrink = {
@@ -137,14 +140,26 @@ async function unfinishedPortions(householdId: string): Promise<LogPortion[]> {
     .sort(portionOrder);
 }
 
-async function grindScales(setupList: SetupSummary[]): Promise<Map<string, GrindScale | null>> {
-  const ids = [...new Set(setupList.flatMap((s) => s.parts.filter((p) => p.kind === "grinder").map((p) => p.hardwareId)))];
+/** Each setup part's model capabilities, by hardware ID. */
+async function modelCapabilities(setupList: SetupSummary[]): Promise<Map<string, unknown>> {
+  const ids = [...new Set(setupList.flatMap((s) => s.parts.filter((p) => p.kind !== "basket").map((p) => p.hardwareId)))];
   if (!ids.length) return new Map();
   const rows = await db
     .select({ id: canonicalHardware.id, capabilities: canonicalHardware.capabilities })
     .from(canonicalHardware)
     .where(inArray(canonicalHardware.id, ids));
-  return new Map(rows.map((r) => [r.id, parseCapabilities("grinder", r.capabilities)?.grind ?? null]));
+  return new Map(rows.map((r) => [r.id, r.capabilities]));
+}
+
+/** The machine capabilities of a setup, for the log and for checking a save. */
+export async function setupMachine(setupId: string): Promise<MachineCapabilities | null> {
+  const [machine] = await db
+    .select({ capabilities: canonicalHardware.capabilities })
+    .from(setupParts)
+    .innerJoin(ownedHardware, eq(ownedHardware.id, setupParts.ownedHardwareId))
+    .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
+    .where(and(eq(setupParts.setupId, setupId), eq(canonicalHardware.kind, "machine")));
+  return machine ? parseCapabilities("machine", machine.capabilities) : null;
 }
 
 /**
@@ -183,12 +198,17 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
       .then((r) => r[0] ?? null),
   ]);
 
-  const scales = await grindScales(setupList);
+  const caps = await modelCapabilities(setupList);
   const setups: LogSetup[] = setupList
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .map((s) => {
       const grinder = s.parts.find((p) => p.kind === "grinder");
-      return { ...s, grind: grinder ? (scales.get(grinder.hardwareId) ?? null) : null };
+      const machine = s.parts.find((p) => p.kind === "machine");
+      return {
+        ...s,
+        grind: grinder ? (parseCapabilities("grinder", caps.get(grinder.hardwareId))?.grind ?? null) : null,
+        machine: machine ? parseCapabilities("machine", caps.get(machine.hardwareId)) : null,
+      };
     });
 
   const drinkIds = new Set(drinks.map((d) => d.id));
@@ -220,7 +240,14 @@ export async function getLogContext(chosen: { drinkId?: string; portionId?: stri
 /** DQ-07: neutral starting values for a setup with no measured shot. */
 export const NEUTRAL_START = { dose: 18, yield: 36, timeMs: 28_000 } as const;
 
-export type StartingValues = { grind: number; dose: number; yield: number; timeMs: number };
+export type StartingValues = {
+  grind: number;
+  dose: number;
+  yield: number;
+  timeMs: number;
+  /** The last temperature and pressure used on this setup, where "add" starts. New shots start unset (AC 2). */
+  lastBrew: BrewValues;
+};
 
 /**
  * A blank log's values (STORY-01-03-02 AC 2): the latest measured shot on
@@ -236,6 +263,10 @@ export async function getStartingValues(setupId: string): Promise<StartingValues
       dose: extractions.doseWeight,
       yield: extractions.yieldWeight,
       timeMs: extractions.yieldTime,
+      brewTempC: extractions.brewTempC,
+      brewTempStep: extractions.brewTempStep,
+      pressureBar: extractions.pressureBar,
+      pressureStep: extractions.pressureStep,
     })
     .from(extractions)
     .where(
@@ -247,7 +278,10 @@ export async function getStartingValues(setupId: string): Promise<StartingValues
     )
     .orderBy(desc(extractions.createdAt))
     .limit(1);
-  if (last) return last;
+  if (last) {
+    const { brewTempC, brewTempStep, pressureBar, pressureStep, ...values } = last;
+    return { ...values, lastBrew: { brewTempC, brewTempStep, pressureBar, pressureStep } };
+  }
 
   const [grinder] = await db
     .select({ capabilities: canonicalHardware.capabilities })
@@ -256,5 +290,5 @@ export async function getStartingValues(setupId: string): Promise<StartingValues
     .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
     .where(and(eq(setupParts.setupId, setupId), eq(canonicalHardware.kind, "grinder")));
   const scale = grinder ? parseCapabilities("grinder", grinder.capabilities)?.grind : null;
-  return { grind: middleGrind(grindWheelConfig(scale)), ...NEUTRAL_START };
+  return { grind: middleGrind(grindWheelConfig(scale)), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES };
 }

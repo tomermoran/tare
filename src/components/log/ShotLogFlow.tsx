@@ -9,6 +9,7 @@ import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { SelectSheet, type SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import type { ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
+import { brewToStored, type BrewDial, type BrewTabs } from "@/domain/brewControls";
 import type { GrindWheel } from "@/domain/grind";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
@@ -39,6 +40,8 @@ export function ShotLogFlow({
   selectedPortionId,
   start,
   grind,
+  brew,
+  brewLast,
   resume,
 }: {
   setupId: string | null;
@@ -52,6 +55,10 @@ export function ShotLogFlow({
   selectedPortionId: string | null;
   start: ShotValuesData;
   grind?: GrindWheel;
+  /** The setup machine's temperature and pressure tabs. */
+  brew: BrewTabs;
+  /** The last temperature and pressure used, where "add" starts. */
+  brewLast: BrewDial;
   resume: boolean;
 }) {
   const t = useTranslations();
@@ -94,7 +101,11 @@ export function ShotLogFlow({
     draft.drinkId !== defaultDrinkId ||
     draft.portionId !== defaultPortionId ||
     draft.sweetened ||
-    (Object.keys(startDial) as (keyof DialValues)[]).some((k) => Math.abs(draft.values[k] - startDial[k]) > 1e-9);
+    (Object.keys(startDial) as (keyof DialValues)[]).some((k) => {
+      const a = draft.values[k] ?? null;
+      const b = startDial[k] ?? null;
+      return a === null || b === null ? a !== b : Math.abs(a - b) > 1e-9;
+    });
   const { leave, proceed, confirm } = useUnsavedChanges(dirty, () => {
     clearDraft(DRAFT);
     router.replace("/");
@@ -115,7 +126,7 @@ export function ShotLogFlow({
 
   const label = (list: SelectOption[], id: string | null) => list.find((o) => o.id === id)?.primary ?? "";
 
-  const save = async (values: ShotValuesData, sweetened: boolean) => {
+  const save = async (values: ShotValuesData, sweetened: boolean, dial: BrewDial) => {
     if (!setupId) return setMissing("setup");
     if (!draft.portionId || !draft.drinkId) return setMissing("coffee");
     setMissing(null);
@@ -125,6 +136,7 @@ export function ShotLogFlow({
       drinkTypeId: draft.drinkId,
       portionId: draft.portionId,
       ...values,
+      ...brewToStored(brew, dial),
       sweetened,
     });
     if (!result.ok) {
@@ -141,7 +153,10 @@ export function ShotLogFlow({
   };
   const retry = () => {
     const v = draft.values;
-    void save({ grind: v.grind, dose: v.dose, yield: v.yield, timeMs: secondsToMs(v.time) }, draft.sweetened);
+    void save({ grind: v.grind, dose: v.dose, yield: v.yield, timeMs: secondsToMs(v.time) }, draft.sweetened, {
+      temperature: v.temperature ?? null,
+      pressure: v.pressure ?? null,
+    });
   };
 
   return (
@@ -153,6 +168,8 @@ export function ShotLogFlow({
         coffee={portions.length ? label(portions, draft.portionId) : t("log.missingCoffee")}
         start={start}
         grind={grind}
+        brew={brew}
+        brewLast={brewLast}
         values={draft.values}
         onValuesChange={(values) => setDraft((d) => ({ ...d, values }))}
         sweetened={draft.sweetened}

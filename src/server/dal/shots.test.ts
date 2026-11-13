@@ -1,6 +1,8 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { batchPortions, extractions, ownedHardware, setupParts } from "@/db/schema";
+import { batchPortions, canonicalHardware, extractions, ownedHardware, setupParts } from "@/db/schema";
+import { InvalidBrewControlsError } from "@/domain/brewControls";
+import { celsiusToFahrenheit, fahrenheitToCelsius } from "@/lib/units";
 import coffee from "@/db/seed/coffee.json";
 import hardware from "@/db/seed/hardware.json";
 import { loadSeed, seedIds, type CoffeeSeed, type HardwareSeed } from "@/db/seed/load";
@@ -166,5 +168,48 @@ describe("a new bag is ready to brew (STORY-03-01-03)", () => {
     // AC 3: the first measured shot opens it that day.
     await saveMeasuredShot(input({ portionId }), NOW);
     expect((await portion(portionId)).openedAt).toEqual(NOW);
+  });
+});
+
+describe("temperature and pressure (EPIC-01-04)", () => {
+  const machineId = () => k.parts[0].hardwareId;
+  const setMachine = (capabilities: unknown) =>
+    db().update(canonicalHardware).set({ capabilities }).where(eq(canonicalHardware.id, machineId()));
+  const saved = async (id: string) => (await db().select().from(extractions).where(eq(extractions.id, id)))[0];
+
+  it("saves unset temperature and pressure on any machine (AC 2)", async () => {
+    const { id } = await saveMeasuredShot(input(), NOW);
+    expect(await saved(id)).toMatchObject({ brewTempC: null, brewTempStep: null, pressureBar: null, pressureStep: null });
+  });
+
+  it("records a step, never degrees, on a stepped machine (STORY-01-04-01 AC 3)", async () => {
+    await setMachine({ temperature: { control: "steps", count: 3 }, pressure: { control: "steps", count: 2 } });
+    const { id } = await saveMeasuredShot(input({ brewTempStep: 3, pressureStep: 2 }), NOW);
+    expect(await saved(id)).toMatchObject({ brewTempC: null, brewTempStep: 3, pressureBar: null, pressureStep: 2 });
+  });
+
+  it("records exact °C and bar in range (AC 4), and °F as °C (AC 5)", async () => {
+    await setMachine({ temperature: { control: "exact", unit: "F", min: 186, max: 205, step: 1 }, pressure: { control: "exact", min: 0, max: 12, step: 0.5 } });
+    const { id } = await saveMeasuredShot(input({ brewTempC: fahrenheitToCelsius(200), pressureBar: 9 }), NOW);
+    const shot = await saved(id);
+    expect(celsiusToFahrenheit(shot.brewTempC!, 1)).toBe(200);
+    expect(shot.pressureBar).toBe(9);
+  });
+
+  it("records a lever's peak pressure only with a gauge (STORY-01-04-02 AC 1, AC 5)", async () => {
+    await setMachine({ temperature: { control: "none" }, pressure: { control: "manual", gauge: true } });
+    const { id } = await saveMeasuredShot(input({ pressureBar: 8.5 }), NOW);
+    expect((await saved(id)).pressureBar).toBe(8.5);
+    await setMachine({ temperature: { control: "none" }, pressure: { control: "manual", gauge: false } });
+    await expect(saveMeasuredShot(input({ pressureBar: 8.5 }), NOW)).rejects.toBeInstanceOf(InvalidBrewControlsError);
+  });
+
+  it("refuses values that don't fit the machine, saving nothing", async () => {
+    await setMachine({ temperature: { control: "steps", count: 3 }, pressure: { control: "none", gauge: false } });
+    for (const bad of [{ brewTempC: 93 }, { brewTempStep: 4 }, { brewTempStep: 2, brewTempC: 93 }, { pressureBar: 9 }]) {
+      await expect(saveMeasuredShot(input(bad), NOW)).rejects.toBeInstanceOf(InvalidBrewControlsError);
+    }
+    expect(await db().select().from(extractions)).toHaveLength(0);
+    expect(await saveMeasuredShotAction(input({ brewTempStep: 9 }))).toEqual({ ok: false, error: "saveFailed" });
   });
 });

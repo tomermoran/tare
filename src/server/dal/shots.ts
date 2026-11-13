@@ -3,7 +3,9 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
 import { batchPortions, extractions, personas } from "@/db/schema";
+import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
 import { portionState } from "@/domain/portionState";
+import { setupMachine } from "./logContext";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 
 /*
@@ -42,7 +44,7 @@ export type MeasuredShot = {
   /** Milliseconds. */
   timeMs: number;
   sweetened?: boolean;
-};
+} & Partial<BrewValues>;
 
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
@@ -61,6 +63,15 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
     assertOwned("drinkTypes", input.drinkTypeId, householdId),
     assertOwned("batchPortions", input.portionId, householdId),
   ]);
+
+  // Temperature and pressure must fit the setup's machine (EPIC-01-04); unset always does.
+  const brew: BrewValues = {
+    brewTempC: input.brewTempC ?? null,
+    brewTempStep: input.brewTempStep ?? null,
+    pressureBar: input.pressureBar ?? null,
+    pressureStep: input.pressureStep ?? null,
+  };
+  if (Object.values(brew).some((v) => v !== null)) validateBrewControls(await setupMachine(input.setupId), brew);
 
   const [portion] = await db.select().from(batchPortions).where(eq(batchPortions.id, input.portionId));
   const state = portionState(portion);
@@ -87,6 +98,7 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
     doseWeight: input.dose,
     yieldWeight: input.yield,
     yieldTime: Math.round(input.timeMs),
+    ...brew,
     createdAt: now,
   });
   // The first shot from an unopened portion opens it (STORY-03-01-03 AC 3).
