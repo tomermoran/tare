@@ -205,9 +205,30 @@
     "clearFilters": "Clear filters"
   },
   "maintenance": {
-    "burrs": "New burrs",
-    "clean": "Cleaned",
-    "rezero": "Re-zeroed"
+    "title": "Maintenance",
+    "none": "No maintenance logged yet.",
+    "add": "Log maintenance",
+    "sheetTitle": "Log maintenance",
+    "kindLabel": "What was done",
+    "kind": {
+      "burrs": "New burrs",
+      "clean": "Clean",
+      "rezero": "Re-zero",
+      "repair": "Repair",
+      "other": "Other"
+    },
+    "date": "Date",
+    "dateHint": "Today, or an earlier day.",
+    "note": "Note",
+    "noteHint": "Optional.",
+    "isRecalibration": "Recalibration",
+    "isRecalibrationHint": "The dial numbers mean something new from here.",
+    "recalibration": "Recalibration",
+    "save": "Save",
+    "saveFailed": "Couldn't save the maintenance. Check your connection and try again.",
+    "periodSince": "Current grind period since {date}",
+    "periodShots": "{count, plural, =0 {No shots in it yet} one {# shot in it} other {# shots in it}}",
+    "periodAll": "All shots are in one grind period"
   },
   "unit": {
     "finer": "Finer",

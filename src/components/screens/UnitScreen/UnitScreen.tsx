@@ -8,8 +8,8 @@ import { cx } from "@/lib/cx";
 /*
  * SCR-UNIT, one part (STORY-01-02-02 AC 5): its nickname or model, maker
  * and model, its details, what the model can control, and the setups it's
- * in. Props only. Maintenance (EPIC-04-01), the grind-period line and the
- * "answer later" capability questions (STORY-01-06-09) are slots their
+ * in. Props only. Maintenance (EPIC-04-01, with a grinder's grind period)
+ * and the "answer later" capability questions (STORY-01-06-09) are slots their
  * tasks fill. There is no retire: a part the household stops using simply
  * isn't in its current setup any more (S-02).
  */
@@ -34,7 +34,6 @@ export function UnitScreen({
   capabilities,
   answerLater,
   setups,
-  grindPeriod,
   maintenance,
 }: {
   labels: UnitScreenLabels;
@@ -51,8 +50,6 @@ export function UnitScreen({
   answerLater?: ReactNode;
   /** The household's setups with this part, by name or parts name. */
   setups: { id: string; name: string; current?: boolean }[];
-  /** The grinder's current grind period, for EPIC-04-01. */
-  grindPeriod?: ReactNode;
   /** Maintenance for this part (EPIC-04-01). */
   maintenance?: ReactNode;
 }) {
@@ -67,7 +64,6 @@ export function UnitScreen({
           <h1 className="text-h1">{title}</h1>
           <p className="text-body text-ink-secondary">{subtitle}</p>
         </header>
-        {grindPeriod}
       </div>
 
       {facts.length > 0 && (
