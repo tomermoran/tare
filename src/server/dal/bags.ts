@@ -230,3 +230,10 @@ export async function getBag(batchId: string): Promise<BagView> {
   const [bag] = await bagsOf(householdId, [batchId]);
   return bag;
 }
+
+/** Every bag of a coffee, on hand and finished, newest first (STORY-03-06-03 AC 4). */
+export async function getCoffeeBags(beanId: string): Promise<BagView[]> {
+  const { householdId } = await requireHousehold();
+  const id = (await resolveEntity(db, canonicalBeans, beanId)) ?? beanId;
+  return (await bagsOf(householdId)).filter((b) => b.bean.id === id);
+}

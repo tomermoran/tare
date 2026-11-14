@@ -6,15 +6,12 @@ import { BagFlow } from "@/components/beans/BagFlow";
 import { localDayKey } from "@/domain/localDay";
 import type { BagFact } from "@/components/screens/BagScreen/BagScreen";
 import { RecipeRows } from "@/components/recipes/RecipeRows";
-import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
-import { setupLabel } from "@/domain/setupName";
-import { LOG_PATH } from "@/lib/logRoutes";
 import { getBag } from "@/server/dal/bags";
-import { getLogContext } from "@/server/dal/logContext";
 import { getBagRecipes } from "@/server/dal/recipes";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
-import { recipeLines } from "../../recipeLines";
+import { coffeeHref } from "@/lib/coffeeRoutes";
+import { recipeRowsFor } from "../recipeRows";
 import { bagRows } from "../rows";
 
 /** SCR-BAG: one bag's facts, portions and recipes. */
@@ -36,7 +33,7 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
   if (!bag) return null;
 
   const day = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeZone });
-  const [rows, recipes, context] = await Promise.all([bagRows(timeZone), getBagRecipes(bag.id), getLogContext()]);
+  const [rows, recipes] = await Promise.all([bagRows(timeZone), getBagRecipes(bag.id)]);
   const { grams } = rows;
   const facts: BagFact[] = [
     { label: t("bag.roastDate"), value: bag.roastDate ? day(bag.roastDate) : t("bag.notGiven") },
@@ -48,25 +45,8 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
   ];
 
   // Recipes belong to the coffee: every bag of it shows them (STORY-02-01-04).
-  const list = (items: string[]) => format.list(items, { type: "conjunction" });
   const inUse = bag.portions.find((p) => p.state !== "finished" && p.state !== "frozen");
-  const recipeRows = recipes.flatMap((r) => {
-    const drink = context.drinks.find((d) => d.id === r.drinkTypeId);
-    const setup = context.setups.find((s) => s.id === r.setupId);
-    if (!drink || !setup) return [];
-    const drinkName = drinkLabel(drink, (key: DrinkKey) => t(key));
-    return [
-      {
-        id: r.id,
-        title: t("recipe.row", { drink: drinkName, setup: setupLabel(setup, context.setups, list) }),
-        values: { grind: r.grind, dose: r.dose, yield: r.yield, timeMs: r.timeMs },
-        lines: recipeLines(r, { hasMilk: drink.hasMilk, milks: context.milks }, t, format),
-        date: t("recipe.pinnedOn", { date: day(r.pinnedAt) }),
-        dialInHref: `${LOG_PATH}?${new URLSearchParams({ drinkId: drink.id, ...(inUse ? { portionId: inUse.id } : {}) })}`,
-        changeHref: `${LOG_PATH}?${new URLSearchParams({ mode: "recipe", batchId: bag.id, setupId: setup.id, drinkId: drink.id })}`,
-      },
-    ];
-  });
+  const recipeRows = await recipeRowsFor(recipes, { batchId: bag.id, portionId: inUse?.id }, timeZone);
 
   return (
     <BagFlow
@@ -77,6 +57,7 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
         recipes: t("bag.recipes"),
         noRecipes: t("bag.noRecipes"),
         addRecipe: t("recipe.add"),
+        aboutCoffee: t("bag.aboutCoffee"),
       }}
       addRecipeHref={`/log?mode=recipe&batchId=${bag.id}`}
       recipes={
@@ -85,6 +66,7 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
         ) : undefined
       }
       backHref="/beans"
+      coffeeHref={coffeeHref(bag.bean.id)}
       bean={bag.bean.name}
       roaster={bag.bean.roasterName}
       facts={facts}
