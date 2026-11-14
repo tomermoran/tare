@@ -5,6 +5,10 @@ import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
+import { brewTabs } from "@/domain/brewControls";
+import type { GrindScale, MachineCapabilities } from "@/domain/capabilities";
+import { hasUnknowns } from "@/domain/capabilityFallbacks";
+import { grindWheelConfig } from "@/domain/grind";
 import { ShotLogScreen } from "./ShotLogScreen";
 
 const { actions, log, shot, states } = messages;
@@ -373,4 +377,128 @@ export const RecipeMode: Story = {
     await userEvent.click(canvas.getByRole("button", { name: messages.recipe.pinThis }));
     await expect(args.onSave).toHaveBeenCalled();
   },
+};
+
+/*
+ * Machine capability combinations (DES-01-04-02), through the same mapping
+ * the log uses (brewTabs): a tab only for what the machine can set or read.
+ */
+const machine = (temperature: MachineCapabilities["temperature"], pressure: MachineCapabilities["pressure"]) =>
+  brewTabs({ temperature, pressure });
+const tabNames = (el: HTMLElement) => within(el).getAllByRole("tab").map((tab) => tab.querySelector("span")!.textContent);
+
+/** Exact temperature in °C and no pressure control: five tabs, a °C wheel. */
+export const ExactTemperature: Story = {
+  args: { brew: machine({ control: "exact", unit: "C", min: 88, max: 96, step: 0.5 }, { control: "none", gauge: false }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(tabNames(canvasElement)).toEqual([shot.grind, shot.dose, shot.yield, shot.time, shot.temperature]);
+    await userEvent.click(canvas.getByRole("tab", { name: /Temperature/ }));
+    await userEvent.click(canvas.getByRole("button", { name: log.addTemperature }));
+    const wheel = canvas.getByRole("slider", { name: shot.temperature });
+    await expect(wheel).toHaveAttribute("aria-valuemin", "88");
+    await expect(wheel).toHaveAttribute("aria-valuemax", "96");
+    await expect(wheel.getAttribute("aria-valuetext")).toMatch(/Celsius/i);
+  },
+};
+
+/** Pressure in a few settings and no temperature control: pressure as numbered chips, never bar. */
+export const PressureSteps: Story = {
+  args: { brew: machine({ control: "none" }, { control: "steps", count: 4 }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(tabNames(canvasElement)).toEqual([shot.grind, shot.dose, shot.yield, shot.time, shot.pressure]);
+    await userEvent.click(canvas.getByRole("tab", { name: /Pressure/ }));
+    await userEvent.click(canvas.getByRole("button", { name: log.addPressure }));
+    const chips = canvas.getByRole("radiogroup", { name: shot.pressure });
+    await expect(within(chips).getAllByRole("radio")).toHaveLength(4);
+    await expect(canvas.getByRole("tab", { name: /Pressure/ })).not.toHaveTextContent(shot.units.bar);
+  },
+};
+
+/** Both exact, temperature shown in °F: six tabs. */
+export const BothExact: Story = {
+  args: {
+    brew: machine({ control: "exact", unit: "F", min: 190, max: 205, step: 1 }, { control: "exact", min: 1, max: 11, step: 0.5 }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("tab")).toHaveLength(6);
+    await userEvent.click(canvas.getByRole("tab", { name: /Pressure/ }));
+    await userEvent.click(canvas.getByRole("button", { name: log.addPressure }));
+    await expect(canvas.getByRole("slider", { name: shot.pressure })).toHaveAttribute("aria-valuemax", "11");
+  },
+};
+
+/** A lever with a gauge: no temperature, and the pressure tab records the peak it read. */
+export const LeverWithGauge: Story = {
+  args: { brew: machine({ control: "none" }, { control: "manual", gauge: true }) },
+  play: async ({ canvasElement }) => {
+    await expect(tabNames(canvasElement)).toEqual([shot.grind, shot.dose, shot.yield, shot.time, log.peakPressure]);
+  },
+};
+
+/** A lever without a gauge: there's nothing to read, so no pressure tab. */
+export const LeverWithoutGauge: Story = {
+  args: { brew: machine({ control: "none" }, { control: "manual", gauge: false }) },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getAllByRole("tab")).toHaveLength(4);
+  },
+};
+
+/** A fixed machine with a gauge it can't set: no tab either (it reads, but nothing changes per shot). */
+export const GaugeOnlyMachine: Story = {
+  args: { brew: machine({ control: "none" }, { control: "none", gauge: true }) },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getAllByRole("tab")).toHaveLength(4);
+  },
+};
+
+/*
+ * "Not sure" everywhere (DES-01-06-05), through the log's fallbacks: the
+ * grinder and machine as a household added them without answering.
+ */
+const notSureGrinder: GrindScale = { type: "unknown", min: null, max: null, step: null, coarser: "unknown" };
+const notSureMachine: MachineCapabilities = { temperature: { control: "unknown" }, pressure: { control: "unknown" } };
+const capLink = { label: t("log.capUnknown", { kind: "machine" }), onClick: fn() };
+
+/** Grinder and machine both fully "not sure": four tabs, a wide grind wheel, no captions, one quiet link. */
+export const FullyNotSure: Story = {
+  args: { grind: grindWheelConfig(notSureGrinder), brew: brewTabs(notSureMachine), capLink },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(hasUnknowns({ machine: notSureMachine, grinder: notSureGrinder })).toBe(true);
+    await expect(canvas.getAllByRole("tab")).toHaveLength(4);
+    const wheel = canvas.getByRole("slider", { name: shot.grind });
+    await expect(wheel).toHaveAttribute("aria-valuemin", "0");
+    await expect(wheel).toHaveAttribute("aria-valuemax", "100");
+    await expect(canvas.queryByText(shot.finer)).toBeNull();
+    await expect(canvas.queryByText(shot.coarser)).toBeNull();
+    await expect(canvas.getAllByRole("button", { name: capLink.label })).toHaveLength(1);
+    await expect(canvasElement.innerHTML).not.toMatch(/signal/);
+  },
+};
+
+/** Known controls with unknown counts and ranges: five settings and a 0 to 12 bar wheel (DQ-11). */
+export const NotSureCountsAndRanges: Story = {
+  args: {
+    brew: machine({ control: "steps", count: null }, { control: "exact", min: null, max: null, step: null }),
+    capLink,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: /Temperature/ }));
+    await userEvent.click(canvas.getByRole("button", { name: log.addTemperature }));
+    await expect(within(canvas.getByRole("radiogroup", { name: shot.temperature })).getAllByRole("radio")).toHaveLength(5);
+    await userEvent.click(canvas.getByRole("tab", { name: /Pressure/ }));
+    await userEvent.click(canvas.getByRole("button", { name: log.addPressure }));
+    const wheel = canvas.getByRole("slider", { name: shot.pressure });
+    await expect(wheel).toHaveAttribute("aria-valuemin", "0");
+    await expect(wheel).toHaveAttribute("aria-valuemax", "12");
+  },
+};
+
+export const FullyNotSureRightToLeft: Story = {
+  args: { grind: grindWheelConfig(notSureGrinder), brew: brewTabs(notSureMachine), capLink },
+  globals: { direction: "rtl" },
 };

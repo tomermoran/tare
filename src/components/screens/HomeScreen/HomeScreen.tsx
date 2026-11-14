@@ -85,12 +85,7 @@ export function HomeScreen({
         {note && <p className="mt-1 text-label text-ink-secondary">{note}</p>}
         {values && (
           <div className={quiet ? "mt-6 text-ink-secondary" : "mt-9"}>
-            <ShotValues values={values} quiet={quiet} />
-            {lines.map((line) => (
-              <p key={line} className="mt-1 text-label text-ink-secondary">
-                {line}
-              </p>
-            ))}
+            <ShotValues values={values} quiet={quiet} lines={lines} />
           </div>
         )}
       </div>

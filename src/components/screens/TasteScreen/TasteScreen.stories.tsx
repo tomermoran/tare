@@ -212,3 +212,29 @@ export const LiveSuggestion: Story = {
     await expect(card()).toBeNull();
   },
 };
+
+/** A thin body on a basket with a known range: dose is suggested, within the range (STORY-02-03-05 AC 4). */
+export const DoseWithBasketRange: Story = {
+  render: () => <Full context={suggestContext} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = canvas.getByRole("radiogroup", { name: taste.question.body });
+    await userEvent.click(within(body).getByRole("radio", { name: taste.body.muchLess }));
+    await expect(canvas.getByText(messages.suggest.title)).toBeVisible();
+    await expect(canvas.getByText(/19/)).toBeVisible();
+  },
+};
+
+/**
+ * The same answer on a "not sure" basket (DES-01-06-05): with no range there's
+ * no dose bound, so dose is never suggested and nothing else is invented.
+ */
+export const NoBasketRange: Story = {
+  render: () => <Full context={{ ...suggestContext, setup: { ...suggestContext.setup, doseRange: null } }} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = canvas.getByRole("radiogroup", { name: taste.question.body });
+    await userEvent.click(within(body).getByRole("radio", { name: taste.body.muchLess }));
+    await expect(canvas.queryByText(messages.suggest.title)).toBeNull();
+  },
+};

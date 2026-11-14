@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { answersFromGrinder } from "@/domain/capabilityQuestions";
+import { answerFromDose, answersFromGrinder, doseFromAnswer } from "@/domain/capabilityQuestions";
 import messages from "@/i18n/messages/en.json";
 import { CapabilityEditSheet } from "./CapabilityEditSheet";
+import { BasketQuestions } from "./BasketQuestions";
 import { GrinderQuestions } from "./GrinderQuestions";
+import { useCapabilityLabels } from "./useCapabilityLabels";
 
 const { actions, catalog, states, unit } = messages;
 const { cap } = catalog;
@@ -77,5 +79,31 @@ export const SaveFailed: Story = {
   args: { open: true, state: "failed", children: <p>{cap.why}</p> },
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(within(canvasElement.ownerDocument.body).getByText(states.saveFailed)).toBeVisible());
+  },
+};
+
+/** A basket added as "not sure", answered later (DES-01-06-05): its range now bounds dose suggestions. */
+function LiveBasket({ onSave }: { onSave: (dose: unknown) => void }) {
+  const { basket } = useCapabilityLabels();
+  const [open, setOpen] = useState(false);
+  const [answer, setAnswer] = useState(() => answerFromDose(null));
+  return (
+    <CapabilityEditSheet labels={labels} open={open} onOpen={() => setOpen(true)} onClose={() => setOpen(false)} onSave={() => onSave(doseFromAnswer(answer))}>
+      <BasketQuestions labels={basket} answer={answer} onChange={setAnswer} />
+    </CapabilityEditSheet>
+  );
+}
+
+export const BasketAnswerLater: Story = {
+  render: (args) => <LiveBasket onSave={args.onSave} />,
+  play: async ({ canvasElement, args }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(page.getByRole("button", { name: unit.editCapabilities }));
+    const question = await page.findByRole("radiogroup", { name: cap.doseQ });
+    await waitFor(() => expect(question).toBeVisible());
+    await expect(within(question).getByRole("radio", { name: cap.notSure })).toBeChecked();
+    await userEvent.click(within(question).getByRole("radio", { name: /17/ }));
+    await userEvent.click(page.getByRole("button", { name: actions.save }));
+    await expect(args.onSave).toHaveBeenCalledWith({ min: 17, max: 19 });
   },
 };

@@ -23,13 +23,18 @@ type ShotValuesProps = {
   align?: "start" | "end";
   /** All in ink-secondary: values being replaced, or a finished coffee's recipe. */
   quiet?: boolean;
+  /**
+   * Quiet lines under the values, already worded: milk, puck prep,
+   * temperature, pressure (design 2.3, item 4). Only what was set is passed.
+   */
+  lines?: string[];
   className?: string;
 };
 
 const grindDecimals = (grind: number) => (Number.isInteger(grind) ? 0 : 1);
 
 /** Read-only grind, dose, yield and time (NC-08). */
-export function ShotValues({ values, size = "large", align = "end", quiet = false, className }: ShotValuesProps) {
+export function ShotValues({ values, size = "large", align = "end", quiet = false, lines = [], className }: ShotValuesProps) {
   const t = useTranslations("shot");
   const locale = useLocale();
   const format = useFormatter();
@@ -61,6 +66,11 @@ export function ShotValues({ values, size = "large", align = "end", quiet = fals
             }),
           })}
         </span>
+        {lines.map((line) => (
+          <span key={line} className="text-label text-ink-secondary">
+            {line}
+          </span>
+        ))}
       </span>
     );
   }
@@ -93,6 +103,11 @@ export function ShotValues({ values, size = "large", align = "end", quiet = fals
           ratio: format.number(values.yield / values.dose, { maximumFractionDigits: 1 }),
         })}
       </p>
+      {lines.map((line) => (
+        <p key={line} className="mt-1 text-label text-ink-secondary">
+          {line}
+        </p>
+      ))}
     </div>
   );
 }
