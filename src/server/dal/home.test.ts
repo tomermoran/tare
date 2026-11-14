@@ -95,6 +95,8 @@ describe("getHome (STORY-02-02-01)", () => {
     expect(home.state).toMatchObject({ kind: "finished", recipe: { grind: 15 } });
     expect(home.coffee?.id).toBe(k.bean.id);
     expect(home.portion).toBeNull();
+    // No portion in use: Brew shows no amount left (STORY-03-04-01 AC 2).
+    expect(home.remaining).toBeNull();
     // Choosing another coffee moves on, for this visit.
     const next = home.coffees[0].bean.id;
     expect((await getHome({ beanId: next }, NOW))!.coffee?.id).toBe(next);

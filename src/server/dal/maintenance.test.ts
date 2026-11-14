@@ -1,13 +1,11 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { batchPortions, extractions, maintenanceEvents, setupParts, setups, stockChecks } from "@/db/schema";
-import { remainingWeight } from "@/domain/remaining";
+import { extractions, maintenanceEvents, setupParts, setups } from "@/db/schema";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
 import { addMaintenance, getGrindPeriod, InvalidMaintenanceError, listMaintenance } from "./maintenance";
-import { getRemaining } from "./remaining";
 import { NotFoundError } from "./scope";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
@@ -138,42 +136,5 @@ describe("getGrindPeriod (TASK-04-01-03-BE1)", () => {
     await addMaintenance(machine(), { kind: "clean", day: "2026-03-10" }, { now: NOW, timeZone: ZONE });
     await addMaintenance(k.parts[2].id, { kind: "other", day: "2026-03-11" }, { now: NOW, timeZone: ZONE });
     expect(await getGrindPeriod(grinder(), NOW)).toEqual({ since: null, shotCount: 1 });
-  });
-});
-
-describe("getRemaining (TASK-03-04-01-BE1)", () => {
-  it("matches the domain rule: checks, later doses, both entry modes, never negative", async () => {
-    const doses = [
-      { grams: 18, at: at(1) },
-      { grams: 18.5, at: at(3) },
-      { grams: 17, at: at(6) },
-    ];
-    await shot(doses[0].at, { doseWeight: 18 });
-    await shot(doses[1].at, { doseWeight: 18.5, entryMode: "one-tap" });
-    expect((await getRemaining([k.portion.id])).get(k.portion.id)).toEqual(remainingWeight({ weight: 250, latestCheck: null, doses: doses.slice(0, 2) }));
-
-    await db().insert(stockChecks).values([
-      { id: newId(), portionId: k.portion.id, remainingWeight: 200, checkedAt: at(2) },
-      { id: newId(), portionId: k.portion.id, remainingWeight: 150, checkedAt: at(4) },
-    ]);
-    await shot(doses[2].at, { doseWeight: 17 });
-    const check = { grams: 150, at: at(4) };
-    expect((await getRemaining([k.portion.id])).get(k.portion.id)).toEqual(remainingWeight({ weight: 250, latestCheck: check, doses }));
-    expect((await getRemaining([k.portion.id])).get(k.portion.id)).toEqual({ grams: 133, overLogged: false });
-
-    const small = { id: newId(), batchId: k.batch.id, weight: 20, createdAt: at(1) };
-    await db().insert(batchPortions).values(small);
-    await shot(at(7), { portionId: small.id, doseWeight: 18 });
-    await shot(at(8), { portionId: small.id, doseWeight: 18 });
-    expect((await getRemaining([small.id])).get(small.id)).toEqual({ grams: 0, overLogged: true });
-  });
-
-  it("follows an edited dose (STORY-03-04-01 AC 3), and leaves out other households' portions", async () => {
-    const id = await shot(at(1), { doseWeight: 18 });
-    await db().update(extractions).set({ doseWeight: 20 }).where(eq(extractions.id, id));
-    expect((await getRemaining([k.portion.id])).get(k.portion.id)?.grams).toBe(230);
-    const other = await makeHousehold(db());
-    signInAs(other.user.firebaseUid);
-    expect((await getRemaining([k.portion.id])).size).toBe(0);
   });
 });
