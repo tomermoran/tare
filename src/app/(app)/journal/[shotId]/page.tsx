@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Fragment } from "react";
 import { buttonClass } from "@/components/ui/Button/Button";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetailScreen/ShotDetailScreen";
@@ -9,6 +10,7 @@ import { PinAction } from "@/components/recipes/PinAction";
 import { DialInFromShot } from "@/components/shot/DialInFromShot";
 import { ReactionChips } from "@/components/shot/ReactionChips";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
+import { shotActions } from "@/domain/shotActions";
 import { shotSetupName } from "@/domain/shotSetupName";
 import { shotWarnings } from "@/domain/shotWarnings";
 import { tastePhraseKeys } from "@/domain/tastePhrase";
@@ -67,6 +69,7 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
 
   const drink = drinkLabel(shot.drink, (key: DrinkKey) => t(key));
   const setup = shotSetupName(shot.setup, (items) => format.list(items, { type: "conjunction" }));
+  const { actions, primary: primaryAction } = shotActions(shot.entryMode);
   const pinTitle = t("recipe.pinTitle", { drink, coffee: shot.coffee.name, setup });
 
   const dialIn = (
@@ -92,20 +95,31 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
       taste={rating || reaction || noticed || phrases.length ? { rating, reaction, phrases, noticed } : undefined}
       actions={
         <>
-          {oneTap && <ReactionChips shotId={shot.id} initial={shot.reaction} />}
-          {shot.entryMode === "measured" && <PinAction shotId={shot.id} title={pinTitle} label={t("recipe.pin")} />}
-          {!oneTap && dialIn}
-          <Link
-            href={`/log?mode=edit&shotId=${shot.id}`}
-            className={
-              shot.entryMode === "one-tap"
-                ? buttonClass({ variant: "primary", fullWidth: true })
-                : `${buttonClass({ variant: "ghost", size: "sm" })} -ms-4 self-start`
+          {actions.map((action) => {
+            const primary = action === primaryAction;
+            switch (action) {
+              case "reaction":
+                return <ReactionChips key={action} shotId={shot.id} initial={shot.reaction} />;
+              case "pin":
+                return <PinAction key={action} shotId={shot.id} title={pinTitle} label={t("recipe.pin")} />;
+              case "dialIn":
+                return <Fragment key={action}>{dialIn}</Fragment>;
+              case "edit":
+                return (
+                  <Link
+                    key={action}
+                    href={`/log?mode=edit&shotId=${shot.id}`}
+                    className={
+                      primary
+                        ? buttonClass({ variant: "primary", fullWidth: true })
+                        : `${buttonClass({ variant: "ghost", size: "sm" })} -ms-4 self-start`
+                    }
+                  >
+                    {t("actions.edit")}
+                  </Link>
+                );
             }
-          >
-            {t("actions.edit")}
-          </Link>
-          {oneTap && dialIn}
+          })}
         </>
       }
       warning={<ShotWarnings warnings={shotWarnings(shot.tags)} labels={{ channelling: t("shot.warnings.channelling") }} />}

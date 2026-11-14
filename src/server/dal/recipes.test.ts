@@ -18,18 +18,22 @@ import {
   pinPreview,
   type RecipeValues,
 } from "./recipes";
+import { getHome } from "./home";
+import { getDialInFromRecipe } from "./logStart";
 import { NotFoundError } from "./scope";
 import { updateShot } from "./shots";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
 vi.mock("@/server/time", () => ({ getTimeZone: async () => "UTC" }));
+vi.mock("@/server/setupChoice", () => import("@/test/mocks/setupChoice"));
 
 let k: Awaited<ReturnType<typeof makeKitchen>>;
 const db = () => testContext.db!;
 const at = (n: number) => new Date(Date.UTC(2026, 2, 1, 8, n));
 
 beforeEach(async () => {
+  testContext.setupChoice = null;
   testContext.db = await createTestDb();
   k = await makeKitchen(testContext.db);
   signInAs(k.user.firebaseUid);
@@ -166,6 +170,18 @@ describe("re-pinning (STORY-02-01-03)", () => {
     expect((await getCurrentRecipe(key()))?.id).toBe(second.id);
     expect(await listCurrentRecipesForBean(k.bean.id, k.persona.id)).toHaveLength(1);
     expect((await db().select().from(pinnedRecipes).where(eq(pinnedRecipes.id, first.id)))[0]).toEqual(before);
+  });
+
+  it("is what every reader uses: Brew, the dial-in pre-fill, the bag and the coffee (AC 3)", async () => {
+    await pinFromShot(await shot(), at(1));
+    const second = await pinFromShot(await shot({ grindSize: 13, yieldWeight: 40 }), at(2));
+    expect(await getHome({ drinkId: k.drinks.espresso.id, beanId: k.bean.id }, at(30))).toMatchObject({
+      state: { kind: "recipe", recipe: { id: second.id, grind: 13, yield: 40 } },
+    });
+    expect((await getDialInFromRecipe({ drinkTypeId: k.drinks.espresso.id, beanId: k.bean.id }))?.start).toMatchObject({ grind: 13, yield: 40 });
+    for (const recipes of [await getBagRecipes(k.batch.id), await getCoffeeRecipes(k.bean.id)]) {
+      expect(recipes.map((r) => [r.id, r.grind])).toEqual([[second.id, 13]]);
+    }
   });
 
   it("settles pins in the same millisecond the same way every time", async () => {
