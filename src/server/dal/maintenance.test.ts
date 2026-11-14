@@ -39,7 +39,7 @@ describe("addMaintenance and listMaintenance (TASK-04-01-01-BE2)", () => {
   it("saves kind, date and note on the part, today by default (AC 1, AC 2)", async () => {
     const { id } = await addMaintenance(grinder(), { kind: "burrs", note: "  New 64 mm burrs  " }, { now: NOW, timeZone: ZONE });
     const [row] = await db().select().from(maintenanceEvents).where(eq(maintenanceEvents.id, id));
-    expect(row).toMatchObject({ ownedHardwareId: grinder(), kind: "burrs", note: "New 64 mm burrs", occurredAt: NOW, isRecalibration: false });
+    expect(row).toMatchObject({ ownedHardwareId: grinder(), kind: "burrs", note: "New 64 mm burrs", occurredAt: NOW, isRecalibration: true });
   });
 
   it("takes an earlier local day at its noon, never a future one", async () => {
@@ -74,6 +74,34 @@ describe("addMaintenance and listMaintenance (TASK-04-01-01-BE2)", () => {
     signInAs(other.user.firebaseUid);
     await expect(addMaintenance(grinder(), { kind: "burrs" })).rejects.toBeInstanceOf(NotFoundError);
     await expect(listMaintenance(grinder())).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("recalibration (TASK-04-01-02-BE1)", () => {
+  const flag = async (partId: string, input: Parameters<typeof addMaintenance>[1]) => {
+    const { id } = await addMaintenance(partId, input, { now: NOW, timeZone: ZONE });
+    return (await listMaintenance(partId)).find((e) => e.id === id)!.isRecalibration;
+  };
+
+  it("is on by default for a grinder's new burrs and re-zero, off otherwise (AC 2)", async () => {
+    expect(await flag(grinder(), { kind: "burrs" })).toBe(true);
+    expect(await flag(grinder(), { kind: "rezero" })).toBe(true);
+    expect(await flag(grinder(), { kind: "clean" })).toBe(false);
+    expect(await flag(grinder(), { kind: "repair" })).toBe(false);
+    expect(await flag(grinder(), { kind: "other" })).toBe(false);
+  });
+
+  it("can be marked or turned off on a grinder (AC 1)", async () => {
+    expect(await flag(grinder(), { kind: "clean", isRecalibration: true })).toBe(true);
+    expect(await flag(grinder(), { kind: "burrs", isRecalibration: false })).toBe(false);
+  });
+
+  it("is never set on a machine or basket, and refused if asked (AC 4)", async () => {
+    expect(await flag(machine(), { kind: "burrs" })).toBe(false);
+    expect(await flag(k.parts[2].id, { kind: "rezero" })).toBe(false);
+    await expect(addMaintenance(machine(), { kind: "rezero", isRecalibration: true }, { now: NOW })).rejects.toBeInstanceOf(InvalidMaintenanceError);
+    await expect(addMaintenance(k.parts[2].id, { kind: "other", isRecalibration: true }, { now: NOW })).rejects.toBeInstanceOf(InvalidMaintenanceError);
+    expect(await listMaintenance(machine())).toHaveLength(1);
   });
 });
 

@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, gte, inArray, lt, or, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, lte, or, type SQL } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   batches,
@@ -9,6 +9,7 @@ import {
   drinkTypes,
   extractions,
   hardwareMakers,
+  maintenanceEvents,
   milkTypes,
   ownedHardware,
   roasters,
@@ -19,6 +20,7 @@ import type { HardwareKind } from "@/domain/capabilities";
 import { isFromFrozen } from "@/domain/frozen";
 import { localDayKey } from "@/domain/localDay";
 import type { BrewValues } from "@/domain/brewControls";
+import { isMaintenanceKind, type MaintenanceKind } from "@/domain/maintenance";
 import type { TasteTag } from "@/domain/taste";
 import { getTimeZone } from "@/server/time";
 import { mergeGroup, resolveEntity } from "./catalogMerge";
@@ -59,7 +61,22 @@ export type JournalShot = {
   grinderId: string | null;
 };
 
-export type JournalPage = { shots: JournalShot[]; older: JournalCursor | null };
+/**
+ * A grind period divider (STORY-04-01-04): work on a grinder of the listed
+ * shots, at its place in time.
+ */
+export type JournalDivider = {
+  id: string;
+  at: Date;
+  day: string;
+  grinderId: string;
+  /** Nickname, else model, so two grinders are never confused. */
+  grinder: string;
+  kind: MaintenanceKind;
+  isRecalibration: boolean;
+};
+
+export type JournalPage = { shots: JournalShot[]; dividers: JournalDivider[]; older: JournalCursor | null };
 
 /** Journal filters (STORY-02-06-04); unset means any. A coffee covers its merged catalog entries. */
 export type JournalFilters = { drinkId?: string; beanId?: string; setupId?: string };
@@ -149,7 +166,10 @@ export async function listJournal({
     : [];
   const grinderOf = new Map(grinders.map((g) => [g.setupId, g.id]));
 
+  const dividers = await dividersFor(own, rows.at(-1)?.at ?? null, before ? new Date(before.at) : now, !before, timeZone);
+
   return {
+    dividers,
     shots: rows.map((r) => ({
       id: r.id,
       at: r.at,
@@ -166,6 +186,57 @@ export async function listJournal({
     })),
     older: more ? edge : null,
   };
+}
+
+/**
+ * Grinder events from `from` (the page's oldest shot) up to `to`, for the
+ * grinders of any shot the filters list (AC 3, AC 4). Pages meet without
+ * overlapping, so "show older" never repeats a divider: the first page runs
+ * to now inclusive, older pages stop just before the previous page's edge.
+ */
+async function dividersFor(own: SQL | undefined, from: Date | null, to: Date, inclusive: boolean, timeZone: string): Promise<JournalDivider[]> {
+  if (!from) return [];
+  const listedSetups = db
+    .selectDistinct({ id: extractions.setupId })
+    .from(extractions)
+    .innerJoin(batchPortions, eq(batchPortions.id, extractions.portionId))
+    .innerJoin(batches, eq(batches.id, batchPortions.batchId))
+    .where(own);
+  const grinders = db
+    .select({ id: setupParts.ownedHardwareId })
+    .from(setupParts)
+    .where(inArray(setupParts.setupId, listedSetups));
+  const rows = await db
+    .select({
+      id: maintenanceEvents.id,
+      at: maintenanceEvents.occurredAt,
+      kind: maintenanceEvents.kind,
+      isRecalibration: maintenanceEvents.isRecalibration,
+      grinderId: ownedHardware.id,
+      nickname: ownedHardware.nickname,
+      model: canonicalHardware.name,
+    })
+    .from(maintenanceEvents)
+    .innerJoin(ownedHardware, eq(ownedHardware.id, maintenanceEvents.ownedHardwareId))
+    .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
+    .where(
+      and(
+        eq(canonicalHardware.kind, "grinder"),
+        inArray(maintenanceEvents.ownedHardwareId, grinders),
+        gte(maintenanceEvents.occurredAt, from),
+        inclusive ? lte(maintenanceEvents.occurredAt, to) : lt(maintenanceEvents.occurredAt, to),
+      ),
+    )
+    .orderBy(desc(maintenanceEvents.occurredAt), desc(maintenanceEvents.id));
+  return rows.map((r) => ({
+    id: r.id,
+    at: r.at,
+    day: localDayKey(r.at, timeZone),
+    grinderId: r.grinderId,
+    grinder: r.nickname ?? r.model,
+    kind: isMaintenanceKind(r.kind) ? r.kind : "other",
+    isRecalibration: r.isRecalibration,
+  }));
 }
 
 export type JournalFilterOptions = {

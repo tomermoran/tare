@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { batches, batchPortions, canonicalBeans, extractions, setups } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, extractions, maintenanceEvents, ownedHardware, setupParts, setups } from "@/db/schema";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -120,7 +120,7 @@ describe("listJournal", () => {
     await shot(daysAgo(1));
     const other = await makeHousehold(db());
     signInAs(other.user.firebaseUid);
-    expect(await listJournal({ now: NOW })).toEqual({ shots: [], older: null });
+    expect(await listJournal({ now: NOW })).toEqual({ shots: [], dividers: [], older: null });
   });
 });
 
@@ -268,5 +268,86 @@ describe("journal filters (STORY-02-06-04)", () => {
     signInAs(other.user.firebaseUid);
     expect(await getJournalFilterOptions()).toMatchObject({ coffees: [], setups: [] });
     expect((await listJournal({ now: NOW, filters: { beanId: k.bean.id } })).shots).toEqual([]);
+  });
+});
+
+describe("grind period dividers (TASK-04-01-04-BE1)", () => {
+  const machine = () => k.parts[0].id;
+  const grinder = () => k.parts[1].id;
+  async function event(partId: string, at: Date, over: Partial<typeof maintenanceEvents.$inferInsert> = {}) {
+    const id = newId();
+    await db().insert(maintenanceEvents).values({ id, ownedHardwareId: partId, kind: "burrs", isRecalibration: false, occurredAt: at, ...over });
+    return id;
+  }
+  /** A second grinder of the same model, nicknamed, in its own setup. */
+  async function travelSetup() {
+    const travel = { id: newId(), householdId: k.household.id, hardwareId: k.parts[1].hardwareId, nickname: "Travel" };
+    await db().insert(ownedHardware).values(travel);
+    const setupId = newId();
+    await db().insert(setups).values({ id: setupId, householdId: k.household.id, partsKey: "travel", createdAt: NOW });
+    await db().insert(setupParts).values([machine(), travel.id, k.parts[2].id].map((ownedHardwareId) => ({ setupId, ownedHardwareId })));
+    return { grinderId: travel.id, setupId };
+  }
+
+  it("names the grinder, the work, the date and a recalibration, among the day's shots (AC 1, AC 2)", async () => {
+    await shot(daysAgo(2, 1));
+    await shot(daysAgo(2, 6));
+    const id = await event(grinder(), daysAgo(2, 3), { kind: "rezero", isRecalibration: true });
+    const page = await listJournal({ now: NOW });
+    expect(page.dividers).toEqual([
+      { id, at: daysAgo(2, 3), day: page.shots[0].day, grinderId: grinder(), grinder: "Example Grinder", kind: "rezero", isRecalibration: true },
+    ]);
+    // Its time puts it between the day's two shots.
+    expect(page.shots[0].at > page.dividers[0].at && page.dividers[0].at > page.shots[1].at).toBe(true);
+  });
+
+  it("shows no divider for a machine or basket, or a grinder with no listed shots (AC 4)", async () => {
+    await shot(daysAgo(1));
+    await shot(daysAgo(5));
+    await event(machine(), daysAgo(3), { kind: "clean" });
+    await event(k.parts[2].id, daysAgo(3), { kind: "other" });
+    const travel = await travelSetup();
+    await event(travel.grinderId, daysAgo(3));
+    expect((await listJournal({ now: NOW })).dividers).toEqual([]);
+  });
+
+  it("shows only the dividers for the grinders of the shots listed (AC 3)", async () => {
+    const travel = await travelSetup();
+    await shot(daysAgo(1));
+    await shot(daysAgo(6));
+    await shot(daysAgo(2), { setupId: travel.setupId });
+    await shot(daysAgo(7), { setupId: travel.setupId });
+    const home = await event(grinder(), daysAgo(4));
+    const away = await event(travel.grinderId, daysAgo(5));
+    const names = async (filters: JournalFilters) => (await listJournal({ now: NOW, filters })).dividers.map((d) => [d.id, d.grinder]);
+    expect(await names({})).toEqual([
+      [home, "Example Grinder"],
+      [away, "Travel"],
+    ]);
+    expect(await names({ setupId: travel.setupId })).toEqual([[away, "Travel"]]);
+    expect(await names({ setupId: k.setup.id })).toEqual([[home, "Example Grinder"]]);
+  });
+
+  it("puts each divider on one page only, and none before the oldest shot", async () => {
+    for (const d of [1, 3, 5, 40, 45, 50, 55]) await shot(daysAgo(d));
+    const ids = await Promise.all([2, 4, 42, 47, 52, 60].map((d) => event(grinder(), daysAgo(d))));
+    let page = await listJournal({ now: NOW });
+    const seen = [...page.dividers.map((d) => d.id)];
+    while (page.older) {
+      page = await listJournal({ before: page.older, limit: 2, now: NOW });
+      seen.push(...page.dividers.map((d) => d.id));
+    }
+    expect(seen).toEqual(ids.slice(0, 5));
+  });
+
+  it("moves a back-dated divider and changes no shot (AC 5)", async () => {
+    await shot(daysAgo(1));
+    await shot(daysAgo(10));
+    const id = await event(grinder(), daysAgo(2));
+    const before = await db().select().from(extractions);
+    await db().update(maintenanceEvents).set({ occurredAt: daysAgo(8) }).where(eq(maintenanceEvents.id, id));
+    const page = await listJournal({ now: NOW });
+    expect(page.dividers.map((d) => d.at)).toEqual([daysAgo(8)]);
+    expect(await db().select().from(extractions)).toEqual(before);
   });
 });

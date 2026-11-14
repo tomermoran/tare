@@ -27,6 +27,6 @@ export const exampleShots: RecentItem[] = [
   { kind: "shot", id: "s1", drink: messages.drinks.latte, at: at(0, 7, 42), coffee: exampleCoffee.bean, values: exampleRecipe, oneTap: true, reaction: "good" },
   { kind: "shot", id: "s3", drink: messages.drinks.espresso, at: at(1, 15, 10), coffee: exampleCoffee.bean, values: { grind: 14.5, dose: 18, yield: 36, timeMs: 31_200 }, channelling: true },
   { kind: "shot", id: "s2", drink: messages.drinks.latte, at: at(1, 7, 35), coffee: exampleCoffee.bean, values: exampleRecipe, oneTap: true },
-  { kind: "maintenance", id: "m1", unit: "Grinder", work: "burrs", at: at(2, 12, 0) },
+  { kind: "maintenance", id: "m1", unit: "Grinder", work: "burrs", at: at(2, 12, 0), recalibration: true, href: "/setup/parts/grinder" },
   { kind: "shot", id: "s4", drink: messages.drinks.latte, at: at(2, 7, 50), coffee: "Colombia Huila", values: { grind: 18, dose: 18, yield: 38, timeMs: 26_100 } },
 ];

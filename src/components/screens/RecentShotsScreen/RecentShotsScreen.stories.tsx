@@ -134,5 +134,22 @@ export const EmptyFiltered: Story = {
   },
 };
 
+/**
+ * A re-zero among a day's shots, at its time: a list item read aloud, with
+ * the recalibration in words, opening the grinder (STORY-04-01-04).
+ */
+export const MaintenanceDivider: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const name = new RegExp(`Grinder: ${messages.maintenance.kind.burrs}`);
+    const link = canvas.getByRole("link", { name });
+    await expect(link).toHaveAttribute("href", "/setup/parts/grinder");
+    await expect(link).toHaveTextContent(messages.maintenance.recalibration);
+    await expect(link.closest("li")).not.toBeNull();
+  },
+};
+
+export const MaintenanceDividerRightToLeft: Story = { ...MaintenanceDivider, globals: { direction: "rtl" } };
+
 export const Loading: Story = { args: { state: "loading", items: [] } };
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

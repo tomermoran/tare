@@ -15,8 +15,9 @@ import { setupLabel } from "@/domain/setupName";
 import { shotWarnings } from "@/domain/shotWarnings";
 import { journalHref } from "@/lib/journalFilters";
 import { LOG_PATH } from "@/lib/logRoutes";
+import { partHref } from "@/lib/setupRoutes";
 import { loadOlderShotsAction } from "@/server/actions/journal";
-import type { JournalCursor, JournalFilterOptions, JournalFilters, JournalShot } from "@/server/dal/journal";
+import type { JournalCursor, JournalDivider, JournalFilterOptions, JournalFilters, JournalShot } from "@/server/dal/journal";
 
 /*
  * The Journal tab, wired (STORY-02-06-01): the last 30 days from the
@@ -30,6 +31,7 @@ type Kind = "drinkId" | "beanId" | "setupId";
 
 export function JournalList({
   shots: initial,
+  dividers: initialDividers = [],
   older: initialOlder,
   today,
   timeZone,
@@ -37,6 +39,8 @@ export function JournalList({
   options,
 }: {
   shots: JournalShot[];
+  /** Grind period dividers for the listed range (STORY-04-01-04). */
+  dividers?: JournalDivider[];
   older: JournalCursor | null;
   /** Today's day key in the device's zone. */
   today: string;
@@ -48,6 +52,7 @@ export function JournalList({
   const format = useFormatter();
   const router = useRouter();
   const [shots, setShots] = useState(initial);
+  const [dividers, setDividers] = useState(initialDividers);
   const [older, setOlder] = useState(initialOlder);
   const [state, setState] = useState<"idle" | "loading" | "failed">("idle");
   const [picking, setPicking] = useState<Kind | null>(null);
@@ -87,7 +92,7 @@ export function JournalList({
     return format.dateTime(localNoon(day, timeZone), { day: "numeric", month: "long", timeZone });
   };
 
-  const items: RecentItem[] = shots.map((s) => ({
+  const shotItems: RecentItem[] = shots.map((s) => ({
     kind: "shot",
     id: s.id,
     at: s.at,
@@ -108,6 +113,20 @@ export function JournalList({
     fromFrozen: s.fromFrozen,
     channelling: shotWarnings(s.tags).includes("channelling"),
   }));
+  // Dividers sit among the shots at their time, newest first (AC 2).
+  const items: RecentItem[] = [
+    ...shotItems,
+    ...dividers.map((d): RecentItem => ({
+      kind: "maintenance",
+      id: d.id,
+      at: d.at,
+      day: d.day,
+      unit: d.grinder,
+      work: d.kind,
+      recalibration: d.isRecalibration,
+      href: partHref(d.grinderId),
+    })),
+  ].sort((a, b) => b.at.getTime() - a.at.getTime());
 
   const showOlder = async () => {
     if (!older) return;
@@ -115,6 +134,7 @@ export function JournalList({
     const result = await loadOlderShotsAction(older, filters);
     if (!result.ok) return setState("failed");
     setShots((list) => [...list, ...result.data.shots]);
+    setDividers((list) => [...list, ...result.data.dividers]);
     setOlder(result.data.older);
     setState("idle");
   };
