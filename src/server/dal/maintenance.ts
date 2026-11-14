@@ -2,10 +2,10 @@ import "server-only";
 import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { extractions, maintenanceEvents, setupParts } from "@/db/schema";
+import { canonicalHardware, extractions, maintenanceEvents, ownedHardware, setupParts } from "@/db/schema";
 import { currentPeriodStart } from "@/domain/grindPeriods";
 import { isValidDayKey, localDayKey, localNoon } from "@/domain/localDay";
-import { isMaintenanceKind, type MaintenanceKind } from "@/domain/maintenance";
+import { canRecalibrate, isMaintenanceKind, recalibrationDefault, type MaintenanceKind } from "@/domain/maintenance";
 import { assertOwned, requireHousehold } from "./scope";
 
 /*
@@ -51,6 +51,15 @@ export async function addMaintenance(
   const day = input.day ?? today;
   if (!isValidDayKey(day) || day > today) throw new InvalidMaintenanceError("day");
   const note = typeof input.note === "string" ? input.note.trim().slice(0, NOTE_MAX) || null : null;
+  // Recalibration (TQ-05, DQ-15): grinders only, on by default for burrs and re-zero.
+  const [{ partKind }] = await db
+    .select({ partKind: canonicalHardware.kind })
+    .from(ownedHardware)
+    .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
+    .where(eq(ownedHardware.id, partId));
+  if (input.isRecalibration === true && !canRecalibrate(partKind)) throw new InvalidMaintenanceError("isRecalibration");
+  const isRecalibration =
+    typeof input.isRecalibration === "boolean" ? input.isRecalibration : recalibrationDefault(partKind, input.kind);
 
   const id = newId();
   // Today's event is at the moment it was logged; an earlier day at its local noon.
@@ -60,7 +69,7 @@ export async function addMaintenance(
     ownedHardwareId: partId,
     kind: input.kind,
     note,
-    isRecalibration: input.isRecalibration === true,
+    isRecalibration,
     occurredAt: at,
   });
   return { id };
