@@ -278,6 +278,14 @@
     "groupFrozen": "In the freezer",
     "tried": "Tried",
     "triedEmpty": "Coffees you brew will appear here.",
+    "bagCount": "{count, plural, one {# bag} other {# bags}}",
+    "summary": {
+      "mostlyGood": "Mostly good",
+      "mostlyOff": "Mostly off",
+      "mixed": "Mixed",
+      "lastRated": "Last rated {rating} of 5",
+      "noRatings": "No ratings yet"
+    },
     "portions": "Portions"
   },
   "setup": {
@@ -494,7 +502,8 @@
     "bestBeforePassed": "{days, plural, one {Best before passed # day ago} other {Best before passed # days ago}}",
     "ageUnknown": "Age unknown",
     "addRoastDate": "Add a roast date",
-    "datesSaveFailed": "Couldn't save the date. Try again."
+    "datesSaveFailed": "Couldn't save the date. Try again.",
+    "aboutCoffee": "About this coffee"
   },
   "portion": {
     "state": {
@@ -737,5 +746,17 @@
     "fix": "Fix it",
     "skip": "Skip",
     "saveFailed": "Couldn't save what was off. Your answers are kept."
+  },
+  "coffee": {
+    "back": "Beans",
+    "addBag": "Add a bag of this",
+    "recipes": "Recipes",
+    "noRecipes": "No recipes for this coffee yet.",
+    "recentShots": "Recent shots",
+    "noShots": "No shots of this coffee yet.",
+    "allShots": "All shots of this coffee",
+    "bags": "Bags",
+    "loading": "Loading this coffee",
+    "details": "{roast} · {notes}"
   }
 }

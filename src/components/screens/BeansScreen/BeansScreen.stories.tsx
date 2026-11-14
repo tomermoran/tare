@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
-import { ListRow } from "@/components/ui/ListRow/ListRow";
+import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { PhoneFrame } from "../PhoneFrame";
+import { lastHadLabel } from "@/lib/lastHad";
 import { BeansScreen, type BagCard, type BagGroup, type BeansLabels } from "./BeansScreen";
+import { TriedRows, type TriedRow } from "./TriedRows";
 
 const { beans, portion, states } = messages;
+const t = createTranslator({ locale: "en", messages });
 const grams = new Intl.NumberFormat("en", { style: "unit", unit: "gram", unitDisplay: "narrow" });
 
 const labels: BeansLabels = {
@@ -58,13 +61,27 @@ const groups: BagGroup[] = [
   { key: "unopened", title: beans.groupUnopened, bags: [hill] },
   { key: "frozen", title: beans.groupFrozen, bags: [winter] },
 ];
-const tried = (
-  <ul>
-    <li>
-      <ListRow primary="Old Favourite" secondary="Example Roasters" />
-    </li>
-  </ul>
-);
+const triedRows: TriedRow[] = [
+  {
+    id: "old-favourite",
+    href: "/beans/coffee/old-favourite",
+    bean: "Old Favourite",
+    roaster: "Example Roasters",
+    lastHad: lastHadLabel(21, "en"),
+    bagCount: t("beans.bagCount", { count: 3 }),
+    summary: beans.summary.mostlyGood,
+  },
+  {
+    id: "weekday-blend",
+    href: "/beans/coffee/weekday-blend",
+    bean: "Weekday Blend",
+    roaster: "Example Roasters",
+    lastHad: lastHadLabel(65, "en"),
+    bagCount: t("beans.bagCount", { count: 1 }),
+    summary: t("beans.summary.lastRated", { rating: 4 }),
+  },
+];
+const tried = <TriedRows rows={triedRows} />;
 
 const primaries = (el: HTMLElement) => [...el.querySelectorAll("a, button")].filter((b) => b.className.includes("bg-action"));
 
@@ -121,6 +138,26 @@ export const NothingOnHand: Story = {
     await expect(primaries(canvasElement)).toHaveLength(1);
   },
 };
+
+/** Tried under On hand: each coffee once, with last had, bags and a summary in words, never colour (STORY-03-06-01, 02). */
+export const Tried: Story = {
+  args: { tried },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const section = within(canvas.getByRole("region", { name: beans.tried }));
+    const row = section.getByRole("link", { name: /Old Favourite/ });
+    await expect(row).toHaveAttribute("href", "/beans/coffee/old-favourite");
+    await expect(section.getByText("3 weeks ago")).toBeVisible();
+    await expect(section.getByText(t("beans.bagCount", { count: 3 }))).toBeVisible();
+    const summary = section.getByText(beans.summary.mostlyGood);
+    await expect(summary).toHaveClass("text-ink-secondary");
+    await expect(summary.className).not.toMatch(/signal|bg-/);
+    await expect(section.getByText(t("beans.summary.lastRated", { rating: 4 }))).toBeVisible();
+    await expect(canvas.queryByText(beans.triedEmpty)).toBeNull();
+  },
+};
+
+export const TriedRightToLeft: Story = { args: { tried }, globals: { direction: "rtl" } };
 
 /** Only what's left is shown: no open or unopened bags, so only Frozen (STORY-03-02-05 AC 5). */
 export const OnlyFrozen: Story = {
