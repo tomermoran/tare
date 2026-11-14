@@ -4,10 +4,12 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { ShotWarnings } from "@/components/shot/ShotWarnings";
 import { EmptyState } from "@/components/ui/EmptyState/EmptyState";
+import { PeriodDivider } from "@/components/ui/PeriodDivider/PeriodDivider";
 import { ListRow } from "@/components/ui/ListRow/ListRow";
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton/Skeleton";
+import type { MaintenanceKind } from "@/domain/maintenance";
 
 export type RecentItem =
   | {
@@ -26,7 +28,18 @@ export type RecentItem =
       fromFrozen?: boolean;
       channelling?: boolean;
     }
-  | { kind: "maintenance"; id: string; unit: string; work: "burrs" | "clean" | "rezero"; at: Date; day?: string };
+  | {
+      kind: "maintenance";
+      id: string;
+      /** The grinder, by nickname, else model. */
+      unit: string;
+      work: MaintenanceKind;
+      at: Date;
+      day?: string;
+      recalibration?: boolean;
+      /** The grinder's part screen. */
+      href?: string;
+    };
 
 type RecentShotsScreenProps = {
   items: RecentItem[];
@@ -69,7 +82,7 @@ function SkeletonRows({ label, count }: { label: string; count: number }) {
 /**
  * The Journal (SCR-SHOTS): shots grouped by day, newest first. One-tap and
  * measured shots are told apart by a text marker; maintenance on a grinder
- * shows as a divider.
+ * shows as a divider among the day's rows at its time (STORY-04-01-04).
  */
 export function RecentShotsScreen({
   items,
@@ -137,14 +150,16 @@ export function RecentShotsScreen({
           <ul>
             {g.items.map((item) =>
               item.kind === "maintenance" ? (
-                <li key={item.id} className="flex items-center gap-2.5 py-3 text-label text-ink-secondary">
-                  <span aria-hidden="true" className="h-px flex-1 bg-line-strong" />
-                  {t("maintenanceDivider", {
-                    unit: item.unit,
-                    work: tMaint(item.work),
-                    date: format.dateTime(item.at, { day: "numeric", month: "short", timeZone }),
-                  })}
-                  <span aria-hidden="true" className="h-px flex-1 bg-line-strong" />
+                <li key={item.id}>
+                  <PeriodDivider
+                    text={t("maintenanceDivider", {
+                      unit: item.unit,
+                      work: tMaint(`kind.${item.work}`),
+                      date: format.dateTime(item.at, { day: "numeric", month: "short", timeZone }),
+                    })}
+                    marker={item.recalibration ? tMaint("recalibration") : undefined}
+                    href={item.href}
+                  />
                 </li>
               ) : (
                 <li key={item.id}>

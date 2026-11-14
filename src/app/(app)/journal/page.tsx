@@ -37,6 +37,7 @@ async function Journal({ searchParams }: Pick<PageProps<"/journal">, "searchPara
     <JournalList
       key={JSON.stringify(filters)}
       shots={page.shots}
+      dividers={page.dividers}
       older={page.older}
       today={localDayKey(new Date(), timeZone)}
       timeZone={timeZone}
