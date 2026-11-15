@@ -1,0 +1,23 @@
+name: Close finished parents
+
+# When an issue closes, close its parent (and grandparent…) if every sub-issue
+# is now closed, so finished epics and initiatives reach Done on the board.
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  close-parents:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - run: bash .github/scripts/close-finished-parents.sh "$ISSUE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
