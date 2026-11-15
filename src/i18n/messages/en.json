@@ -548,7 +548,7 @@
       "freeze": "Freeze",
       "thaw": "Thaw",
       "finish": "Mark as finished",
-      "weigh": "Weigh what's left",
+      "weigh": "Correct what's left",
       "split": "Split off a portion"
     },
     "actionsTitle": "{state} · {remaining} left",
@@ -578,10 +578,17 @@
     "meter": "{remaining} of {total} left",
     "overLogged": "The shots logged add up to more than this portion held. Weigh what's left to set it right.",
     "weigh": "Weigh what's left",
-    "stockTitle": "Weigh what's left",
+    "stockTitle": "Correct what's left",
     "stockWeight": "Left in this portion",
     "stockHint": "Weigh the beans without their bag or container.",
-    "saveWeight": "Save weight"
+    "saveWeight": "Save weight",
+    "stockMode": "How to correct it",
+    "stockModeWeigh": "I weighed it",
+    "stockModeTakeOff": "Take some off",
+    "takeOffAmount": "Take off",
+    "takeOffHint": "Spilled beans, or shots you didn't log.",
+    "takeOffRemainder": "{grams} will be left",
+    "takeOffSave": "Take off"
   },
   "milks": {
     "whole": "Whole",

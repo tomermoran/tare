@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button/Button";
+import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
 import { Input } from "@/components/ui/Input/Input";
 import { ListRow } from "@/components/ui/ListRow/ListRow";
 import { Notice } from "@/components/ui/Notice/Notice";
@@ -15,8 +16,8 @@ import { Toggle } from "@/components/ui/Toggle/Toggle";
  *   ink (never signal) for a date that can't be;
  * - SH-SPLIT takes grams out with a wheel that can't pass what's left, the
  *   remainder live as text, and "freeze the new portion" on by default;
- * - SH-STOCK records what's left, read off a scale, with a grams wheel
- *   whose big number can be typed into.
+ * - SH-STOCK corrects what's left: read off a scale, or by taking grams
+ *   off for spills and shots that weren't logged, the result live as text.
  * A failed action keeps its sheet open with a Notice and retry.
  */
 
@@ -170,28 +171,55 @@ export function SplitSheet({
   );
 }
 
+export type StockMode = "weigh" | "takeOff";
+
 export function StockSheet({
   open,
   onClose,
   labels,
+  mode = "weigh",
+  onModeChange,
   grams,
   max,
   onGramsChange,
+  remaining,
+  takeOff = 1,
+  onTakeOffChange,
   onSave,
   saving = false,
   failure,
 }: {
   open: boolean;
   onClose: () => void;
-  labels: { title: string; close: string; weight: string; hint: string; save: string };
+  labels: {
+    title: string;
+    close: string;
+    weight: string;
+    hint: string;
+    save: string;
+    /** Taking some off; without these the sheet only weighs. */
+    takeOff?: { mode: string; weigh: string; takeOff: string; amount: string; hint: string; remainder: (grams: number) => string; save: string };
+  };
+  mode?: StockMode;
+  onModeChange?: (mode: StockMode) => void;
+  /** What the scale read. */
   grams: number;
   /** The wheel's top: the portion's weight, or more if what's left says so. */
   max: number;
   onGramsChange: (grams: number) => void;
+  /** Grams left now, which taking off can't pass. */
+  remaining?: number;
+  /** Grams to take off. */
+  takeOff?: number;
+  onTakeOffChange?: (grams: number) => void;
   onSave: () => void;
   saving?: boolean;
   failure?: Failure;
 }) {
+  const left = remaining ?? 0;
+  // Nothing to take off an empty portion: only weighing is offered.
+  const off = labels.takeOff && left > 0 ? labels.takeOff : undefined;
+  const taking = !!off && mode === "takeOff";
   return (
     <Sheet
       open={open}
@@ -200,13 +228,46 @@ export function StockSheet({
       closeLabel={labels.close}
       footer={
         <Button variant="primary" fullWidth disabled={saving} aria-busy={saving || undefined} onClick={onSave}>
-          {labels.save}
+          {taking ? off.save : labels.save}
         </Button>
       }
     >
       <div className="flex flex-col gap-4">
-        <NumberWheel label={labels.weight} value={grams} onChange={onGramsChange} min={0} max={Math.max(1, Math.ceil(max))} step={1} majorEvery={10} unit="gram" />
-        <p className="text-center text-label text-ink-secondary">{labels.hint}</p>
+        {off && (
+          <ChipGroup
+            label={off.mode}
+            options={[
+              { value: "weigh", label: off.weigh },
+              { value: "takeOff", label: off.takeOff },
+            ]}
+            value={mode}
+            onChange={(v) => onModeChange?.(v as StockMode)}
+          />
+        )}
+        {taking ? (
+          <>
+            <NumberWheel
+              key="takeOff"
+              label={off.amount}
+              value={takeOff}
+              onChange={(g) => onTakeOffChange?.(g)}
+              min={1}
+              max={Math.max(1, Math.ceil(left))}
+              step={1}
+              majorEvery={10}
+              unit="gram"
+            />
+            <p className="text-center text-label text-ink-secondary">{off.hint}</p>
+            <p className="text-center text-body text-ink" aria-live="polite">
+              {off.remainder(Math.max(0, Math.round((left - takeOff) * 10) / 10))}
+            </p>
+          </>
+        ) : (
+          <>
+            <NumberWheel key="weigh" label={labels.weight} value={grams} onChange={onGramsChange} min={0} max={Math.max(1, Math.ceil(max))} step={1} majorEvery={10} unit="gram" />
+            <p className="text-center text-label text-ink-secondary">{labels.hint}</p>
+          </>
+        )}
         {failure && (
           <Notice urgent action={{ label: failure.retryLabel, onClick: failure.onRetry }}>
             {failure.message}
