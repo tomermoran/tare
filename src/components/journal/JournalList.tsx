@@ -11,6 +11,7 @@ import { Notice } from "@/components/ui/Notice/Notice";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { daysBetween, localNoon } from "@/domain/localDay";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { milkLine } from "@/lib/milkLine";
 import { setupLabel } from "@/domain/setupName";
 import { shotWarnings } from "@/domain/shotWarnings";
 import { journalHref } from "@/lib/journalFilters";
@@ -99,14 +100,7 @@ export function JournalList({
     day: s.day,
     drink: drinkLabel(s.drink, (key: DrinkKey) => t(key)),
     coffee: s.coffee.name,
-    milk: s.milk
-      ? s.milk.ml !== null
-        ? t("shot.milkLine", {
-            milk: milkLabel(s.milk, (key: MilkKey) => t(key)),
-            amount: format.number(s.milk.ml, { style: "unit", unit: "milliliter", unitDisplay: "short" }),
-          })
-        : milkLabel(s.milk, (key: MilkKey) => t(key))
-      : undefined,
+    milk: s.milk ? milkLine(milkLabel(s.milk, (key: MilkKey) => t(key)), s.milk.ml, t, format) : undefined,
     values: s.values,
     oneTap: s.entryMode === "one-tap",
     reaction: s.reaction ?? undefined,

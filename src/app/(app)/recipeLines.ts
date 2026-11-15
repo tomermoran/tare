@@ -1,5 +1,6 @@
 import type { getFormatter, getTranslations } from "next-intl/server";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { milkLine } from "@/lib/milkLine";
 import type { LogMilk } from "@/server/dal/logContext";
 import type { RecipeValues } from "@/server/dal/recipes";
 
@@ -17,11 +18,7 @@ export function recipeLines(
   const milk = drink.milks.find((m) => m.id === recipe.milkTypeId);
   if (drink.hasMilk && milk) {
     const name = milkLabel(milk, (key: MilkKey) => t(key));
-    lines.push(
-      recipe.milkMl !== null
-        ? t("shot.milkLine", { milk: name, amount: format.number(recipe.milkMl, { style: "unit", unit: "milliliter", unitDisplay: "short" }) })
-        : name,
-    );
+    lines.push(milkLine(name, recipe.milkMl, t, format));
   }
   const tools = [recipe.usedWdt && t("log.prepWdt"), recipe.usedPuckScreen && t("log.prepPuckScreen")].filter((x): x is string => !!x);
   if (tools.length) lines.push(t("home.prep", { tools: format.list(tools, { type: "conjunction" }) }));

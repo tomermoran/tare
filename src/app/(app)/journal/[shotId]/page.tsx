@@ -6,6 +6,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { ShotDetailScreen, type ShotFact } from "@/components/screens/ShotDetailScreen/ShotDetailScreen";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
+import { milkLine } from "@/lib/milkLine";
 import { PinAction } from "@/components/recipes/PinAction";
 import { DialInFromShot } from "@/components/shot/DialInFromShot";
 import { ReactionChips } from "@/components/shot/ReactionChips";
@@ -33,14 +34,7 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
   });
   if (!shot) return null;
 
-  const milk = shot.milk
-    ? shot.milk.ml !== null
-      ? t("shot.milkLine", {
-          milk: milkLabel(shot.milk, (key: MilkKey) => t(key)),
-          amount: format.number(shot.milk.ml, { style: "unit", unit: "milliliter", unitDisplay: "short" }),
-        })
-      : milkLabel(shot.milk, (key: MilkKey) => t(key))
-    : null;
+  const milk = shot.milk ? milkLine(milkLabel(shot.milk, (key: MilkKey) => t(key)), shot.milk.ml, t, format) : null;
   const prep = [shot.prep.wdt && t("log.prepWdt"), shot.prep.puckScreen && t("log.prepPuckScreen")].filter(
     (p): p is string => !!p,
   );
