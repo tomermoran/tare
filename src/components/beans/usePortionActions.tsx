@@ -7,14 +7,15 @@ import { allowedActions, isDatedAction, type DatedAction, type PortionAction } f
 import type { PortionState } from "@/domain/portionState";
 import { localDayKey } from "@/domain/localDay";
 import { portionStateLabel } from "@/lib/portionStateLabel";
-import { addStockCheckAction, setPortionDateAction, splitPortionAction, type PortionResult } from "@/server/actions/portions";
-import { DateSheet, PortionActionsSheet, SplitSheet, StockSheet } from "./PortionSheets";
+import { addStockCheckAction, setPortionDateAction, splitPortionAction, takeOffAction, type PortionResult } from "@/server/actions/portions";
+import { DateSheet, PortionActionsSheet, SplitSheet, StockSheet, type StockMode } from "./PortionSheets";
 
 /*
  * Portion actions, wired (TASK-03-02-02-FE2, 03-02-01-FE1): a portion row
  * opens SH-PORTION-ACTIONS with only its state's actions; dated ones go
  * through SH-DATE and split through SH-SPLIT. A failure keeps the sheet
- * open with retry. Weighing (SH-STOCK) joins with EPIC-03-04's screens.
+ * open with retry. SH-STOCK corrects what's left: weighed, or with grams
+ * taken off for spills and shots that weren't logged.
  */
 
 export type PortionInfo = {
@@ -39,6 +40,8 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
   const [day, setDay] = useState("");
   const [take, setTake] = useState(1);
   const [weighed, setWeighed] = useState(0);
+  const [stockMode, setStockMode] = useState<StockMode>("weigh");
+  const [takeOff, setTakeOff] = useState(1);
   const [freezeNew, setFreezeNew] = useState(true);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const [dateError, setDateError] = useState<string | undefined>();
@@ -65,6 +68,7 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
     setChosen(id);
     setState("idle");
     setWeighed(Math.round(p?.remaining ?? 0));
+    setStockMode("weigh");
     setStep("weigh");
   };
 
@@ -77,6 +81,8 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
       setStep(action as DatedAction);
     } else if (action === "weigh") {
       setWeighed(Math.round(portion.remaining));
+      setStockMode("weigh");
+      setTakeOff(1);
       setStep("weigh");
     } else if (action === "split") {
       setTake(Math.max(1, Math.floor(portion.remaining / 2)));
@@ -114,7 +120,7 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
   const confirmWeigh = async () => {
     if (!portion) return;
     setState("saving");
-    settle(await addStockCheckAction(portion.id, weighed));
+    settle(await (stockMode === "takeOff" ? takeOffAction(portion.id, takeOff) : addStockCheckAction(portion.id, weighed)));
   };
 
   const failure = (retry: () => void) =>
@@ -178,7 +184,21 @@ export function usePortionActions(portions: PortionInfo[]): { open: (id: string)
           weight: t("portion.stockWeight"),
           hint: t("portion.stockHint"),
           save: t("portion.saveWeight"),
+          takeOff: {
+            mode: t("portion.stockMode"),
+            weigh: t("portion.stockModeWeigh"),
+            takeOff: t("portion.stockModeTakeOff"),
+            amount: t("portion.takeOffAmount"),
+            hint: t("portion.takeOffHint"),
+            remainder: (g) => t("portion.takeOffRemainder", { grams: grams(g) }),
+            save: t("portion.takeOffSave"),
+          },
         }}
+        mode={stockMode}
+        onModeChange={setStockMode}
+        remaining={portion?.remaining ?? 0}
+        takeOff={takeOff}
+        onTakeOffChange={setTakeOff}
         grams={weighed}
         max={Math.max(portion?.weight ?? 0, portion?.remaining ?? 0)}
         onGramsChange={setWeighed}

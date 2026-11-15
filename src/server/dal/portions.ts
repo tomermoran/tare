@@ -112,3 +112,17 @@ export async function addStockCheck(portionId: string, grams: number, { now = ne
   if (!Number.isFinite(grams) || grams < 0 || grams > MAX_BAG_GRAMS) throw new InvalidPortionActionError("badWeight");
   await db.insert(stockChecks).values({ id: newId(), portionId, remainingWeight: Math.round(grams * 10) / 10, checkedAt: now });
 }
+
+/**
+ * Take some off what's left without weighing: spilled beans, or shots that
+ * weren't logged. Stored as a stock check at what's left now minus the
+ * grams, so later doses come off it like any other check; never below zero.
+ */
+export async function takeOff(portionId: string, grams: number, { now = new Date() }: { now?: Date } = {}): Promise<void> {
+  const portion = await load(portionId);
+  check(portionState(portion), "weigh");
+  if (!Number.isFinite(grams) || grams <= 0 || grams > MAX_BAG_GRAMS) throw new InvalidPortionActionError("badWeight");
+  const left = (await getRemaining([portionId])).get(portionId)?.grams ?? portion.weight;
+  const remainingWeight = Math.max(0, Math.round((left - grams) * 10) / 10);
+  await db.insert(stockChecks).values({ id: newId(), portionId, remainingWeight, checkedAt: now });
+}

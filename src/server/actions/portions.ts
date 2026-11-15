@@ -2,7 +2,7 @@
 
 import { fail, ok, runAction, type ActionError, type ActionResult } from "@/lib/actionResult";
 import { DATED_ACTIONS, type DatedAction } from "@/domain/portionActions";
-import { addStockCheck, InvalidPortionActionError, setPortionDate, splitPortion } from "@/server/dal/portions";
+import { addStockCheck, InvalidPortionActionError, setPortionDate, splitPortion, takeOff } from "@/server/dal/portions";
 import { getTimeZone } from "@/server/time";
 
 /** A date the sheet shows in ink on the field (SQ-09), or a general failure. */
@@ -38,4 +38,11 @@ export async function addStockCheckAction(portionId: string, grams: number): Pro
   if (typeof portionId !== "string" || !portionId) return fail("notFound");
   if (typeof grams !== "number") return { ok: false, error: "badWeight" };
   return run(() => addStockCheck(portionId, grams));
+}
+
+/** SH-STOCK's other way: take grams off what's left, for spills or unlogged shots. */
+export async function takeOffAction(portionId: string, grams: number): Promise<PortionResult> {
+  if (typeof portionId !== "string" || !portionId) return fail("notFound");
+  if (typeof grams !== "number") return { ok: false, error: "badWeight" };
+  return run(() => takeOff(portionId, grams));
 }

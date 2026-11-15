@@ -195,3 +195,67 @@ export const WeighFailed: Story = {
     await expect(retried).toHaveBeenCalled();
   },
 };
+
+const takeOffLabels = {
+  mode: portion.stockMode,
+  weigh: portion.stockModeWeigh,
+  takeOff: portion.stockModeTakeOff,
+  amount: portion.takeOffAmount,
+  hint: portion.takeOffHint,
+  remainder: (g: number) => t("portion.takeOffRemainder", { grams: grams(g) }),
+  save: portion.takeOffSave,
+};
+
+function Correct({ remaining = 142, onSave = fn() }: { remaining?: number; onSave?: (mode: string, grams: number) => void }) {
+  const [mode, setMode] = useState<"weigh" | "takeOff">("weigh");
+  const [g, setG] = useState(Math.round(remaining));
+  const [off, setOff] = useState(1);
+  return (
+    <StockSheet
+      open
+      onClose={fn()}
+      labels={{ title: portion.stockTitle, close: actions.close, weight: portion.stockWeight, hint: portion.stockHint, save: portion.saveWeight, takeOff: takeOffLabels }}
+      mode={mode}
+      onModeChange={setMode}
+      grams={g}
+      max={250}
+      onGramsChange={setG}
+      remaining={remaining}
+      takeOff={off}
+      onTakeOffChange={setOff}
+      onSave={() => onSave(mode, mode === "takeOff" ? off : g)}
+    />
+  );
+}
+
+const tookOff = fn();
+/** No scale needed: take grams off for a spill or a shot that wasn't logged, with what's left shown live. */
+export const TakeSomeOff: Story = {
+  render: () => <Correct onSave={tookOff} />,
+  play: async () => {
+    const canvas = within(document.body);
+    const modes = await waitFor(() => canvas.getByRole("radiogroup", { name: portion.stockMode }));
+    await expect(within(modes).getByRole("radio", { name: portion.stockModeWeigh })).toBeChecked();
+    await userEvent.click(within(modes).getByRole("radio", { name: portion.stockModeTakeOff }));
+    const wheel = canvas.getByRole("slider", { name: portion.takeOffAmount });
+    await expect(wheel).toHaveAttribute("aria-valuemax", "142");
+    wheel.focus();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    await expect(canvas.getByText(t("portion.takeOffRemainder", { grams: grams(139) }))).toBeInTheDocument();
+    await expect(canvas.getByText(portion.takeOffHint)).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: portion.takeOffSave }));
+    await expect(tookOff).toHaveBeenCalledWith("takeOff", 3);
+  },
+};
+
+/** An empty portion has nothing to take off: only weighing is offered. */
+export const NothingToTakeOff: Story = {
+  render: () => <Correct remaining={0} />,
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByRole("slider", { name: portion.stockWeight })).toBeInTheDocument());
+    await expect(canvas.queryByRole("radiogroup", { name: portion.stockMode })).toBeNull();
+  },
+};
+
+export const TakeSomeOffRightToLeft: Story = { render: () => <Correct />, globals: { direction: "rtl" } };
