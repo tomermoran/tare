@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState, type ComponentProps } from "react";
 import { expect, fn, userEvent, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
+import { MILK_RANGE } from "@/domain/milk";
 import { msToSeconds } from "@/lib/units";
 import { NumberWheel } from "./NumberWheel";
 import { createTranslator } from "next-intl";
@@ -105,6 +106,19 @@ export const Temperature: Story = {
     step: 0.5,
     majorEvery: 2,
     unit: "celsius",
+  },
+};
+
+/** Milk in millilitres, 0 to 500 in tens (DQ-26), with Intl's millilitre unit (TASK-01-03-07-FE1). */
+export const Milk: Story = {
+  args: { label: messages.log.milkAmount, value: 150, ...MILK_RANGE, majorEvery: 5, unit: "milliliter" },
+  play: async ({ canvasElement }) => {
+    const slider = within(canvasElement).getByRole("slider", { name: messages.log.milkAmount });
+    await expect(slider).toHaveAttribute("aria-valuemax", "500");
+    await expect(slider.getAttribute("aria-valuetext")).toMatch(/millilit/i);
+    slider.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(slider).toHaveAttribute("aria-valuenow", "160");
   },
 };
 
