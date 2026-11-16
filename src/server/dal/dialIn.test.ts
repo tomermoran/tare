@@ -71,6 +71,7 @@ describe("getDialInStart (STORY-02-01-06)", () => {
       brew: { brewTempC: 93, brewTempStep: null, pressureBar: null, pressureStep: null },
       prep: { wdt: true, puckScreen: false },
       milk: { milkTypeId: null, milkMl: null },
+      sweetened: false,
       grindCarried: true,
     });
   });

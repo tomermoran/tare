@@ -492,6 +492,9 @@ export const pinnedRecipes = sqliteTable(
       .default(false),
     milkTypeId: text("milk_type_id").references(() => milkTypes.id), // The usual milk
     milkMl: real("milk_ml"),
+    // Whether the drink is usually sweetened: yes or no only, never part of a
+    // recipe's identity (not in the key index). Logs from the recipe start ticked.
+    sweetened: integer("sweetened", { mode: "boolean" }).notNull().default(false),
 
     sourceExtractionId: text("source_extraction_id").references(
       () => extractions.id,

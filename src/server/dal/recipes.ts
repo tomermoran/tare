@@ -13,7 +13,7 @@ import { checkValues } from "./shots";
 
 /*
  * Pinned recipes (EPIC-02-01). A recipe is keyed by coffee, persona, setup
- * and drink; milk and prep are never part of the key. Re-pinning adds a row
+ * and drink; milk, prep and sweetened are never part of the key. Re-pinning adds a row
  * and the latest pin wins; older rows are kept, unchanged (STORY-02-01-03).
  * getCurrentRecipe is the one "which recipe applies now" function (review
  * m10): everything that needs a recipe goes through it.
@@ -28,6 +28,8 @@ export type RecipeValues = {
   usedPuckScreen: boolean;
   milkTypeId: string | null;
   milkMl: number | null;
+  /** Whether the drink is usually sweetened; logs from the recipe start ticked. */
+  sweetened: boolean;
 } & BrewValues;
 
 export type RecipeKey = { beanId: string; personaId: string; setupId: string; drinkTypeId: string };
@@ -61,6 +63,7 @@ export const RECIPE_FIELDS = [
   "usedPuckScreen",
   "milkTypeId",
   "milkMl",
+  "sweetened",
 ] as const satisfies readonly (keyof RecipeValues)[];
 export type RecipeField = (typeof RECIPE_FIELDS)[number];
 
@@ -85,6 +88,7 @@ const toRecipe = (r: Row): Recipe => ({
   usedPuckScreen: r.usedPuckScreen,
   milkTypeId: r.milkTypeId,
   milkMl: r.milkMl,
+  sweetened: r.sweetened,
   sourceExtractionId: r.sourceExtractionId,
   pinnedAt: r.pinnedAt,
 });
@@ -199,6 +203,7 @@ async function fromShot(shotId: string): Promise<{ key: RecipeKey; values: Recip
       usedPuckScreen: s.usedPuckScreen,
       milkTypeId: s.milkTypeId,
       milkMl: s.milkMl,
+      sweetened: s.sweetened === true,
     },
   };
 }
@@ -229,6 +234,7 @@ const insert = (householdId: string, key: RecipeKey, values: RecipeValues, sourc
       usedPuckScreen: values.usedPuckScreen,
       milkTypeId: values.milkTypeId,
       milkMl: values.milkMl,
+      sweetened: values.sweetened,
       sourceExtractionId,
       pinnedAt: now,
     })
@@ -237,7 +243,7 @@ const insert = (householdId: string, key: RecipeKey, values: RecipeValues, sourc
 
 /**
  * Pin a measured shot (STORY-02-01-01 AC 2): its values, temperature and
- * pressure, prep, milk, setup, drink and persona, for its coffee. Values are
+ * pressure, prep, milk, whether it was sweetened (STORY-02-01-07), setup, drink and persona, for its coffee. Values are
  * copied, so editing the shot later leaves the recipe as it was (AC 6).
  */
 export async function pinFromShot(shotId: string, now = new Date()): Promise<{ id: string }> {
@@ -291,6 +297,7 @@ async function entered(input: EnteredRecipe): Promise<{ key: RecipeKey; values: 
       usedPuckScreen: v.usedPuckScreen === true,
       milkTypeId: milk.milkTypeId,
       milkMl: milk.ml,
+      sweetened: v.sweetened === true,
     },
   };
 }

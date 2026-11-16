@@ -51,7 +51,7 @@ export const UNDO_MS = 8_000;
 /** The card returns to its normal state after this long (design 2.3). */
 export const PULLED_MS = 30_000;
 
-type Pulled = { shotId: string | null; undo: boolean; reaction?: Reaction | null; reactionFailed?: Reaction };
+type Pulled = { shotId: string | null; undo: boolean; sweetened?: boolean; reaction?: Reaction | null; reactionFailed?: Reaction };
 /** Which bag: for a pull, or for a dial-in that opens the log with it. */
 type Choosing = { portions: PortionChoice[]; dialIn?: DialInAction } | null;
 
@@ -182,7 +182,9 @@ export function BrewFlow({
     clientId.current = null;
     // What was pulled becomes the usual through history (AC 5).
     clearBrewChoice();
-    setPulled({ shotId: outcome.shotId, undo: true });
+    setPulled({ shotId: outcome.shotId, undo: true, sweetened: outcome.sweetened });
+    // The recipe's sweetened is copied onto the shot, so say so (STORY-02-01-09).
+    if (outcome.sweetened) setSaid(t("home.pulledSweetened"));
     router.refresh();
   };
 
@@ -270,7 +272,7 @@ export function BrewFlow({
             {pulled ? (
               <PulledState
                 labels={{
-                  pulled: t("home.pulled"),
+                  pulled: t(pulled.sweetened ? "home.pulledSweetened" : "home.pulled"),
                   undo: t("home.undo"),
                   reaction: { label: t("home.reactionLabel"), good: t("home.reactionGood"), off: t("home.reactionOff") },
                 }}

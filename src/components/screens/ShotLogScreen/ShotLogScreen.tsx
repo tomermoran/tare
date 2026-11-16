@@ -256,15 +256,13 @@ export function ShotLogScreen({
         <Toggle label={t("prepWdt")} checked={prep.wdt} onChange={(v) => setPrep("wdt", v)} className="py-3" />
         <Toggle label={t("prepPuckScreen")} checked={prep.puckScreen} onChange={(v) => setPrep("puckScreen", v)} className="py-3" />
       </section>
-      {/* A recipe isn't a drink someone had, so there's nothing to sweeten (STORY-02-01-02). */}
-      {mode !== "recipe" && (
-        <Toggle
-          label={t("sweetened")}
-          checked={sweetened}
-          onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
-          className="mt-2 border-t border-line py-4"
-        />
-      )}
+      {/* In recipe mode too: a recipe remembers whether the drink is sweetened (STORY-02-01-07 AC 3). */}
+      <Toggle
+        label={t("sweetened")}
+        checked={sweetened}
+        onChange={(v) => (onSweetenedChange ? onSweetenedChange(v) : setOwnSweetened(v))}
+        className="mt-2 border-t border-line py-4"
+      />
       {taste && <div className="mt-6 flex flex-col gap-8 border-t border-line pt-6">{taste}</div>}
       {notice && <div className="mt-2">{notice}</div>}
       {/* Pinned above the safe area, so Save is always in reach; the toggles may scroll under it. */}

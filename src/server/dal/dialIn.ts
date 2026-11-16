@@ -18,7 +18,7 @@ import { setupsLastUsed } from "./setups";
  * Where a dial-in starts when this setup has no recipe for the coffee and
  * drink (STORY-02-01-06): the recipe on the closest setup that has one
  * (most shared parts, then most recently used), carried over by DQ-20. Dose,
- * yield, time, prep and milk come with it; grind and temperature and
+ * yield, time, prep, milk and sweetened come with it; grind and temperature and
  * pressure only with the same grinder or machine.
  */
 
@@ -29,6 +29,8 @@ export type DialInStart = {
   brew: BrewValues;
   prep: Prep;
   milk: { milkTypeId: string | null; milkMl: number | null };
+  /** The recipe's sweetened tick; not tied to a part, so it carries over like prep (STORY-02-01-08). */
+  sweetened: boolean;
   /** False when grind didn't carry over, so the log says so (AC 4). */
   grindCarried: boolean;
 };
@@ -73,6 +75,7 @@ export async function getDialInStart(input: { beanId: string; drinkTypeId: strin
     brew: carried.brew,
     prep: { wdt: recipe.usedWdt, puckScreen: recipe.usedPuckScreen },
     milk: { milkTypeId: recipe.milkTypeId, milkMl: recipe.milkMl },
+    sweetened: recipe.sweetened,
     grindCarried: carried.grindCarried,
   };
 }

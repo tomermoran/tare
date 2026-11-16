@@ -19,7 +19,7 @@ import type { Prep } from "@/domain/prep";
  * (AC 3, AC 4). Choosing another drink or setup reloads its own start.
  */
 
-type Draft = { values: DialValues; prep: Prep; milkTypeId: string | null };
+type Draft = { values: DialValues; prep: Prep; sweetened: boolean; milkTypeId: string | null };
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -38,6 +38,7 @@ export function RecipeLogFlow({
   brew,
   brewStart,
   prep,
+  sweetened,
   milk,
   pinTitle,
   backTo,
@@ -56,6 +57,8 @@ export function RecipeLogFlow({
   brew: BrewTabs;
   brewStart: BrewDial;
   prep: Prep;
+  /** As the current recipe has it, else off (STORY-02-01-07 AC 3). */
+  sweetened: boolean;
   milk: MilkChoice | null;
   pinTitle: string;
   /** The bag, where cancelling and pinning go. */
@@ -66,6 +69,7 @@ export function RecipeLogFlow({
   const [initial] = useState<Draft>(() => ({
     values: milk ? { ...toDial(start, brewStart), milk: milk.ml } : toDial(start, brewStart),
     prep,
+    sweetened,
     milkTypeId: milk?.milkTypeId ?? null,
   }));
   const [draft, setDraft] = useState(initial);
@@ -83,7 +87,7 @@ export function RecipeLogFlow({
     proceed(() => router.replace(`/log?${query}`));
   };
 
-  const save = (values: ShotValuesData, _sweetened: boolean, dial: BrewDial, ticks: Prep) =>
+  const save = (values: ShotValuesData, sweet: boolean, dial: BrewDial, ticks: Prep) =>
     void pin.pinEntered({
       batchId,
       setupId,
@@ -98,6 +102,7 @@ export function RecipeLogFlow({
         usedPuckScreen: ticks.puckScreen,
         milkTypeId: milk ? draft.milkTypeId : null,
         milkMl: milk && draft.milkTypeId ? (draft.values.milk ?? milk.ml) : null,
+        sweetened: sweet,
       },
     });
 
@@ -132,6 +137,8 @@ export function RecipeLogFlow({
         onValuesChange={(values) => setDraft((d) => ({ ...d, values }))}
         prep={draft.prep}
         onPrepChange={(key, value) => setDraft((d) => ({ ...d, prep: { ...d.prep, [key]: value } }))}
+        sweetened={draft.sweetened}
+        onSweetenedChange={(value) => setDraft((d) => ({ ...d, sweetened: value }))}
         readOnly={["coffee"]}
         notice={pin.status}
         onPick={setPicking}

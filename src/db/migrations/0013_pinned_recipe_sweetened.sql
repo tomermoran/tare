@@ -1,0 +1,1 @@
+ALTER TABLE `pinned_recipes` ADD `sweetened` integer DEFAULT false NOT NULL;

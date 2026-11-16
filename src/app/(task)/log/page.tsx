@@ -13,7 +13,7 @@ import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { setupLabel } from "@/domain/setupName";
 import { getLogContext, getStartingValues, NEUTRAL_START, type LogContext, type LogPortion } from "@/server/dal/logContext";
-import { lastGrindOnPart } from "@/server/dal/dialIn";
+import { getDialInStart, lastGrindOnPart } from "@/server/dal/dialIn";
 import { getShot } from "@/server/dal/journal";
 import { getRecipeForBag } from "@/server/dal/recipes";
 import { getDialInFromRecipe, getDialInFromShot, getFixStart, type LogStart } from "@/server/dal/logStart";
@@ -118,7 +118,12 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     : { grind: middleGrind(grind), ...NEUTRAL_START, lastBrew: NO_BREW_VALUES, prep: NO_PREP };
   const brew = brewTabs(setup?.machine);
   // A fix keeps the one-tap shot's setup, so there's nothing to switch to.
-  const setupChoices = prefilled?.mode === "fix" ? [] : await logSetupChoices(context, list, t("setup.current"));
+  // Dialling in from Brew's recipe: sweetened follows each setup's recipe, or its closest one (STORY-02-01-08 AC 4).
+  const recipeDialIn = prefilled?.mode === "dialIn" && !one(params.fromShot) ? { beanId: one(params.beanId)!, drinkTypeId: prefilled.start.drinkTypeId } : null;
+  const sweetenedOn = recipeDialIn
+    ? async (setupId: string) => (await getDialInStart({ ...recipeDialIn, setupId }))?.sweetened ?? false
+    : undefined;
+  const setupChoices = prefilled?.mode === "fix" ? [] : await logSetupChoices(context, list, t("setup.current"), sweetenedOn);
 
   const p = prefilled?.start;
   const applied: LogApplied | undefined = p && {
@@ -126,6 +131,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     brew: brewToDial(brew, p.applied.brew),
     prep: p.applied.prep,
     milk: p.milkTypeId || p.start.milkMl !== null ? { milkTypeId: p.milkTypeId, ml: p.applied.milkMl ?? MILK_FALLBACK_ML, wasMl: p.start.milkMl ?? MILK_FALLBACK_ML } : null,
+    sweetened: p.sweetened,
   };
   const note: string[] = [];
   if (p) {
@@ -265,6 +271,7 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
         pressureStep: stored.pressureStep,
       })}
       prep={recipe ? { wdt: recipe.usedWdt, puckScreen: recipe.usedPuckScreen } : last!.prep}
+      sweetened={recipe?.sweetened ?? false}
       milk={milkStart({
         drink,
         recipe: recipe ? { milkTypeId: recipe.milkTypeId, ml: recipe.milkMl } : null,
@@ -282,7 +289,12 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
  * dials, where prep starts, and where grind starts when it doesn't carry
  * over (the grinder's last measured grind, else the middle, DQ-20).
  */
-async function logSetupChoices(context: LogContext, list: (items: string[]) => string, currentLabel: string): Promise<LogSetupChoice[]> {
+async function logSetupChoices(
+  context: LogContext,
+  list: (items: string[]) => string,
+  currentLabel: string,
+  sweetenedOn?: (setupId: string) => Promise<boolean>,
+): Promise<LogSetupChoice[]> {
   if (context.setups.length < 2) return [];
   const ordered = [...context.setups].sort((a, b) => Number(b.id === context.defaultSetupId) - Number(a.id === context.defaultSetupId));
   return Promise.all(
@@ -290,7 +302,11 @@ async function logSetupChoices(context: LogContext, list: (items: string[]) => s
       const grinder = s.parts.find((p) => p.kind === "grinder")?.id ?? null;
       const machine = s.parts.find((p) => p.kind === "machine")?.id ?? null;
       const wheel = grindWheelConfig(s.grind);
-      const [start, last] = await Promise.all([getStartingValues(s.id), grinder ? lastGrindOnPart(grinder) : null]);
+      const [start, last, sweetened] = await Promise.all([
+        getStartingValues(s.id),
+        grinder ? lastGrindOnPart(grinder) : null,
+        sweetenedOn?.(s.id),
+      ]);
       const brew = brewTabs(s.machine);
       return {
         id: s.id,
@@ -300,6 +316,7 @@ async function logSetupChoices(context: LogContext, list: (items: string[]) => s
         brew,
         brewLast: brewToDial(brew, start.lastBrew),
         prep: start.prep,
+        sweetened,
         startGrind: last ?? middleGrind(wheel),
         parts: { grinderId: grinder, machineId: machine },
         unknownPart: s.unknownPart,
