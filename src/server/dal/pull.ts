@@ -52,7 +52,7 @@ export type PullInput = {
 export type PortionChoice = LogPortion & { remaining: Remaining | null };
 
 export type PullResult =
-  | { kind: "pulled"; shotId: string; openedPortion: boolean }
+  | { kind: "pulled"; shotId: string; openedPortion: boolean; sweetened: boolean }
   /** None of the coffee is open: ask which portion, counter first, frozen last (AC 1). */
   | { kind: "needsPortion"; portions: PortionChoice[] }
   /** Nothing of the coffee is left (AC 4). */
@@ -109,6 +109,7 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
     usedPuckScreen: recipe.usedPuckScreen,
     milkTypeId: recipe.milkTypeId,
     milkMl: recipe.milkMl,
+    sweetened: recipe.sweetened, // Copied like prep and milk (STORY-02-01-09, DQ-44)
     // One-tap shots are never measurements (S-02).
     isNetworkEligible: false,
     createdAt: now,
@@ -125,7 +126,7 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
     if (raced) return raced;
     throw e;
   }
-  return { kind: "pulled", shotId: input.clientId, openedPortion: opens };
+  return { kind: "pulled", shotId: input.clientId, openedPortion: opens, sweetened: recipe.sweetened };
 }
 
 async function withRemaining(portions: LogPortion[]): Promise<PortionChoice[]> {
@@ -146,13 +147,18 @@ export async function portionChoices(beanId: string, now = new Date()): Promise<
 
 async function madeAlready(shotId: string, householdId: string): Promise<PullResult | null> {
   const [row] = await db
-    .select({ householdId: extractions.householdId, at: extractions.createdAt, openedAt: batchPortions.openedAt })
+    .select({
+      householdId: extractions.householdId,
+      at: extractions.createdAt,
+      openedAt: batchPortions.openedAt,
+      sweetened: extractions.sweetened,
+    })
     .from(extractions)
     .innerJoin(batchPortions, eq(batchPortions.id, extractions.portionId))
     .where(eq(extractions.id, shotId));
   if (!row) return null;
   if (row.householdId !== householdId) throw new NotFoundError();
-  return { kind: "pulled", shotId, openedPortion: row.openedAt?.getTime() === row.at.getTime() };
+  return { kind: "pulled", shotId, openedPortion: row.openedAt?.getTime() === row.at.getTime(), sweetened: row.sweetened === true };
 }
 
 /**

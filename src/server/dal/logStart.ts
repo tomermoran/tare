@@ -81,6 +81,8 @@ export type LogStart = {
   /** With the change made: where the dial opens. */
   applied: StartValues;
   milkTypeId: string | null;
+  /** Where the sweetened tick starts: the recipe's, or a past shot's own (STORY-02-01-08). */
+  sweetened: boolean;
   /** The change made, with what's needed to word it; null when none. */
   suggestion: ShotSuggestion | null;
   /** Dial-in from another setup's recipe (STORY-02-01-06 AC 3, AC 4). */
@@ -155,6 +157,7 @@ export async function getFixStart(shotId: string, suggested?: string): Promise<L
     start,
     applied: applyChange(start, suggestion?.change ?? null),
     milkTypeId: recipe ? recipe.milkTypeId : s.milkTypeId,
+    sweetened: recipe ? recipe.sweetened : s.sweetened === true,
     suggestion,
     from: null,
     fromShot: null,
@@ -183,6 +186,7 @@ export async function getDialInFromShot(shotId: string, suggested?: string, port
     start,
     applied: applyChange(start, suggestion?.change ?? null),
     milkTypeId: s.milkTypeId,
+    sweetened: s.sweetened === true,
     suggestion,
     from: null,
     fromShot: suggested ? null : { at: s.createdAt },
@@ -237,6 +241,7 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
     start,
     applied: applyChange(start, suggestion?.change ?? null),
     milkTypeId: dialIn.milk.milkTypeId,
+    sweetened: dialIn.sweetened,
     suggestion,
     from: dialIn.fromSetupId === setupId ? null : { setupId: dialIn.fromSetupId, grindCarried: dialIn.grindCarried },
     fromShot: null,

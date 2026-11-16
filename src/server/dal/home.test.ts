@@ -70,7 +70,7 @@ describe("getHome (STORY-02-02-01)", () => {
         batchId: k.batch.id,
         setupId: k.setup.id,
         drinkTypeId: k.drinks.espresso.id,
-        values: { grind: 15, dose: 18, yield: 36, timeMs: 28_000, brewTempC: null, brewTempStep: null, pressureBar: null, pressureStep: null, usedWdt: false, usedPuckScreen: false, milkTypeId: null, milkMl: null },
+        values: { grind: 15, dose: 18, yield: 36, timeMs: 28_000, brewTempC: null, brewTempStep: null, pressureBar: null, pressureStep: null, usedWdt: false, usedPuckScreen: false, milkTypeId: null, milkMl: null, sweetened: false },
       },
       at(1, 9),
     );

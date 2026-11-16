@@ -61,6 +61,7 @@ const ENTERED: RecipeValues = {
   usedPuckScreen: false,
   milkTypeId: null,
   milkMl: null,
+  sweetened: false,
 };
 
 describe("pinning a shot (STORY-02-01-01)", () => {
