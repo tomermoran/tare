@@ -7,7 +7,7 @@ import type { RecipeValues } from "@/server/dal/recipes";
 type T = Awaited<ReturnType<typeof getTranslations<never>>>;
 type F = Awaited<ReturnType<typeof getFormatter>>;
 
-/** The quiet lines under the values: milk, puck prep, temperature and pressure (design 2.3, item 4). */
+/** The quiet lines under the values: milk, puck prep, sweetened, temperature and pressure (design 2.3, item 4; 5.0a). */
 export function recipeLines(
   recipe: RecipeValues,
   drink: { hasMilk: boolean; milks: readonly LogMilk[] },
@@ -22,6 +22,7 @@ export function recipeLines(
   }
   const tools = [recipe.usedWdt && t("log.prepWdt"), recipe.usedPuckScreen && t("log.prepPuckScreen")].filter((x): x is string => !!x);
   if (tools.length) lines.push(t("home.prep", { tools: format.list(tools, { type: "conjunction" }) }));
+  if (recipe.sweetened) lines.push(t("recipe.sweetenedLine"));
   const value = (field: string, v: string) => t("recipe.valueLine", { field, value: v });
   if (recipe.brewTempC !== null)
     lines.push(value(t("shot.temperature"), format.number(recipe.brewTempC, { style: "unit", unit: "celsius", maximumFractionDigits: 1 })));

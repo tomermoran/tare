@@ -47,6 +47,7 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
     usedPuckScreen: t("log.prepPuckScreen"),
     milkTypeId: t("shot.milk"),
     milkMl: t("log.milkAmount"),
+    sweetened: t("log.sweetened"),
   };
 
   const value = (v: RecipeValues, f: RecipeField): string => {
@@ -70,6 +71,8 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
       case "usedWdt":
       case "usedPuckScreen":
         return t(x ? "recipe.yes" : "recipe.no");
+      case "sweetened":
+        return t(x ? "shot.sweetenedYes" : "shot.sweetenedNo");
       case "milkTypeId":
         return milkName(x as string);
       case "milkMl":
@@ -84,6 +87,8 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
     }
     const tools = [v.usedWdt && t("log.prepWdt"), v.usedPuckScreen && t("log.prepPuckScreen")].filter((x): x is string => !!x);
     if (tools.length) lines.push(t("recipe.prepLine", { tools: format.list(tools, { type: "conjunction" }) }));
+    // Said only when yes, like prep (design 5.0a, item 1).
+    if (v.sweetened) lines.push(t("recipe.sweetenedLine"));
     const temp = v.brewTempC !== null ? "brewTempC" : v.brewTempStep !== null ? "brewTempStep" : null;
     if (temp) lines.push(t("recipe.valueLine", { field: LABEL[temp], value: value(v, temp) }));
     const pressure = v.pressureBar !== null ? "pressureBar" : v.pressureStep !== null ? "pressureStep" : null;

@@ -41,6 +41,8 @@ type Draft = {
   portionId: string | null;
   values: DialValues;
   sweetened: boolean;
+  /** Changed by the user, so a setup change leaves it alone (STORY-02-01-08 AC 4). */
+  sweetenedTouched?: boolean;
   prep: Prep;
   /** Ticks the user changed, which a setup change leaves alone (STORY-01-03-06 AC 4). */
   prepTouched: PrepKey[];
@@ -57,6 +59,8 @@ export type LogSetupChoice = SelectOption & {
   brewLast: BrewDial;
   /** Where prep ticks start on this setup. */
   prep: Prep;
+  /** Where sweetened starts on this setup, when the log starts from a recipe; absent leaves it as it is. */
+  sweetened?: boolean;
   /** Grind on this setup's grinder when it doesn't carry: its last measured value, else the middle. */
   startGrind: number;
   parts: SetupPartIds;
@@ -76,6 +80,8 @@ export type LogApplied = {
   brew: BrewDial;
   prep: Prep;
   milk: { milkTypeId: string | null; ml: number; wasMl: number } | null;
+  /** The recipe's sweetened tick, or a past shot's own (STORY-02-01-08). */
+  sweetened: boolean;
 };
 
 export function ShotLogFlow({
@@ -160,7 +166,9 @@ export function ShotLogFlow({
       drinkId: defaultDrinkId,
       portionId: defaultPortionId,
       values: { ...toDial(applied?.values ?? start, applied?.brew ?? brewStart), ...(milk && { milk: milk.ml }) },
-      sweetened: false,
+      // A log from a recipe starts as the recipe has it; a blank one starts off (STORY-02-01-08).
+      sweetened: applied?.sweetened ?? false,
+      sweetenedTouched: false,
       prep: applied?.prep ?? prep,
       prepTouched: [],
       milkTypeId: milk?.milkTypeId ?? null,
@@ -185,6 +193,7 @@ export function ShotLogFlow({
       // Drafts from before puck prep have no ticks.
       prep: saved.prep ?? prep,
       prepTouched: saved.prepTouched ?? [],
+      sweetenedTouched: saved.sweetenedTouched ?? false,
       milkTypeId: known(saved.milkTypeId ?? null, milks),
       milkTouched: saved.milkTouched ?? [],
       drinkId: known(saved.drinkId, drinks) ?? defaultDrinkId,
@@ -235,6 +244,7 @@ export function ShotLogFlow({
         pressure: same.machine ? d.values.pressure : null,
       },
       prep: prepAfterSetupChange(d.prep, new Set(d.prepTouched), to.prep),
+      sweetened: d.sweetenedTouched || to.sweetened === undefined ? d.sweetened : to.sweetened,
     };
   }
 
@@ -247,7 +257,7 @@ export function ShotLogFlow({
     draft.milkTypeId !== initial.milkTypeId ||
     draft.drinkId !== initial.drinkId ||
     draft.portionId !== initial.portionId ||
-    draft.sweetened ||
+    draft.sweetened !== initial.sweetened ||
     draft.prep.wdt !== initial.prep.wdt ||
     draft.prep.puckScreen !== initial.prep.puckScreen ||
     (Object.keys(initial.values) as (keyof DialValues)[]).some((k) => {
@@ -340,7 +350,7 @@ export function ShotLogFlow({
         milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: recipeMilk?.wasMl ?? startMilk.ml } : null}
         note={note}
         sweetened={draft.sweetened}
-        onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened }))}
+        onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened, sweetenedTouched: true }))}
         prep={draft.prep}
         onPrepChange={(key, value) =>
           setDraft((d) => ({ ...d, prep: { ...d.prep, [key]: value }, prepTouched: [...new Set([...d.prepTouched, key])] }))
