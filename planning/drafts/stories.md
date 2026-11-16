@@ -1,4 +1,44 @@
-# Tare user stories (approved, revision 4)
+# Tare user stories (approved, revision 5)
+
+Source: `planning/drafts/epics.md` (revision 11, 32 epics), `planning/drafts/design.md` (approved after round 8), `docs/spec.md` (its "Updates" section overrides older sections).
+
+## Changes in revision 5
+
+Revision 4 had 138 stories and 401 points. Revision 5 has 162 stories and 457
+points. Existing IDs are stable; no ID is reused; one is retired (moved).
+
+Scope: the ten approved Next epics (02-04, 02-05, 03-05, 03-07, 04-02, 04-03,
+04-04, 05-01, 05-02, 05-03) and the MVP sweetened-on-recipes change in
+EPIC-02-01. INIT-06 is untouched. Every Next story now has full Given/When/Then
+criteria and cites the design tasks (DES-*) it depends on.
+
+| Epic | Kept as is | Revised in place | New | Retired or moved |
+|---|---|---|---|---|
+| EPIC-02-01 (MVP, sweetened) | 01, 02, 03, 05 | none (one-criterion amendments to 02-01-04 and 02-01-06, and to 01-03-04, 02-02-01, 02-02-02, 02-03-02, 02-03-03) | 07, 08, 09 | none |
+| EPIC-02-04 | none | 01, 02 | 03, 04 | none |
+| EPIC-02-05 | none | 01, 02, 03, 04, 05, 06 | 07, 08 | none |
+| EPIC-03-05 (run-out only) | none | 01, 02, 03 | none | 04 moved to EPIC-03-07 |
+| EPIC-03-07 (new epic) | n/a | n/a | 01 to 05 | n/a |
+| EPIC-04-02 | none | 01, 02, 03, 04, 05, 06 | 07, 08, 09 | none |
+| EPIC-04-03 | none | 01, 02, 03 | 04, 05 | none |
+| EPIC-04-04 | none | 01, 02 | 03 | none |
+| EPIC-05-01 | none | 01, 02, 03, 04 | 05, 06, 07 | none |
+| EPIC-05-02 (now Next) | none | 01, 02, 03, 04 | 05, 06, 07 | none |
+| EPIC-05-03 | none | 01, 02, 03 | 04 | none |
+
+- **New: 25 stories.** **Retired (moved): 1**, STORY-03-05-04, whose scope is
+  now STORY-03-07-01, 03-07-02 and 03-07-03. Its ID is never reused.
+- **Required fix done:** STORY-05-03-02 AC 3 (the sign-in offer is on the
+  first-run Brew screen and Profile, not the start screen), plus AC 4 and 5.
+- **Closed questions applied:** INIT-02 Q1 (DQ-29, so the placeholder in
+  STORY-02-04-01 is gone), INIT-03 Q1 (DQ-39), INIT-04 Q2, Q3, Q4 (DQ-32
+  revised, DQ-31, DQ-30), SQ-18 (DQ-33, prep), SQ-11 (PEC-16, a bag's own recipe
+  can be removed), INIT-05 Q2 (DQ-41), the EPIC-05-01 delete question (DQ-35).
+- **Story-level terms.** The persona on a story is "home enthusiast" unless
+  the household matters, when it is household member, main persona or sub
+  persona. "Profile" is a persona as people see it.
+
+## Revision 4 history
 
 Source: `planning/drafts/epics.md` (final, revision 10, 31 epics),
 `planning/drafts/design.md` (approved after round 3, with rounds 4 to 6
@@ -230,25 +270,26 @@ aren't counted as updates.
 | EPIC-01-04 | Record temperature and pressure when your machine has them | MVP | 2 | 6 |
 | EPIC-01-05 | Say how it tasted | MVP | 4 | 9 |
 | EPIC-01-06 | Add what's missing from the catalog | MVP | 9 | 26 |
-| EPIC-02-01 | Pin the recipe that worked | MVP | 5 | 16 |
+| EPIC-02-01 | Pin the recipe that worked | MVP | 8 | 22 |
 | EPIC-02-02 | Pull your daily shot in one tap | MVP | 7 | 21 |
 | EPIC-02-03 | Fix a bad shot from your recipe | MVP | 7 | 21 |
-| EPIC-02-04 | Give one bag its own recipe | Next | 2 | 5 |
-| EPIC-02-05 | Make the drink and milk lists yours | Next | 6 | 11 |
+| EPIC-02-04 | Give one bag its own recipe | Next | 4 | 9 |
+| EPIC-02-05 | Make the drink and milk lists yours | Next | 8 | 17 |
 | EPIC-02-06 | Look back in your journal | MVP | 6 | 16 |
 | EPIC-03-01 | Add a bag of beans | MVP | 4 | 10 |
 | EPIC-03-02 | Split and freeze a bag | MVP | 5 | 13 |
 | EPIC-03-03 | Know how fresh your beans really are | MVP | 4 | 10 |
 | EPIC-03-04 | See how much coffee is left | MVP | 3 | 7 |
-| EPIC-03-05 | Know when you'll run out, and find any coffee | Next | 4 | 11 |
+| EPIC-03-05 | Know when you'll run out | Next | 3 | 8 |
 | EPIC-03-06 | See every coffee you've tried | MVP | 4 | 9 |
+| EPIC-03-07 | Find any coffee in Beans | Next | 5 | 11 |
 | EPIC-04-01 | Record maintenance on your equipment | MVP | 4 | 8 |
-| EPIC-04-02 | Suggested grind that follows bean age and recent shots | Next | 6 | 21 |
-| EPIC-04-03 | Re-dial once after maintenance and keep every recipe | Next | 3 | 11 |
-| EPIC-04-04 | Keep recipes right after new burrs of a different design | Next | 2 | 5 |
-| EPIC-05-01 | Brew for someone else in the household | Next | 4 | 10 |
-| EPIC-05-02 | Invite them to take over their own profile | Later | 4 | 15 |
-| EPIC-05-03 | Keep your coffee history when you change phones | Next | 3 | 7 |
+| EPIC-04-02 | Suggested grind that follows bean age and recent shots | Next | 9 | 28 |
+| EPIC-04-03 | Re-dial once after maintenance and keep every recipe | Next | 5 | 14 |
+| EPIC-04-04 | Keep recipes right after new burrs of a different design | Next | 3 | 7 |
+| EPIC-05-01 | Brew for someone else in the household | Next | 7 | 19 |
+| EPIC-05-02 | Invite them to take over their own profile | Next (last) | 7 | 23 |
+| EPIC-05-03 | Keep your coffee history when you change phones | Next | 4 | 10 |
 | EPIC-06-01 | Scan a bag instead of typing it | Later | 3 | 11 |
 | EPIC-06-02 | Get a grounded fix when a shot goes wrong | Later | 3 | 18 |
 | EPIC-06-04 | Tare learns your palate as you log | Later | 3 | 11 |
@@ -256,12 +297,21 @@ aren't counted as updates.
 | EPIC-06-06 | Start a new bag from the community, tuned to you | Later | 4 | 16 |
 | EPIC-06-07 | Merge duplicate catalog entries, with AI suggestions | Later | 3 | 13 |
 
-| Priority | Epics | Stories | Points | Revision 2 |
+| Priority | Epics | Stories | Points | Revision 4 |
 |---|---|---|---|---|
-| MVP | 16 | 85 | 228 | 69 stories, 177 points |
-| Next | 8 | 30 | 81 | 27 stories, 74 points |
-| Later | 7 | 23 | 92 | unchanged |
-| **Total** | **31** | **138** | **401** | 119 stories, 343 points |
+| MVP | 16 | 88 | 234 | 85 stories, 228 points |
+| Next | 10 | 55 | 146 | 8 epics, 30 stories, 81 points |
+| Later | 6 | 19 | 77 | 7 epics, 23 stories, 92 points |
+| **Total** | **32** | **162** | **457** | 138 stories, 401 points |
+
+
+Where the points come from: MVP +6 (sweetened on recipes). Next +65: invites
+and leaving +23 (moved from Later at 15, so +8 net of that move), filters and
+origin +11, grind drift +7, profiles +9, the drinks and milks lists +6, the
+servicing and stretch epics +5, bag recipes +4, run-out −3 (the filters left),
+sign-in +3. Later −15 (EPIC-05-02 moved to Next).
+
+Revision 4 totals, for reference: MVP 16 epics, 85 stories, 228 points; Next 8, 30, 81; Later 7, 23, 92; total 31, 138, 401.
 
 **Where the MVP's 51 extra points come from:**
 
@@ -744,13 +794,16 @@ setup, retire, untracked tools. Not covered: deleting a setup.
 - **Acceptance criteria**
   1. Given I'm logging a shot, when I mark it sweetened, then the saved shot
      records that it was sweetened.
-  2. Given I start a shot, when the log opens, then sweetened starts off, and
-     if I leave it off the shot records it as not sweetened.
+  2. Given I open a blank shot log with no recipe behind it, when it opens,
+     then sweetened starts off; given the log starts from a recipe
+     (STORY-02-01-08), then it starts as the recipe has it. Either way I can
+     change it, and the saved shot records what I left.
   3. Given any drink type, when I log it, then I can mark it sweetened.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** MVP
 - **Size:** 1
 - **Notes:** Lightly updated (criterion 2: always starts off, per the design).
+  Revision 5: criterion 2 amended for sweetened on recipes (round 8).
 
 #### STORY-01-03-05: Enter and read numbers in my local format
 
@@ -1297,8 +1350,8 @@ Retired: STORY-02-01-05, replaced by STORY-02-01-06.
   drink and setup, so that every new bag of it starts from what worked.
 - **Acceptance criteria**
   1. Given recipes are pinned for a coffee, when I look at a bag of it, then I
-     see one recipe per drink and setup, with its values, puck prep, milk and
-     the date it was pinned.
+     see one recipe per drink and setup, with its values, puck prep, milk,
+     sweetened when the recipe is, and the date it was pinned.
   2. Given I add a new bag of the same coffee, when I look at it, then I see
      the recipes pinned for that coffee, not blank ones.
   3. Given a recipe, when I open it, then I can dial in from it or change it.
@@ -1328,7 +1381,8 @@ Retired: STORY-02-01-05, replaced by STORY-02-01-06.
      then it's the one with the most parts in common with my current setup;
      ties go to the one I used most recently.
   3. Given I dial in, when the log opens, then I'm told it starts from that
-     setup's recipe, and dose, yield, time, puck prep and milk come from it.
+     setup's recipe, and dose, yield, time, puck prep, milk and sweetened come
+     from it.
   4. Given the starting setup has the same grinder, when the log opens, then
      grind comes from its recipe too; given a different grinder, grind starts at
      this grinder's last measured value (else the middle of its range) and I'm
@@ -1345,7 +1399,104 @@ Retired: STORY-02-01-05, replaced by STORY-02-01-06.
   carry over because they aren't tied to a part (design; answers the
   EPIC-02-01 carry-over question). Design DES-02-01-05.
 
-**Coverage:** all In items covered, including milk on recipes.
+Header note for the epic: "Round 8 (Head of Product): a pinned recipe remembers
+the sweetened toggle, yes or no only. Sweetened is never part of a recipe's
+identity. Existing recipes read as not sweetened."
+
+#### STORY-02-01-07: Pin whether the drink is sweetened
+
+- **Parent:** EPIC-02-01
+- **Story:** As a home enthusiast, I want a pinned recipe to remember that the
+  drink is sweetened, so that I don't have to remember the sugar each time I
+  make it.
+- **Acceptance criteria**
+  1. Given a measured shot I'm pinning, when I look at the new recipe before
+     confirming, then it says "sweetened" only if that shot was sweetened
+     (nothing is said for a shot that wasn't), and confirming saves that shot's
+     value.
+  2. Given the recipe I'm replacing differs in sweetened, when I look at the
+     differences, then the change is listed in the same words as the other
+     changed values.
+  3. Given I'm entering a recipe by values, when I look at the prep ticks, then
+     I can tick sweetened next to them, starting as the current recipe for that
+     coffee, drink and setup has it, else unticked.
+  4. Given a sweetened and an unsweetened flat white of the same coffee on the
+     same setup, when I pin the second, then it replaces the same recipe:
+     sweetened is never part of which recipe it is.
+  5. Given recipes pinned before this change, when I look at them, then they
+     read as not sweetened, and nothing asks for a sugar amount or kind.
+  6. Given pinning fails, when I look, then nothing is pinned and I can try
+     again (as STORY-02-01-01).
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New (epics revision 11, design 5.0a items 1 and 2; DES-02-01-06).
+  Recipes need a new yes or no field the schema lacks (a tech note). Spec text
+  in S-02, S-04 and S-08 ("a mark on the shot") needs updating by the spec
+  owner. DQ-44c: pinning from a past shot copies that shot's value; a one-tap
+  shot can't be pinned, so a one-tap-only household has the value from its last
+  manual pin.
+
+#### STORY-02-01-08: Start a log from a recipe with sweetened already ticked
+
+- **Parent:** EPIC-02-01
+- **Story:** As a home enthusiast, I want a shot log that starts from my recipe
+  to start with sweetened ticked when the recipe is sweetened, so that I only
+  act on the days I don't sweeten.
+- **Acceptance criteria**
+  1. Given a sweetened recipe, when I dial in, fix an off shot, dial in on a
+     new setup from the closest setup's recipe, or enter a recipe, then the log
+     opens with sweetened ticked.
+  2. Given a recipe that isn't sweetened, or one pinned before this change, when
+     the log opens, then sweetened is unticked.
+  3. Given the log opened ticked, when I untick it and save, then the shot
+     records not sweetened and the recipe is unchanged.
+  4. Given I change the setup in the log before touching the tick, when the
+     setup changes, then the tick follows the recipe for the new setup (or its
+     closest setup); a tick I already changed keeps my choice.
+  5. Given a blank log with no recipe behind it, when it opens, then sweetened
+     is unticked; given I edit a saved shot, when it opens, then sweetened is
+     as that shot was saved.
+  6. Given I choose "Dial in from this" on a past shot (STORY-02-06-06), when
+     the log opens, then sweetened starts as that shot was saved (Q2).
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New (design 5.0a item 3; DES-02-01-06). Replaces the "always
+  starts off" rule for recipe-based logs (amends STORY-01-03-04 AC 2). Depends
+  on STORY-02-01-07. Q2, answered 2026-11-16: "Dial in from this"
+  (STORY-02-06-06) starts with the past shot's own sweetened value (AC 6).
+
+#### STORY-02-01-09: See and copy sweetened on Brew and recipe rows
+
+- **Parent:** EPIC-02-01
+- **Story:** As a home enthusiast, I want to see on Brew that my recipe is
+  sweetened, and have the one-tap pull record it, so that a daily sweetened
+  drink is recorded right with no extra step.
+- **Acceptance criteria**
+  1. Given a sweetened recipe, when I see Brew, then a quiet line under its
+     values says sweetened; for a recipe that isn't, nothing is said.
+  2. Given a recipe on a bag's screen or a coffee's screen, when it is
+     sweetened, then its row says so in words; otherwise nothing is said.
+  3. Given Brew shows a sweetened recipe, when I tap Pull This Shot, then the
+     one-tap shot records sweetened and its confirmation says it was logged
+     sweetened; for a recipe that isn't sweetened, the shot records not
+     sweetened and the confirmation is as before.
+  4. Given a day I don't sweeten, when I look at Brew, then there is no way to
+     change sweetened before a pull; I can dial in (the tick is one tap) or edit
+     the logged shot (STORY-02-06-02).
+  5. Given I undo a pull, when it is undone, then nothing about sweetened
+     remains (as STORY-02-02-04).
+- **Source sections:** S-02, S-06, S-08
+- **Priority:** MVP
+- **Size:** 2
+- **Notes:** New (design 5.0a items 4 and 5; DES-02-01-06). DQ-44a and b are
+  accepted: a pull copies sweetened, and Brew has no control for it. Amends
+  STORY-02-02-01 AC 1, 02-02-02 AC 1 and 02-01-04 AC 1.
+
+**Coverage:** all In items covered, including milk
+on recipes and, since round 8, the sweetened toggle on recipes. Out: the
+sweetened amount or kind, and changing sweetened on Brew before a pull.
 
 ### EPIC-02-02: Pull your daily shot in one tap
 
@@ -1359,7 +1510,7 @@ Retired: STORY-02-01-05, replaced by STORY-02-01-06.
   1. Given my profile is selected, when I open Brew, then it shows the drink I
      usually make at this time of day, the coffee I'm on, my current setup, and
      my recipe for them on that setup: values, puck prep if used, milk for a
-     milk drink, and how much coffee is left.
+     milk drink, sweetened if the recipe is, and how much coffee is left.
   2. Given the coffee in use is opened, when I see Brew, then both freshness
      clocks show on one line; while it's unopened, only the roasting clock.
   3. Given I usually make different drinks in the morning and the afternoon,
@@ -1389,7 +1540,8 @@ Retired: STORY-02-01-05, replaced by STORY-02-01-06.
 - **Acceptance criteria**
   1. Given Brew shows a recipe on my current setup, when I tap "Pull This Shot",
      then a shot is recorded at once with the recipe's values, its WDT and puck
-     screen ticks and its milk type and amount, marked one-tap, and I'm told
+     screen ticks, its milk type and amount and whether it is sweetened,
+     marked one-tap, and I'm told
      it's logged; nothing else is asked.
   2. Given I pull a shot, when it's recorded, then it uses the recipe's setup,
      the drink and coffee shown, my profile as whose taste, and me as who
@@ -1568,8 +1720,8 @@ suggestions. The rules are plain rules, not AI (S-02).
   only nudge one or two values.
 - **Acceptance criteria**
   1. Given I'm fixing an off one-tap shot, when the log opens, then it's filled
-     with the current recipe's values, puck prep and milk, its setup, drink and
-     the same portion.
+     with the current recipe's values, puck prep, milk and sweetened, its
+     setup, drink and the same portion.
   2. Given I chose to try a suggested change, when the log opens, then that
      change is already made and I'm told what was changed (for example "grind 2
      steps finer"); given I skipped, the log is the recipe as it is.
@@ -1594,7 +1746,7 @@ suggestions. The rules are plain rules, not AI (S-02).
 - **Acceptance criteria**
   1. Given Brew shows a recipe on my current setup, when I choose "Dial in",
      then the log opens filled with the recipe's values, temperature, pressure,
-     puck prep and milk, its setup and drink.
+     puck prep, milk and sweetened, its setup and drink.
   2. Given a suggestion is pending for this recipe, when I choose "Dial in",
      then the log starts with the suggested change already made (STORY-02-03-07).
   3. Given I adjust and save, when it's saved, then a measured shot is saved and
@@ -1754,51 +1906,131 @@ with a pending suggestion, and scenario tests. Out: "Dial in from this"
 
 ### EPIC-02-04: Give one bag its own recipe
 
-Blocked on INIT-02 Q1. The stories are testable either way; only the default
-is a placeholder.
+INIT-02 Q1 is closed (DQ-29, accepted): a pin updates the coffee's recipe by
+default and "this bag only" is an explicit choice. Removing a bag's own recipe
+is in scope (PEC-16). Design tasks: DES-02-04-01 (pin sheet scope),
+DES-02-04-02 (markers, bag screen, remove), DES-02-04-03 (stories).
 
 #### STORY-02-04-01: Pin a recipe for one bag only
 
 - **Parent:** EPIC-02-04
-- **Story:** As a home enthusiast, I want to pin a recipe for one bag that
-  behaves differently, so that my usual recipe for that coffee stays as it is.
+- **Story:** As a home enthusiast, I want to choose "this bag only" when I pin a
+  recipe for a bag that behaves differently, so that my usual recipe for that
+  coffee stays as it is.
 - **Acceptance criteria**
-  1. Given I'm pinning a recipe, when I confirm, then I can choose between every
-     bag of this coffee and this bag only, and the recipe is saved for the
-     choice I made.
-  2. Given I pinned for one bag, when I look at the coffee's default recipe on
-     that setup, then it's unchanged.
-  3. Given a bag's own recipe, when I see it on Brew or with the bag, then it's
-     marked as for this bag only.
-  4. Given I pin for this bag again, when I look, then the newest bag recipe
-     applies.
+  1. Given the coffee already has a recipe for this drink and setup, when I'm
+     asked to confirm a pin, then I choose between "every bag of this coffee"
+     and "this bag only", one is always chosen, and a line says what my choice
+     does.
+  2. Given the coffee has no recipe yet for this drink and setup, when I pin,
+     then no choice is offered and the recipe is the coffee's, so a coffee
+     never ends up with only a bag recipe.
+  3. Given the bag has no recipe of its own, when the choice appears, then
+     "every bag" is chosen; given the bag already has its own recipe for this
+     drink and setup, then "this bag only" is chosen.
+  4. Given I switch the choice, when I look, then the recipe being replaced
+     changes with it (the coffee's recipe, the bag's own, or what this bag would
+     otherwise use) without losing my place, and the change is announced.
+  5. Given I confirm "this bag only", when I look at the coffee's recipe on that
+     setup, then it is unchanged, I'm told it was pinned for this bag only, and
+     pinning for this bag again replaces its recipe while keeping the older one.
+  6. Given the bag is finished (for example, pinning from an old shot), when I
+     look, then "this bag only" can't be chosen and says why; and given saving
+     fails, then my choice stays and I can try again.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (review m7). **Placeholder:** the pre-selected option
-  depends on INIT-02 Q1.
+- **Notes:** Revised (DQ-29, PEC-16; the placeholder on INIT-02 Q1 is gone). The
+  marker criterion moved to STORY-02-04-03. Design SH-PIN scope row.
+  DES-02-04-01. Two shots of this flow already exist in the MVP's pin sheet
+  (STORY-02-01-01); this story only adds the choice.
 
 #### STORY-02-04-02: Use the bag's recipe while that bag is in use
 
 - **Parent:** EPIC-02-04
-- **Story:** As a home enthusiast, I want Brew and the pre-filled log to use
-  the bag's own recipe while I'm on that bag, so that I don't have to
-  remember the difference.
+- **Story:** As a home enthusiast, I want Brew and the pre-filled log to use the
+  bag's own recipe while I'm on that bag, so that I don't have to remember the
+  difference.
 - **Acceptance criteria**
   1. Given a bag with its own recipe on my current setup, when Brew shows that
-     bag, then it shows the bag's recipe, not the coffee's default.
-  2. Given that bag's recipe, when I pull a one-tap shot or open the pre-filled
-     log, then the bag's values are used.
+     bag (the earliest-opened open portion), then it shows the bag's recipe, not
+     the coffee's.
+  2. Given that bag's recipe, when I pull a one-tap shot, dial in or fix an off
+     shot, then the bag's values are used, including prep, milk and sweetened.
   3. Given I move to a new bag of the same coffee, when I open Brew, then the
-     coffee's default recipe is used again.
+     coffee's recipe is used again, with no prompt.
+  4. Given a bag whose portions are split or frozen, when any of them is in use,
+     then they share the bag's recipe.
+  5. Given a bag has its own recipe but is not the bag in use, when I open Brew,
+     then Brew is unaffected.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged (wording only). SQ-11.
+- **Design:** DES-02-04-02 (Brew's bag-only marker)
+- **Notes:** Revised (design steps 8 and states). Readers today look only at
+  recipes with no bag (a tech note). A bag's recipe is read like any other by
+  servicing shifts and grind adjustments (EPIC-04-02, 04-03); the epic asks to
+  confirm.
 
-**Coverage:** all In items covered.
+#### STORY-02-04-03: See which recipe is for one bag only
+
+- **Parent:** EPIC-02-04
+- **Story:** As a home enthusiast, I want a bag's own recipe marked wherever I
+  see recipes, so that I know which recipe I'm looking at.
+- **Acceptance criteria**
+  1. Given the bag in use has its own recipe, when I see Brew, then its first
+     quiet line says it is this bag's own recipe.
+  2. Given a bag with its own recipe, when I open the bag, then I see its own
+     recipe first, marked, and then the coffee's recipe under "other bags use".
+  3. Given the choice of which bag to use for a pull, when a bag has its own
+     recipe, then it carries the same marker.
+  4. Given the coffee's screen, when a bag has its own recipe, then its row says
+     so, and the recipes listed for the coffee are the coffee's own.
+  5. Given any of these markers, when I look, then it is said in words, never
+     by colour alone; and given the Journal or a shot's details, then no recipe
+     marker appears, because a shot doesn't record which recipe it came from.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (split from the old STORY-02-04-01 AC 3; design step 7).
+  DES-02-04-02. The coffee screen's bag rows are EPIC-03-06; the marker on Brew
+  and the bag can ship without it (epic dependency).
+
+#### STORY-02-04-04: Use the coffee's recipe for this bag again
+
+- **Parent:** EPIC-02-04
+- **Story:** As a home enthusiast, I want to drop a bag's own recipe, so that the
+  bag goes back to the coffee's recipe.
+- **Acceptance criteria**
+  1. Given a bag with its own recipe, when I choose to use the coffee's recipe
+     for this bag, then I'm asked once to confirm.
+  2. Given I confirm, when I look, then the bag's own recipe no longer applies,
+     Brew and the pre-filled log use the coffee's recipe for this bag, and the
+     coffee's recipe is unchanged.
+  3. Given I don't confirm, when I look, then nothing has changed.
+  4. Given removing fails, when I look, then the confirmation stays and I can try
+     again.
+  5. Given shots pulled from the bag's recipe, when I look at them, then they are
+     unchanged.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (PEC-16, which closes SQ-11 as "yes, it can be removed"). Design
+  SCR-BAG ghost action with the shared confirmation sheet. DES-02-04-02. Q3,
+  answered 2026-11-16: removing stops the bag's recipe applying and keeps it,
+  like STORY-02-01-03's older recipes.
+
+**Coverage:** all In items covered, including the scope choice, defaults, the
+first-pin rule, use in Brew and pre-fill, text markers, removal (PEC-16) and the
+finished-bag rule. Out: recording which recipe a shot came from.
 
 ### EPIC-02-05: Make the drink and milk lists yours
+
+Design tasks: DES-02-05-01 (drinks screen and sheet), DES-02-05-02 (milks),
+DES-02-05-03 (reorder list), DES-02-05-04 (entry points and the Toggle and Icon
+extensions). DQ-38 and the round 8 milk decision are applied: conventional
+drinks define milk inherently; a variation such as "Americano with froth" is a
+custom drink.
 
 #### STORY-02-05-01: Rename a drink
 
@@ -1806,15 +2038,23 @@ is a placeholder.
 - **Story:** As a home enthusiast, I want to rename a drink, so that the list
   uses the words my household uses.
 - **Acceptance criteria**
-  1. Given a starter drink, when I rename it, then my name is shown everywhere,
-     including on past shots, in every language.
-  2. Given I try to save an empty name, when I save, then I'm asked for a name
-     and nothing changes.
-  3. Given a renamed drink, when I look at its recipes, then they're unchanged.
+  1. Given a drink, when I rename it, then my name is shown everywhere (Brew,
+     the shot log, past shots and the Journal), in every language.
+  2. Given a renamed starter drink, when I choose to use the original name, then
+     the translated name returns.
+  3. Given an empty name, or a name another drink of my household already has
+     (hidden drinks included, ignoring capitals), when I save, then I'm told why
+     in words and nothing changes.
+  4. Given a name of up to 40 characters, when I save and look, then it is shown
+     in full, wrapping rather than cut off.
+  5. Given a renamed drink, when I look at its recipes, then they are unchanged.
+  6. Given saving fails, when I look, then my typed name is kept and I can try
+     again.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged.
+- **Notes:** Revised (unique names and "use the original name", DQ-38). Design
+  SH-DRINK. DES-02-05-01.
 
 #### STORY-02-05-02: Hide drinks I don't make
 
@@ -1822,38 +2062,50 @@ is a placeholder.
 - **Story:** As a home enthusiast, I want to hide drinks I never make, so that
   my choices stay short.
 - **Acceptance criteria**
-  1. Given a drink, when I hide it, then it no longer appears when I log a shot
-     or on Brew.
+  1. Given a drink, when I hide it, then it no longer appears as a choice on
+     Brew, in the shot log or in the Journal's drink filter.
   2. Given a hidden drink, when I look at past shots of it, then they still show
      it.
-  3. Given a hidden drink, when I unhide it, then it's offered again.
-  4. Given only one drink is visible, when I try to hide it, then I can't, and
-     I'm told at least one must stay visible.
+  3. Given the hidden drink is the one Brew would pick for this time of day, when
+     I open Brew, then it picks the next drink that is shown.
+  4. Given a hidden drink, when I unhide it, then it is offered again.
+  5. Given only one drink is shown, when I try to hide it, then I can't, and I'm
+     told in words why (at least one must stay visible).
+  6. Given saving fails, when I look, then the drink's setting is unchanged and I
+     can try again.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged. Recipes for hidden drinks: EPIC-02-05 open question.
+- **Notes:** Revised (time-of-day rule DQ-02; keep-one reason). Recipes for a
+  hidden drink: STORY-02-05-08. DES-02-05-01.
 
 #### STORY-02-05-03: Add my own drink
 
 - **Parent:** EPIC-02-05
-- **Story:** As a home enthusiast, I want to add a drink that's not on the
-  list, such as "Oat flat white", so that I can log what I actually make and
-  keep a separate recipe for it.
+- **Story:** As a home enthusiast, I want to add a drink that's not on the list,
+  such as "Americano with froth" or "Oat flat white", so that I can log what I
+  actually make and keep a separate recipe for it.
 - **Acceptance criteria**
   1. Given my drink list, when I add a drink with a name and say whether it has
-     milk, then it's offered when logging and on Brew, with milk fields only if
-     it has milk.
-  2. Given I try to add a drink without a name, when I save, then I'm asked for
-     one and nothing is saved.
-  3. Given I add a drink, when I see it, then it shows the name I gave in every
-     language.
+     milk (starting as no), then it is added last and offered on Brew and in the
+     shot log, with milk fields only if it has milk.
+  2. Given I say it has milk, when I add it, then I can set its usual milk amount,
+     starting at 120 ml.
+  3. Given I'm choosing whether it has milk, when I look, then I'm told this
+     can't be changed afterwards; and given any existing drink, starter or mine,
+     when I look, then its milk setting is shown but can't be edited, and nothing
+     offers to add milk to it.
   4. Given I added a drink, when I pin a recipe for it, then that recipe is
      separate from other drinks' recipes.
+  5. Given no name or a name already used (hidden drinks included, ignoring
+     capitals), when I save, then I'm told why in words and nothing is saved.
+  6. Given saving fails, when I look, then everything I entered is kept.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
-- **Size:** 2
-- **Notes:** Updated (with or without milk; `has_milk` closed by S-08).
+- **Size:** 3
+- **Notes:** Revised (round 8 milk decision; 2 points became 3). Existing drinks
+  are not changed (Americano stays without milk). Design SH-DRINK add mode.
+  DES-02-05-01.
 
 #### STORY-02-05-04: Put my drinks in my order
 
@@ -1863,33 +2115,45 @@ is a placeholder.
 - **Acceptance criteria**
   1. Given my drink list, when I move a drink up or down, then drinks appear in
      that order wherever I choose one.
-  2. Given I reorder, when I do it, then I can do it without dragging.
-  3. Given I add a drink, when I see the list, then it's placed at the end.
+  2. Given a keyboard or a screen reader, when I reorder, then I can do it
+     without dragging, and each move is announced with the drink's new position
+     (for example "Latte, 2 of 9").
+  3. Given each move, when I make it, then it is saved at once; and given a move
+     fails, then the drink returns to its place and I'm told.
+  4. Given I add a drink, when I see the list, then it is placed last.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
-- **Size:** 1
-- **Notes:** Unchanged.
+- **Size:** 2
+- **Notes:** Revised (announcements, instant save, failed move; 1 point became
+  2). The ReorderList is a new component (NC-17), also used by milks.
+  DES-02-05-03.
 
 #### STORY-02-05-05: Make the milk list mine
 
 - **Parent:** EPIC-02-05
 - **Story:** As a home enthusiast, I want to rename, hide, add and reorder
-  milks, such as adding "Oat (barista)", so that the list matches what's in
-  my fridge.
+  milks, such as adding "Oat (barista)", so that the list matches what's in my
+  fridge.
 - **Acceptance criteria**
-  1. Given a starter milk, when I rename it, then my name is shown everywhere,
-     including on past shots.
-  2. Given a milk, when I hide it, then it's no longer offered when logging, and
-     past shots still show it.
-  3. Given my milk list, when I add a milk with a name, then it's offered when
-     logging; without a name, nothing is saved.
-  4. Given my milk list, when I move a milk up or down, then milks appear in that
-     order wherever I choose one.
+  1. Given a milk, when I rename it, then my name is shown everywhere, including
+     on past shots; an empty name, or one another milk already has (hidden
+     included, ignoring capitals), is refused with a reason in words.
+  2. Given a milk, when I hide it, then it is no longer offered for new shots,
+     and past shots still show it; the last shown milk can't be hidden, and I'm
+     told why.
+  3. Given my milk list, when I add a milk with a name and say whether it is
+     dairy or plant, then it is offered when logging and goes last; without a
+     name, nothing is saved. Its kind is shown afterwards but can't be edited.
+  4. Given my milk list, when I move a milk up or down, then milks appear in
+     that order wherever I choose one, operable without dragging and announced.
+  5. Given a milk, when I look for a way to delete it, then none is offered:
+     hiding is the removal.
+  6. Given saving fails, when I look, then what I entered is kept.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** New (PEC-13, epics revision 9). No brand catalog (S-02). What
-  happens to a recipe whose milk is hidden is an EPIC-02-05 open question.
+- **Notes:** Revised (PEC-13; kind chosen on adding; keep-one; no brand
+  catalog, S-02). The hidden-but-chosen rule is STORY-02-05-08. DES-02-05-02.
 
 #### STORY-02-05-06: Set how much milk a drink usually gets
 
@@ -1897,17 +2161,64 @@ is a placeholder.
 - **Story:** As a home enthusiast, I want to set the usual milk amount for each
   milk drink, so that new shots start from the amount I really use.
 - **Acceptance criteria**
-  1. Given a drink with milk, when I set its usual amount in millilitres, then
-     new shots of it start from that amount when no recipe sets one.
+  1. Given a drink with milk, when I set its usual amount in millilitres (0 to
+     500 in steps of 10, without a keyboard), then new shots of it start from
+     that amount when no recipe sets one.
   2. Given a drink without milk, when I look at it, then no amount is asked.
-  3. Given I change the usual amount, when I look at past shots, then they're
-     unchanged.
+  3. Given I change the usual amount, when I look at past shots and recipes,
+     then they are unchanged.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 1
-- **Notes:** New.
+- **Notes:** Revised (range and step from DQ-26). Design SH-DRINK. DES-02-05-01.
 
-**Coverage:** all In items covered, including the milk list.
+#### STORY-02-05-07: Reach my lists from Profile and from where I choose
+
+- **Parent:** EPIC-02-05
+- **Story:** As a home enthusiast, I want to open my drink and milk lists from my
+  profile, and from the very choice that needs them, so that adding "Oat flat
+  white" is two taps from where I need it.
+- **Acceptance criteria**
+  1. Given my profile, when I look under "your lists", then I see Drinks and
+     Milks, each with a one-line summary (for example how many drinks and how
+     many are hidden).
+  2. Given the drink choice on Brew or in the shot log, when I look at its end,
+     then "edit your drinks" is offered; given the milk choice in the shot log,
+     then "edit your milks" is.
+  3. Given I opened a list from a choice, when I finish or go back, then I return
+     to where I was with nothing I'd entered lost.
+  4. Given the lists, when I look at them with a long name or in a
+     right-to-left language, then they read correctly.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (design entry points; DES-02-05-04). Return-to follows
+  STORY-01-01-05 AC 4. The select's footer row is a small extension of the
+  existing choice sheet (tech lead). The Profile screen's order after the Next
+  epics is design pattern 4.
+
+#### STORY-02-05-08: Keep recipes and shots that use hidden drinks and milks
+
+- **Parent:** EPIC-02-05
+- **Story:** As a home enthusiast, I want hiding a drink or milk to lose nothing,
+  so that I can hide and unhide freely.
+- **Acceptance criteria**
+  1. Given a hidden drink with recipes, when I look at the bag or coffee
+     recipes, then those recipes still show, marked as hidden.
+  2. Given I unhide the drink, when I look, then its recipes are back in use.
+  3. Given a recipe or shot that uses a hidden milk, when I see it in the shot
+     log or the pin confirmation, then the milk is shown by name, marked hidden,
+     and is never swapped for another silently.
+  4. Given a hidden milk, when I choose a milk for a new shot, then it is not
+     offered.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (DQ-38, accepted). DES-02-05-01 and 02.
+
+**Coverage:** all In items covered. Out: deleting a drink or milk, a brand milk
+catalog, steamed-milk temperature, and the sweetened mark (which is never a
+drink).
 
 ### EPIC-02-06: Look back in your journal
 
@@ -2458,25 +2769,46 @@ explanations.
 
 **Coverage:** all In items covered.
 
-### EPIC-03-05: Know when you'll run out, and find any coffee
+### EPIC-03-05: Know when you'll run out
+
+Run-out only since epics revision 11 (retitled from "Know when you'll run out,
+and find any coffee"). Beans filters are EPIC-03-07. Prediction is in the
+product now (DQ-39a). Design tasks: DES-03-05-01 (the line), DES-03-05-02 (the
+sheet). The "about three finished portions" threshold, the one-month stale
+period and the span formats are starting values the rules owner can tune.
+
+Retired (moved): STORY-03-05-04 "Narrow Beans by roaster, roast level, origin or
+rating", now STORY-03-07-01, 03-07-02 and 03-07-03.
 
 #### STORY-03-05-01: See how fast we use coffee
 
 - **Parent:** EPIC-03-05
 - **Story:** As a household member, I want to see how much coffee my household
-  really uses, so that I know how fast we go through it.
+  really uses, and to be told while Tare is still learning, so that I can trust
+  the number or know it isn't there yet.
 - **Acceptance criteria**
-  1. Given enough finished portions, when I look at Beans, then I see a usage
-     rate worked out from finished portions, doses, stock checks and purchase
-     dates, and can see what it's based on.
-  2. Given not enough history yet, when I look, then I'm told Tare is still
-     learning, rather than shown a guess.
+  1. Given enough finished portions (about three), when I open "how we worked
+     this out", then I see our usage rate (for example about 85 g a week) and what
+     it is based on (for example 6 finished portions over 11 weeks), worked out
+     from finished portions, doses (one-tap shots included), stock checks and
+     purchase dates.
+  2. Given fewer finished portions, when I look at On hand, then a calm line says
+     Tare is still learning how fast we use coffee, and opening it says how many
+     finished portions it has so far out of how many it needs and shows the coffee
+     on hand; no estimate is shown rather than a guess.
   3. Given new shots or finished portions, when I look again, then the rate
      follows.
+  4. Given there has been no brewing for a month, when I look, then no line is
+     shown, because the rate would be a guess.
+  5. Given the figures can't be worked out, when I look at Beans, then the line
+     is simply absent and the rest of Beans works; given I open the sheet, then I
+     can retry.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (Beans wording). X-2.
+- **Notes:** Revised (learning state with progress; stale use; DQ-39). Closes
+  INIT-03 Q1. Calculated, never stored. Design SCR-PANTRY line, SH-RUNOUT.
+  DES-03-05-01 and 02. X-2: no accuracy target; the sheet shows its inputs.
 
 #### STORY-03-05-02: See when we'll run out
 
@@ -2485,51 +2817,48 @@ explanations.
   counting the freezer, so that I can buy coffee in time.
 - **Acceptance criteria**
   1. Given a usage rate and coffee left across all portions, when I look at On
-     hand, then I see roughly how many days of coffee we have, and how much of it
-     is in the freezer.
-  2. Given no usage rate yet, when I look, then no estimate is shown.
-  3. Given I add a bag, when I look again, then the estimate grows.
+     hand, then one line says roughly how long it will last (for example "about 5
+     weeks of coffee") and, when some is frozen, how much of that is in the
+     freezer; it never gives a precise date in the line.
+  2. Given the span, when it is shown, then it uses days under two weeks, weeks up
+     to 26, then months, and "more than 6 months" beyond that.
+  3. Given the line, when I open it, then the sheet shows the span again with
+     "around" a date, the coffee on hand and how much is frozen.
+  4. Given nothing is on hand, or any Beans filter is on, when I look, then the
+     line is not shown.
+  5. Given I add a bag, when I look again, then the estimate grows.
+  6. Given the line, when I read it, then it is calm information: no warning
+     colour and no prompt to buy.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (On hand, design round 6). INIT-03 Q1.
+- **Notes:** Revised (line and sheet design; the filter rule is owned by
+  STORY-03-07-02 and works whichever ships first). While Beans loads the line is
+  one skeleton line. DES-03-05-01.
 
 #### STORY-03-05-03: See how much of our coffee gets logged
 
 - **Parent:** EPIC-03-05
 - **Story:** As a household member, I want to see how much of the coffee we
-  finish shows up in our logs, so that I know how far to trust the numbers.
+  finish shows up in our logs, so that I know how far to trust the estimate.
 - **Acceptance criteria**
-  1. Given finished portions with logged doses, when I look at what the
-     estimate is based on, then I see the share of their weight that logged
-     shots account for.
-  2. Given no finished portions yet, when I look, then I'm told it isn't
-     available.
+  1. Given finished portions with logged doses, when I look at how the estimate
+     was worked out, then I see the share of their weight that logged shots
+     account for, as a percentage.
+  2. Given a low share, when I read it, then one sentence says we drink more than
+     we log, so coffee runs out sooner than shown.
+  3. Given no finished portion yet, when I look, then it says the share isn't
+     available yet.
+  4. Given the sheet, when I read it, then it shows its inputs and promises no
+     accuracy.
 - **Source sections:** S-02
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged.
+- **Notes:** Revised (the meaning sentence; no accuracy promise, DQ-39d).
+  DES-03-05-02.
 
-#### STORY-03-05-04: Narrow Beans by roaster, roast level, origin or rating
-
-- **Parent:** EPIC-03-05
-- **Story:** As a home enthusiast, I want to narrow Beans to a roaster, roast
-  level, origin or rating, so that I can find a coffee in a long Tried list.
-- **Acceptance criteria**
-  1. Given On hand and Tried, when I filter by roaster, roast level, origin or
-     rating, then both show only matching coffees.
-  2. Given any filter is set, when I look, then it's visible with its value,
-     removable on its own, and "All" clears every filter.
-  3. Given no coffee matches, when I look, then I'm told and offered to clear the
-     filters.
-- **Source sections:** S-02, S-08
-- **Priority:** Next
-- **Size:** 3
-- **Notes:** New (S-02 Beans filters; epics revision 10). Origin needs a
-  catalog field the schema doesn't have yet, and "rating" for a coffee isn't
-  defined (EPIC-03-05 open questions). Reuses the Journal's filter pattern.
-
-**Coverage:** all In items covered, including Beans filters.
+**Coverage:** all In items covered. Out: Beans filters (EPIC-03-07), reorder or
+buy prompts, promising an accuracy.
 
 ### EPIC-03-06: See every coffee you've tried
 
@@ -2559,7 +2888,7 @@ New MVP epic (epics revision 10, PEC-15).
 - **Priority:** MVP
 - **Size:** 3
 - **Notes:** New (S-02). DQ-27 is the working assumption (tried means at least
-  one shot). No filters in the MVP (STORY-03-05-04, Next). Calculated, never
+  one shot). No filters in the MVP (EPIC-03-07, Next). Calculated, never
   stored. With many bags on hand, Tried can sit below the fold; its heading
   stays reachable (design concern).
 
@@ -2638,6 +2967,141 @@ New MVP epic (epics revision 10, PEC-15).
 
 **Coverage:** all In items covered. Out: filters (Next), editing catalog
 entries, recommendations (Later).
+
+### EPIC-03-07: Find any coffee in Beans
+
+New in epics revision 11 (PEC-17), Next, parent INIT-03 by exception (a seventh
+epic). The origin filter needs a catalog field the schema lacks; this epic owns
+the field and the question in Add a coffee. Design tasks: DES-03-07-01 (filters)
+and DES-03-07-02 (origin). If the guideline of six epics must hold, the fallback
+in epics.md is to fold it into EPIC-03-05 and hide the origin chip until a
+coffee has an origin.
+
+#### STORY-03-07-01: Narrow Beans by roaster, roast level or rating
+
+- **Parent:** EPIC-03-07
+- **Story:** As a home enthusiast, I want to narrow Beans to a roaster, a roast
+  level or how its shots went, so that I can find a coffee in a long list.
+- **Acceptance criteria**
+  1. Given six or more distinct coffees (on hand and tried together), when I open
+     Beans, then a row of filters is shown and Beans is unfiltered; given fewer
+     than six, then no row is shown.
+  2. Given I open a filter, when its choices appear, then they are only values
+     that exist among my coffees, each with a count (for example "3 coffees"); roast
+     levels run from light to dark.
+  3. Given the rating filter, when I look at its choices, then they are the words
+     Tried already uses (mostly good, mixed, mostly off, no ratings yet).
+  4. Given I choose values in more than one filter, when I look, then only coffees
+     matching all of them are shown, one value per filter, and both On hand and
+     Tried narrow together.
+  5. Given a filter is set, when I look, then it shows its value and can be
+     removed on its own.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New, replaces part of retired STORY-03-05-04 (DQ-39b and c). The
+  six-coffee threshold is a starting value. "Rating" is Tried's own summary
+  (DQ-28); with several profiles it follows the person chosen on Brew
+  (EPIC-05-01), with no person filter on Beans. DES-03-07-01.
+
+#### STORY-03-07-02: Keep my filters, clear them, and handle no matches
+
+- **Parent:** EPIC-03-07
+- **Story:** As a home enthusiast, I want my filters to stay while I look at a
+  bag and to clear in one tap, so that narrowing never gets in my way.
+- **Acceptance criteria**
+  1. Given any filter is on, when I look, then "All" is offered and clears every
+     filter at once; given none is on, then it isn't shown.
+  2. Given I open a bag or a coffee and go back, when I return to Beans, then my
+     filters are still set; given I choose the Beans tab again, then they are
+     cleared.
+  3. Given On hand has no match but Tried does, when I look, then On hand says so
+     in one line, and the reverse.
+  4. Given nothing matches in either section, when I look, then one message says
+     no coffee matches, with a way to clear the filters, and the filters stay
+     visible.
+  5. Given any filter is on, when I look at On hand, then the run-out line
+     (STORY-03-05-02) is not shown.
+  6. Given Beans fails to load, when I look, then I'm told and can try again, as
+     elsewhere.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New, replaces part of retired STORY-03-05-04. Same pattern as the
+  Journal's filters (STORY-02-06-04). DES-03-07-01.
+
+#### STORY-03-07-03: Narrow Beans by origin
+
+- **Parent:** EPIC-03-07
+- **Story:** As a home enthusiast, I want to narrow Beans by where a coffee comes
+  from, so that I can find all my Ethiopian or all my blends.
+- **Acceptance criteria**
+  1. Given at least one coffee has an origin, when I look at the filters, then an
+     origin filter is offered with the origins present, each with a count.
+  2. Given no coffee has an origin, when I look, then no origin filter is offered.
+  3. Given coffees with no origin, when I open the origin filter, then they are
+     listed as "not stated", so I can find them, and fill them in if my household
+     added them (STORY-03-07-05).
+  4. Given a blend, when I open the origin filter, then it appears under "blend",
+     never worked out from its name.
+  5. Given I choose an origin, when I look, then it combines with the other
+     filters as in STORY-03-07-01.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New, replaces part of retired STORY-03-05-04. Depends on
+  STORY-03-07-04. DES-03-07-01 and 02.
+
+#### STORY-03-07-04: Say where a coffee comes from when I add it
+
+- **Parent:** EPIC-03-07
+- **Story:** As a home enthusiast, I want to say where a coffee I'm adding comes
+  from, if I want to, so that it can be found by origin.
+- **Acceptance criteria**
+  1. Given I'm adding a coffee that isn't in the catalog, when I fill in its
+     details, then I can optionally choose its origin from a list of producing
+     countries, "blend" or "other".
+  2. Given I choose "other" and type an origin, when I save, then spellings that
+     differ only in capitals count as one origin.
+  3. Given I leave origin empty, when I save, then adding works exactly as before.
+  4. Given the list of origins can't be loaded, when I add a coffee, then the
+     question is not shown and adding still works.
+  5. Given coffees that were in the catalog or added before this change, when I
+     look, then they have no origin unless one was filled in, and nothing else
+     about them changes.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (the data gap, DQ-49). Extends STORY-01-06-02. Needs an optional
+  origin on the catalog's coffee entry (a nullable column, a tech note). The seed
+  list's origins are filled in by the Head of Product as admin; that is data
+  work, not a user story (the spec has no admin user type, SQ-12). DES-03-07-02.
+
+#### STORY-03-07-05: See and fill in a coffee's origin
+
+- **Parent:** EPIC-03-07
+- **Story:** As a home enthusiast, I want to see a coffee's origin on its screen
+  and fill it in later for a coffee I added, so that my own coffees can be found
+  too.
+- **Acceptance criteria**
+  1. Given a coffee with an origin, when I open its screen, then its origin is
+     shown with its details; given none, then nothing is shown.
+  2. Given a coffee my household added that is still unverified, when I open it,
+     then I can set or change its origin.
+  3. Given a verified or seeded coffee, when I open it, then I can't change its
+     origin.
+  4. Given I set an origin, when I look at Beans, then the coffee is found under
+     it and no longer under "not stated".
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (design origin steps 4 and 5; the PEC-08 pattern). A merged
+  coffee with two origins keeps the surviving entry's (EPIC-06-07). DES-03-07-02.
+
+**Coverage:** all In items covered. Out: free-text search, sorting, saved
+filters, Journal filters (EPIC-02-06), a Person filter on Beans, editing a
+verified coffee's origin. EPIC-03-07 is sized M at the small end (11 points;
+re-sized 2026-11-16, Q5).
 
 ---
 
@@ -2740,224 +3204,489 @@ entries, recommendations (Later).
 
 ### EPIC-04-02: Suggested grind that follows bean age and recent shots
 
+All six open questions are closed in round 8 (DQ-30 to DQ-34, DQ-43). The rules
+and numbers are starting values the evals tune. Design tasks: DES-04-02-01
+(Brew and the pre-filled log), DES-04-02-02 (the "why this grind" sheet),
+DES-04-02-03 (stories). Drift is rules and statistics, not AI, but ships with
+evals (DQ-43). Still for the rules owner: which recipe a shot was brewed from
+(DQ-45), pooling across setups with one grinder (DQ-46), a clean resetting drift
+(DQ-47).
+
 #### STORY-04-02-01: Grind that follows bean age
 
 - **Parent:** EPIC-04-02
 - **Story:** As a home enthusiast, I want my recipe's grind adjusted for how my
   coffee has aged, so that I don't have to re-dial as a bag ages.
 - **Acceptance criteria**
-  1. Given a recipe and enough measured shots to estimate aging, when I open the
-     recipe, then I see a suggested grind adjusted for the coffee's current
-     freshness.
-  2. Given there aren't enough shots, when I open the recipe, then I see the
-     pinned grind unchanged.
-  3. Given I see a suggestion, when I check the stored recipe, then it's
-     unchanged.
-  4. Given the suggestion, when I see it, then it moves in the grinder's own
-     coarser or finer direction.
+  1. Given a recipe and at least three measured shots on its coffee in the
+     current grind period, spread over at least two different ages, when I open
+     Brew or dial in, then the grind shown is adjusted for the coffee's age since
+     roasting.
+  2. Given fewer shots or fewer different ages, when I open Brew, then I see the
+     recipe's grind with nothing said about it.
+  3. Given an adjustment smaller than one grinder step, when I look, then it is
+     treated as none.
+  4. Given a stepped grinder, when the adjustment is shown, then it is a value on
+     its steps; given a stepless grinder, at its finest increment; given a result
+     beyond the grinder's range, then it stops at the range.
+  5. Given a very large adjustment, when it is shown, then it is limited to a
+     maximum, and the reason sheet says it was limited.
+  6. Given a frozen or unopened portion, when the age is worked out, then the
+     clocks pause with freezing as elsewhere, and an unopened portion uses the
+     roasting clock only; and given a suggestion, when I check the stored recipe,
+     then it is unchanged.
 - **Source sections:** S-01, S-02, S-04
 - **Priority:** Next
 - **Size:** 5
-- **Notes:** Lightly updated (the two clocks). INIT-04 Q3 (which clock, or
-  both); size may grow.
+- **Notes:** Revised (DQ-30, DQ-31: the since-roasting clock drives the age
+  term; the since-opening clock may add a smaller term). Closes INIT-04 Q3.
+  Calculated at read time, never stored. DES-04-02-01.
 
 #### STORY-04-02-02: Grind that follows this bag's character
 
 - **Parent:** EPIC-04-02
-- **Story:** As a home enthusiast, I want my recipe's grind adjusted for how
-  this particular bag has been behaving, so that a bag that runs a bit fast or
-  slow is accounted for.
+- **Story:** As a home enthusiast, I want my recipe's grind adjusted for how this
+  bag has been behaving, so that a bag that runs a bit fast or slow is
+  accounted for.
 - **Acceptance criteria**
-  1. Given measured shots of this bag that differ consistently from the recipe,
-     when I open the recipe, then the suggested grind accounts for that
-     difference.
+  1. Given measured shots of this bag in the current grind period that run
+     consistently fast or slow against the recipe they were brewed from, when I
+     open the recipe, then the grind shown accounts for that.
   2. Given a new bag of the same coffee, when I open the recipe, then the
      previous bag's character isn't applied.
-  3. Given no measured shots of this bag yet, when I open the recipe, then no
-     bag adjustment is applied.
+  3. Given no measured shots of this bag in the current period, when I open the
+     recipe, then no bag adjustment is applied.
+  4. Given shots brewed from different recipes (another drink or setup), when
+     the adjustment is worked out, then each shot is judged against its own
+     recipe, and each of my recipes gets its own nudge in its own grinder units.
+  5. Given a shot with no recipe pinned before it, when the adjustment is worked
+     out, then the shot is left out and counted among those left out.
+  6. Given a bag with its own recipe (STORY-02-04-01), when its shots are judged,
+     then that recipe is the one they are judged against.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
-- **Size:** 5
-- **Notes:** Unchanged.
+- **Size:** 3
+- **Design:** DES-04-02-02 (SH-DRIFT)
+- **Notes:** Revised (DQ-32 revised, DQ-45; size 5 became 3 because pooling is
+  now STORY-04-02-07). "Fast or slow" is a relative signal (for example about
+  10% fast against its recipe); how it becomes a nudge is the rules owner's.
+  DQ-45 is the working rule (the recipe in force when the shot was pulled).
 
-#### STORY-04-02-03: Only measured shots count as measurements
+#### STORY-04-02-03: Only measured shots with the recipe's prep count
 
 - **Parent:** EPIC-04-02
-- **Story:** As a home enthusiast, I want only the shots I actually measured to
-  shape the suggestion, so that one-tap shots don't fake a trend.
+- **Story:** As a home enthusiast, I want only the shots I actually measured, made
+  the way my recipe says, to shape the suggestion, so that one-tap shots and a
+  change of technique don't fake a trend.
 - **Acceptance criteria**
-  1. Given one-tap and measured shots, when the suggestion is worked out, then
-     only measured shots' values are used as measurements.
-  2. Given one-tap shots with no "off" reaction, when it's worked out, then they
+  1. Given one-tap and measured shots, when the grind is worked out, then only
+     measured shots' values are used as measurements.
+  2. Given one-tap shots with no "off" reaction, when it is worked out, then they
      count only as "the recipe was fine".
-  3. Given a bag with only one-tap shots, when I open the recipe, then the
-     suggestion isn't moved by them.
+  3. Given a bag with only one-tap shots, when I open the recipe, then the grind
+     is not moved by them.
+  4. Given measured shots whose WDT and puck screen ticks differ from the
+     recipe's, when it is worked out, then they are left out, and the reason sheet
+     says how many.
+  5. Given too few shots remain after leaving some out, when I open Brew, then
+     nothing is adjusted and nothing is shown.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (prep). **SQ-18:** are shots with and without WDT or a
-  puck screen compared as equals? Open for this epic.
+- **Design:** DES-04-02-02 (SH-DRIFT, the left-out line)
+- **Notes:** Revised (DQ-33 closes SQ-18: prep must match). A household that
+  never ticks prep consistently will often see nothing, the safe outcome.
+  Size 3 as before.
 
 #### STORY-04-02-04: Recent shots count most
 
 - **Parent:** EPIC-04-02
-- **Story:** As a home enthusiast, I want recent shots to count more than old
-  ones, so that the suggestion follows how my coffee behaves now.
+- **Story:** As a home enthusiast, I want recent shots to count more than older
+  ones, so that the grind follows how my coffee behaves now, however many shots
+  I pull in a day.
 - **Acceptance criteria**
-  1. Given older and newer measured shots that disagree, when the suggestion is
-     worked out, then it's closer to the newer shots.
-  2. Given shots older than the window, when it's worked out, then they have
-     little or no effect.
-  3. Given the same shots, when it's worked out twice, then it's the same both
-     times.
+  1. Given measured shots of the bag from the last 3 days of the current grind
+     period, when the grind is worked out, then they are the evidence, with at
+     most 10 used.
+  2. Given fewer than 3 shots in those days, when it is worked out, then it
+     reaches further back until it has 3, never past the grinder's last
+     maintenance; given fewer than 3 even then, then nothing is shown.
+  3. Given shots of different ages, when it is worked out, then newer shots count
+     more: today's about twice as much as shots from 3 days ago.
+  4. Given the same shots, when it is worked out twice, then the result is the
+     same both times.
+  5. Given a busy household that pulls many shots a day, when it is worked out,
+     then no more than 10 are used.
 - **Source sections:** S-01, S-02
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. INIT-04 Q2.
+- **Design:** DES-04-02-02 (SH-DRIFT, the window)
+- **Notes:** Revised (DQ-32 revised: a 3-day time window replaces "last 5
+  shots"; closes INIT-04 Q2). All numbers are starting values.
 
 #### STORY-04-02-05: Only compare shots from the same grind period
 
 - **Parent:** EPIC-04-02
 - **Story:** As a home enthusiast, I want shots from before my last grinder
-  maintenance left out of the suggestion, so that a burr change or re-zero
-  isn't mistaken for drift.
+  maintenance left out of the suggestion, so that a burr change or re-zero isn't
+  mistaken for drift.
 - **Acceptance criteria**
-  1. Given shots before and after a grinder event, when the suggestion is
-     worked out, then only shots in the current period are used.
-  2. Given a new period with no measured shots yet, when I open the recipe, then
-     no drift adjustment is applied.
-  3. Given maintenance on a machine or basket, when it's worked out, then periods
+  1. Given shots before and after a grinder event, when the grind is worked out,
+     then only shots in the current period are used.
+  2. Given any grinder event, a clean included, when it happens, then a new period
+     starts; given a new period with fewer than 3 measured shots, then no drift
+     adjustment is applied and a servicing shift (STORY-04-03-03) still applies
+     on its own.
+  3. Given maintenance on a machine or basket, when it is worked out, then periods
      aren't affected.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Lightly updated (part kinds).
+- **Design:** DES-04-02-02 (SH-DRIFT, the period start)
+- **Notes:** Revised (clean resets drift, kept by DQ-47; revisit with the evals
+  if weekly cleans mean the adjustment rarely shows).
 
 #### STORY-04-02-06: See the suggested grind where I brew
 
 - **Parent:** EPIC-04-02
-- **Story:** As a home enthusiast, I want to see the suggested grind, with my
-  recipe's grind and a short reason, on Brew and in the pre-filled log, so
-  that I trust it and use it without looking it up.
+- **Story:** As a home enthusiast, I want to see the adjusted grind on Brew and in
+  the pre-filled log, with my recipe's grind and a short reason, so that I trust
+  it and use it without looking it up.
 - **Acceptance criteria**
-  1. Given a suggestion differs from the pinned grind, when I see Brew, then I
-     see the suggested grind, my recipe's grind, and a short reason.
-  2. Given the pre-filled log, when it opens, then grind starts at the
-     suggestion, with the recipe's grind shown as what it was.
-  3. Given I pull a one-tap shot with a suggestion shown, when it's recorded,
-     then it records the grind I was shown.
-  4. Given no suggestion applies, when I see Brew, then only the pinned grind is
-     shown.
+  1. Given an adjustment of at least one grinder step, when I see Brew, then the
+     grind shown is the adjusted one in its usual place, and one quiet line gives
+     the recipe's grind and the reason (for example "recipe 15, beans have
+     aged").
+  2. Given no adjustment applies, when I see Brew, then it looks exactly as it
+     does without this feature.
+  3. Given I choose Dial in from Brew (including the closest-setup dial-in), when
+     the log opens, then grind starts at the adjusted value, the recipe's grind is
+     shown as what it was, and the same reason line is there.
+  4. Given I fix an off shot, dial in from a past shot, edit a shot or enter a
+     recipe, when the log opens, then grind is the shot's or the one I type, never
+     adjusted.
+  5. Given I pull a one-tap shot with an adjustment shown, when it is recorded,
+     then it records the grind I was shown, the recipe is unchanged, and the shot
+     doesn't count as a measurement.
+  6. Given the adjustment can't be worked out, when I open Brew, then it shows the
+     recipe's grind and a pull is never blocked.
 - **Source sections:** S-02, S-06
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (overlap note). When this drift adjustment and an MVP
-  one-change suggestion (EPIC-02-03) both apply to a pre-filled log, which wins
-  isn't in the spec (EPIC-04-02 open question). INIT-04 Q4.
+- **Notes:** Revised (DQ-30: value and note; DQ-34: drift and suggestions never
+  meet, so the "which wins" question is closed; PEC-21). The reason line opens
+  STORY-04-02-08. The Pull button stays visible on a 375 by 667 screen with the
+  line present (design check). DES-04-02-01.
 
-**Coverage:** all In items covered.
+#### STORY-04-02-07: Pool shots from everyone on the same coffee and grinder
+
+- **Parent:** EPIC-04-02
+- **Story:** As a household member, I want everyone's measured shots of a coffee on
+  our grinder to count towards how the bag is behaving, so that a bag running
+  fast is noticed sooner in a busy household.
+- **Acceptance criteria**
+  1. Given several personas brewed the same coffee on the same grinder in the
+     window, when the grind is worked out, then all their measured shots form one
+     signal about the bag.
+  2. Given the pooled signal, when it is applied, then the nudge is for each
+     recipe on its own, in that recipe's units, not one change for everyone.
+  3. Given shots on another setup that shares the grinder, when the grind is
+     worked out, then they are pooled too, each judged against its own recipe.
+  4. Given shots on a different grinder, when it is worked out, then they are
+     never pooled.
+  5. Given a household with one persona, when it is worked out, then the pool is
+     that persona's shots, and it widens by itself when profiles exist.
+  6. Given a pooled signal, when I look at where it is shown, then no persona's
+     name appears.
+- **Source sections:** S-02, S-04
+- **Priority:** Next
+- **Size:** 3
+- **Design:** DES-04-02-02 (SH-DRIFT, pooled evidence)
+- **Notes:** New (DQ-32 revised, DQ-46). Fall back to pooling within the same
+  basket if evals show single and double baskets diverge. Pooling treats the
+  signal as mechanical; a mixed-technique household is an eval scenario.
+
+#### STORY-04-02-08: See why this grind
+
+- **Parent:** EPIC-04-02
+- **Story:** As a home enthusiast, I want to see why the grind was adjusted, and
+  to use my recipe's grind for one shot if I want, so that I stay in charge of
+  the number I set.
+- **Acceptance criteria**
+  1. Given an adjusted grind on Brew or in the log, when I open its reason line,
+     then I see the recipe's grind, each step that moved it (beans have aged, this
+     bag's recent shots, and servicing when there is one) and the grind shown,
+     adding up.
+  2. Given the evidence, when I read it, then it says what it rests on in time (for
+     example "based on 5 measured shots of this bag in the last 3 days"), and when
+     it reached further back, "since 12 November" or "since your grinder was
+     serviced".
+  3. Given the evidence, when I read it, then it says one-tap shots aren't
+     counted, recent shots count more, how many shots were left out for different
+     prep or for having no recipe, and, when others contributed, "includes shots
+     made for 2 people" or "on your other setup with this grinder", without names.
+  4. Given the grinder's coarser direction is known, when I read the steps, then
+     "finer" or "coarser" is used; given it isn't, then numbers only.
+  5. Given I choose to use my recipe's grind for this shot, when I do, then Brew
+     shows the recipe's grind for this pull only and the adjustment is back next
+     time.
+  6. Given a limited adjustment, when I read it, then it says it was limited.
+- **Source sections:** S-02, S-06
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (design pattern 1: the shared grind trail, called SH-DRIFT).
+  Rows added later by EPIC-04-03 and 04-04 appear in the same sheet. Ink only,
+  no warning colour. DES-04-02-02, DES-04-02-03.
+
+#### STORY-04-02-09: A grind adjustment that's checked before each release (enabler placeholder)
+
+- **Parent:** EPIC-04-02
+- **Story:** As a home enthusiast, I want the grind adjustment tested against
+  known situations and monitored, so that it doesn't send me the wrong way.
+- **Acceptance criteria**
+  1. Given a fixed set of scenarios (an ageing bag, a fast bag, a busy
+     multi-person household, mixed puck prep, a low-volume household, a fresh
+     period after servicing, single and double baskets), when the rules are run,
+     then each result is compared with the expected direction and size and a pass
+     rate is reported against a target.
+  2. Given a change to the window, minimums, weighting or limits, when it is made,
+     then the scenarios are run again before release.
+  3. Given the adjustment is live, when it runs, then the cases where it showed
+     nothing, was limited or failed are observable.
+- **Source sections:** S-01, S-02
+- **Priority:** Next
+- **Size:** 3
+- **Design:** none (rules and evals only)
+- **Notes:** New (DQ-43: rules and statistics, not AI, but shipped with evals
+  like the suggestion rules). Enabler placeholder in the same form as the Later
+  eval stories (SQ-13); the scenarios are written by the tech lead. The "target"
+  is not set (X-2).
+
+**Coverage:** all In items covered. Out: the one-change suggestion (EPIC-02-03),
+maintenance offsets (EPIC-04-03), AI explanations (EPIC-06-02).
 
 ### EPIC-04-03: Re-dial once after maintenance and keep every recipe
+
+Only a grinder event marked as a recalibration prompts a re-dial (DQ-42, PEC-22).
+Design tasks: DES-04-03-01 (the prompt and start), -02 (the offset sheet), -03
+(the grinder's event rows), -04 (how a shifted grind reads), -05 (stories).
+
+#### STORY-04-03-04: Be invited to re-dial one coffee after servicing
+
+- **Parent:** EPIC-04-03
+- **Story:** As a home enthusiast, I want a calm invitation to re-dial one coffee
+  after my grinder is serviced, so that the rest of my recipes can follow.
+- **Acceptance criteria**
+  1. Given I saved a grinder event marked as a recalibration, and the grinder has
+     a recipe pinned before it on any setup, when I open the grinder's screen,
+     then a status says recipes pinned before still use the old numbers and
+     offers to re-dial one coffee.
+  2. Given the same, and my current setup contains this grinder, when I open Brew,
+     then one calm card offers "re-dial a coffee" and "not now"; Pull and Dial in
+     are untouched; with two grinders the card names the grinder.
+  3. Given I choose "not now", when I look, then the card is gone for this event
+     on this device, and the grinder's status stays.
+  4. Given a clean, a repair, an event on a machine or basket, or no recipe
+     pinned before the event, when I look, then there is no card and no status.
+  5. Given I accept, when I choose a coffee from those on hand with a recipe
+     pinned before the event on this grinder (Brew's coffee first, each with its
+     drink and setup), then a dial-in opens for it with a note that I'm
+     re-dialling after servicing, grind starts at the old recipe's grind shown as
+     what it was, and no drift adjustment is applied.
+  6. Given another card is also due (the link prompt, STORY-05-03-03), when I open
+     Brew, then only the re-dial card is shown.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (split from STORY-04-03-01; DQ-42a and b; design steps 1 to 3 and
+  the one-card rule). DES-04-03-01. The pin, not the card, is what Tare listens
+  to (STORY-04-03-01 AC 1).
 
 #### STORY-04-03-01: Re-dial one coffee and get the shift
 
 - **Parent:** EPIC-04-03
-- **Story:** As a home enthusiast, I want to be prompted to re-dial one coffee
-  after grinder maintenance and have Tare work out how far my dial moved, so
-  that I don't have to re-dial every coffee.
+- **Story:** As a home enthusiast, I want Tare to work out how far my dial moved
+  from the coffee I re-dial, so that I don't have to re-dial every coffee.
 - **Acceptance criteria**
-  1. Given I logged a grinder event, when I open Brew, then I'm invited, calmly,
-     to re-dial one coffee, and accepting opens a dial-in.
-  2. Given a recipe pinned before the event on a setup with that grinder, when I
-     pin a new recipe for the same coffee on that setup after it, then Tare
-     proposes a shift in grinder units, with a one-line explanation.
-  3. Given the beans aged between the two dial-ins, when the shift is proposed,
-     then the aging estimate is taken off first.
-  4. Given there's no recipe from before the event for the coffee I re-dial,
-     when I pin, then no shift is proposed and I'm told why.
-- **Source sections:** S-02, S-08
-- **Priority:** Next
-- **Size:** 5
-- **Notes:** Updated (prompt; setups). INIT-04 Q3.
-
-#### STORY-04-03-02: Confirm or edit the shift
-
-- **Parent:** EPIC-04-03
-- **Story:** As a home enthusiast, I want to confirm or change the proposed
-  shift, so that I decide how my old recipes are mapped.
-- **Acceptance criteria**
-  1. Given a proposed shift, when I confirm it, then it's saved on the event with
-     the re-dial it came from.
-  2. Given a proposed shift, when I change it and confirm, then my value is
-     saved.
-  3. Given a confirmed shift, when I later edit it, then the new value is used
-     from then on.
-  4. Given I decline, when I look at old recipes, then they're shown unshifted.
+  1. Given a recipe pinned before a recalibrating grinder event on a setup with
+     that grinder, when I pin a new recipe for the same coffee after it (from the
+     card or any ordinary dial-in), then Tare proposes a shift in the grinder's own
+     units, with a line saying what the recipe was and now is.
+  2. Given the beans aged between the two dial-ins, when the shift is proposed,
+     then the aging estimate is taken off first and a quiet line says so; with no
+     aging estimate, nothing is taken off.
+  3. Given the grinder's coarser direction is known, when the shift is shown, then
+     it is also in words (for example "3 steps finer").
+  4. Given there is no recipe from before the event for that coffee, when I pin,
+     then no shift is proposed; if I came from the card or the grinder's screen, I
+     am told why and offered another coffee, and on an ordinary pin nothing
+     interrupts me.
+  5. Given an event dated today, when I pin, then recipes pinned earlier today count
+     as before it.
+  6. Given the proposal can't be worked out, when I look, then my pin is saved and
+     I'm told no shift could be proposed.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged.
+- **Notes:** Revised (DQ-42; the invitation moved to STORY-04-03-04, so 5 points
+  became 3). INIT-04 Q3 (DQ-31) is closed. DES-04-03-02.
+
+#### STORY-04-03-02: Confirm, edit or decline the shift
+
+- **Parent:** EPIC-04-03
+- **Story:** As a home enthusiast, I want to see what the shift will change and to
+  confirm, change or decline it, so that I decide how my old recipes are mapped.
+- **Acceptance criteria**
+  1. Given a proposed shift, when I look, then I see the shift, what it is based
+     on, and up to three other recipes it would change (for example "15 to 12"),
+     with "and 4 more" if there are more.
+  2. Given I confirm as proposed, or change the value and confirm, when it is
+     saved, then it is stored on the event with the re-dial it came from.
+  3. Given I decline, when I look at old recipes, then they are shown unshifted, a
+     shift of zero is stored, the invitations go away, and I'm told.
+  4. Given saving fails, when I look, then the sheet stays, nothing is applied and
+     I can try again.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** Revised (DQ-42d: declining stores a zero shift, not a separate
+  state; the preview). Editing later is STORY-04-03-05. DES-04-03-02.
 
 #### STORY-04-03-03: Old recipes read right after maintenance
 
 - **Parent:** EPIC-04-03
 - **Story:** As a home enthusiast, I want every recipe pinned before the
-  maintenance to show the right grind now, so that all my coffees work again
-  after one re-dial.
+  maintenance to show the right grind now, so that all my coffees work again after
+  one re-dial.
 - **Acceptance criteria**
-  1. Given a confirmed shift on a grinder event, when I open any recipe pinned
-     before the event on a setup with that grinder, then its grind is shown with
-     the shift applied.
-  2. Given the shifted recipe, when I check what's stored, then it's unchanged.
-  3. Given a recipe on a setup with a different grinder, when I open it, then no
-     shift is applied.
-  4. Given several events on one grinder, when I open an old recipe, then each
-     confirmed shift after it is applied in order.
+  1. Given a confirmed shift on a grinder event, when I see any recipe pinned
+     before the event on a setup with that grinder (on Brew, in the log, in the
+     pin confirmation, or on a bag's or coffee's recipes), then its grind is shown
+     with the shift applied and labelled.
+  2. Given a shifted recipe, when I check what's stored, then it is unchanged.
+  3. Given a recipe on a setup with a different grinder, or pinned after the event,
+     when I see it, then no shift is applied.
+  4. Given several events on one grinder, when I see an old recipe, then each
+     confirmed shift after it is applied in date order, and the reason sheet lists
+     each with its date.
+  5. Given an event saved with an earlier date than events already logged, when
+     I look, then the order and the shifted grinds follow the events' dates at
+     once. (Events can't be edited after saving; tasks 9.3 Q3.)
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (setups). EPIC-04-03 open question: chaining.
+- **Notes:** Revised (chaining DQ-42c; labelling through the shared grind trail,
+  STORY-04-02-08). DES-04-03-04. Open (epics.md): what happens to shifts already
+  confirmed when an event is back-dated; criterion 5 assumes simple re-ordering.
 
-**Coverage:** all In items covered.
+#### STORY-04-03-05: Review and change a shift from the grinder's screen
+
+- **Parent:** EPIC-04-03
+- **Story:** As a home enthusiast, I want to open a maintenance event on my
+  grinder and see or change its shift, so that I can correct it later.
+- **Acceptance criteria**
+  1. Given a grinder's maintenance events, when I look, then each can be opened and
+     shows its state in words: awaiting a re-dial, a confirmed shift (for example
+     "-3 steps"), no adjustment, or nothing to map.
+  2. Given a confirmed event, when I open it, then I see which re-dial it came from
+     and can change the shift or remove it (which sets zero).
+  3. Given I change it, when I look at old recipes, then they follow the new value
+     from then on; stored recipes are unchanged.
+  4. Given an event I declined, when I open it, then I can still set a shift later.
+  5. Given an event awaiting a re-dial, when I open it, then I can start the
+     re-dial from there.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (split from the old STORY-04-03-02 AC 3; design step 9). Events
+  are plain rows today. DES-04-03-03.
+
+**Coverage:** all In items covered. Out: stretch (EPIC-04-04), drift
+(EPIC-04-02).
 
 ### EPIC-04-04: Keep recipes right after new burrs of a different design
+
+Depends on EPIC-04-03 and extends its offset sheet. Shift and stretch are fitted
+by a least-squares line through all the event's re-dials, flagged uncertain past
+a threshold, and always editable (DQ-43b). Design tasks: DES-04-04-01 (the
+stretch in the sheet), -02 (the second re-dial invitation), -03 (stories).
 
 #### STORY-04-04-01: Work out a stretch from two or more re-dials
 
 - **Parent:** EPIC-04-04
-- **Story:** As a home enthusiast, I want Tare to notice when new burrs change
-  what each dial step means, so that both fine and coarse recipes stay right.
+- **Story:** As a home enthusiast, I want Tare to notice when new burrs change what
+  each dial step means, so that both fine and coarse recipes stay right.
 - **Acceptance criteria**
-  1. Given two or more coffees re-dialed after the same grinder event, when the
-     second re-dial is pinned, then Tare proposes a stretch factor as well as a
-     shift, explained in plain words.
-  2. Given only one coffee re-dialed, when I look at the event, then the stretch
-     stays at 1.
-  3. Given the re-dials disagree too much to fit, when Tare proposes, then I'm
-     told the fit is uncertain.
+  1. Given two or more coffees re-dialled after the same burrs event, when the
+     second is pinned, then Tare proposes a stretch with the shift, in plain words
+     (each step now moves the grind about 10% more) and as a percentage, worked
+     out from all the re-dials; with three or more it says how many coffees it
+     rests on.
+  2. Given only one coffee re-dialled, when I look at the event, then the stretch
+     is none and nothing about stretch is shown.
+  3. Given the re-dials disagree too much to fit, when Tare proposes, then a
+     neutral note says the numbers are a guess, and the values are still shown and
+     editable.
+  4. Given two coffees whose old grinds are within about two steps of each other,
+     when Tare proposes, then the stretch stays none, I'm told they are too
+     similar to tell, and I'm offered another coffee.
+  5. Given an event that is not a burrs event, when I look, then a stretch is
+     never proposed.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged.
+- **Notes:** Revised (DQ-43b; too-close and uncertain states). The "about two
+  steps" and uncertainty thresholds are starting values for the tech lead.
+  DES-04-04-01.
 
 #### STORY-04-04-02: Confirm or edit the stretch
 
 - **Parent:** EPIC-04-04
-- **Story:** As a home enthusiast, I want to confirm or change the stretch,
-  like the shift, so that I stay in control of how old recipes are mapped.
+- **Story:** As a home enthusiast, I want to confirm or change the stretch, like
+  the shift, so that I stay in control of how old recipes are mapped.
 - **Acceptance criteria**
-  1. Given a proposed stretch, when I confirm or change it, then it's saved on
-     the event.
-  2. Given a confirmed stretch and shift, when I open an old recipe, then its
-     grind is shown as old grind times stretch plus shift.
-  3. Given I edit the stretch later, when I open old recipes, then they follow
-     the new value; stored recipes are unchanged.
+  1. Given a proposed stretch, when I confirm or change it (from -30% to +30% in
+     steps of 1, where 0 means steps mean the same), then it is saved on the event
+     with the shift.
+  2. Given I decline, when I look, then only the shift is kept and the stretch is
+     none.
+  3. Given a confirmed stretch and shift, when I see an old recipe, then its grind
+     is the old grind times the stretch plus the shift, labelled as one step in the
+     reason sheet; stored recipes are unchanged.
+  4. Given I edit the stretch later, when I see old recipes, then they follow the
+     new value.
+  5. Given an event that is not burrs but has a stretch, when I open it, then I can
+     still edit it by hand.
 - **Source sections:** S-02, S-08
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged.
+- **Notes:** Revised (percent control; stored as a factor, 1 meaning none, S-02).
+  DES-04-04-01.
 
-**Coverage:** all In items covered.
+#### STORY-04-04-03: Be invited to re-dial a second coffee
+
+- **Parent:** EPIC-04-04
+- **Story:** As a home enthusiast, I want to be invited to re-dial a second coffee
+  after new burrs, so that Tare can tell whether the steps now mean something
+  different.
+- **Acceptance criteria**
+  1. Given a burrs event with a confirmed shift and only one re-dial, when I open
+     the event, then I'm told that for a different kind of burrs, a second coffee
+     much finer or coarser than the first lets Tare tell, and I can start it.
+  2. Given I start it, when I choose a coffee, then the coffee whose old grind is
+     farthest from the first coffee's comes first, marked as very different.
+  3. Given an event that is not a burrs event, when I open it, then no invitation
+     is shown.
+  4. Given the invitation, when I look at Brew, then no card is shown for it.
+  5. Given I dial in and pin the second coffee, when it is saved, then the stretch
+     is proposed as in STORY-04-04-01.
+- **Source sections:** S-02, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (design steps 1 and 2; burrs only). DES-04-04-02.
+
+**Coverage:** all In items covered. This is the lowest-value Next epic and can be
+built last (epics.md).
 
 ---
 
@@ -2965,89 +3694,200 @@ entries, recommendations (Later).
 
 ### EPIC-05-01: Brew for someone else in the household
 
+Closed in round 8: removing a profile (DQ-35), switching person and the current
+setup (DQ-36), a new profile's first dial-in and second-hand answers (DQ-37),
+which recipe a new profile starts from (DQ-48). A name is the only thing asked.
+Names in examples are placeholders. Design tasks: DES-05-01-01 (the Brew select),
+-02 (People screen), -03 (the persona across the log, tasting, pin, Journal,
+detail and Tried), -04 (stories).
+
 #### STORY-05-01-01: Add a profile for someone I brew for
 
 - **Parent:** EPIC-05-01
 - **Story:** As a household member, I want to add a sub persona for someone I
-  brew for who doesn't use Tare, so that their coffee is tracked separately
-  from mine.
+  brew for who doesn't use Tare, so that their coffee is tracked separately from
+  mine.
 - **Acceptance criteria**
-  1. Given my household, when I add a sub persona with a name, then it's saved in
-     my household with no login of its own.
-  2. Given I try to add one without a name, when I save, then I'm asked for a
-     name and nothing is saved.
-  3. Given I added a sub persona, when anyone in my household looks at profiles,
-     then they see it.
+  1. Given my profile, when I look under "people", then I can open a list of the
+     household's profiles, with the main persona first and the others by who was
+     brewed for most recently; each shows how many shots and when last, or "no
+     shots yet".
+  2. Given I add a sub persona with a name (a nickname is enough, and nothing else
+     is asked), when I save, then it's saved in my household with no login of its
+     own, and I see it in the list.
+  3. Given no name, or a name another profile already has, when I save, then I'm
+     told why in words and nothing is saved.
+  4. Given I added a sub persona, when anyone in my household looks at the
+     profiles, then they see it.
+  5. Given saving fails, when I look, then the name I typed is kept and I can try
+     again.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
-- **Size:** 2
-- **Notes:** Unchanged.
+- **Size:** 3
+- **Notes:** Revised (the People screen and list; 2 points became 3). Names up to
+  40 characters. Never "for Me" for the main persona. DES-05-01-02.
 
 #### STORY-05-01-02: Rename or remove a profile
 
 - **Parent:** EPIC-05-01
-- **Story:** As a household member, I want to rename or remove a sub persona,
-  so that our profiles stay up to date.
+- **Story:** As a household member, I want to rename a sub persona, and remove one
+  I made by mistake, so that our profiles stay up to date.
 - **Acceptance criteria**
-  1. Given a sub persona, when I rename it, then the new name is shown
-     everywhere, including on its past shots.
-  2. **Placeholder, not testable until decided (EPIC-05-01 open question:
-     delete):** given a sub persona with shots, when I remove it, then what
-     happens to its shots and recipes follows the Head of Product's decision.
-     If removal is ruled out, this becomes "removing isn't offered".
-  3. Given the main persona, when I look at removing it, then I can't.
+  1. Given a sub persona, when I rename it, then the new name is shown everywhere,
+     including on its past shots.
+  2. Given a sub persona with no shots and no recipes, when I choose to remove it,
+     then I'm asked once, and confirming removes it without affecting any shot.
+  3. Given a sub persona with shots or recipes, when I look, then I can't remove
+     it, I'm told how many shots and recipes belong to it and that it stays, and I
+     can still rename it.
+  4. Given the main persona, when I look, then I can't remove it, and renaming it
+     here is the same as renaming it in my profile.
+  5. Given the removed profile was the one chosen on Brew, when I open Brew, then it
+     returns to the main persona.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 2
-- **Notes:** Updated (review m7: explicit placeholder).
+- **Notes:** Revised (DQ-35 replaces the placeholder in AC 2). An archive flag is
+  the follow-up if old guests become a nuisance; not in this epic (S-02: only the
+  UI changes). DES-05-01-02.
 
 #### STORY-05-01-03: Choose who I'm brewing for on Brew
 
 - **Parent:** EPIC-05-01
-- **Story:** As a household member, I want to pick a profile on Brew, so that
-  the drink, coffee and recipe shown are theirs.
+- **Story:** As a household member, I want to pick a profile on Brew, so that the
+  drink, coffee and recipe shown are theirs.
 - **Acceptance criteria**
-  1. Given my household has more than one persona, when I pick one on Brew, then
-     it shows that persona's usual drink at this time of day, the coffee and
-     their recipe on the current setup.
-  2. Given I pick a persona with no recipe for the drink shown on this setup,
-     when I look, then "Dial in" is offered.
-  3. Given I pull a shot, log one, or answer how it tasted after picking a
-     persona, when it's saved, then it's for that persona.
-  4. Given a household with only the main persona, when I open Brew, then
-     nothing about picking a persona is in my way.
+  1. Given a household with only the main persona, when I open Brew, then nothing
+     about picking a persona is in my way.
+  2. Given more than one persona, when I choose who it is for, then I see the main
+     persona first and the others by who was brewed for most recently, each with
+     their usual drink, and a way to reach profile and people.
+  3. Given I pick a persona, when Brew updates in place, then it shows that
+     persona's usual drink at this time of day (a new persona gets the first drink
+     shown), the coffee in use and their recipe on the current setup, and says
+     "for {name}" whenever it isn't the main persona.
+  4. Given the persona has no recipe for the drink shown on this setup, when I look,
+     then "Dial in" is offered and a one-tap pull never is.
+  5. Given I picked a persona, when I pull a shot, log one or answer how it tasted,
+     then it is for that persona.
+  6. Given a persona chosen, when I stay on Brew or pull, then the choice holds; it
+     resets to the main persona only after Brew has been away for 30 minutes.
+  7. Given I switch persona, when I look at the setup, then it hasn't changed: the
+     current setup is the setup of the household's last shot.
 - **Source sections:** S-02, S-04, S-06
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Updated (setup; taste answers follow the persona). DQ-18: the
-  current setup follows that persona's last shot (EPIC-05-01 open question:
-  confirm that's wanted).
+- **Notes:** Revised (DQ-36 closes the confirm question in the old notes). Amends
+  the wording of STORY-01-02-09 AC 1 and 02-02-01 AC 1 from "the persona's last
+  shot" to "the household's last shot"; with one persona they are the same.
+  Seven criteria, but the last two are small rules. DES-05-01-01.
 
-#### STORY-05-01-04: Log and pin for someone else
+#### STORY-05-01-04: Log, taste and pin for someone else
 
 - **Parent:** EPIC-05-01
-- **Story:** As a household member, I want shots I pull for someone else to
-  record their taste and that I made them, so that their history is theirs and
-  mine stays clean.
+- **Story:** As a household member, I want shots I pull for someone else to record
+  their taste and that I made them, so that their history is theirs and mine stays
+  clean.
 - **Acceptance criteria**
-  1. Given I log a shot for a sub persona, when it's saved, then it records the
-     sub persona as whose taste and me as who logged it.
-  2. Given I pin a recipe from that shot, when it's saved, then it's that sub
-     persona's recipe, not mine.
-  3. Given my Journal or a shot's details, when I look, then I can tell whose
-     taste each shot records.
-  4. Given my own recipes, when I brew for a sub persona, then mine are
-     unchanged.
+  1. Given I log a shot for a sub persona, when it's saved, then it records the sub
+     persona as whose taste and me as who logged it; a one-tap pull for them
+     records the same.
+  2. Given more than one profile, when I log, say how a shot tasted, answer what
+     was off, or confirm a pin, then each of those says "for {name}"; with only the
+     main persona, they say nothing extra.
+  3. Given I pin a recipe from that shot, when it's saved, then it's that sub
+     persona's recipe, not mine, and my own recipes are unchanged.
+  4. Given I answer how it tasted on their behalf, when I answer, then I'm asked
+     the same way as for myself and nothing extra is recorded.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (Journal). "Just right" answers given on someone's
-  behalf are second-hand; a persona filter for the Journal and Tried isn't in
-  the spec (EPIC-05-01 open questions).
+- **Notes:** Revised (DQ-37b: "for {name}" is the only cue; second-hand answers
+  are indistinguishable, which limits later palate learning, EPIC-06-04).
+  The Journal marker moved to STORY-05-01-06. DES-05-01-03.
 
-**Coverage:** all In items covered.
+#### STORY-05-01-05: Start someone's first dial-in from another profile's recipe
 
-### EPIC-05-02: Invite them to take over their own profile (Later, light)
+- **Parent:** EPIC-05-01
+- **Story:** As a household member, I want a profile with no recipe for a coffee to
+  start its dial-in from another profile's recipe for the same coffee, drink and
+  setup, so that they begin close instead of from blank values.
+- **Acceptance criteria**
+  1. Given a persona has no recipe for this coffee, drink and setup and another
+     persona has, when I choose Dial in, then the log opens from that recipe and
+     Brew and the log say whose recipe it starts from.
+  2. Given several personas have one, when it starts, then it is the main persona's
+     if it has one, else the one pinned or used most recently by any persona.
+  3. Given the recipe is borrowed, when I look at Brew, then only "Dial in" is
+     offered, never a one-tap pull.
+  4. Given the recipe has prep, milk and sweetened, when the log opens, then they
+     come from it too.
+  5. Given nobody has a recipe on this setup, when I choose Dial in, then it starts
+     as STORY-02-01-06 or STORY-02-02-05 describe.
+  6. Given I save and pin, when I come back, then the persona has their own recipe.
+- **Source sections:** S-02, S-04
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (DQ-37a, DQ-48, both accepted). Q4, answered 2026-11-16: where
+  another profile's recipe on this setup and the closest setup's recipe both
+  exist, the same-setup recipe of another profile wins.
+  DES-05-01-01.
+
+#### STORY-05-01-06: Tell whose shots are whose in the Journal
+
+- **Parent:** EPIC-05-01
+- **Story:** As a household member, I want to see in the Journal which shots were
+  for whom, and to filter by person, so that each person's history is easy to
+  read.
+- **Acceptance criteria**
+  1. Given a shot for someone other than the main persona, when I see it in the
+     Journal, then it carries their name as text; the main persona's shots carry
+     none.
+  2. Given more than one profile, when I open the Journal, then a person filter is
+     there, starting on the person chosen on Brew, with "All" clearing it.
+  3. Given a shot's details, when I open them, then I see in text whose taste it
+     records and who logged it.
+  4. Given the person filter leaves nothing, when I look, then the filtered empty
+     state offers to clear it (as STORY-02-06-04).
+  5. Given only the main persona, when I open the Journal, then it looks as it does
+     now.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (DQ-37c; amends EPIC-02-06's filters and STORY-02-06-03).
+  DES-05-01-03.
+
+#### STORY-05-01-07: See how a coffee's shots went for the person I'm brewing for
+
+- **Parent:** EPIC-05-01
+- **Story:** As a household member, I want Tried to describe the shots of the person
+  I'm brewing for, so that a coffee one person likes isn't judged by another's
+  taste.
+- **Acceptance criteria**
+  1. Given more than one profile, when I open Tried, then each coffee's summary of
+     how its shots went is for the person chosen on Brew.
+  2. Given that person isn't the main persona, when I read Tried, then a line under
+     its heading says whose shots it describes.
+  3. Given the rating filter (STORY-03-07-01), when I use it, then it follows the
+     same person; no person filter is added to Beans.
+  4. Given only the main persona, when I open Tried, then it looks as it does now.
+- **Source sections:** S-02, S-04
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (DQ-28, DQ-37c; amends EPIC-03-06's list). DES-05-01-03.
+
+**Coverage:** all In items covered. Out: invites (EPIC-05-02), pooling taste
+across profiles (EPIC-06-04). Size: epics.md says M at the top; these stories
+total 19 points (see the question on sizes).
+
+### EPIC-05-02: Invite them to take over their own profile
+
+Moved from Later to Next (PEC-20, DQ-41), sequenced last. Depends on EPIC-05-01
+(profiles to claim) and EPIC-05-03 (the Google sign-in and the "nothing entered
+yet" test). Needs a store for invites (a tech note). Every invite names a
+profile; an invitee with history is refused, never merged. Design tasks:
+DES-05-02-01 (inviting), -02 (the landing page), -03 (claim and blocked cases),
+-04 (stories), -05 (leaving, approved after round 8).
 
 #### STORY-05-02-01: Invite someone to my household
 
@@ -3055,124 +3895,293 @@ entries, recommendations (Later).
 - **Story:** As a household member, I want to invite the person behind a sub
   persona to join my household, so that they can use Tare themselves.
 - **Acceptance criteria**
-  1. Given a sub persona, when I invite its person, then an invite is created
-     that only they can use to join my household.
-  2. Given an invite, when it's used or withdrawn, then it can't be used again.
+  1. Given a sub persona with no login, when I choose to invite, then before any
+     link is made I'm told in plain lines what they would share: they sign in with
+     Google, take over this profile with its history, and share the household's
+     machine, grinder, beans, recipes and everyone's shots.
+  2. Given I create the link, when it's made, then it can be used once, works for 7
+     days, and I can copy it (or share it where the device offers); Tare asks for
+     no email address and sends nothing.
+  3. Given any household member, when they look at a sub persona without a login,
+     then they can invite for it.
+  4. Given a profile that is already claimed, when I look, then it says it has its
+     own login and no invite is offered.
+  5. Given I make a new link for a profile that already has one, when I create it,
+     then the earlier link stops working.
+  6. Given creating the link fails, when I look, then I'm told and can try again.
 - **Source sections:** S-02, S-04, S-08
-- **Priority:** Later
+- **Priority:** Next
 - **Size:** 3
-- **Notes:** Unchanged. INIT-05 Q2.
+- **Notes:** Revised (DQ-41a, c; the warning before sending is the only
+  protection for a household that shares everyone's shots, which epics.md asks to
+  confirm). A link is a credential: unguessable, single use and expiry enforced
+  by the server (tech lead). DES-05-02-01.
+
+#### STORY-05-02-06: See and withdraw a pending invite
+
+- **Parent:** EPIC-05-02
+- **Story:** As a household member, I want to see a pending invite and take it
+  back, so that a link I sent by mistake can't be used.
+- **Acceptance criteria**
+  1. Given a profile with a pending invite, when I look at the people list, then
+     its row says an invite is pending.
+  2. Given a pending invite, when I open the profile, then I can copy the link
+     again and withdraw it.
+  3. Given I withdraw it, or it has expired or been used, when anyone opens the
+     link, then it no longer works.
+  4. Given withdrawing fails, when I look, then the link is still pending and I can
+     try again.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 2
+- **Notes:** New (design step 3; the old STORY-05-02-01 AC 2). DES-05-02-01.
+
+#### STORY-05-02-05: See what I'm being invited to, before signing in
+
+- **Parent:** EPIC-05-02
+- **Story:** As the person behind a sub persona, I want to see what the invitation
+  is for before I sign in, so that I know what I'm agreeing to.
+- **Acceptance criteria**
+  1. Given I open the link without being signed in, when the page loads, then it
+     works without an account and shows the profile's name, how many shots it has,
+     the drinks it makes most and when it was last brewed for, and what joining
+     shares; nothing about other profiles or the household's equipment is shown.
+  2. Given I haven't chosen to continue, when I look, then no account has been
+     created for me.
+  3. Given I choose "not now", when I leave, then nothing changes and the link stays
+     usable.
+  4. Given the link was used, withdrawn, expired or claimed by someone else, when I
+     open it, then it says only that the link no longer works and to ask for a new
+     one, giving no reason.
+  5. Given the page is loading, when I look, then I see a placeholder of its shape.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (design SCR-JOIN landing and invalid-link states). Serving the
+  page without creating an account is the tech lead's call (epic risk).
+  DES-05-02-02.
 
 #### STORY-05-02-02: Join a household from an invite
 
 - **Parent:** EPIC-05-02
-- **Story:** As the person behind a sub persona, I want to sign in with Google
-  and join the household that invited me, so that I share its kitchen.
+- **Story:** As the person behind a sub persona, I want to sign in with Google and
+  join the household that invited me, so that I share its kitchen.
 - **Acceptance criteria**
-  1. Given an invite, when I accept it and sign in with Google, then I become a
-     member of that household with a role.
-  2. **Placeholder (EPIC-05-02 open question):** given I already have my own
-     Tare account and household, when I join, then what happens to it is
-     decided when this epic is re-planned.
+  1. Given the invitation page, when I choose to sign in with Google, then I sign in
+     and am asked to confirm (STORY-05-02-03); I'm not a member until I do.
+  2. Given I cancel Google's sign-in, when I return, then I'm back at the invitation
+     and the link is still usable.
+  3. Given sign-in or joining fails, when I look, then I'm told, nothing is joined
+     and I can try again.
+  4. Given my own account has nothing entered yet (no parts, no bags, no shots; the
+     starter lists don't count), when I join, then that empty account is replaced
+     without a fuss.
+  5. Given my account already has history of its own, when I try to join, then I'm
+     told plainly that I already use Tare with my own history and one login belongs
+     to one household for now, and to use a different Google account; nothing is
+     merged or lost.
+  6. Given I join, when it's done, then I'm a member of that household (not an
+     owner; DQ-41a).
 - **Source sections:** S-02, S-04, S-08
-- **Priority:** Later
+- **Priority:** Next
 - **Size:** 5
-- **Notes:** Updated (review m7: explicit placeholder).
+- **Notes:** Revised (DQ-41e replaces the placeholder in AC 2; PEC-20b). The
+  "nothing entered yet" test is defined in EPIC-05-03 (STORY-05-03-04). 5 points
+  because it holds the sign-in, the replace and the refusal. DES-05-02-03.
 
 #### STORY-05-02-03: Claim my profile and keep its history
 
 - **Parent:** EPIC-05-02
-- **Story:** As a newly joined household member, I want to claim the sub
-  persona made for me, so that it becomes my main persona with all its
-  history.
+- **Story:** As a newly joined household member, I want to claim the sub persona
+  made for me, so that it becomes my main persona with all its history.
 - **Acceptance criteria**
-  1. Given I joined from an invite for a sub persona, when I claim it, then it
-     becomes my main persona, with all its shots and recipes.
-  2. Given a sub persona is claimed, when anyone else tries to claim it, then
-     they can't.
-  3. Given I join without a sub persona to claim, when I start, then I get a new
-     main persona (pending confirmation).
+  1. Given I'm signed in from an invite, when I'm asked to take over the profile,
+     then I'm told it becomes mine with its shots and recipes, that others in the
+     household can still brew for me, and that my shots stay private to the
+     household.
+  2. Given I haven't confirmed, when I look, then nothing has changed; given I
+     cancel, then the link stays usable.
+  3. Given I confirm, when it's done, then the profile becomes my main persona with
+     all its shots and recipes, I land on Brew in the household, and I'm told it's
+     done.
+  4. Given the profile is claimed by someone else meanwhile, when I try, then the
+     link no longer works.
+  5. Given the confirmation, when I read it, then it says plainly that this is final
+     and can't be undone here.
+  6. Given I claimed, when the inviter looks at people, then the profile shows as
+     claimed and can't be invited again.
 - **Source sections:** S-02, S-04, S-08
-- **Priority:** Later
+- **Priority:** Next
 - **Size:** 5
-- **Notes:** Unchanged. INIT-05 Q3.
+- **Notes:** Revised (old AC 3, "join without a sub persona", retired: not
+  supported, every invite names a profile, DQ-41d). INIT-05 Q3: the claim has no
+  undo, so STORY-05-02-07 should ship with it. DES-05-02-03.
 
 #### STORY-05-02-04: My shots follow my own consent
 
 - **Parent:** EPIC-05-02
-- **Story:** As a main persona who claimed my profile, I want my shots shared
-  only if I opt in, whoever logged them, so that no one shares my data for me.
+- **Story:** As a main persona who claimed my profile, I want my shots shared only
+  if I opt in, whoever logged them, so that no one shares my data for me.
 - **Acceptance criteria**
-  1. Given a claimed persona whose user hasn't opted in, when shots are logged
-     for it by anyone, then none are eligible for the network.
+  1. Given a claimed persona whose user hasn't opted in, when shots are logged for
+     it by anyone, then none are eligible for the network.
   2. Given an unclaimed sub persona, when shots are logged for it, then none are
      ever eligible.
+  3. Given the claim confirmation, when I read it, then it says my shots stay
+     private to the household.
 - **Source sections:** S-02, S-07, S-08
-- **Priority:** Later
+- **Priority:** Next
 - **Size:** 2
-- **Notes:** Unchanged.
+- **Design:** DES-05-02-03 (the claim screen)
+- **Notes:** Revised (the claim wording). The consent setting and the network are
+  EPIC-06-05; eligibility isn't computed in Phase 1 (X-3), so criteria 1 and 2
+  describe the rule the data must follow once it is.
+
+#### STORY-05-02-07: Leave a household
+
+- **Parent:** EPIC-05-02
+- **Story:** As a household member who claimed a profile, I want to leave the
+  household, so that a wrong or regretted claim can be undone.
+- **Acceptance criteria**
+  1. Given I'm a member who claimed a profile, in a household with more than one
+     login, when I open the account section of my profile, then I can choose to
+     leave, and I'm asked once, with a plain
+     statement of what happens.
+  2. Given I confirm, when it's done, then my profile and all its history stay with
+     the household as an unclaimed profile, and I start a new, empty household
+     of my own with a fresh profile, no longer a member of the old one.
+  3. Given I leave, when anyone looks at the household's shots and recipes, then
+     none have been deleted.
+  4. Given I don't confirm, when I look, then nothing has changed.
+  5. Given leaving fails, when I look, then nothing has changed and I can try again.
+  6. Given my old profile is now unclaimed, when a member looks, then they can
+     invite someone to it again.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New. Head of Product, 2026-11-16: leaving stays in EPIC-05-02 and
+  ships with invites (DQ-41b, DES-05-02-05). The leaver starts a new, empty
+  household of their own (criterion 2).
+
+**Coverage:** all In items covered, including leaving. Out: email delivery,
+roles beyond owner and member, merging accounts, the consent setting.
 
 ### EPIC-05-03: Keep your coffee history when you change phones
+
+Closed in round 8: DQ-16 and DQ-40. The sign-in offer on a new device lives on
+the first-run Brew screen and in Profile (PEC-19). SCR-START is unchanged.
+Design tasks: DES-05-03-01 (account section and the prompt), -02 (the switch
+confirmation and the account-taken notice), -03 (the first-run link and the one
+card rule). The button's look is checked against Google's current guidelines
+before build.
 
 #### STORY-05-03-01: Link my account to Google
 
 - **Parent:** EPIC-05-03
-- **Story:** As a home enthusiast, I want to sign in with Google from my
+- **Story:** As a home enthusiast, I want to link a Google account from my
   profile and keep everything I've logged, so that my history isn't lost if my
   phone is, or if my browser clears its storage.
 - **Acceptance criteria**
-  1. Given I've been using Tare without signing in, when I link Google from my
-     profile, then all my parts, setups, beans, recipes and shots are still
-     there, unchanged, and my profile says my account is linked.
-  2. Given I linked Google, when I see my profile, then its name or label is
-     unchanged; nothing is taken from my Google account.
-  3. Given the Google account is already linked to another Tare account, when I
-     try to link it, then I'm told, and my current data stays as it is.
-  4. Given linking fails or I cancel, when I return, then I'm still in my account
-     with all my data, and can try again.
+  1. Given I've been using Tare without signing in, when I open my profile, then its
+     account section says my history lives on this phone and offers a plain text
+     button to link my Google account, with no Google logo or colour.
+  2. Given I link, when it's done, then all my parts, setups, beans, recipes and
+     shots are still there, my profile says it is linked and my history is kept
+     even if I change phones, and its name or label is unchanged; nothing from my
+     Google account is shown or kept.
+  3. Given I cancel, when I return, then I'm back where I was with no message.
+  4. Given linking fails or I'm offline, when I look, then I'm told nothing has
+     changed and can try again.
+  5. Given a linked account, when I look for a way to unlink or sign out, then none
+     is offered.
 - **Source sections:** S-02, S-04, S-08
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (eviction risk; wording). DQ-16 is a design
-  question.
+- **Notes:** Revised (DQ-40a, DQ-16 closed; the account section replaces the
+  device sentence from STORY-01-01-03 AC 5). The "Google account already linked
+  to another Tare account" criterion moved to STORY-05-03-04. DES-05-03-01.
 
 #### STORY-05-03-02: Reach my history on another phone
 
 - **Parent:** EPIC-05-03
-- **Story:** As a home enthusiast, I want to sign in with Google on a new
-  phone and find my history, so that changing phones doesn't mean starting
-  again.
+- **Story:** As a home enthusiast, I want to sign in with Google on a new phone and
+  find my history, so that changing phones doesn't mean starting again.
 - **Acceptance criteria**
   1. Given I linked Google on one device, when I sign in with the same Google
      account on another, then I reach the same account and household.
   2. Given I'm signed in on a new device, when I look, then I see all my parts,
      setups, beans, recipes and shots.
-  3. Given I open Tare on a new device for the first time, when it starts, then
-     I'm offered, quietly, to sign in with Google before a new account is set up,
-     and I can ignore it.
+  3. Given I open Tare on a device with nothing entered yet, when I look at Brew's
+     first-run steps, then a quiet "already use Tare? Sign in with Google" link sits
+     below them, I can ignore it, and nothing stands between me and starting.
+  4. Given I open Tare for the first time, when it starts, then I'm not shown any
+     sign-in choice on the start screen, and my new account is set up without
+     waiting.
+  5. Given my storage was cleared, when I look in my profile's account section, then
+     the same link is there, so I can find it in either place.
+  6. Given the device already has something entered, when I look at Brew, then the
+     first-run link is not shown.
+  7. Given I sign in on an empty device and that account already has a history,
+     when it is found, then STORY-05-03-04 applies.
 - **Source sections:** S-02, S-04
 - **Priority:** Next
 - **Size:** 3
-- **Notes:** Lightly updated (wording).
+- **Notes:** **Required fix done (PEC-19).** Old AC 3 ("before a new account is
+  set up") is replaced by AC 3 to 6: the account is created silently within a
+  second, so a choice in front of it would break "start brewing without setting
+  anything up". EPIC-01-01 is unchanged. Seven criteria, but 4 to 6 are one-line
+  placement rules. DES-05-03-03.
 
 #### STORY-05-03-03: Be reminded once to keep my history safe
 
 - **Parent:** EPIC-05-03
-- **Story:** As a home enthusiast, I want one gentle reminder to link my
-  account once I've built up some history, so that I don't lose it without
-  being nagged.
+- **Story:** As a home enthusiast, I want one gentle reminder to link my account
+  once I've built up some history, so that I don't lose it without being nagged.
 - **Acceptance criteria**
   1. Given I haven't linked Google, when I pin my first recipe or log my tenth
-     shot, whichever comes first, then Brew invites me to link, once.
-  2. Given the invitation, when I dismiss it, then it never comes back; I can
-     still link from my profile.
-  3. Given I accept it, when I link, then it behaves as STORY-05-03-01.
+     shot, whichever comes first, then Brew shows one card inviting me to link.
+  2. Given the card, when I dismiss it, then it never comes back on this device;
+     I can still link from my profile.
+  3. Given a re-dial card is due (STORY-04-03-04), when I open Brew, then only the
+     re-dial card shows and this one waits; and it never shows beside a pulled
+     state or once I've linked.
+  4. Given the card is shown, when I look at Brew, then I can still pull my daily
+     shot with one tap without scrolling.
+  5. Given I accept it, when I link, then it behaves as STORY-05-03-01.
 - **Source sections:** S-02
 - **Priority:** Next
 - **Size:** 1
-- **Notes:** Unchanged (wording only).
+- **Notes:** Revised (DQ-40d: dismissal is remembered on the device, no schema
+  change, so a cleared browser may show it again, which is accepted; the one-card
+  rule). DES-05-03-01 and 03.
 
-**Coverage:** all In items covered.
+#### STORY-05-03-04: Keep two histories apart
+
+- **Parent:** EPIC-05-03
+- **Story:** As a home enthusiast, I want Tare never to merge two histories, so
+  that signing in with a Google account that already has one can't cost me data.
+- **Acceptance criteria**
+  1. Given the Google account is already linked to another history, and this device
+     has nothing entered yet (no parts, no bags, no shots; the starter lists don't
+     count), when I sign in or link, then I'm asked once whether to switch to that
+     history; confirming shows that history on Brew with a short note, and nothing
+     is lost because this device was empty.
+  2. Given the same, when I decline, then nothing changes.
+  3. Given this device has history of its own, when I try to link an account that
+     already has a history, then I'm told it can't be linked, that my data here is
+     unchanged and to use a different Google account; nothing is merged.
+  4. Given switching fails, when I look, then I stay as I was, nothing has changed
+     and I can try again.
+  5. Given I'm offline, when I try, then I'm told it failed and nothing changes.
+- **Source sections:** S-02, S-04, S-08
+- **Priority:** Next
+- **Size:** 3
+- **Notes:** New (DQ-40b; the old STORY-05-03-01 AC 3). **This story defines the
+  "nothing entered yet" test once**; STORY-05-02-02 reuses it. Nothing is ever
+  merged. DES-05-03-02.
+
+**Coverage:** all In items covered. Out: invites (EPIC-05-02), unlinking or
+signing out, merging two histories, consent (EPIC-06-05).
 
 ---
 
@@ -3513,86 +4522,83 @@ re-planned. AI output is always a suggestion the user can accept or ignore.
 ## Stories to split or cut
 
 - **Split:** STORY-06-02-02 (8), when EPIC-06-02 is re-planned.
-- **Watch:**
+- **Watch (5 points or flagged):**
   - STORY-02-03-06 (5, the suggestion rules). If it runs long, ship puck prep
-    and grind first, then yield, dose, temperature and milk.
-  - STORY-02-01-06 (5).
-  - STORY-04-02-01 and 04-02-02 (5 each).
-- **MVP size (review m9):** the MVP is 228 points. The Head of Product wants a
-  fully usable logging tool, so these levers keep that intact:
-  - EPIC-01-06 (26): ship coffee additions and the duplicate check (01-06-01
-    to 05) first, then the capability stories (01-06-06 to 09).
-  - Defer pieces of the new work. STORY-03-06-02 (Tried summary, 2) and
-    STORY-02-06-05 (the Journal's default filter, 2) are small and separable.
-  - STORY-01-06-09 (3), STORY-01-01-03 (2) and STORY-02-01-02 (3), as before.
-  - STORY-01-02-09 criterion 4 (90-day grouping) can wait.
-- **Could merge:** STORY-01-01-06 into 01-01-05; STORY-02-03-07 into 02-03-05.
+    and grind first.
+  - STORY-02-01-06 (5), STORY-04-02-01 (5), STORY-05-02-02 (5) and
+    STORY-05-02-03 (5).
+- **Epic sizes (Q5, answered 2026-11-16):** re-sized in epics.md to match the
+  stories, with no splits: EPIC-02-01 M at the top (22 points), EPIC-02-05 M
+  (17), EPIC-03-07 M at the small end (11). The others already matched.
+- **Levers if Next is too big:**
+  - STORY-04-02-09 (the evals) can't be cut without breaking DQ-43.
+  - EPIC-04-04 is the lowest-value Next epic and can wait.
+  - STORY-05-02-07 (leave) ships with invites (Q1, answered 2026-11-16), so it
+    is not a cut lever on its own.
+  - STORY-03-07-05 (fill in an origin later) and STORY-02-05-07 (the in-place
+    footer rows) are small and separable.
+- **Could merge:** STORY-02-04-03 into STORY-02-04-01; STORY-03-07-02 into
+  STORY-03-07-01; STORY-05-02-06 into STORY-05-02-01.
+- **MVP size:** the MVP is 234 points after the sweetened stories (STORY-02-01-07
+  to 09, 6 points). STORY-02-01-09 (the Brew line and pulled state) is the
+  separable one.
 
 ## Not covered
 
-- The "ran fast" warning: never a warning; time appears only in suggestion
-  reasons (DQ-09).
-- Reopening on the last screen used (revision 2's STORY-01-01-05 criterion 5):
-  cut as unrequested scope (review m8); the design still describes it.
-- Correcting a portion's dates after they're set (review M4): a Next
-  candidate.
-- Changing the milk on Brew before a one-tap pull (EPIC-02-02 open question).
-- Steamed-milk temperature and flavour notes (S-02: not recorded or asked).
-- Editing or deleting a maintenance event, deleting a setup or a shot,
-  removing a recipe (SQ-05) or bag override (SQ-11), and reopening a finished
-  portion (SQ-15).
+As revision 4, plus:
+
+- Back-dated maintenance events changing shifts already confirmed (STORY-04-03-03
+  makes the simple choice).
+- Seeding the catalog's origins: data work for the Head of Product as admin, not
+  a story.
+- Changing sweetened on Brew before a pull, and a sweetened amount (Out by the
+  Head of Product, round 8).
+- Brand milk catalog, archiving a profile (a possible follow-up to DQ-35).
 
 ## Open questions for the Head of Product
 
-### Most pressing
+**Answered by the Head of Product on 2026-11-16 (revision 5 approved):**
+Q1 leaving stays in EPIC-05-02 and the leaver starts a new, empty household;
+Q2 yes, "Dial in from this" starts with the past shot's sweetened value; Q3 yes,
+a removed bag recipe stops applying but is kept; Q4 yes, another profile's
+same-setup recipe wins over a closest-setup recipe; Q5 re-sized in epics.md
+(EPIC-02-01 M at the top, EPIC-02-05 M, EPIC-03-07 M at the small end), no
+splits; Q6 the evals stay an enabler story, with eval checks also in the drift
+tasks; Q7 no action.
 
-Closed by the Head of Product's six answers (stories revision 4): SQ-19
-(step sizes: grind 1 step for "a bit" and 2 for "much", yield 2 g, dose 0.5 g,
-temperature 1 °C, milk about 30 ml), SQ-21 (temperature only when grind
-can't fix the balance), typical milk amounts per starter drink, SQ-20 (the
-basket's dose-range question, designed in the round 6 addendum), the Tried
-summary ignoring personas (DQ-28) and SQ-14 (an off shot and its fix both
-count, DQ-12). The scenario set for STORY-02-03-06 is written by the tech
-lead (tasks TASK-02-03-06-QA1).
+The questions as asked:
 
-These still shape MVP stories:
+New in revision 5 (numbered for this note, in order of weight):
 
-1. **DQ-11 fallback ranges** for equipment marked "not sure" (confirm before
-   QA).
-2. **INIT-02 Q1** still blocks EPIC-02-04 (Next).
+1. **Q1, leaving a household (STORY-05-02-07).** The design (DQ-41b, DES-05-02-05)
+   says it ships with invites; epics.md revision 11 still has it Out of
+   EPIC-05-02 and asks whether to fold it in. I drafted it as a 3-point story
+   inside EPIC-05-02. Confirm it stays there, or move it to its own epic. And what
+   does the leaver's household become? The design says only that they get a new,
+   empty profile.
+2. **Q2, "Dial in from this" and sweetened (STORY-02-01-08).** Assumed it starts
+   with the past shot's own sweetened value. Confirm.
+3. **Q3, removing a bag's own recipe (STORY-02-04-04).** Assumed the recipe stops
+   applying but is kept (consistent with STORY-02-01-03). Confirm, which also
+   closes SQ-11 fully.
+4. **Q4, precedence in a profile's first dial-in (STORY-05-01-05).** When another
+   profile's recipe on this setup and a closest-setup recipe both exist, I assumed
+   the other profile's same-setup recipe wins.
+5. **Q5, epic sizes.** Stories now total more than the epic sizes suggest (see
+   "Stories to split or cut"). Re-size, split, or accept?
+6. **Q6, the evals story (STORY-04-02-09)** is an enabler in the same placeholder
+   form as the Later eval stories (SQ-13). Is a named team role acceptable as its
+   persona, or should the evals be acceptance criteria on the drift stories?
+7. **Q7, the 6-epic guideline for INIT-03.** EPIC-03-07 is the seventh, by
+   exception, as approved. No action unless you want the fallback.
 
-The design's working assumptions DQ-02 to DQ-07, DQ-12 to DQ-15 and DQ-17 to
-DQ-28 are used as written and cited where they apply.
-
-### Story questions (SQ)
-
-Closed:
-
-- **SQ-02** (retire): no retire exists (S-02).
-- **SQ-17** (one-tap taste, review M1): one-tap shots carry "just right"
-  answers and tags, never a rating (DQ-23, epics revision 9).
-- **X-1** (timestamps; listed for completeness): closed by TQ-04.
-
-Still open:
-
-- **SQ-04** (STORY-01-06-05): can a household add links or aliases to verified
-  entries?
-- **SQ-05** (STORY-02-01-03): can a recipe be unpinned?
-- **SQ-09** (STORY-03-01-02), narrowed: should future roast or packing dates be
-  rejected?
-- **SQ-11** (EPIC-02-04): can a bag's own recipe be removed?
-- **SQ-12** (STORY-01-06-03, 06-07-01): the catalog reviewer isn't a spec user
-  type.
-- **SQ-13** (Later eval stories): re-frame them when re-planning, or name a team
-  role.
-- **SQ-15** (STORY-03-02-03): can a finished portion be reopened?
-- **SQ-16** (STORY-01-01-07): first-run checklist ownership. Planned under
-  that story; it doesn't affect the code.
-
-New:
-
-- **SQ-18** (STORY-04-02-03, Next): should drift detection compare shots with
-  and without prep as equals?
-
-Closed in the same round: **SQ-19**, **SQ-20**, **SQ-21** (see "Most
-pressing") and **SQ-14**.
+Carried from revision 4 and still open: SQ-04, SQ-05, SQ-09, SQ-12, SQ-13,
+SQ-15, SQ-16, DQ-11 fallback ranges. Closed by this revision: INIT-02 Q1
+(DQ-29), INIT-03 Q1 (DQ-39), INIT-04 Q2, Q3 and Q4 (DQ-32 revised, DQ-31, DQ-30),
+SQ-11 (PEC-16), SQ-18 (DQ-33), the EPIC-05-01 delete, setup and first-dial-in
+questions (DQ-35 to DQ-37, DQ-48), INIT-05 Q2 (DQ-41), the EPIC-05-03 questions
+(DQ-40), DQ-44 to DQ-49. For the tech lead, not the Head of Product: DQ-45
+(which recipe a shot was brewed from), DQ-46 (pooling across setups), DQ-47 (a
+clean resets drift), the origin column, the recipe sweetened column, the invites
+store, and the order in which the new closest-setup, pooled and borrowed-recipe
+rules compose.

@@ -1,4 +1,4 @@
-# Tare design (approved)
+# Tare design (approved, through round 8)
 
 Source: `planning/drafts/epics.md` (final, revision 6, 30 epics, with the
 design and plan-review amendments applied), `planning/drafts/review.md` (the
@@ -9,7 +9,29 @@ sections), and the Phase 0 design system: `src/styles/tokens.css`,
 version) was read for context only; this design is per epic, and stories will
 be revised against it.
 
-**Status: design approved by the Head of Product after review round 3**
+**Status: rounds 7 and 8 approved by the Head of Product (2026-11-15), including
+DQ-44 to DQ-49, seven epics in INIT-03 (EPIC-03-07 kept) and the "Leave this
+household" screen (DES-05-02-05, designed in EPIC-05-02).** Earlier "draft pending
+approval" wording below describes the state before this approval.
+
+**Round 8 (2026-11-15) applies the Head of Product's decisions and `epics.md`
+revision 11** to the round-7 draft: PEC-16 to PEC-22 and DQ-29 to DQ-43 are
+accepted (DQ-32 revised to a 3-day, time-weighted, cross-persona window; PEC-20
+adjusted so EPIC-05-02 is Next, sequenced last); a pinned recipe remembers
+"sweetened"; milk variations are custom drinks; EPIC-03-05 is split into
+run-out only and the new EPIC-03-07 (Beans filters and origin). Section 5 was
+approved after round 8. New questions were DQ-44 to DQ-49 (accepted).
+
+**Round 7 (2026-11-15), approved after round 8.** The Phase 1 MVP epics
+are built, so round 7 takes the nine Next epics (EPIC-02-04, 02-05, 03-05,
+04-02, 04-03, 04-04, 05-01, 05-02, 05-03) from "lighter flows" to the full
+detail of section 4, written against the app as built. It rewrites section 5
+and adds only what it needs elsewhere: screens in 2.4, one new component
+and the extensions in section 3, proposed epic changes PEC-16 to PEC-22 in
+section 7, concerns in 7a, questions DQ-29 to DQ-43 in section 8, the Next
+rows of section 9, and a review log entry. Sections 1, 2.1 to 2.3, 4 and 6
+(apart from EPIC-05-02's pointer) are unchanged and stay approved.
+**Status of rounds 1 to 6: design approved by the Head of Product after review round 3**
 (PEC-09 accepted, applied in epics revision 7; Home shows both clocks).
 **Round 6 applies naming and Beans decisions already made** (S-02): tabs
 are Brew, Journal, Beans and Setup, and Beans has On hand and Tried
@@ -30,8 +52,10 @@ issues have been created. Nothing here is production code.
 
 - **Detail level.** MVP epics (16) have full UX flows with empty, loading and
   error states, components, design acceptance criteria and design tasks.
-  **Next epics (8) have lighter flows.** **Later epics (7) have brief
-  direction only**, because they will be re-planned before they are built.
+  **Next epics (10, rounds 7 and 8, approved) have the same detail in section 5**,
+  including EPIC-05-02 (Next since `epics.md` revision 11, sequenced last) and
+  EPIC-03-07. **The Later epics (6) have brief direction only**, because they will be re-planned
+  before they are built.
 - **IDs.** Screens are `SCR-*`, sheets are `SH-*`, new components are
   `NC-NN`, design tasks are `DES-II-EE-NN` (initiative, epic, number), all
   labelled `design`. Design questions raised here are `DQ-NN`. Story
@@ -325,6 +349,35 @@ replaced by the pulled state (NC-07), in the same space so nothing jumps:
 | Pull failed | Card stays in its normal state; inline notice (NC-10, neutral) `home.pullFailed` with `actions.retry`. No shot is recorded. |
 | Load failed | Inline notice `states.loadFailed` with `actions.retry`, in place of the card. |
 
+### 2.4 Screens and sheets added by the Next epics (rounds 7 and 8, approved)
+
+New IDs, and the existing screens each Next epic touches. Detail is in
+section 5.
+
+| ID | Screen or sheet | Epic |
+|---|---|---|
+| SCR-DRINKS | Your drinks: list, order, add | 02-05 |
+| SCR-MILKS | Your milks: list, order, add | 02-05 |
+| SH-DRINK | Edit or add a drink: name, usual milk, shown or hidden | 02-05 |
+| SH-MILK | Edit or add a milk: name, dairy or plant, shown or hidden | 02-05 |
+| SH-RUNOUT | How the run-out estimate was worked out | 03-05 |
+| SH-DRIFT | Why this grind: the recipe's grind and each step that moved it | 04-02, 04-03, 04-04 |
+| SH-OFFSET | Confirm or edit what a grinder's servicing moved (shift, and stretch) | 04-03, 04-04 |
+| SCR-PEOPLE | The household's profiles: add, rename, remove, invite | 05-01, 05-02 |
+| SH-PERSON | Add or edit a profile | 05-01, 05-02 |
+| SH-INVITE | Create or withdraw an invite link for a profile | 05-02 |
+| SCR-JOIN | Open an invite: see the profile, sign in, claim it | 05-02 |
+| SH-SWITCH | Switch to the history already linked to this Google account | 05-03 |
+| SH-LEAVE | Leave this household: what stays, what starts new | 05-02 |
+
+Existing screens that change: SCR-HOME (persona select, adjusted grind line,
+bag-only marker, re-dial Card, link Card), SCR-LOG (persona line, re-dial
+banner, grind reason), SCR-TASTE and SH-OFF (persona line), SH-PIN (scope,
+persona), SCR-SHOTS and SCR-SHOT (whose taste, persona filter), SCR-PANTRY
+(run-out line, filters), SCR-BAG and SH-PORTION (bag-only marker), SCR-COFFEE
+(origin), SCR-CATALOG-ADD (origin), SCR-UNIT (event rows open SH-OFFSET),
+SCR-PROFILE (people, lists, account) and SH-SELECT (footer rows).
+
 ---
 
 ## 3. New components
@@ -351,6 +404,7 @@ story with text from `en.json`, axe checks and a right-to-left story.
 | NC-14 | **Icon** (minimal) | Four strokes drawn like the Logo (round caps, `currentColor`): chevron, check, plus, close. Chevron mirrors in right-to-left | No icons exist; text alone doesn't work for a row chevron or a sheet close | ListRow, Sheet, Checklist |
 | NC-15 | **Meter** | A 2 px hairline track (`line`) with an `ink` fill, for remaining coffee; `role="meter"` with a text value | New display | Beans, bag |
 | NC-16 | **SuggestionCard** (round 5) | One suggested change for the next shot: overline, the change as a short sentence with the dial values, a one-line reason, an optional freshness line, and dismiss. Outline Card, ink only, never `signal`; polite live region so updates are announced | A suggestion combines rule output, values and actions in one recurring unit on two screens; a plain Card would be rebuilt twice | SCR-TASTE, SH-OFF |
+| NC-17 | **ReorderList** (round 7, **new**, draft) | A list of ListRows with a "reorder" mode: each row gets move-up and move-down icon buttons (44 px), the first and last disable the impossible one, focus stays on the button just used, and a polite live region says the new place ("Latte, 2 of 9"). No dragging, so it works with a keyboard, a switch and a screen reader | Two screens need identical accessible reordering (drinks and milks) and the focus and announcement behaviour is fiddly enough that it should be built and tested once; ListRow alone has no such mode | SCR-DRINKS, SCR-MILKS (EPIC-02-05) |
 
 **Extensions to existing components** (flagged, not new):
 
@@ -363,6 +417,26 @@ story with text from `en.json`, axe checks and a right-to-left story.
 - **Input**: used with `type="date"` and `type="url"` and
   `inputMode="decimal"`; add stories for these. No new component.
 - **Card**: no change. Used for home recipe, setups and bags.
+
+**Extensions needed by the Next epics (rounds 7 and 8, approved; flagged, not new):**
+
+- **Toggle**: optional `disabled` with a reason line under it (`hint`). The
+  last visible drink or milk can't be hidden, and a disabled switch must say
+  why (EPIC-02-05). Today's Toggle has neither.
+- **Icon**: two more strokes, `up` and `down`, for ReorderList (EPIC-02-05).
+  They are block directions and don't mirror.
+- **NumberWheel**: a `percent` unit (add to `CanonicalUnit` in
+  `src/lib/units.ts`, display only) for the stretch (EPIC-04-04). Signed ranges
+  already work (`min` and `max` are free); add a story with a negative range for
+  the shift (EPIC-04-03).
+- **Input**: a read-only story with a copy button beside it, for the invite
+  link (EPIC-05-02). No new component.
+- **PinSheet** (the screen-level SH-PIN): a scope ChipGroup (EPIC-02-04) and an
+  optional persona line (EPIC-05-01). Not a design-system component.
+- **FilterChips**: reused as it is by the Beans filters (EPIC-03-07) and the
+  Journal's persona chip (EPIC-05-01).
+- **Notice**: unchanged. It carries one action; the cases that need two
+  actions use a Card (re-dial, link prompt).
 
 **Not needed**: no tooltips, no tabs component inside screens, no charts, no
 avatars, no badges in colour. Markers such as `journal.oneTap` [One tap],
@@ -1182,6 +1256,9 @@ for this bean, persona and drink:
   with and without temperature, pressure and puck prep (updated round 4).
 - DES-02-01-05 Design the dial-in from the closest setup: the home state, the
   `log.fromOtherSetup` note and the grind-not-carried state (round 3).
+- DES-02-01-06 (round 8, approved) Design sweetened on recipes: the pin sheet line
+  and changes row, the toggle in enter-values pinning, pre-ticked logs from a
+  recipe, recipe rows and the pulled state. Specified in section 5.0a (4 h).
 
 #### EPIC-02-02: Pull your daily shot in one tap
 
@@ -1850,96 +1927,1394 @@ with the row.
 
 ---
 
-## 5. Next epics (lighter flows)
+## 5. Next epics (full detail, rounds 7 and 8, approved)
 
-### EPIC-05-03: Keep your coffee history when you change phones
+**Status: approved by the Head of Product after round 8 (2026-11-15).** The ten epics
+(EPIC-02-04, 02-05, 03-05, 03-07, 04-02, 04-03, 04-04, 05-01, 05-02, 05-03) are
+in ID order; build order is in `tasks.md` (EPIC-05-02 is last). Round 8 applies
+`epics.md` revision 11: PEC-16 to PEC-22 and DQ-29 to DQ-43 are **accepted**
+(DQ-32 revised; EPIC-05-02 moved from Later to Next, sequenced last), EPIC-03-05
+is split, and sugar on recipes is added (5.0a). INIT-06 (AI, scanning, network
+cold start) is out of scope. Each epic has: entry points, screens and sheets
+touched, the flow, states, copy direction (message keys and what they say, not
+final wording), components, design acceptance criteria and `design` tasks with
+hours. Questions that block an epic point to section 8 (DQ-29 to DQ-49, each
+with an answer or recommendation); epic changes are in section 7.
 
-- **Flow:** SCR-PROFILE's device section gains `profile.linkGoogle`
-  (secondary button, Google's own sign-in button guidelines followed only as
-  far as they fit the monochrome system; DQ-16). Success: the section reads
-  `profile.linked`. Another device: SCR-START offers `start.signIn` as a
-  quiet ghost button under the wordmark, never a wall.
-- **Prompt:** one calm, dismissible Card on SCR-HOME after the first pinned
-  recipe or the tenth shot, whichever comes first (`home.linkPrompt`), then
-  never again unless the user opens Profile.
-- **States:** linking failed (Notice), account already linked elsewhere
-  (Notice explaining, no merge; epic open question).
-- **Components:** Button, Card, Notice.
-- **Design tasks:** DES-05-03-01 Design the link section and the one-time
-  prompt.
-- **Note:** the "device only" sentence in SCR-PROFILE (EPIC-01-01) is
-  replaced by the linked state here.
+### 5.0 What these epics build on
 
-### EPIC-02-05: Make the drink list yours
+**What shipped, checked in the code (round 7):**
 
-- **Round 5 (PEC-13, proposed):** the same screen pattern also edits the
-  household's milk list (rename, hide, add, order), from `profile.milks`.
-- **Flow:** SCR-PROFILE gains `profile.drinks`, opening a drinks screen:
-  ListRows with a visibility Toggle per drink, move up and move down buttons
-  (accessible reordering, no drag-only), tap to rename (Input sheet), and
-  `drinks.add`. At least one drink stays visible (the last Toggle is
-  disabled with a reason).
-- **Components:** ListRow, Toggle, Sheet, Input, Button.
-- **Design tasks:** DES-02-05-01 Design the drinks screen and rename sheet.
+- SH-PIN is `PinSheet`, driven by `usePinFlow`. Every pin is saved for the
+  coffee (no bag), and the recipe readers look only at recipes with no bag.
+  The `pinned_recipes` table already has an optional bag column.
+- Brew keeps a drink or coffee chosen for the next pull in a device cookie
+  (`readBrewChoice`, DQ-17). A chosen persona uses the same mechanism.
+- SCR-PROFILE renames the household's one default persona; the persona label
+  on Brew is a plain link to it. Profile has name, a device sentence and
+  about.
+- Beans has On hand (grouped) and Tried; no filters and no run-out line yet.
+  The Journal's `FilterChips` already exist.
+- SCR-UNIT lists maintenance events as plain rows (not tappable). The
+  `maintenance_events` table already has the shift, stretch and source columns,
+  unused. A grind period starts at **any** grinder event, a clean included
+  (`currentPeriodStart`).
+- The suggestion engine runs on the device from the saved shot, its recipe and
+  the clocks, and shows in `SuggestionCard`. Nothing it returns is stored.
+- `SelectSheet` takes one footer row. `Notice` takes one action. `Toggle` has
+  no disabled state. `Icon` has chevron, back, check, plus, close and arrow.
 
-### EPIC-02-04: Give one bag its own recipe
+**Patterns shared by several epics (decided once here):**
 
-- **Flow:** SH-PIN gains a ChipGroup `recipe.scope.bean` [every bag of this
-  coffee] and `recipe.scope.batch` [this bag only], default per INIT-02 Q1.
-  The home screen and SCR-BAG mark a bag recipe with `recipe.thisBagOnly`.
-- **Design tasks:** DES-02-04-01 Add the scope choice to SH-PIN.
+1. **The grind trail (SH-DRIFT).** One sheet, "why this grind", lists the
+   recipe's grind and then every step that moved it, in order: grinder
+   servicing (EPIC-04-03/04), beans have aged and this bag's character
+   (EPIC-04-02), ending in the grind shown. Home, SCR-LOG and the recipe rows
+   open it from one quiet line, so there is one place and one vocabulary for
+   "this isn't the number you pinned".
+2. **"Nothing entered yet" is the safe-to-switch test.** A household counts as
+   empty when it has no parts, no bags and no shots (the starter lists don't
+   count). EPIC-05-03 (switching to a linked history) and EPIC-05-02 (joining a
+   household) may replace an empty household and refuse a non-empty one. Nothing
+   is ever merged (DQ-40, DQ-41).
+3. **At most one card on Brew.** Brew can now show a re-dial Card (04-03) or a
+   link Card (05-03), never both and never beside a pulled state. Re-dial wins;
+   the link Card waits. Both fit with the Pull button still visible on 375 x 667
+   (checked in DES-05-03-03).
+4. **Profile after the Next epics.** Top to bottom: name (as built), People
+   (05-01), Your lists with Drinks and Milks (02-05), Account (05-03, replaces
+   the device section), About. Rows are ListRows with a mirrored chevron and a
+   one-line secondary ("Just you", "9 drinks, 2 hidden", "Not linked").
+5. **Persona on Brew.** With one persona, the label opens Profile as it does
+   today. With more than one it becomes the persona select (05-01). A persona
+   is always shown by name where it isn't the household's main one, and never
+   as "for Me".
+6. **Configuration is quiet.** Lists, people and the account are set up
+   rarely, so they favour clarity over speed (a sheet and a Save) and are
+   reached from Profile, with a footer row in the select that needs them.
 
-### EPIC-03-05: Know when you'll run out
+### 5.0a Sweetened on recipes (round 8, amends EPIC-02-01; Head of Product)
 
-- **Flow:** the On hand section of Beans gains one line under its heading:
-  `beans.runOut` [about N days of coffee, M in the freezer], with an
-  explanation sheet of the inputs and how much of real use is logged. Shown
-  only once enough finished portions exist; before that, `beans.learning`.
+A pinned recipe remembers the shot's **sweetened** toggle: yes or no only, no
+amount or kind of sugar. Logs started from the recipe start pre-ticked. Today
+sweetened is on the shot only and always starts off (EPIC-01-03). It stays out of
+the recipe's identity: a recipe is still scoped to coffee, persona, setup and
+drink, so someone who sometimes sweetens unticks on those days. The recipe needs
+a new column (a tech note). Existing recipes read as not sweetened. Design,
+touch point by touch point:
 
-### Beans filters (Next, S-02; no epic yet, see PEC-15)
+1. **SH-PIN.** The new-recipe block's quiet lines (milk, prep) gain
+   `recipe.sweetenedLine` [sweetened], shown only when it is yes (a recipe that
+   is not sweetened says nothing, like prep). When it differs from the recipe
+   being replaced, the "changes" list gains a row in the same words as the other
+   fields (`recipe.change`, field `log.sweetened`, from "no" to "yes"). Pinning
+   from a shot copies that shot's value.
+2. **Enter-values pinning (SCR-LOG recipe mode).** The sweetened Toggle (NC-13)
+   sits in the same block as puck prep, as in a normal log, and starts as the
+   current recipe has it, else off.
+3. **SCR-LOG, every mode that starts from a recipe** (dial in, fix, the
+   closest-setup dial-in, enter a recipe): sweetened starts pre-ticked as the
+   recipe has it. Edit mode starts from the saved shot. A blank new log still
+   starts off. Changing the setup in the context block re-applies this to a
+   Toggle the user hasn't touched, like prep. This replaces EPIC-01-03's "always
+   starts off" for recipe-based logs.
+4. **Recipe rows and Brew.** Home's quiet line under the values (where milk and
+   prep already show) gains `recipe.sweetenedLine` when yes. SCR-BAG, SCR-COFFEE
+   recipe rows carry the same word in their quiet line. Text
+   only, nothing for "no".
+5. **The one-tap pull and its pulled state.** Whether a pull copies sweetened is
+   DQ-44. Recommended: yes, it copies (the same rule as prep and milk), and
+   the pulled state (NC-07) shows `home.pulledSweetened` [shot logged, sweetened]
+   in its second line only when it was; no extra control. Brew shows the recipe's
+   sweetened line before the pull, so it is never a surprise. Unticking before a
+   pull isn't offered (DQ-44); a wrong one is corrected from the shot (edit).
+6. **Out:** sweetened amount or kind; changing it on Brew before a pull.
 
-- **Direction:** filter chips above Tried for roaster, roast level, origin
-  and rating, reusing the Journal's filter chips (the ChipGroup filter
-  variant): removable chips and one-tap "All". No default filter. Origin
-  needs a catalog field the schema doesn't have yet.
-- **Design tasks:** none until an epic owns it.
-- **Design tasks:** DES-03-05-01 Design the run-out line and its explanation.
+**Tasks:** DES-02-01-06 (4 h), section 9.
 
-### EPIC-05-01: Brew for someone else in the household
+---
 
-- **Flow:** the persona label on SCR-HOME becomes a quiet SelectField when the
-  household has more than one persona; choosing one changes the drink,
-  coffee and recipe shown. SCR-PROFILE gains `profile.people` (add, rename).
-  SCR-SHOTS rows and SCR-SHOT show whose taste a shot records.
-- **Design tasks:** DES-05-01-01 Design persona switching on SCR-HOME.
-  DES-05-01-02 Design the people screen.
+### EPIC-02-04: Give one bag its own recipe (#19)
 
-### EPIC-04-02: Suggested grind that follows bean age and recent shots
+**INIT-02 Q1 is closed (DQ-29, accepted):** a pin updates the coffee's recipe by
+default and "this bag only" is explicit. **Removing a bag's recipe is in scope**
+(PEC-16, accepted; step 7).
 
-- **Flow:** on SCR-HOME the grind value shows the adjusted grind, with the
-  pinned value and a short reason underneath (`home.grindAdjusted`, for
-  example "recipe 15, beans have aged"). SCR-LOG pre-fills the adjusted value
-  with the recipe value shown as "was". The stored recipe is untouched.
-  INIT-04 Q4 decides note, value or both; this design shows both.
-- **Design tasks:** DES-04-02-01 Design the adjusted-grind treatment on home
-  and log.
+**Entry points.** The same places a recipe is pinned today: SCR-TASTE and
+SCR-SHOT ("Pin this recipe"), SCR-LOG recipe mode, and SCR-BAG "add a recipe".
+The choice lives in SH-PIN, so there is no new screen.
 
-### EPIC-04-03: Re-dial once after maintenance and keep every recipe
+**Screens and sheets touched.** SH-PIN (scope), SCR-HOME (marker), SCR-BAG
+(recipes), SH-PORTION (marker), SCR-COFFEE (bag rows), SCR-LOG (dial-in and
+fix start from the bag's recipe).
 
-- **Flow:** after a grinder event, SCR-HOME shows a calm Card `home.redial`
-  [your grinder was serviced: re-dial one coffee]. It opens SCR-LOG in
-  dial-in mode. After saving and pinning, a sheet proposes the shift in
-  grinder units (NumberWheel, editable) with a one-line explanation; confirm
-  stores it. SCR-UNIT shows the confirmed shift on the event, editable.
-- **Design tasks:** DES-04-03-01 Design the re-dial prompt and the offset
-  confirmation sheet.
+**UX flow**
 
-### EPIC-04-04: Keep recipes right after new burrs of a different design
+1. Pin as today. SH-PIN opens with the new recipe, the one it replaces and
+   what changes. **New:** a scope row directly under the title: overline
+   `recipe.scope` [use this for], then a single-choice ChipGroup (NC-04) of two
+   chips, `recipe.scope.bean` [every bag of this coffee] and
+   `recipe.scope.batch` [this bag only].
+2. **Default.** Every bag of this coffee, so the MVP behaviour is unchanged.
+   Exception: when the bag in question already has its own recipe for this
+   drink and setup, the default is this bag only (the user is continuing in that
+   bag's context). Never a silent choice: one chip is always filled.
+3. **Hidden when it would be a trap.** If the coffee has no recipe of its own
+   yet for this drink and setup, the first pin is always the coffee's and the
+   scope row isn't shown, so a new coffee can't end up with only a bag recipe.
+4. **A line under the chips** says what the choice does (`text-label`
+   `ink-secondary`, a polite live region so a change is announced):
+   - every bag: `recipe.scope.beanEffect` [replaces the recipe every bag of
+     this coffee starts from]. If this bag has its own recipe, add
+     `recipe.scope.bagKeeps` [this bag keeps its own recipe];
+   - this bag only: `recipe.scope.batchEffect` [only for this bag, roasted
+     3 October. Other bags keep the coffee's recipe].
+5. **The replaced block follows the choice.** Every bag: the coffee's current
+   recipe (heading `recipe.replaces`, as built). This bag only: the bag's
+   current recipe if it has one, else the coffee's recipe under a different
+   heading, `recipe.insteadOf` [this bag would otherwise use]. The changes list
+   compares against whichever is shown. Switching chips swaps the block in place
+   from data already loaded (the preview returns both), so nothing loads.
+6. Confirm with the one primary `recipe.confirmPin`. The status line reads
+   `recipe.pinned`, or `recipe.pinnedBag` [pinned for this bag only].
+7. **Seeing it.**
+   - SCR-HOME: while the bag in use has its own recipe, the first quiet line
+     under the values is `recipe.thisBagOnly` [this bag's own recipe]. No other
+     change to Brew.
+   - SCR-BAG, section recipes: the bag's own recipe first, with the overline
+     `recipe.thisBagOnly`, then the coffee's recipe under `recipe.coffeeDefault`
+     [other bags use] in `ink-secondary`. The bag's row has a ghost
+     `recipe.bagRemove` [use the coffee's recipe for this bag], opening
+     SH-CONFIRM (PEC-16). Confirming removes the bag's recipe at once; the
+     coffee's recipe is unchanged.
+   - SH-PORTION: a portion of a bag with its own recipe carries the marker, so
+     the pick is informed. Choosing it uses that bag's recipe for the pull.
+   - SCR-COFFEE: a bag row says `recipe.bagHasOwn` [has its own recipe] in its
+     secondary line. Coffee recipes shown there are the coffee's own.
+   - SCR-SHOT and the Journal: no change. A shot records the values it was
+     pulled with; nothing records which recipe it came from.
+8. **Using it.** One-tap pulls, Dial in and Fix start from the bag's recipe
+   while that bag is the portion in use (earliest-opened open portion, DQ-03).
+   A new bag of the same coffee starts from the coffee's recipe again, with no
+   prompt.
 
-- **Flow:** the same confirmation sheet, after a second re-dial on the same
-  event, also shows the stretch factor, editable. Copy explains it in plain
-  terms (each step now means more or less than before).
-- **Design tasks:** DES-04-04-01 Extend the offset sheet with stretch.
+**States**
+
+| State | Design |
+|---|---|
+| Preview loading | As built: SH-PIN opens when the preview is ready; a failed preview says `states.saveFailed` where the user pinned, with retry. |
+| Save failed | The sheet stays on the chosen scope; Notice with `actions.retry`. |
+| Bag finished (pinning from an old shot of a finished bag) | The bag-only chip is disabled with `recipe.scope.bagFinished` [this bag is finished]; every bag is selected. |
+| Removing the bag's recipe fails | SH-CONFIRM stays; Notice with retry. |
+| Bag has a recipe but is not the bag in use | Shown on SCR-BAG only; Brew is unaffected. |
+| Portion frozen or split | The recipe belongs to the bag, so all its portions share it. |
+
+**Copy direction.** Keys `recipe.scope.*`, `recipe.thisBagOnly`,
+`recipe.coffeeDefault`, `recipe.insteadOf`, `recipe.bagRemove`,
+`recipe.bagHasOwn`, `recipe.pinnedBag`. Plain words: "bag" for the batch (the
+UI never says "batch" or "override"); "every bag of this coffee" for the
+default.
+
+**Components:** PinSheet (extended), ChipGroup, ShotValues, ListRow, Button,
+Notice, SH-CONFIRM (ConfirmSheet), Sheet. No new component.
+
+**Design acceptance criteria**
+
+- Pinning a coffee's first recipe for a drink and setup never shows the scope
+  row; later pins show it, with one chip always selected.
+- Choosing "this bag only" leaves the coffee's recipe untouched, visibly: the
+  sheet shows what the bag would otherwise use, and SCR-BAG shows both.
+- A bag's own recipe is marked by text (`recipe.thisBagOnly`) on Brew, SCR-BAG
+  and SH-PORTION, never by colour.
+- Switching scope changes the replaced block and the helper line without
+  closing or reloading the sheet, and the change is announced.
+- Moving to a new bag of the same coffee returns Brew to the coffee's recipe
+  with no extra tap.
+- A bag recipe can be removed in one confirmed action (PEC-16).
+- The sheet has one primary button and fits a 375 x 667 viewport without the
+  primary leaving the screen.
+
+**Design tasks** (`design`)
+
+- DES-02-04-01 Add the scope choice and helper copy to SH-PIN, including the
+  replaced block, the hidden-for-first-pin rule and the finished-bag state
+  (4 h; was 2).
+- DES-02-04-02 Design the markers on Brew, SCR-BAG (both recipes, remove),
+  SH-PORTION and SCR-COFFEE bag rows (3 h).
+- DES-02-04-03 Add or extend Storybook stories for PinSheet scope states and
+  the SCR-BAG recipe section (2 h).
+
+---
+
+### EPIC-02-05: Make the drink and milk lists yours (#20)
+
+**Entry points.** SCR-PROFILE, section "Your lists" (`profile.lists`), two
+ListRows: `profile.drinks` [Drinks] with a one-line summary ("9 drinks, 2
+hidden") and `profile.milks` [Milks]. In place, a footer row in the selects
+that use the lists: `drinks.manage` [Edit your drinks] in Brew's drink select
+and SCR-LOG's drink select; `milks.manage` [Edit your milks] in the milk
+select (SCR-LOG, EPIC-01-03). Each opens the list screen with return-to, so
+"I want an Oat flat white" is two taps from where the need arises.
+
+**Screens and sheets touched.** New: SCR-DRINKS, SCR-MILKS, SH-DRINK, SH-MILK.
+Changed: SCR-PROFILE (rows), SH-SELECT (footer row), Brew, SCR-LOG, SCR-SHOTS
+filter, SCR-COFFEE and SCR-BAG recipe rows (hidden-drink recipes).
+
+**UX flow: drinks (SCR-DRINKS)**
+
+1. Full-screen task with PageHeader (`drinks.title` [Drinks]); cancel is
+   "back". Below it, one `text-body` `ink-secondary` sentence: `drinks.intro`
+   [these are the drinks you choose from; hidden ones are kept for old shots].
+2. **The list**, in the household's order: one ListRow per drink (hidden ones
+   too). Primary: the drink's name (custom name, else the translated starter
+   name). Secondary: `drinks.withMilk` [with milk, 120 ml usual] or
+   `drinks.noMilk`. A hidden drink carries the overline `drinks.hidden` and
+   shows in `ink-secondary`. Tapping a row opens SH-DRINK.
+3. **Add:** the list ends with a plus row, `drinks.add` [Add a drink], the same
+   pattern as the selects' footer rows. There is no primary button on the
+   screen (it is configuration, and every row is an action).
+4. **Reorder:** a ghost `drinks.reorder` in the header end puts the list into
+   ReorderList mode (NC-17): each row shows move-up and move-down buttons in
+   place of its tap target, the header ghost becomes `actions.done`, and each
+   move is announced ("Latte, 2 of 9"). A new drink is last (STORY-02-05-04
+   AC 3). Reordering saves each move at once; a failed move reverts and shows a
+   Notice.
+5. **SH-DRINK (edit):** a Sheet with
+   - `drinks.name` Input (required, 40 characters; shows the current name,
+     never the key). A ghost `drinks.resetName` [use the original name] appears
+     only on a renamed starter drink.
+   - If the drink has milk: `drinks.usualMilk` [usual milk] with a NumberWheel
+     in millilitres, step 10, range 0 to 500 (the log's wheel, DQ-26). Without
+     milk nothing about milk is asked (STORY-02-05-06 AC 2).
+   - `drinks.hasMilk` shown **read-only** on an existing drink as a line ("with
+     milk"), not a control: changing it would reinterpret past shots (S-02, as
+     milk fields appear only for milk drinks). Only a new drink chooses it.
+   - A Toggle (NC-13) `drinks.show` [show in my lists]. Off hides the drink.
+     The last shown drink's switch is disabled with the reason line
+     `drinks.keepOne` [at least one drink has to stay visible] (the Toggle
+     extension, section 3).
+   - One primary `actions.save`. Closing with changes asks once (SH-CONFIRM).
+6. **SH-DRINK (add):** the same sheet, empty: name (required), `drinks.hasMilk`
+   as a Toggle (default off) with a line saying it can't be changed later, and,
+   when on, the usual-milk wheel at 120 ml. Saving adds the drink at the end,
+   shown.
+   - **Milk decision (round 8, Head of Product).** Conventional drinks define
+     milk inherently (an Americano has none, a latte has). No existing drink gains
+     or loses milk. A variation is a **custom drink**, with the milk choice made
+     here at creation. Example: "Americano with froth": name it, switch
+     `drinks.hasMilk` on, set a small usual amount (say 30 ml); it then gets its
+     own recipes, milk field and tasting wording. The hint under the milk
+     Toggle says so in one line (`drinks.hasMilk.hint` [for a variation such as
+     "Americano with froth", add it as its own drink]). Nothing is offered on the
+     existing drinks to "add milk".
+7. **Names must be unique** within the household's visible and hidden drinks
+   (case-insensitive). A duplicate or empty name shows ink text under the Input
+   (`drinks.nameTaken` / `drinks.nameRequired`) and nothing saves; the Input uses
+   the stronger error border it already has.
+8. **What hiding does.** The drink disappears from Brew's select, SCR-LOG's
+   select, and the Journal's drink chip options. It stays on past shots and as
+   a Journal filter value if a shot of it is in view. If the hidden drink is the
+   one the time-of-day rule would pick, the rule moves on to the next shown
+   drink (DQ-02). **Recipes for a hidden drink are kept** and come back on
+   unhide; on SCR-BAG and SCR-COFFEE their rows keep showing, in `ink-secondary`
+   with `drinks.hidden` (DQ-38).
+9. **What renaming does.** The new name shows everywhere, including past shots
+   and in every language (a stored name overrides the translated key). Recipes
+   are untouched (STORY-02-05-01 AC 3).
+
+**UX flow: milks (SCR-MILKS)**
+
+The same screen and sheet pattern as drinks, with these differences:
+
+- Header `milks.title` [Milks]; rows show the name and the secondary
+  `milks.kind.dairy` [dairy] or `milks.kind.plant` [plant]. No usual amount.
+- SH-MILK: name Input; kind as a two-chip ChipGroup (required when adding; read
+  as a line afterwards, since it drives the starter ordering and nothing else);
+  the same Toggle with the same keep-one rule. Add: `milks.add` [Add a milk],
+  for example "Oat (barista)". There is no brand catalog (S-02).
+- **A hidden milk already chosen stays visible where it is chosen** (DQ-38): a
+  recipe or a shot that uses a hidden milk still shows its name, marked
+  `milks.hidden`, in SCR-LOG's milk field and the pin sheet. Tare never swaps
+  it silently. Hidden milks aren't offered as a new choice.
+- A milk is never deleted; hiding is the removal.
+
+**States**
+
+| State | Design |
+|---|---|
+| Loading | Skeleton rows (NC-11), `aria-busy`. |
+| Load failed | `LoadFailed` with `actions.retry`, as other screens. |
+| Empty | Not possible: starter lists exist, and the last shown item can't be hidden. If every item were somehow hidden, an EmptyState with the add action. |
+| Save failed (sheet) | The sheet stays with the values; Notice with `actions.retry`. |
+| Reorder failed | The row returns to its place; Notice `drinks.reorderFailed` with retry. |
+| Offline | As elsewhere: nothing is saved; the failure notice. |
+
+**Copy direction.** Keys `drinks.*` (title, intro, add, reorder, manage,
+withMilk, noMilk, hidden, show, keepOne, usualMilk, hasMilk, resetName,
+nameTaken, nameRequired), `milks.*` (the same, minus the amount), and
+`profile.lists`, `profile.drinks`, `profile.milks`. Starter names stay under
+`drinks.*` and `milks.*` as already planned. Calm, no "delete".
+
+**Components:** PageHeader, ListRow, ReorderList (NC-17, **new**), Sheet,
+Input, Toggle (extended), NumberWheel (`milliliter`), ChipGroup, Button,
+Notice, Skeleton, ConfirmSheet, Icon (`up`, `down`, extended).
+
+**Design acceptance criteria**
+
+- Hiding a drink takes: open the drink, switch off, Save. It disappears from
+  Brew and the log at once and stays on past shots.
+- The last shown drink and milk can't be hidden, and the disabled switch says
+  why in text.
+- Reordering works with a keyboard and a screen reader, without dragging, and
+  every move is announced with the new position.
+- A renamed drink shows its name on Brew, in the log, on past shots and in the
+  Journal; "use the original name" restores the translated one.
+- A drink without milk never asks for an amount; an existing drink's milk
+  setting is shown but not editable.
+- A hidden milk used by a recipe or shot is still shown by name where it is
+  already chosen, and is never swapped silently.
+- Empty and duplicate names are explained in ink text, never by colour, and
+  nothing is saved.
+- Both screens mirror in right-to-left and work with long names (a 40-character
+  name wraps rather than truncating).
+- Reached from Profile and from the selects' footer rows, each returning to
+  where it started.
+
+**Design tasks** (`design`)
+
+- DES-02-05-01 Design SCR-DRINKS and SH-DRINK (edit, add, rename, reset name,
+  usual milk, keep-one rule, duplicate and empty names), with states (6 h; was
+  5).
+- DES-02-05-02 Design SCR-MILKS and SH-MILK, including the hidden-but-chosen
+  behaviour in the log and the pin sheet (3 h).
+- DES-02-05-03 Design ReorderList (NC-17): reorder mode, focus and
+  announcements, first and last row; add its story with a right-to-left
+  story (4 h).
+- DES-02-05-04 Design the entry points (Profile rows with summaries, selects'
+  footer rows with return-to) and add stories for the Toggle `disabled` and
+  `hint` extension and the Icon `up` and `down` strokes (3 h).
+
+---
+
+### EPIC-03-05: Know when you'll run out (#26)
+
+**Run-out only (round 8).** `epics.md` revision 11 split the Beans filters into
+the new EPIC-03-07 (below, PEC-17 accepted). This epic keeps the run-out line
+and its explanation sheet. Prediction is in the product now (DQ-39a, accepted).
+
+**Entry points.** The Beans tab (SCR-PANTRY). The run-out line sits under the
+On hand heading and opens SH-RUNOUT.
+
+**Screens and sheets touched.** SCR-PANTRY (the line), new SH-RUNOUT. While a
+Beans filter is on the line is hidden; that rule is owned by EPIC-03-07 and
+works whichever epic ships first.
+
+**UX flow: run-out**
+
+1. Under the `beans.onHand` heading, one line in `text-body` `ink`:
+   `beans.runOut` [about 5 weeks of coffee] or, with stock in the freezer,
+   `beans.runOutFrozen` [about 5 weeks of coffee, 2 of them in the freezer].
+   Spans come from `Intl` unit formatting: days under two weeks, weeks up to 26,
+   then months (`beans.runOutLong` [more than 6 months]). "About" is part of
+   the message, never a precise date in the line. Counting frozen stock is the
+   point, so the line always includes it.
+2. The line is a quiet button with a mirrored chevron (a ListRow-style target of
+   at least 44 px). It opens **SH-RUNOUT** (Sheet, `beans.runOutTitle` [how we
+   worked this out]):
+   - The span again in `text-display` weight 200 with the overline
+     `beans.runOutBy` [around 14 December].
+   - Four plain rows (label start, value end): coffee on hand (and how much is
+     frozen), how much you use (`beans.useRate` [about 85 g a week]), what it is
+     based on (`beans.basedOn` [6 finished portions over 11 weeks]), and logged
+     shots' share of the weight of finished portions (`beans.coverage`
+     [78 %]).
+   - One sentence for the share (`beans.coverage.meaning`): when it is low, the
+     household drinks more than it logs, so coffee runs out sooner than shown.
+   - Formats through `Intl`; weights in grams (or the user's unit helper), rates
+     per week.
+   - No primary button (information only); the Sheet's close returns focus to
+     the line.
+3. **Learning.** Before there is enough history (a threshold the rules owner
+   sets; recommended three finished portions, DQ-39) the same slot shows
+   `beans.learning` [still learning how fast you use coffee] in
+   `ink-secondary`, also opening SH-RUNOUT: "Tare needs a few finished bags. 1
+   of 3 so far", and the coffee on hand. No estimate is shown rather than a
+   guess (STORY-03-05-01 AC 2). The coverage row says "not available yet" until a
+   portion has finished.
+4. **No line at all** when: nothing is on hand (the On hand empty state already
+   says so); there has been no brewing for a month (the rate would be a guess,
+   so the line is simply absent); or any Beans filter is on (the figure is for
+   all coffee, so it would mislead under a narrowed list).
+5. It is **calm information**: ink only, no `signal`, no buy prompt, no
+   reorder button (out of scope).
+
+**States**
+
+| State | Design |
+|---|---|
+| Loading | The run-out line is a single `text-body` skeleton line in Beans' skeleton. |
+| Run-out error | The line is simply absent (it is secondary information); the rest of Beans is unaffected. SH-RUNOUT, if open, shows `states.loadFailed` with retry. |
+| Learning, steady, stale | As above. |
+
+**Copy direction.** Keys `beans.runOut*`, `beans.learning`, `beans.useRate`,
+`beans.basedOn`, `beans.coverage*`. Durations and weights via `Intl`; "about"
+and "around" are in the message so a language can place them.
+
+**Components:** ListRow-style button, Sheet (SH-RUNOUT), Skeleton, Icon. No new
+component.
+
+**Design acceptance criteria**
+
+- With enough history the run-out line is one sentence naming the span and the
+  freezer share; with too little it says Tare is still learning and shows no
+  number.
+- SH-RUNOUT shows the inputs (rate, finished portions, share of weight logged)
+  with units, and a sentence about what a low share means; it promises no
+  accuracy (DQ-39).
+- The run-out figure never uses `signal` or any call to buy; it reads as calm
+  information.
+- The line is absent when nothing is on hand, when use is stale, and while any
+  Beans filter is on.
+- The sheet works with a keyboard and a screen reader and mirrors in
+  right-to-left.
+
+**Design tasks** (`design`)
+
+- DES-03-05-01 Design the run-out line on SCR-PANTRY: spans, freezer share,
+  learning, absent states (4 h; was 3).
+- DES-03-05-02 Design SH-RUNOUT: the inputs, coverage sentence, learning and
+  "not available" variants (3 h).
+
+(DES-03-05-03 and 04, the filters and origin, moved to EPIC-03-07 as
+DES-03-07-01 and 02.)
+
+---
+
+### EPIC-03-07: Find any coffee in Beans (new in `epics.md` revision 11)
+
+**Split from EPIC-03-05 (PEC-17, accepted).** INIT-03 now has seven epics, by
+exception. If the Head of Product wants the guideline kept, the fallback in
+`epics.md` is to fold this back into EPIC-03-05 and ship it without the origin
+chip until a coffee has an origin; the design already hides the chip then.
+
+**Entry points.** The Beans tab (SCR-PANTRY): the filter row under the page
+header. Origin is asked on SCR-CATALOG-ADD's coffee step and shown on
+SCR-COFFEE.
+
+**Screens and sheets touched.** SCR-PANTRY (filter row, filtered empty states),
+SH-SELECT (filter choices), SCR-COFFEE (origin line), SCR-CATALOG-ADD (origin
+field).
+
+**UX flow: Beans filters**
+
+1. **When shown.** The filter row appears once the household has six or more
+   distinct coffees (on hand and tried together), because below that the list is
+   short and the row is clutter (DQ-39c). Not a default filter: Beans opens
+   unfiltered.
+2. **The row** is the Journal's `FilterChips` (NC-04 filter variant) under the
+   page header: **Roaster**, **Roast level**, **Origin**, **Rating**. Each chip
+   shows "Roaster" when off, and its value when on; active chips fill with `ink`
+   and carry a close control; a ghost "All" leads the row while any filter is
+   on and clears them all (`beans.filterAll`).
+3. **Choosing:** a chip opens SH-SELECT with only the values that exist in the
+   household's coffees, each with a count in its secondary line ("3 coffees").
+   - Roaster: roasters of the household's coffees.
+   - Roast level: the roast levels present (S-09 scale), light to dark.
+   - Origin: the origins present; coffees with no origin recorded are in the
+     list as `beans.originUnknown` [not stated] so they can be found and
+     filled in. The chip is shown only when at least one coffee has an origin.
+   - Rating: `beans.rating.good` [mostly good], `.mixed`, `.off` [mostly off],
+     `.none` [no ratings yet]. **"Rating" for a coffee is Tried's own summary
+     line** (DQ-28, DQ-39b), the same words, so nothing new is invented. With
+     several profiles it follows the person chosen on Brew (EPIC-05-01); there
+     is no Person chip on Beans.
+4. **Behaviour.** One value per chip; several chips combine (AND). The filter
+   narrows On hand and Tried together. Filters live in the page address so Back
+   from a bag or a coffee keeps them; tapping the Beans tab again clears them.
+   **While any filter is on, the run-out line (EPIC-03-05) is not shown.**
+5. **Filtered results.** Each section shows only matching coffees. If On hand has
+   none but Tried has some, On hand says `beans.filteredOnHandNone` in one line,
+   and the reverse. If neither matches, both sections are replaced by one
+   EmptyState `beans.filteredNone` [no coffee matches] with a secondary
+   `beans.filterClear` [clear filters]; the chips stay. (The same pattern as the
+   Journal's filtered empty state.)
+
+**UX flow: origin (the data gap)**
+
+The catalog has no origin field (S-08); `epics.md` makes this epic own the
+migration and the question.
+1. An optional `catalog.origin` SelectField on SCR-CATALOG-ADD's coffee step,
+   from a curated list of producing countries plus "other" (typed once,
+   normalised so "ethiopia" and "Ethiopia" are one value). Leaving it empty is
+   fine and never blocks adding the coffee.
+2. **Who fills it:** the Head of Product fills origin in the seed list as admin;
+   a household fills it for coffees it adds, if it wants (DQ-49).
+3. **Blends:** the list has `catalog.origin.blend` [blend] as its own choice, and
+   "other" for anything else. A blend is not a country, so it filters under its
+   own value and is never guessed from a name.
+4. SCR-COFFEE shows origin in its details line when set (`catalog.origin`).
+5. A household can set origin later on a coffee it added itself while it is
+   unverified (the PEC-08 pattern); verified coffees are admin's (out, then
+   EPIC-06-07).
+6. Until at least one coffee has an origin the chip stays hidden, so the filter
+   never offers an empty choice.
+
+**States**
+
+| State | Design |
+|---|---|
+| Loading | Beans skeleton as built; the filter row a row of pill skeletons. |
+| Filter option list empty | The chip is not shown. |
+| Filtered empty | As step 5; one primary is not needed (the clear action is secondary; Add a bag remains the header's primary only when bags are on hand). |
+| Origin list failed to load | The origin field is hidden on Add a coffee; adding still works. |
+| Load failed | `LoadFailed` with retry, as built. |
+
+**Copy direction.** Keys `beans.filter*`, `beans.rating.*`,
+`beans.originUnknown`, `catalog.origin`, `catalog.origin.blend`.
+
+**Components:** FilterChips, SelectSheet, SelectField, EmptyState, Notice,
+Skeleton, Icon. No new component.
+
+**Design acceptance criteria**
+
+- Filters appear only with six or more coffees; each chip's options are only
+  values that exist, with counts; "All" and each chip's close control clear
+  filters; filtered-empty offers "clear filters".
+- Filtering narrows both On hand and Tried, Back from a bag keeps the filters,
+  and the run-out line is not shown while one is on.
+- Rating options use the same words as Tried's summary line.
+- Origin is optional wherever it is asked, blends have their own value, and the
+  origin chip is hidden until some coffee has one.
+- Chips and sheets work with a keyboard and a screen reader and mirror in
+  right-to-left; the filter row scrolls sideways without clipping its focus
+  ring.
+
+**Design tasks** (`design`)
+
+- DES-03-07-01 Design Beans filters: row, option sheets with counts, combined
+  filters, filtered empty states for each section, the six-coffee rule and the
+  hide-the-run-out rule (4 h; was DES-03-05-03).
+- DES-03-07-02 Design origin: the optional field and blend choice on
+  SCR-CATALOG-ADD, the line on SCR-COFFEE, the "not stated" option (3 h; was
+  DES-03-05-04).
+
+---
+
+### EPIC-04-02: Suggested grind that follows bean age and recent shots (#29)
+
+**Questions closed in round 8 (accepted, section 8):** INIT-04 Q2 (DQ-32,
+**revised**: the bag's measured shots in the last 3 days of the current grind
+period, pooled across personas), Q3 (DQ-31), Q4 (DQ-30), SQ-18 (DQ-33, prep),
+the overlap with EPIC-02-03 (DQ-34) and evals (DQ-43). Still open and design
+relevant: which recipe a shot was brewed from (DQ-45), pooling across setups
+that share a grinder (DQ-46) and a clean resetting drift (DQ-47). The
+designer's needs stay small: one number, one reason phrase, and an honest "not
+enough yet" that shows nothing. The window and pooling are the rules owner's
+and the evals tune their numbers; the design only has to say them in plain
+words.
+
+**Entry points.** None of its own. It appears where a recipe is the starting
+point: Brew, and SCR-LOG opened to dial in from a recipe (including the
+closest-setup dial-in).
+
+**Screens and sheets touched.** SCR-HOME (grind value, one reason line),
+SCR-LOG (starting grind, "was", reason), new SH-DRIFT, the one-tap pull. Not
+touched: fix mode and "Dial in from this" (see step 5), SCR-TASTE's
+SuggestionCard, edit mode.
+
+**UX flow**
+
+1. **Brew.** When Tare has an adjustment of at least one grinder step, the
+   grind in the 2 x 2 values grid shows the **adjusted** grind (the same size
+   and weight as before, so nothing looks new). Directly under the grid, one
+   quiet line in `text-label` `ink-secondary`, a ghost button (`size="sm"`, at
+   least 40 px, 8 px clear around it) with a mirrored chevron:
+   `home.grindAdjusted` [recipe 15 · beans have aged]. The pattern puts the
+   recipe's own grind first and the reason second. The reason is one of
+   `home.grindReason.aged` [beans have aged], `.bag` [this bag runs fine],
+   `.both`, and, after servicing (04-03), `.serviced`, joined by the message
+   pattern, never by hand.
+2. **Tap the line** to open SH-DRIFT (Sheet, `drift.title` [why this grind]):
+   - The recipe's grind (`text-h3`), then one row per step that moved it,
+     value at the end with its sign: `drift.aged` [beans have aged, roasted 18
+     days ago], `drift.bag` [this bag has been running fast, from its recent
+     shots], `drift.serviced` (04-03). Then a hairline and the grind shown, in
+     `text-display` weight 200.
+   - **Evidence lines (round 8, DQ-32 revised).** `drift.basedOn` says what
+     the bag step rests on, in time not in a shot count: [based on 5 measured
+     shots of this bag in the last 3 days]. When Tare had to reach further back
+     to find enough shots: [based on 4 measured shots of this bag since 12
+     November], and never back past the last servicing of the grinder (it then
+     says `drift.sinceServicing` [since your grinder was serviced]). One-tap
+     shots aren't counted (`drift.onlyMeasured`). Recent shots count more, in a
+     short sentence `drift.recentMore` [today's shots count about twice as much
+     as shots from 3 days ago].
+   - **Pooled across people (round 8).** Shots from everyone who brewed this
+     coffee on this grinder count as one signal about the bag, each compared with
+     the recipe it was brewed from, so a bag running fast is seen faster in a
+     busy household. When more than one profile contributed, a line says so
+     without names: `drift.pooled` [includes shots made for 2 people]. The nudge
+     shown is for **this** recipe only, in its own units (`drift.perRecipe`
+     [applied to your recipe, not to everyone's]). Persona names never appear.
+   - If shots with different puck prep were left out, a further line says how
+     many (`drift.prepLeftOut`, DQ-33; kept as before).
+   - Footer: a secondary `drift.useRecipe` [use my recipe's 15 for this shot],
+     which sets Brew back to the recipe's grind **for this pull only** (DQ-17
+     pattern; not a saved setting). Close returns focus to the line.
+3. **Dial in.** SCR-LOG opens from a recipe with the grind tab at the adjusted
+   value and the recipe's value as "was 15" (ShotDial's existing "was", NC-09),
+   and under the grind wheel the same quiet reason line opening SH-DRIFT. The
+   other values start from the recipe as usual.
+4. **One-tap pull.** The shot records the grind that was shown (STORY-04-02-06
+   AC 3); that is why Brew states it so plainly. The pulled state is unchanged.
+   One-tap shots are never used as measurements, so a pull at the adjusted grind
+   doesn't confirm the adjustment; only measured shots do.
+5. **Where it does not apply.** Fix mode starts from the off shot's own values
+   plus one suggested change, which is already the freshest evidence; adding
+   drift on top would double-count (DQ-34). "Dial in from this" starts from a
+   past shot's values. Edit mode is the saved shot. Entering a recipe starts
+   from what the user types. In all four the grind is the shot's or the user's.
+6. **Wording by what Tare knows.** The numbers are always in the grinder's own
+   units, so they are correct even when the grinder's coarser direction is "not
+   sure". Words "finer" and "coarser" appear in SH-DRIFT only when the direction
+   is known; they are never guessed (as in EPIC-02-03).
+
+**States and edge cases**
+
+| State | Design |
+|---|---|
+| Too little evidence (fewer measured shots than the rule needs, or none in the current grind period) | Nothing changes. Brew shows the recipe's grind with no line. No "learning" message on Brew: it would nag every day. |
+| Fewer than 3 measured shots even after reaching back to the last servicing | Nothing shown. At most 10 shots are used, so a busy household's evidence line never reads like a long history. |
+| Shots from several people, or from several setups with the same grinder | Pooled as the relative signal (DQ-46); the sheet says "includes shots made for N people" and, across setups, `drift.acrossSetups` [includes shots on your other setup with this grinder] (DQ-46). |
+| Shots can't be matched to a recipe | A shot with no recipe before it is left out of the pool, counted in the same left-out line (DQ-45). |
+| Adjustment under one grinder step | Treated as none; nothing shown. |
+| Stepped grinder | The adjusted value is rounded to the grinder's step; stepless uses its finest increment. |
+| A very large adjustment | Capped by the rule (tuned by its evals); the value shown is the capped one and SH-DRIFT says "limited to N steps". |
+| Beyond the grinder's range | Clamped to the range. |
+| Grinder direction unknown | Numbers only, no finer or coarser words. |
+| Frozen or unopened portion | The clocks pause with freezing as elsewhere; an unopened portion uses the roasting clock only. |
+| New grind period after servicing | No drift adjustment until measured shots exist in the new period; the servicing shift (04-03) applies on its own. |
+| Calculation fails | Brew silently shows the recipe's grind. The adjustment is an aid and must never block a pull. |
+| Past shots | Show the grind they recorded. Nothing extra is stored or shown on them (calculated values are never stored). |
+
+**Copy direction.** Keys `home.grindAdjusted`, `home.grindReason.*`,
+`drift.*`, `log.grindAdjusted`. Phrases describe what happened ("beans have
+aged"), never a verdict; ink only; no percentages shown to users.
+
+**Components:** ShotValues (large, unchanged), ShotDial ("was"), Button ghost,
+Sheet, ListRow, Icon. No new component and no extension: the reason line is a
+ghost Button, SH-DRIFT is a Sheet of ListRows.
+
+**Design acceptance criteria**
+
+- When an adjustment applies, Brew shows the adjusted grind in the usual
+  place and size, and one line giving the recipe's grind and the reason; when it
+  doesn't, Brew looks exactly as it does today.
+- Opening SH-DRIFT shows the recipe's grind, each step and the grind shown,
+  adding up; units and signs are formatted through `Intl`.
+- "Use my recipe's grind for this shot" works once and isn't remembered.
+- The pre-filled log starts at the adjusted grind with the recipe's grind as
+  "was"; fix mode and "Dial in from this" start unadjusted.
+- A one-tap pull records the grind shown; the stored recipe is unchanged.
+- No new colour: ink and `ink-secondary` only, no `signal`.
+- With low evidence, a new period or a failure, nothing about drift is shown
+  and nothing blocks a pull.
+- The Pull button stays visible on 375 x 667 with the reason line present.
+
+**Design tasks** (`design`)
+
+- DES-04-02-01 Design the adjusted-grind treatment on Brew and in the
+  pre-filled log: value, reason line, "was", one-tap behaviour (6 h; was 4).
+- DES-04-02-02 Design SH-DRIFT: step rows, the 3-day and reach-back evidence
+  lines, the pooled-across-people and prep left-out lines, "use my recipe for
+  this shot", direction-unknown and capped variants, with the rows 04-03 and
+  04-04 add (4 h; was 3, round 8).
+- DES-04-02-03 Add stories for Brew with and without an adjustment, SH-DRIFT
+  variants and a right-to-left check (3 h).
+
+---
+
+### EPIC-04-03: Re-dial once after maintenance and keep every recipe (#30)
+
+**Open questions that block it (section 8):** INIT-04 Q3 (DQ-31, the aging
+estimate it subtracts, shared with EPIC-04-02), how offsets chain over several
+events, non-grinder events and which events prompt (DQ-42). Recommended answers
+are used here.
+
+**Entry points.** (1) A Card on Brew after a servicing. (2) SCR-UNIT: a
+grinder's maintenance events become tappable, and an event awaiting a re-dial
+has a button. (3) Any ordinary dial-in and pin of a coffee that had a recipe
+before the event triggers the same confirmation, because the pin, not the
+Card, is what Tare listens to.
+
+**Screens and sheets touched.** SCR-HOME (Card), SCR-UNIT (event rows),
+SCR-LOG (re-dial banner), SH-PIN then new SH-OFFSET, SH-SELECT (choose the
+coffee), SH-DRIFT (shows the servicing step), recipe rows everywhere the grind
+is shown.
+
+**Which events count.** Only a grinder event marked `maintenance.isRecalibration`
+(on by default for burrs and re-zero, DQ-15) starts a re-dial. A clean or repair
+does not prompt. Events on a machine never do. (A clean still starts a new grind
+period for dividers and drift, as built; see UX concern, round 7.)
+
+**UX flow**
+
+1. **After saving a recalibrating grinder event** in SH-MAINTENANCE, the sheet
+   closes as today. SCR-UNIT then shows, above the events list, a status block
+   in `text-body`: `maintenance.redialAwaiting` [recipes pinned before this
+   still use the old numbers. Re-dial one coffee and they all follow] with a
+   secondary `maintenance.redialStart`. If the grinder has no recipe pinned
+   before the event on any setup, nothing is shown (nothing to map).
+2. **The Brew Card** (Card, outline, `padding md`, one quiet card; pattern 3 of
+   5.0) appears on Brew when: the current setup contains this grinder, the event
+   awaits a re-dial, and at least one recipe pinned before it exists on a setup
+   with this grinder. Content: title `home.redial.title` [your grinder was
+   serviced], one sentence `home.redial.body` [re-dial one coffee and the rest
+   follow], a secondary `home.redial.start` [re-dial a coffee], a ghost
+   `home.redial.later` [not now]. "Not now" hides the Card for this event on
+   this device; the SCR-UNIT block stays. Pull and Dial in are untouched.
+3. **Start.** `home.redial.start` opens SH-SELECT (`redial.pick` [which coffee?])
+   listing coffees on hand that have a recipe pinned before the event on this
+   grinder, the Brew coffee first, each with its drink and setup as the
+   secondary line. Choosing opens SCR-LOG in dial-in mode for that coffee, drink
+   and setup, with the banner `log.redialing` [re-dialling after servicing your
+   grinder] in `text-label` under the header. The grind starts at the old
+   recipe's grind, shown as "was". (No drift adjustment, pattern 1; the old
+   number means nothing on new burrs, so this is only a starting point.)
+4. **Dial in as usual,** tasting included, then pin (SH-PIN). A pin of a recipe
+   whose predecessor was pinned before the event, on a setup with the serviced
+   grinder, is a re-dial wherever it came from.
+5. **SH-OFFSET** opens right after the pin is confirmed (Sheet, `offset.title`
+   [what did the servicing change?]):
+   - A one-line statement of the evidence: `offset.line` [your recipe for
+     {coffee} was 15 and is now 12].
+   - The proposed shift in `text-display` weight 200, signed ("-3"), with its
+     unit under it (`offset.unit` [grinder steps]) and, when the grinder's
+     direction is known, words (`offset.finer` [3 steps finer]).
+   - If beans aged between the two dial-ins and that was taken off first, one
+     quiet line `offset.agedNote` [0.5 of that was the beans ageing, taken off
+     first]. Without an aging estimate the line is absent and nothing is taken
+     off.
+   - **Editable:** a compact NumberWheel for the shift (step = the grinder's
+     step), so "confirm" and "edit" are one control.
+   - **Preview:** up to three other recipes that would change, as rows "Coffee
+     name, drink: 15 to 12" (text with the arrow Icon, not ShotValues), and "and
+     4 more" if there are more. The reader sees the effect before agreeing.
+   - Primary `offset.confirm` [use this for my other recipes]; ghost
+     `offset.decline` [don't adjust my old recipes].
+6. **What confirming does.** The shift and the re-dial it came from are stored on
+   the event. From then on every recipe pinned before the event, on any setup
+   with this grinder, is read with the shift applied; stored recipes are never
+   rewritten. Brew shows the shifted grind with the reason line (pattern 1,
+   `.serviced`), and the same in the log, the pin sheet's "replaces" block,
+   SCR-BAG and SCR-COFFEE recipe rows. Recipes pinned after the event are not
+   shifted.
+7. **What declining does.** It confirms a shift of zero and says so: old
+   recipes are shown unshifted, the awaiting block and Card go away, and the
+   shift stays editable from the event (DQ-42).
+8. **No baseline.** If the user started from the Card or SCR-UNIT but the coffee
+   they pinned has no recipe from before the event, SH-OFFSET shows no shift and
+   says why (`offset.noBaseline` [this coffee had no recipe before the
+   servicing, so there's nothing to compare. Pick one that did]) with a primary
+   `offset.pickAnother`. On an ordinary pin of such a coffee, nothing is shown
+   (no interruption).
+9. **Edit later.** On SCR-UNIT an event row opens SH-OFFSET in edit mode: the
+   same wheel, "from your re-dial of {coffee} on 9 October", `offset.save` and a
+   ghost `offset.remove` (sets zero). A row shows its shift at the end next to the
+   recalibration marker (`maintenance.shift` [-3 steps]). Events with no shift
+   yet show `maintenance.redialAwaiting`.
+10. **Several events.** Confirmed shifts after a recipe's pin are applied in date
+    order (STORY-04-03-03 AC 4), and SH-DRIFT lists each with its date.
+    Back-dating an event moves its place in that order at once.
+
+**States**
+
+| State | Design |
+|---|---|
+| No recipe predates the event | No block, no Card; the event row has no "awaiting" marker. |
+| Re-dial started, then left | The log's usual leave confirmation (SH-CONFIRM). The Card and block remain. |
+| Two grinders | The Card and block name the grinder (nickname, else model). |
+| Save failed (SH-OFFSET) | The sheet stays; Notice with retry; nothing applied. |
+| Event dated today | Counts from the moment it is saved; recipes pinned earlier today are "before". |
+| Non-grinder event, or a clean | No prompt, no marker. |
+| Loading | SH-OFFSET opens when the proposal is ready; a failed proposal says so and leaves the pin saved. |
+
+**Copy direction.** Keys `home.redial.*`, `log.redialing`, `redial.*`,
+`offset.*`, `maintenance.redialAwaiting`, `maintenance.redialStart`,
+`maintenance.shift`. Calm and factual: "serviced", never "broken" or
+"recalibrate now". Numbers and units through `Intl`.
+
+**Components:** Card, Button, SelectSheet, Sheet, NumberWheel (signed range
+story, section 3), ListRow, Icon (arrow), Notice, ConfirmSheet, Toggle (event
+flag, as built). No new component.
+
+**Design acceptance criteria**
+
+- After a recalibrating grinder event with prior recipes, Brew shows one calm
+  Card with one secondary action and a "not now"; with no prior recipes, or
+  after a clean, it shows nothing.
+- From the Card to a confirmed shift takes: re-dial, pick the coffee, dial in
+  and pin as normal, confirm. No form beyond the pin.
+- SH-OFFSET shows the evidence ("was 15, now 12"), the proposed shift, what was
+  taken off for ageing, and a preview of other recipes, and the shift can be
+  edited in the same sheet.
+- Declining leaves old recipes unshifted and stops the prompts; the shift stays
+  editable from SCR-UNIT.
+- A shifted recipe is always labelled where it is shown (the reason line), and
+  stored recipes are unchanged.
+- A re-dial of a coffee with no earlier recipe says why and offers another
+  coffee.
+- Event rows on SCR-UNIT are buttons with visible state in text ("awaiting
+  re-dial", "-3 steps").
+- Brew never shows this Card and the link Card together.
+
+**Design tasks** (`design`)
+
+- DES-04-03-01 Design the re-dial prompt and start: the Brew Card, the
+  SCR-UNIT block, the coffee pick and the log banner (5 h; redefined, was the
+  prompt and the sheet together at 6).
+- DES-04-03-02 Design SH-OFFSET: proposal, aging note, editable shift,
+  preview, decline, no-baseline and edit variants (6 h).
+- DES-04-03-03 Design SCR-UNIT's tappable event rows and their states
+  (awaiting, confirmed, declined, nothing to map) (3 h).
+- DES-04-03-04 Design how a shifted grind reads on Brew, the log, SH-PIN and
+  recipe rows, adding the servicing step to SH-DRIFT, with several events
+  (3 h).
+- DES-04-03-05 Add stories for the Card, SH-OFFSET variants and event rows,
+  including the signed NumberWheel range (3 h).
+
+---
+
+### EPIC-04-04: Keep recipes right after new burrs of a different design (#31)
+
+**Depends on EPIC-04-03** and extends its sheet. Open question (DQ-43): how a
+stretch is fitted from more than two coffees, and what to do when re-dials
+disagree. The design shows the result and its uncertainty; the method is the
+tech lead's.
+
+**Entry points.** (1) SH-OFFSET itself: the pin of a second re-dial after the
+same event. (2) SCR-UNIT: on a burrs event with a confirmed shift and no second
+re-dial, a quiet ghost `maintenance.redialMore` [re-dial a second coffee to
+refine]. Brew's Card does **not** return for it (calm).
+
+**Screens and sheets touched.** SH-OFFSET (stretch), SCR-UNIT (event detail),
+SH-SELECT (second coffee), SH-DRIFT (stretch in the trail).
+
+**UX flow**
+
+1. **Who sees the invitation.** Only events of kind burrs, because only new
+   burrs of a different design change what a step means (S-02). The event's
+   detail (SH-OFFSET in edit mode, 04-03 step 9) shows a short
+   `maintenance.redialMore.body` [changed to a different kind of burrs? Re-dial
+   a second coffee, one much finer or coarser than the first, and Tare can tell
+   whether each step now means something different].
+2. **Pick the second coffee.** `maintenance.redialMore` opens the same coffee
+   pick as 04-03 step 3, with the recipes ordered so the coffee whose old grind
+   is **farthest from the first coffee's** comes first, marked
+   `offset.farFromFirst` [very different grind from your first]. The spread is
+   what lets Tare tell a stretch from a shift.
+3. Dial in and pin as before (log banner `log.redialing`).
+4. **SH-OFFSET with two (or more) coffees** shows, in this order:
+   - the evidence as before, now naming each coffee ("Coffee A: 6 to 4.5,
+     Coffee B: 22 to 19");
+   - the **shift** (wheel, as 04-03);
+   - the **stretch**, in plain terms, as a second control: label
+     `offset.stretch` [how much each step changed], value in `text-display`
+     as a percentage (`+10 %`), a NumberWheel in percent (-30 to +30, step 1; 0
+     means "steps mean the same as before", shown as `offset.stretch.none`), and a
+     sentence `offset.stretch.explain` [each step now moves your grind about 10
+     % more than before, so coarse recipes move further than fine ones];
+   - the preview, now covering both effects ("15 to 12");
+   - primary `offset.confirm`, ghost `offset.decline` (back to the shift
+     alone, stretch 0 %).
+5. **Stored as a factor.** The wheel is in percent for people; what is stored is
+   the factor (1.10), with 1 for "no stretch" (S-02). Editing later works the
+   same.
+6. **Uncertain fit.** When the re-dials disagree too much to fit one line,
+   SH-OFFSET leads with a neutral Notice `offset.uncertain` [these two coffees
+   don't quite agree, so treat these numbers as a guess]; the values are still
+   shown and editable. Never `signal`: it is not a shot warning.
+7. **Too close.** If the two coffees' old grinds are within about two steps of
+   each other, a stretch can't be told: stretch stays 0 % and a quiet line
+   explains (`offset.tooClose` [those two coffees are too similar in grind to
+   tell; try one much finer or coarser]), with `offset.pickAnother` offered.
+8. **Three or more** coffees use the same sheet, with `offset.basedOn` [based
+   on 3 coffees].
+9. **SH-DRIFT** lists the servicing step as one row with both parts
+   (`drift.servicedStretch` [serviced 9 October: steps 10 % larger, then -3]),
+   and several events apply in order.
+
+**States**
+
+| State | Design |
+|---|---|
+| Only one coffee re-dialled | Stretch is 0 % and isn't shown on the event row; the invitation shows for burrs. |
+| Fit uncertain, or grinds too close | As steps 6 and 7. |
+| Save failed | As 04-03. |
+| Stretch edited to 0 % | Saves as "steps mean the same". |
+| Event is not burrs | No invitation. A stretch can still be edited by hand from the event if one exists. |
+
+**Copy direction.** Keys `offset.stretch*`, `offset.farFromFirst`,
+`offset.uncertain`, `offset.tooClose`, `offset.basedOn`,
+`maintenance.redialMore*`, `drift.servicedStretch`. Plain terms: "each step
+now means more or less than before", never "scale factor" or a formula.
+
+**Components:** SH-OFFSET (extended), NumberWheel (`percent` unit, extension),
+SelectSheet, Notice, ListRow, Button. No new component.
+
+**Design acceptance criteria**
+
+- A second re-dial after a burrs event shows the shift and the stretch in one
+  sheet, each editable, with the stretch in plain terms and as a percentage.
+- Only burrs events invite a second re-dial, and Brew's Card never returns for
+  it.
+- The coffee pick marks the coffee whose grind is farthest from the first.
+- An uncertain fit and too-close coffees are said in neutral ink text; the
+  user can still confirm or edit.
+- With one coffee re-dialled, the stretch is 0 % and nothing about stretch is
+  shown on the event.
+- Applied recipes read "grind times stretch plus shift" and SH-DRIFT lists it
+  as one labelled step; stored recipes never change.
+
+**Design tasks** (`design`)
+
+- DES-04-04-01 Extend SH-OFFSET with the stretch: plain-terms value, percent
+  wheel, evidence per coffee, preview (4 h; was 2).
+- DES-04-04-02 Design the second-re-dial invitation on SCR-UNIT, the "farthest
+  from the first" marker in the coffee pick, and the uncertain, too-close and
+  three-coffee states (3 h).
+- DES-04-04-03 Add stories for the stretch variants and the `percent`
+  NumberWheel (2 h).
+
+---
+
+### EPIC-05-01: Brew for someone else in the household (#32)
+
+**Questions closed in round 8 (accepted):** removing a profile (DQ-35),
+persona switching and the current setup (DQ-36), a new profile's first dial-in
+and second-hand taste answers (DQ-37). One refinement: when several other
+profiles have a recipe for the same coffee, drink and setup, which one a new
+profile starts from is DQ-48. Names in this file are always the `{name}`
+placeholder or a role; the app and docs never use real or first-name examples
+or describe people by relationship.
+
+**Entry points.** (1) Brew's persona label becomes a select once the household
+has more than one persona. (2) SCR-PROFILE, section `profile.people` ("People",
+secondary "Just you"), opening SCR-PEOPLE; this is where the first extra profile
+is added.
+
+**Screens and sheets touched.** New: SCR-PEOPLE, SH-PERSON. Changed: SCR-HOME
+(label, persona select, no-recipe start), SCR-LOG, SCR-TASTE, SH-OFF, SH-PIN
+(persona line), SCR-SHOTS and SCR-SHOT (whose taste, persona chip), SCR-PANTRY
+(Tried subtitle), SH-SELECT (footer row).
+
+**UX flow: the people screen (SCR-PEOPLE)**
+
+1. Full-screen task with PageHeader (`people.title` [People]). A sentence,
+   `people.intro` [add people you brew for. Each gets their own recipes, usual
+   drinks and taste answers]. **A name is enough**: the hint on the name field
+   says a nickname works (`people.nameHint`); Tare asks for nothing else, so no
+   personal data is needed.
+2. **The list:** one ListRow per profile. First the household's main profile
+   (shown by its name, or the translated role label; overline `people.you`).
+   Then the others, by most recently brewed for. Secondary line: how many shots
+   and when last ("12 shots, last 3 days ago"; "no shots yet"). Chevron opens
+   SH-PERSON. The last row is a plus row `people.add` [Add someone].
+3. **SH-PERSON (add or edit):** `people.name` Input (required, 40 characters,
+   unique among profiles, empty and duplicate explained in ink text). Primary
+   `actions.save`.
+   - Edit shows the same field and, below it, a ghost `people.remove` that is
+     present **only when the profile has no shots and no recipes**. With
+     history, a line takes its place: `people.cantRemove` [N shots and N
+     recipes belong to this profile, so it stays. You can rename it] (DQ-35).
+   - The main profile has no remove, and renaming it here is the same as
+     renaming it in Profile (one field, one place's worth of logic).
+   - Removing an empty profile asks once (SH-CONFIRM) and cannot affect any
+     shot.
+4. After saving an add, the screen returns with the new row in place and a
+   polite status `people.added`. Nothing else is asked.
+
+**UX flow: choosing who on Brew**
+
+1. **One persona:** nothing changes (the label opens Profile). Nothing about
+   choosing a person is in the way (STORY-05-01-03 AC 4).
+2. **More than one:** the label becomes a quiet SelectField (NC-06, text-label,
+   mirrored chevron) with the hidden label `home.changePerson`. It opens SH-SELECT
+   `home.whoFor` [who is it for?]:
+   - options: the main profile first (`home.usual`), then the others by most
+     recently brewed for; secondary line shows that person's usual drink
+     ("usually a flat white");
+   - footer row `home.profileAndPeople` [profile and people] to SCR-PROFILE,
+     because the label no longer links there.
+3. **Choosing a person** updates Brew in place, as drink and coffee do (200 ms
+   cross-fade, buttons don't move): that person's usual drink for this time of
+   day (DQ-02, per person; a new person gets the first shown drink), the coffee
+   in use, their recipe on the current setup. The label shows who it's for in
+   words (`home.brewingFor` [for {name}]) whenever it isn't the household's main
+   profile.
+4. **How long it holds (DQ-36, extends DQ-17).** A chosen person holds until
+   Brew has been away for 30 minutes. It does **not** reset after a pull, because
+   back-to-back drinks for one person are common. The setup does **not** follow
+   the person: the current setup is the setup of the household's last shot,
+   because the machine on the counter is physical (this amends DQ-18; PEC-18).
+5. **No recipe for them.** A person without a recipe for the drink and coffee on
+   this setup gets Brew's no-recipe state with primary `home.dialIn`
+   (STORY-05-01-03 AC 2). Dial in starts from another profile's recipe for the
+   same coffee, drink and setup if one exists, with the line `home.startsFromPerson`
+   [starts from {name}'s recipe], because dose, grind and time for the same
+   coffee on the same machine are a better start than blank values, and the
+   tasting will correct it (DQ-37, PEC-18). It never becomes a one-tap pull.
+6. **Logging and tasting for them.** The person is carried into SCR-LOG, SCR-TASTE,
+   SH-OFF and SH-PIN. Each shows one quiet line `log.forPerson` [for {name}]
+   under its header (the pin sheet: `recipe.forPerson`) whenever the household
+   has more than one profile, so it is always clear whose taste the answers are.
+   Pins from those shots are that person's (STORY-05-01-04 AC 2). **Second-hand
+   answers** (the member answers for someone else) are asked the same way; the
+   line "for {name}" is the only cue, and no extra flag is stored (DQ-37).
+7. **Journal and shot detail.** In SCR-SHOTS a shot for someone other than the
+   household's main profile carries a text marker, `journal.forPerson` [for
+   {name}], among the existing markers; the main profile's shots carry none
+   (it would be noise on every row). With more than one profile, the filter row
+   gains a **Person** chip (FilterChips), whose default is the person chosen on
+   Brew, like drink and coffee; "All" clears it. SCR-SHOT shows who the taste
+   is for and who logged it, in text (`shot.forPerson`, `shot.loggedBy`).
+8. **Beans.** Tried's "how its shots went" is per profile once there are
+   several (DQ-28). The summary is for the person chosen on Brew, and when that
+   isn't the main profile, a line under the Tried heading says so
+   (`beans.triedFor` [how shots went for {name}]). No chip is added to Beans for
+   this.
+
+**States**
+
+| State | Design |
+|---|---|
+| Loading | Skeleton rows on SCR-PEOPLE; the label shows the last known name. |
+| Load failed | `LoadFailed` with retry. |
+| Save failed | The sheet stays with the value; Notice with retry. |
+| Person with no shots | Brew's no-recipe state; the people row says "no shots yet". |
+| Chosen person later removed | Cannot happen: only empty profiles can be removed; if it is the chosen one, Brew returns to the main profile. |
+| Reset after 30 minutes away | As drink and coffee: back to the main profile. |
+
+**Copy direction.** Keys `people.*`, `home.whoFor`, `home.brewingFor`,
+`home.changePerson`, `home.profileAndPeople`, `home.startsFromPerson`,
+`log.forPerson`, `recipe.forPerson`, `journal.forPerson`, `shot.forPerson`,
+`shot.loggedBy`, `beans.triedFor`, `profile.people`. Never "for Me": the main
+profile is simply the label as it is today. Names are whatever the user types;
+the app and its docs hold no personal examples.
+
+**Components:** SelectField (quiet), SelectSheet, ListRow, Sheet, Input,
+FilterChips, ConfirmSheet, Button, PageHeader, Notice, Skeleton. No new
+component.
+
+**Design acceptance criteria**
+
+- With one profile, Brew, the log and the Journal look exactly as they do now.
+- With more than one, switching person on Brew takes one tap to open and one
+  to choose, updates the values in place, and says who it's for in words.
+- A person with no recipe gets the no-recipe state, never a one-tap pull; when
+  another profile has a recipe for the same coffee, drink and setup, Dial in
+  starts from it and says so.
+- Shots, taste answers and pins made after choosing a person are that person's
+  and the member who tapped is the logger; the log, tasting and pin screens say
+  "for {name}".
+- The Journal marks shots for non-main profiles in text and filters by person,
+  defaulting to the person chosen on Brew.
+- A profile with shots or recipes can't be removed, and says why; an empty one
+  can, after one confirmation; the main profile never.
+- A name is the only thing asked, and the hint says a nickname is enough.
+- Switching person never changes the current setup.
+
+**Design tasks** (`design`)
+
+- DES-05-01-01 Design persona switching on Brew: the label as a select, the
+  sheet, in-place update, "for {name}", hold and reset, the no-recipe start from
+  another profile (6 h; was 4).
+- DES-05-01-02 Design SCR-PEOPLE and SH-PERSON: list, add, rename, the
+  remove-only-when-empty rule and its explanation (4 h; was 3).
+- DES-05-01-03 Design the persona across SCR-LOG, SCR-TASTE, SH-OFF, SH-PIN,
+  the Journal (marker and Person chip), SCR-SHOT and the Tried subtitle (5 h).
+- DES-05-01-04 Add stories for the persona select, SCR-PEOPLE states and the
+  Journal with several profiles (2 h).
+
+---
+
+### EPIC-05-02: Invite them to take over their own profile (#33)
+
+**Priority: Next, sequenced last** (`epics.md` revision 11; PEC-20 as adjusted
+by the Head of Product, it stays in this breakdown). Depends on EPIC-05-01 (profiles to claim) and
+EPIC-05-03 (the invitee signs in with Google). **Needs a store for invites**
+(a token, the profile, who made it, expiry, status): not in the schema today, a
+note for the tech lead. Questions closed (DQ-41, accepted): permissions
+(any member invites), leaving (designed below), delivery (a link) and an invitee
+who already has history (refused).
+
+**Entry points.** Inviter: SH-PERSON for a profile without its own login, a
+secondary `people.invite` [invite {name} to take over]. Invitee: a link opened
+in a browser. There is no invite entry on Brew or in Profile's top level.
+
+**Screens and sheets touched.** SCR-PEOPLE and SH-PERSON (invite state), new
+SH-INVITE, new SCR-JOIN, SCR-PROFILE (account, 05-03), SH-SWITCH (reused logic).
+
+**UX flow: inviting**
+
+1. In SH-PERSON for a profile with no login: `people.invite`. A profile that is
+   already claimed shows `people.claimed` [has their own login] and no invite.
+2. **SH-INVITE** (Sheet, `invite.title` [invite {name}]):
+   - Three plain lines of what happens: they sign in with Google; they take
+     over this profile with its history; they share this household's machine,
+     grinder, beans, recipes and **everyone's shots** (`invite.shares`). This is
+     said before sending, not only to the invitee.
+   - Primary `invite.create` [create a link]. After creating: the link in a
+     read-only Input with a secondary `invite.copy`, and `invite.share` when the
+     device offers sharing. Under it: `invite.valid` [works once, for 7 days].
+   - Delivery is a link the member sends themselves (DQ-41): Tare collects no
+     email address and sends nothing.
+3. **Pending state.** The profile's row shows the overline `people.invitePending`
+   and its SH-PERSON shows the link again, `invite.copy` and a ghost
+   `invite.withdraw` [withdraw the link]. A withdrawn or expired link can't be
+   used; creating a new one replaces it.
+4. **Who can.** Any household member can invite for a profile and withdraw it
+   (DQ-41). A joiner becomes a member.
+
+**UX flow: joining (SCR-JOIN)**
+
+SCR-JOIN is a full-screen page outside the tabs, reachable signed out. It has
+five states:
+
+1. **Landing.** `LogoWordmark`, then `join.title` [you've been invited to share
+   a coffee kitchen]. A Card summarises **the profile's history before anything
+   is claimed**: its name, number of shots, the drinks it makes most and when it
+   was last brewed for (`join.summary`), and nothing about other profiles or the
+   household's equipment. Under it, plain text of what joining means
+   (`join.shares`, the same lines as the invite), and one primary `join.signIn`
+   [sign in with Google to continue]. A ghost `join.notNow`. No account is
+   created before the user chooses.
+2. **After Google sign-in: confirm (the claim).** `claim.title` [take over
+   {name}'s profile?]. The profile becomes the signed-in person's own, with its
+   shots and recipes; others in the household can still brew for them;
+   `claim.consent` [your shots stay private to this household. If sharing with
+   other brewers ever comes, it will be your choice]. Primary `claim.confirm`
+   [yes, this is my profile]; ghost `claim.cancel`. **Nothing changes until
+   Confirm**, and Cancel leaves the link usable. After Confirm the claim can't be
+   undone on this screen; the way out is leaving the household (below), and the
+   sentence under the button says so.
+3. **Done.** The user lands on Brew in the household, the label shows the
+   profile's name, with a polite status `claim.done`. The inviter's People
+   screen shows `people.claimed`.
+4. **Invalid link.** Used, withdrawn, expired or claimed by someone else:
+   EmptyState `join.invalidTitle` [this link no longer works] with one sentence
+   (`join.invalid` [ask them for a new one]) and a secondary `join.openTare`.
+   No detail about why, so a link reveals nothing.
+5. **Blocked.** The person already uses Tare with history of their own
+   (pattern 2): Notice, neutral, `join.hasHistory` [you already use Tare with
+   your own history, and one login belongs to one household for now. Sign in with
+   a different Google account to join this one]. Nothing is merged or lost. If
+   their account is empty, joining replaces it silently (a new device case).
+
+**States**
+
+| State | Design |
+|---|---|
+| Creating a link | Primary busy; failure shows a Notice with retry in the sheet. |
+| Loading the landing | Skeleton card; the wordmark stays. |
+| Google sign-in cancelled | Back to the landing; the link stays valid. |
+| Sign-in or claim fails | Notice, urgent, with retry; nothing is claimed. |
+| Profile claimed meanwhile | Invalid link. |
+| Joiner without a profile to claim | Not supported: every invite names a profile (DQ-41). |
+
+**UX flow: leaving the household (SH-LEAVE; INIT-05 Q3, DQ-41b; DES-05-02-05)**
+
+The claim itself can't be undone from the claim screen; leaving is the way out,
+and it ships with invites (a release gate for this epic).
+
+1. **Entry point.** SCR-PROFILE, Account section: a ghost row `leave.row`
+   [leave this household]. **Shown only when the household has more than one
+   login**, so a household of one never sees a way out of itself.
+2. **SH-LEAVE** (ConfirmSheet, `leave.title` [leave this household?]) states
+   plainly what happens, in four short lines:
+   - `leave.staysBehind`: your profile, with its shots and recipes, stays with
+     this household as a profile nobody has claimed, so the others can keep
+     using it.
+   - `leave.startFresh`: you start a **new, empty household of your own, with a
+     fresh profile**. The machine, grinder, beans, setups and recipes here stay
+     with this household, so your new one starts empty.
+   - `leave.account`: you stay signed in with the same Google account.
+   - `leave.canReturn`: nothing is deleted, and the household can invite you
+     back to take your old profile over again.
+   - **Only owner.** If you are the household's only owner, add `leave.ownerNote`
+     [the member who has been here longest becomes the owner].
+   One primary `leave.confirm` [leave this household]; ghost `actions.cancel`.
+   Ink only, no `signal` (it is not a shot warning).
+3. **Success.** The app reloads into the new household's first-run Brew screen
+   (checklist, no setup yet) with a polite status `leave.done` [you've left. This
+   is your own household now].
+4. **Cancel.** The sheet closes and nothing changes.
+5. **Failure.** The sheet stays; Notice, urgent, `leave.failed` [couldn't leave
+   right now. Nothing has changed] with `actions.retry`. Nothing is half-done:
+   the household and the new one are created together or not at all.
+6. **Rules.** The leaver's profile and history stay with the household as an
+   unclaimed profile; the leaver starts a new, empty household with a fresh
+   profile. If the only owner leaves, the longest-standing member becomes owner.
+   If, by the time of confirming, the leaver is the household's only login (the
+   others left), the sheet shows a neutral Notice `leave.alone` [you're the only
+   one here, so there's nothing to leave] and no primary.
+7. **After leaving,** the household's People screen shows the former member's
+   profile as unclaimed and it can be invited again (no special state).
+
+**Copy direction.** Keys `invite.*`, `join.*`, `claim.*`, `people.invite`,
+`people.invitePending`, `people.claimed`. Plain and warm, and honest about what
+is shared. No names beyond the profile's, no email shown anywhere.
+
+**Components:** Sheet, Input (read-only), Button, Card, EmptyState, Notice,
+LogoWordmark, ListRow, ConfirmSheet, Skeleton. No new component.
+
+**Design acceptance criteria**
+
+- The inviter is told what a joiner shares before the link is made, and the
+  link needs no email address.
+- The invitee sees the profile's history summary and what joining shares
+  before signing in, and nothing is claimed until an explicit Confirm.
+- Cancelling at any step leaves everything as it was and the link usable.
+- A used, expired or withdrawn link says only that it no longer works.
+- A person with history of their own is told plainly that joining isn't
+  possible with that account, and nothing is merged or deleted.
+- A claimed profile shows as claimed in People and cannot be invited again.
+- "Leave this household" is in Profile, Account, only when the household has
+  more than one login; its sheet says what stays, what starts new (an empty
+  household with a fresh profile), that the only owner's role passes to the
+  longest-standing member, and that nothing is deleted.
+- Leaving has one primary, a cancel that changes nothing, a failure that leaves
+  everything as it was, and a success that lands on the new household's
+  first-run Brew.
+- Nothing from Google is shown or stored beyond the sign-in.
+- Every state works at 375 px, with a screen reader, and in right-to-left.
+
+**Design tasks** (`design`)
+
+- DES-05-02-01 Design the inviting side: SH-PERSON's invite state and SH-INVITE
+  (create, copy, share, pending, withdraw, expired) (4 h).
+- DES-05-02-02 Design SCR-JOIN's landing with the history summary and the
+  sharing lines, and the invalid-link state (5 h).
+- DES-05-02-03 Design the claim confirmation, the done state and the blocked
+  cases (4 h).
+- DES-05-02-04 Add stories for SH-INVITE and each SCR-JOIN state, including
+  the read-only Input with copy, in right-to-left (3 h).
+- DES-05-02-05 Design leaving the household: the Account row (only with more
+  than one login), SH-LEAVE with the plain statement and the only-owner line,
+  and its success, failure, cancel and alone states (3 h).
+
+---
+
+### EPIC-05-03: Keep your coffee history when you change phones (#34)
+
+**Questions closed in round 8 (accepted):** DQ-16 and DQ-40 (the plain button,
+an account already linked, where the new-device offer lives). **For the
+story-writer:** STORY-05-03-02 AC 3 says the offer comes "before a new account
+is set up"; it must be reworded, because the offer is now on the first-run Brew
+screen and in Profile (step 7, PEC-19).
+
+**Entry points.** (1) SCR-PROFILE, section Account. (2) A one-time Card on Brew.
+(3) On a device with nothing set up, a quiet link on Brew's first-run checklist
+for people who already use Tare elsewhere. SCR-START is **not** changed (see
+step 7).
+
+**Screens and sheets touched.** SCR-PROFILE (the device section becomes
+Account), SCR-HOME (Card, first-run link), new SH-SWITCH (ConfirmSheet),
+SCR-START unchanged.
+
+**UX flow: linking**
+
+1. **Account section** (`profile.accountTitle` [account]) replaces the device
+   section. Not linked: the existing calm sentence, now with its action: your
+   history lives on this phone; link a Google account to keep it if you change
+   phones or the browser clears its storage. A secondary Button
+   `profile.linkGoogle` [link your Google account]. It is a plain monochrome
+   button with text, no Google logo, which keeps the system monochrome and
+   avoids the logo rules (DQ-16; to be checked against Google's current
+   guidelines before build).
+2. **While linking.** The button is busy; Google opens in its own window (a
+   redirect on iOS Safari, where pop-ups are unreliable). On return the user is
+   back on Profile.
+3. **Linked.** The section reads `profile.linked` [linked to Google] in `text-h3`
+   and `profile.linkedBody` [your history is kept even if you change phones].
+   Nothing from the Google account is shown or taken: no name, no email, and
+   the profile's label is unchanged (STORY-05-03-01 AC 2). There is no unlink
+   or sign-out in this epic.
+4. **Cancelled.** Back to the unlinked state with no message: the user did it.
+   **Failed:** a neutral Notice, urgent, `profile.linkFailed` [couldn't link
+   right now. Nothing has changed] with `actions.retry`.
+5. **This Google account is already linked to another Tare history** (the
+   epic's open question, DQ-40). Two cases, decided by the "nothing entered
+   yet" test of this device (pattern 2):
+   - **This device has nothing entered:** SH-SWITCH (ConfirmSheet) says
+     `switch.title` [this Google account already has a Tare history] and offers
+     the primary `switch.confirm` [switch to that history] and a ghost
+     `actions.cancel`. Because this phone is empty, nothing is lost. This is the
+     new-phone path: STORY-05-03-02.
+   - **This device has history:** a neutral Notice, `profile.linkTaken` [that
+     Google account already has a Tare history, so it can't be linked to this
+     one. Your data here is unchanged. Use a different Google account]. Tare
+     never merges two histories (S-02 has no rule for it).
+6. **One gentle prompt on Brew.** A Card (outline, `padding md`) shows once,
+   after the first recipe is pinned or the tenth shot is logged, whichever
+   comes first: `home.linkPrompt.title` [keep your history safe], one sentence,
+   a secondary `home.linkPrompt.action` [link Google], a ghost
+   `home.linkPrompt.dismiss` [not now]. Dismissing means it never returns; the
+   Account section stays. Never beside the re-dial Card, never during a pulled
+   state, never once linked. Dismissal is remembered on the device (no schema
+   change; DQ-40), so a cleared browser can show it again, which is acceptable.
+7. **Signing in on a new phone.** The account is created at once and silently
+   (EPIC-01-01), so asking "sign in first?" before it exists would put a choice
+   in front of the 1-second start, which the MVP rejects. Instead, a device with
+   nothing entered shows, under the first-run checklist, a quiet ghost link
+   `home.firstRun.haveAccount` [already use Tare? Sign in with Google]. It opens
+   Google; the account-already-linked case in step 5 (empty device) switches to
+   the existing history. The same link is in Profile's Account section, so a
+   user whose storage was cleared finds it in either place. This changes
+   STORY-05-03-02 AC 3, which says "before a new account is set up" (PEC-19).
+
+**States**
+
+| State | Design |
+|---|---|
+| Not linked, linking, linked, cancelled, failed | As steps 1 to 4. |
+| Account taken, device empty or not | Step 5. |
+| Switch fails | SH-SWITCH stays; Notice with retry; nothing changes. |
+| After a successful switch | A full refresh to Brew with the existing history; a polite status `switch.done`. |
+| Prompt dismissed or linked | Never shown. |
+| Offline | Linking fails with the failure Notice. |
+
+**Copy direction.** Keys `profile.accountTitle`, `profile.linkGoogle`,
+`profile.linked*`, `profile.linkFailed`, `profile.linkTaken`, `switch.*`,
+`home.linkPrompt.*`, `home.firstRun.haveAccount`. Factual, never alarming
+(7a "data-loss risk"); no mention of a name or email.
+
+**Components:** Button, Card, Notice, ConfirmSheet (SH-SWITCH), Checklist
+(a ghost link under it), PageHeader. No new component.
+
+**Design acceptance criteria**
+
+- Linking from Profile is two taps (link, Google's own flow), and afterwards
+  everything is as it was; the profile's label is unchanged.
+- No colour, logo or name from Google appears in the app.
+- A cancelled link returns silently; a failed one says nothing changed and
+  offers retry.
+- A Google account already in use never merges histories: an empty device can
+  switch with one explicit confirmation, a device with history is told no and
+  keeps its data.
+- The Brew prompt appears at most once, never beside another Card, and the Pull
+  button stays visible on 375 x 667 with it shown.
+- A person on a new or cleared phone can reach their history from the first-run
+  Brew screen or Profile without a wall at start-up.
+
+**Design tasks** (`design`)
+
+- DES-05-03-01 Design the Account section (unlinked, linking, linked, failed)
+  and the one-time prompt Card (5 h; was 4).
+- DES-05-03-02 Design SH-SWITCH and the account-taken Notice, with the empty
+  and non-empty device rules and copy (3 h).
+- DES-05-03-03 Design the first-run "already use Tare?" link and verify Brew's
+  one-card rule at 375 x 667 with the re-dial and link Cards (3 h).
 
 ---
 
@@ -1950,9 +3325,9 @@ here; flows, states and tasks come with the re-plan. All AI output follows
 the same rules: shown as a suggestion the user can accept or ignore, never as
 a fact, in ink, with signal reserved for shot warnings.
 
-- **EPIC-05-02 Invite them to take over their own profile:** invite from the
-  people screen; the joiner sees the profile's history before claiming it.
-  Keep the claim moment explicit and reversible until confirmed.
+- **EPIC-05-02 Invite them to take over their own profile:** now fully
+  designed in section 5 (rounds 7 and 8, approved). It moved from Later to Next
+  (sequenced last) in `epics.md` revision 11.
 - **EPIC-06-01 Scan a bag instead of typing it:** a "scan" entry at the top of
   SCR-BAG-ADD; results fill the same form for review, with empty fields left
   empty (no guessed values shown as filled).
@@ -2123,6 +3498,77 @@ The round-5 decisions are already made in S-02 and S-08, but epics revision
     an epic. Origin also needs a catalog field the schema doesn't have yet.
   - The renames (Journal, Beans) need no epic change beyond wording.
 
+### New in round 7 (accepted in round 8, applied in epics revision 11)
+
+Raised while designing the nine Next epics (section 5). **Round 8 status: the
+Head of Product accepted PEC-16 to PEC-22, with PEC-20 adjusted (EPIC-05-02
+stays in this breakdown as Next, sequenced last, not Later), and the
+epic-planner applied them in `epics.md` revision 11.** The text below is kept as
+proposed, for the record, with the accepted outcome noted per item.
+
+**Also applied in round 8 (Head of Product decisions, not proposals):**
+- **Sugar on recipes (EPIC-02-01).** A pinned recipe remembers the sweetened
+  toggle (yes or no); logs from it start pre-ticked. Design in 5.0a, DES-02-01-06.
+  Needs a new recipe column and updated S-02, S-04 and S-08 wording (spec owner).
+- **Milk (EPIC-02-05).** Conventional drinks define milk inherently; a variation
+  such as "Americano with froth" is a custom drink with has-milk chosen at
+  creation. No milk-on-any-drink change.
+
+- **PEC-16 EPIC-02-04: add "use the coffee's recipe for this bag again".** A
+  bag recipe that can be created but not removed is a trap: once a bag has an
+  override, it can only be outranked by pinning another. Proposal: add to
+  scope "remove a bag's own recipe", a ghost action on SCR-BAG with a
+  confirmation. Small; stays S. Also records the recommended answer to INIT-02
+  Q1 (DQ-29): a pin defaults to the coffee's recipe, and the first recipe for a
+  coffee is always the coffee's.
+- **PEC-17 EPIC-03-05: split run-out from Beans filters (or park the origin
+  filter).** The two have nothing in common but the screen, and filters depend
+  on a catalog field (origin) that the schema doesn't have and that needs a
+  place on Add a coffee and in the seed list. Proposal: two epics, run-out
+  (S to M) and Beans filters (S, with origin). INIT-03 already has six epics,
+  the limit, so the filters epic needs a parent decision (for example a seventh
+  INIT-03 epic by exception). *Accepted: new EPIC-03-07 "Find any coffee in
+  Beans", by exception; EPIC-03-05 is run-out only.* If the epics stay merged, ship the filters without
+  the origin chip until a coffee has an origin (the design hides the chip then).
+- **PEC-18 EPIC-05-01: three scope clarifications.** (a) A profile with
+  history can't be removed; an empty one can (DQ-35). (b) The current setup
+  follows the household's last shot, not the persona's, so switching person
+  never switches setup: this amends DQ-18 and answers the epic's own question
+  (DQ-36). (c) A profile's first dial-in on a coffee, drink and setup starts
+  from another profile's recipe for the same, and the Journal gains a Person
+  filter (DQ-37). Stays M, at the top.
+- **PEC-19 EPIC-05-03 (story level): the "offer to sign in on a new device"
+  moves from SCR-START to the first-run Brew screen and Profile.** The account
+  is created silently within a second; a choice in front of that would break
+  "start brewing without setting anything up". STORY-05-03-02 AC 3 ("before a new
+  account is set up") needs rewording for the story-writer. The epic itself
+  stays as written. Also: the one-time prompt's dismissal is remembered on the
+  device, with no schema change (DQ-40).
+- **PEC-20 EPIC-05-02: two scope notes** (*adjusted by the Head of Product: it
+  is Next, sequenced last, not Later*). (a) Every invite is
+  tied to a profile to claim, so the epic's open question about joining
+  "without a persona" is closed as not supported. (b) An invitee whose own
+  account has history is refused, never merged (DQ-41). Invites also need a new
+  table, which the epic doesn't mention (a tech note). Size stays L.
+- **PEC-21 EPIC-04-02: scope the starting points and say it isn't AI.**
+  (a) Drift applies only where the recipe is the starting point (Brew, dial in
+  from a recipe), not in fix mode, "Dial in from this" or edit (DQ-34).
+  (b) It is rules and statistics, so the "no AI" rule holds, but it ships with
+  evals like the suggestion rules (DQ-43), which probably keeps it at L rather
+  than letting it shrink.
+- **PEC-22 EPIC-04-03: say which events prompt and that a decline is a zero
+  shift.** Only grinder events marked as a recalibration prompt a re-dial; a
+  clean or a repair doesn't (DQ-42). Declining stores a zero shift, so there is
+  no separate "declined" state to build. No size change. The design also flags a
+  consequence for EPIC-04-02 that is not a change: a plain clean starts a new
+  grind period (as built, per S-02), so drift data resets after cleaning (7a).
+
+Considered and **not** proposed: reordering the Next epics (the build order in
+`tasks.md` stands) and any merge. EPIC-04-04 is the lowest-value Next epic
+(only people who change to different burrs, and only after a second re-dial),
+so it can be the last Next epic built without harming anything else; that is
+the planner's call.
+
 ---
 
 ## 7a. UX concerns
@@ -2228,6 +3674,61 @@ The round-5 decisions are already made in S-02 and S-08, but epics revision
   (S-02), and the home screen's quiet prep line makes it visible, but such
   shots need an edit to be accurate.
 
+**Round 7 (Next epics, approved after round 8):**
+
+- **Brew gets busier (round 7).** Five Next epics add something to Brew: a
+  person select, a bag-only line, an adjusted-grind line, a re-dial Card and a
+  link Card. Each is quiet and most appear rarely, and the rule is one card at a
+  time, but the home screen is the product's calmest surface and the one most
+  likely to be crowded by well-meant additions. DES-05-03-03 checks the
+  375 x 667 case; if the Pull button ever leaves the screen, the card loses, not
+  the button.
+- **An adjusted grind is a claim about the user's own beans (round 7).** If
+  Tare moves the grind by two steps and the shot is worse, trust in every later
+  suggestion falls, the same risk as the dial-in suggestions (round 5). The
+  mitigations: show nothing without real evidence, never adjust fix mode, show
+  the recipe's number beside it, a one-tap "use my recipe", and a cap. The
+  evals matter more than the sheet.
+- **A clean wipes the drift data (round 7).** As built, and per S-02, every
+  grinder event starts a grind period, so the shots before a routine clean
+  stop counting for drift (EPIC-04-02) although a clean rarely changes the dial.
+  The re-dial prompt avoids it (only recalibrating events prompt), but the drift
+  data does reset. If users clean weekly, the adjustment may rarely have enough
+  shots. The fix, if it bites, is in the rule (periods start only at
+  recalibrating events), not in the design.
+- **Second-hand taste answers (round 7).** When a member answers "just right"
+  for someone else, the answers are the member's reading. The screens say "for
+  {name}" and nothing more; no flag is stored. If the profile is later claimed,
+  its history includes answers that the person never gave themselves.
+- **Joining shares everything in the kitchen (round 7).** Taking over a profile
+  means seeing the household's equipment, beans, recipes and every profile's
+  shots. The invite and the landing say so before sign-in and again at the
+  claim. A joiner can leave later from Profile, Account (SH-LEAVE, designed in
+  EPIC-05-02), keeping nothing of the household's kitchen, which is the price of
+  the shared kitchen; the leave sheet says so (INIT-05 Q3, DQ-41b).
+- **Switching to a linked history looks destructive (round 7).** On a new phone
+  the user is told "this Google account already has a history" and offered to
+  switch away from the empty one just created. For an empty device nothing is
+  lost, but the wording must make that obvious. For a device with history the
+  answer is a refusal, which can feel like a dead end to someone who set up a
+  second phone first; the Notice names the way out (a different account), and a
+  merge is out of scope.
+- **People's names are personal data the user types (round 7).** Profiles need
+  a name, and the app stores whatever is typed. The design asks for nothing
+  else and the hint says a nickname is enough, but it is worth a line in the
+  privacy copy when the network arrives (S-07).
+- **Origin has no data yet (round 7).** The origin filter is useless until the
+  seed list and Add a coffee carry origin. The chip hides itself until then, so
+  nothing is broken, but the filter row may launch with three chips.
+- **A run-out estimate that is wrong costs trust (round 7).** Households that
+  log little will see a long estimate and run out early. SH-RUNOUT shows the
+  share of weight logged for that reason, and the line is hidden when use is
+  stale, but the share should be visible without opening the sheet if testing
+  shows people miss it.
+- **Configuration screens grow Profile (round 7).** Profile goes from three
+  sections to five. Rows with one-line summaries keep it a list, not a page of
+  forms; if it grows again, People and Lists can move under a "Household" row.
+
 ## 8. Design questions for the Head of Product
 
 Design-level questions this draft answered with an assumption. Each can be
@@ -2281,7 +3782,8 @@ reversed without changing the structure.
   for burrs and re-zero (EPIC-04-01 open question).
 - **DQ-16** Google sign-in button (Next): Google's branded button is colourful.
   Use it as-is in the one place it appears, or a monochrome variant if their
-  guidelines allow?
+  guidelines allow? *Round 7:* recommended answer in DQ-40 (a plain text
+  button, no Google logo).
 - **DQ-17** (round 2, the EPIC-02-02 open question) Does a drink or coffee
   changed on the home screen stick for the next pull? Assumed: no saved
   setting. A change applies to the next pull. Once pulled, the drink sticks
@@ -2349,6 +3851,205 @@ reversed without changing the structure.
   Persona-blind in the MVP (one persona); per persona once sub personas
   exist.
 
+### Rounds 7 and 8: questions that block a Next epic
+
+**Round 8 status: the Head of Product accepted DQ-29 to DQ-43 as recommended,
+except DQ-32, which is revised (below).** The "recommended" and "confirm" wording
+in DQ-29 to DQ-43 is kept as written in round 7 and now reads as decided. New
+open questions from `epics.md` revision 11 follow as DQ-44 to DQ-49, each with
+a recommended answer. Each names what it **blocks**. Each can change without
+changing the structure.
+
+- **DQ-29** (INIT-02 Q1, the spec's "still open"; **blocks EPIC-02-04**). Does
+  pinning update the bag's override or the coffee's default? *Recommended:* a pin
+  updates the **coffee's** recipe by default, as the built MVP does; "this bag
+  only" is an explicit choice in SH-PIN. Exceptions: the first recipe for a coffee
+  is always the coffee's (no scope row), and when the bag already has its own
+  recipe the chip defaults to this bag only. Reason: an odd bag should never
+  overwrite the recipe a household relies on without being asked, and a new bag
+  must always have something to start from. *Head of Product to confirm.*
+- **DQ-30** (INIT-04 Q4; **blocks EPIC-04-02**). Is the suggested grind a
+  changed value, a note, or both? *Recommended:* both, as designed: the grind
+  value shown is the adjusted one, with the recipe's grind and the reason on one
+  quiet line, and the full trail in SH-DRIFT. Only when the adjustment is at  
+  least one grinder step. *Head of Product to confirm.*
+- **DQ-31** (INIT-04 Q3; **blocks EPIC-04-02 and 04-03**). How is bean-aging drift
+  estimated, from how many shots, and which clock? *Recommended:* the
+  since-roasting clock drives the age trend (that is when grind needs move), the
+  since-opening clock may add a smaller term, and the estimate needs at least
+  three measured shots on the coffee in the current grind period, spread over at
+  least two different ages; fewer means no adjustment and nothing shown. The
+  design only needs to say it in one phrase ("beans have aged") and to list the
+  evidence in SH-DRIFT. *For the rules owner; Head of Product to confirm the
+  minimum.*
+- **DQ-32** (INIT-04 Q2; **EPIC-04-02**). **Revised by the Head of Product,
+  round 8; replaces "last 5 shots".** The window is time, not a shot count,
+  because households differ in volume (2 versus 5 shots a day, several people on
+  one bag). The rule:
+  - Use the bag's measured shots from the **last 3 days of the current grind
+    period**; at least 3, reaching further back if needed but **never past the
+    last maintenance**; at most 10.
+  - Weight by age in time: today's shots count about twice as much as shots from
+    3 days ago.
+  - **Pool shots from every persona** on the same coffee and grinder as a
+    relative signal (for example "running about 10% fast against its recipe"),
+    each judged against the recipe it was brewed from, then turn that signal into
+    a **separate grind nudge per recipe**.
+  - Fall back to pooling within the same basket if the evals show single and
+    double baskets diverge. All numbers are starting values the evals tune; the
+    same shots always give the same answer (STORY-04-02-04).
+  - *Design consequence:* SH-DRIFT states the window in time ("in the last 3
+    days", or "since 12 November" when it reached back), never a fixed shot count,
+    says when the pool includes several people (without names), and keeps the
+    prep "left out" line. See EPIC-04-02, step 2. Open follow-ups: DQ-45, DQ-46.
+- **DQ-33** (SQ-18, prep; **blocks EPIC-04-02**). Are shots with and without WDT
+  or a puck screen compared as equals? *Recommended:* no. Only shots whose puck
+  prep matches the recipe's count towards the adjustment; the others are left
+  out, and SH-DRIFT says how many ("2 shots with different prep weren't
+  counted"). Reason: prep changes how a shot runs (S-02), and mixing would blame
+  the beans for the user's technique. *Head of Product to confirm.*
+- **DQ-34** (the overlap with EPIC-02-03; **blocks EPIC-04-02**). When the
+  drift adjustment and a one-change suggestion both apply on a pre-filled log,
+  which wins? *Recommended:* they never meet. Drift applies only where the recipe
+  is the starting point (Brew, dial in from a recipe). Fix mode starts from the
+  off shot plus the suggestion, which is fresher evidence; "Dial in from this"
+  and edit use the shot's own values. *Head of Product to confirm (PEC-21).*
+- **DQ-35** (persona removal; **blocks EPIC-05-01**). Can a profile be deleted,
+  and what happens to its shots? *Recommended:* only a profile with no shots and
+  no recipes can be removed (after one confirmation). With history it stays, and
+  can be renamed; the screen says why. Reason: shots, recipes and taste answers
+  belong to the household's history and to a future claim (EPIC-05-02), and the
+  schema has no archive column (S-02: only the UI changes). If lists of old
+  guests become a nuisance, the follow-up is an "archive" flag (one column) that
+  hides a profile from Brew while keeping its history. *Head of Product to
+  decide (PEC-18).*
+- **DQ-36** (persona switching; **blocks EPIC-05-01**). Does switching person
+  also switch setup (DQ-18), and does it stick? *Recommended:* no on setup: the
+  current setup is the setup of the **household's** last shot, since the machine
+  on the counter is the same for everyone. A chosen person holds for 30 minutes
+  away from Brew (DQ-17) and does not reset after a pull. Amends DQ-18's
+  wording ("the persona's last shot"). *Head of Product to confirm (PEC-18).*
+- **DQ-37** (profiles; **blocks EPIC-05-01**). (a) Does a new profile start a
+  dial-in from another profile's recipe? *Recommended:* yes, for the same coffee,
+  drink and setup, saying so, never as a one-tap pull. (b) Are taste answers a
+  member gives for someone else treated differently? *Recommended:* no, they are
+  asked the same way with "for {name}" as the only cue, and nothing extra is
+  stored. (c) Do the Journal and Tried gain a person filter? *Recommended:*
+  the Journal yes (a chip, defaulting to the person chosen on Brew); Tried shows
+  the summary for the person chosen on Brew with a subtitle, no chip.
+  *Head of Product to confirm (PEC-18).*
+- **DQ-38** (hidden items; **EPIC-02-05**, the epic's open question). What
+  happens to a recipe for a hidden drink, or a recipe or shot that uses a hidden
+  milk? *Recommended:* recipes are kept and return on unhide; a hidden drink's
+  recipes stay visible, marked, on SCR-BAG and SCR-COFFEE. A hidden milk that is
+  already chosen stays shown by name where it is chosen and is never swapped
+  silently; it just isn't offered as a new choice. A drink's "has milk" can't be
+  changed after creation (it would reinterpret past shots). Names are unique.
+  *Head of Product to confirm.*
+- **DQ-39** (INIT-03 Q1, X-2 and filters; **(a) and (d): EPIC-03-05; (b) and (c): EPIC-03-07**). (a) Is
+  prediction in the product now? *Recommended:* yes, it is already in Next and
+  the MVP collects its data; shown only after about three finished portions and
+  hidden when use is stale or filters are on. (b) What does a coffee's "rating"
+  mean for the Beans filter? *Recommended:* Tried's own summary words (mostly
+  good, mixed, mostly off, no ratings yet; DQ-28), so nothing new is invented.
+  (c) When do Beans filters appear? *Recommended:* from six coffees; below that
+  the row is clutter. (d) Accuracy target (X-2): the sheet shows its inputs
+  and the logged share, rather than promising a precision. *(a) and (d): Head of
+  Product; (b) and (c): confirm.*
+- **DQ-40** (EPIC-05-03; DQ-16 resolved here). (a) The Google button (DQ-16):
+  *recommended* a plain monochrome text button ("link your Google account")
+  with no Google logo, which keeps the system monochrome and sidesteps logo
+  rules; check against Google's current guidelines before build. (b) This Google
+  account is already linked to another history: *recommended* never merge; an
+  **empty** device may switch to that history after one confirmation (the
+  new-phone case), a device **with history** is refused with an explanation.
+  (c) Where the new-device offer lives: *recommended* on the first-run Brew screen
+  and in Profile, not on SCR-START (PEC-19). (d) Is the link prompt's dismissal
+  remembered on the device? *Recommended:* yes, no schema change. *Head of
+  Product to decide (b), confirm (a), (c), (d).*
+- **DQ-41** (INIT-05 Q2, Q3 and the epic's open questions; **EPIC-05-02**,
+  Next since revision 11, sequenced last). (a) Who can invite: *recommended* any
+  household member, for a profile they can see; the joiner becomes a member.
+  (b) Leaving the household, **accepted and designed (SH-LEAVE, DES-05-02-05)**:
+  the leaver's profile and history stay with the household as an unclaimed
+  profile, and the leaver starts a new, empty household of their own with a fresh
+  profile; if the only owner leaves, the longest-standing member becomes owner.
+  It ships with invites. (c) Delivery:
+  *recommended* a one-use link valid 7 days that the member sends themselves; no
+  email collected. (d) Joining without a profile to claim: *recommended* not
+  supported; an invite always names a profile. (e) An invitee with their own
+  history: *recommended* refused, never merged, same "nothing entered yet" test
+  as DQ-40. *Head of Product to decide when the epic is re-planned.*
+- **DQ-42** (EPIC-04-03 open questions). (a) Which events prompt a re-dial:
+  *recommended* only grinder events marked as a recalibration (default on for
+  burrs and re-zero, DQ-15). (b) Machine repair or other non-grinder events:
+  *recommended* no effect. (c) Chaining: *recommended* each confirmed shift
+  after a recipe's pin is applied in date order. (d) Declining: *recommended*
+  stores a zero shift, no separate state. (e) A re-dial with no earlier recipe:
+  no shift, and it says why. *Head of Product to confirm (PEC-22).*
+- **DQ-43** (EPIC-04-02 and 04-04; method). (a) Is drift AI? *Recommended:* no,
+  rules and statistics, but with evals like the suggestion rules (S-02), because
+  it moves a number the user will set a grinder to. (b) How to fit shift and
+  stretch from more than two coffees and what to do when they disagree:
+  *recommended* a least-squares line through all re-dials, flagged uncertain
+  past a threshold, with the user always able to edit; stretch shown only for
+  burrs events. *For the tech lead and rules owner.*
+
+**New in round 8 (from `epics.md` revision 11). Accepted as recommended by the Head of Product after round 8 (DQ-44 to DQ-49):**
+
+- **DQ-44** (EPIC-02-01 sugar and EPIC-02-02; **blocks EPIC-02-02's copy**).
+  (a) Does a one-tap pull copy sweetened? *Recommended:* yes, the same rule as
+  prep and milk, so daily use records what the recipe describes; Brew's quiet
+  recipe line shows "sweetened" before the pull so it is never a surprise, and
+  the pulled state says "sweetened" only when it was. (b) Can sweetened change on
+  Brew before a pull? *Recommended:* no (it is out of scope in revision 11 and
+  Brew has no controls beyond drink, coffee, person and setup); a user who
+  sweetens on some days pulls via Dial in, where the toggle is one tap, or
+  edits the shot after. (c) Which shot's value wins when pinning from a past
+  shot: that shot's. A one-tap shot can't be pinned, so a household that only
+  uses one-tap has the value from its last manual pin. *Head of Product to
+  confirm (a) and (b).*
+- **DQ-45** (EPIC-04-02; **blocks the rules**). Shots store no link to the recipe
+  they were brewed from, so "judged against the recipe it was brewed from" needs a
+  rule. *Recommended:* the recipe in force at the time of the shot, that is the
+  latest pin for the same coffee, persona, setup and drink (with a bag's own
+  recipe winning for its bag) pinned before the shot; a shot with no recipe before
+  it is left out and counted in SH-DRIFT's "left out" line. No new column. A
+  shot pulled by one-tap is already excluded (not a measurement). The follow-up
+  if the evals show this misattributes (for example after a re-pin mid-day) is a
+  nullable recipe link on shots, which is a schema change for the tech lead.
+  *For the rules owner; Head of Product to confirm.*
+- **DQ-46** (EPIC-04-02). Pooling spans setups that share a grinder: is that
+  intended? *Recommended:* yes. Grind is relative to one grinder and one period
+  (S-02), so the same bag on the same grinder under two machines tells the same
+  story about the bag; each shot is still judged against its own recipe, and the
+  nudge is per recipe. The sheet says "includes shots on your other setup with
+  this grinder". Baskets are the known divergence (the basket fallback in
+  DQ-32). Shots on a different grinder are never pooled. *Head of Product to
+  confirm.*
+- **DQ-47** (EPIC-04-02; 7a). Keep "a clean resets drift"? *Recommended:* keep it
+  for now, because S-02 defines a period by any maintenance event and the 3-day,
+  reach-back-to-maintenance window already needs only 3 shots to recover. If
+  weekly cleans mean the adjustment rarely shows, change the rule so periods
+  start only at recalibrating events, which is a rule change, not a design
+  change. *Head of Product to confirm; revisit with the evals.*
+- **DQ-48** (EPIC-05-01). Which recipe does a new profile start from when several
+  profiles have one for the same coffee, drink and setup? *Recommended:* the
+  household's main profile's recipe if it has one; otherwise the most recently
+  pinned or used by any profile. Always named on Brew's line (`home.startsFromPerson`,
+  with that profile's name) so the source is visible, and never a one-tap pull.
+  *For the Head of Product to confirm.*
+- **DQ-49** (EPIC-03-07). Who fills coffee origin, and how are blends handled?
+  *Recommended:* the Head of Product as admin fills the seed list (as with the
+  seed hardware); households fill it for coffees they add, optionally, and can set
+  it later while the coffee is unverified. A blend has its own value
+  (`catalog.origin.blend`) and "other" covers the rest; origin is never inferred
+  from a coffee's name. A merged coffee with two origins keeps the surviving
+  entry's, an EPIC-06-07 matter. *Accepted.*
+
+DQ-44 to DQ-49 are all **accepted as recommended** (approval after round 8).
+DQ-41b is resolved: the "Leave this household" screen ships with invites.
+
 ---
 
 ## 9. Design tasks summary
@@ -2372,7 +4073,7 @@ Phase 0 work (PR #3) already delivers as done.
 | EPIC-01-04 | DES-01-04-01: 6 · 02: 4 | 10 h |
 | EPIC-01-05 | DES-01-05-01: 10 · 02: 6 · 03: 4 · 04: 3 · 05: 3 | 26 h |
 | EPIC-01-06 | DES-01-06-01: 8 · 02: 4 · 03: 7 · 04: 3 · 05: 7 | 29 h |
-| EPIC-02-01 | DES-02-01-01: 5 · 02: 4 · 03: 3 · 04: 5 · 05: 4 | 21 h |
+| EPIC-02-01 | DES-02-01-01: 5 · 02: 4 · 03: 3 · 04: 5 · 05: 4 · 06: 4 (round 8, sweetened) | 25 h |
 | EPIC-02-02 | DES-02-02-01: 11 · 02: 6 · 03: 3 · 04: 4 · 05: 4 | 28 h |
 | EPIC-02-03 | DES-02-03-01: 5 · 02: 3 · 03: 6 · 04: 8 · 05: 5 | 27 h |
 | EPIC-02-06 | DES-02-06-01: 9 · 02: 7 · 03: 4 | 20 h |
@@ -2381,16 +4082,18 @@ Phase 0 work (PR #3) already delivers as done.
 | EPIC-03-03 | DES-03-03-01: 4 | 4 h |
 | EPIC-03-04 | DES-03-04-01: 3 · 02: 3 · 03: 2 | 8 h |
 | EPIC-04-01 | DES-04-01-01: 4 · 02: 4 | 8 h |
-| **MVP** | **61 tasks** | **328 h** |
-| EPIC-05-03 | DES-05-03-01: 4 | 4 h |
-| EPIC-02-05 | DES-02-05-01: 5 | 5 h |
-| EPIC-02-04 | DES-02-04-01: 2 | 2 h |
-| EPIC-03-05 | DES-03-05-01: 3 | 3 h |
-| EPIC-05-01 | DES-05-01-01: 4 · 02: 3 | 7 h |
-| EPIC-04-02 | DES-04-02-01: 4 | 4 h |
-| EPIC-04-03 | DES-04-03-01: 6 | 6 h |
-| EPIC-04-04 | DES-04-04-01: 2 | 2 h |
-| **Next** | **9 tasks** | **33 h** |
+| **MVP** | **62 tasks** | **332 h** |
+| EPIC-02-04 | DES-02-04-01: 4 · 02: 3 · 03: 2 | 9 h |
+| EPIC-02-05 | DES-02-05-01: 6 · 02: 3 · 03: 4 · 04: 3 | 16 h |
+| EPIC-03-05 (run-out only) | DES-03-05-01: 4 · 02: 3 | 7 h |
+| EPIC-03-07 (new, Beans filters and origin) | DES-03-07-01: 4 · 02: 3 | 7 h |
+| EPIC-04-02 | DES-04-02-01: 6 · 02: 4 · 03: 3 | 13 h |
+| EPIC-04-03 | DES-04-03-01: 5 · 02: 6 · 03: 3 · 04: 3 · 05: 3 | 20 h |
+| EPIC-04-04 | DES-04-04-01: 4 · 02: 3 · 03: 2 | 9 h |
+| EPIC-05-01 | DES-05-01-01: 6 · 02: 4 · 03: 5 · 04: 2 | 17 h |
+| EPIC-05-02 (Next, last) | DES-05-02-01: 4 · 02: 5 · 03: 4 · 04: 3 · 05: 3 (leaving) | 19 h |
+| EPIC-05-03 | DES-05-03-01: 5 · 02: 3 · 03: 3 | 11 h |
+| **Next (rounds 7 and 8, approved)** | **34 tasks** | **128 h** |
 
 MVP: 56 design tasks, 275 h (round 3 added DES-02-01-05 and redefined or
 updated DES-01-02-01, 03, 04, 06, DES-01-03-05, DES-01-05-01, DES-02-02-03,
@@ -2429,8 +4132,40 @@ The round-6 addendum (basket dose range) adds 2 h with no new tasks:
 DES-01-06-03 and DES-01-06-05 each grow by 1 h. That makes the MVP 61 tasks
 and 328 h.
 
-Next: 9 tasks, 33 h (DES-02-05-01 grows from 4 to 5 h for the milk list,
-assuming PEC-13). Later: none until re-planned.
+Next (before round 7): 9 tasks, 33 h. Later: none until re-planned.
+
+**Round 7 (2026-11-15, draft pending approval)** brings the Next epics to full
+detail and takes them from 9 tasks and 33 h to **33 tasks and 124 h** (+24
+tasks, +91 h). The MVP was unchanged at 61 tasks and 328 h (round 8 below
+changes both).
+- **Grown tasks (same IDs):** DES-02-04-01 (2 to 4 h), DES-02-05-01 (5 to 6 h),
+  DES-03-05-01 (3 to 4 h), DES-04-02-01 (4 to 6 h), DES-04-03-01 (6 h to 5 h,
+  redefined: the prompt and start only; the sheet is now DES-04-03-02),
+  DES-04-04-01 (2 to 4 h), DES-05-01-01 (4 to 6 h), DES-05-01-02 (3 to 4 h),
+  DES-05-03-01 (4 to 5 h).
+- **New tasks:** DES-02-04-02 and 03; DES-02-05-02 to 04; DES-03-05-02 to 04;
+  DES-04-02-02 and 03; DES-04-03-02 to 05; DES-04-04-02 and 03; DES-05-01-03
+  and 04; DES-05-02-01 to 04 (EPIC-05-02 had none); DES-05-03-02 and 03.
+- **Order:** each epic's tasks should land before its build wave. Shared work
+  goes first: DES-04-02-02 (SH-DRIFT) before DES-04-03-04, and DES-05-03-02
+  (the "nothing entered yet" rule) before DES-05-02-03.
+- **Assumptions:** the estimates assume the recommended answers in DQ-29 to
+  DQ-49; PEC-16 is already counted in DES-02-04-02.
+
+**Round 8 (2026-11-15, draft pending approval)** applies `epics.md` revision 11
+and changes the totals to: **MVP 62 tasks and 332 h** (+1 task, +4 h) and **Next
+34 tasks and 128 h** (was 33 and 124 h; +1 task, +4 h).
+- **New:** DES-02-01-06 (4 h), sweetened on recipes across the pin sheet,
+  enter-values pinning, recipe-based log pre-fills, recipe rows and the pulled
+  state (an MVP epic, EPIC-02-01); DES-05-02-05 (3 h), leaving the
+  household.
+- **Grown:** DES-04-02-02 (3 to 4 h), the "why this grind" sheet for the 3-day
+  window and pooled evidence.
+- **Moved (no change in hours):** the split of EPIC-03-05. DES-03-05-03 becomes
+  DES-03-07-01 (4 h) and DES-03-05-04 becomes DES-03-07-02 (3 h) under the new
+  EPIC-03-07; EPIC-03-05 keeps DES-03-05-01 and 02 (7 h).
+- **Edited, same hours:** EPIC-02-05 (custom drink example), EPIC-05-01
+  (placeholder name), EPIC-05-02 (priority, open item), EPIC-05-03 (story note).
 
 ---
 
@@ -2759,4 +4494,142 @@ assuming PEC-13). Later: none until re-planned.
     "other" with typed lowest and highest grams, and empty saves as "not sure".
   - The MVP epic count is corrected to 16.
   - DQ-24 freshness thresholds are marked as still awaiting confirmation.
+- **Sent to the epic-planner:** nothing new.
+
+### Round 7 (2026-11-15): Next epics to full detail
+(Round 8 follows this entry, at the end of the log.)
+
+- **Feedback received:** the Head of Product asked for the nine Next epics
+  (EPIC-02-04, 02-05, 03-05, 04-02, 04-03, 04-04, 05-01, 05-02, 05-03) to be
+  brought from "lighter flows" to the detail of section 4, so stories and tech
+  tasks can be written from them. The Phase 1 MVP epics are built, so the flows
+  were written against the code in `src/` (screens under `src/app/(app)`,
+  components, tokens, domain, DAL) and the shipped behaviour, not the original
+  plan. INIT-06 and anything with an LLM, scanning or network cold start are out
+  of scope. No real names or personal details appear anywhere.
+- **What changed** (all IDs kept; this entry follows the 2026-11-03 addendum):
+  - Section 5 rewritten as full detail, in epic ID order, each with entry points,
+    screens and sheets touched, the flow, empty, error and edge states, copy
+    direction, components, design acceptance criteria and `design` tasks. A new
+    5.0 records what shipped and six patterns shared by several epics (the grind
+    trail, the "nothing entered yet" test, one card on Brew, the Profile layout,
+    persona on Brew, quiet configuration).
+  - Design decisions worth reading first:
+    - EPIC-02-04: a scope choice in SH-PIN, hidden for a coffee's first recipe,
+      with a way to remove a bag's recipe.
+    - EPIC-02-05: drinks and milks screens reached from Profile and from the
+      selects, a sheet per item, reorder by buttons, keep-one rule.
+    - EPIC-03-05: a run-out line with an explanation sheet, hidden when it would
+      mislead; Beans filters from six coffees; origin hides until the data
+      exists.
+    - EPIC-04-02: the adjusted grind on Brew and in the pre-filled log, with one
+      reason line and a "why this grind" sheet; never in fix mode.
+    - EPIC-04-03 and 04-04: a calm Card on Brew, a confirmation sheet that
+      previews the effect, a stretch in plain terms, and tappable event rows.
+    - EPIC-05-01: a person select on Brew, a People screen, profiles removable
+      only when empty, "for {name}" through the log, tasting and Journal.
+    - EPIC-05-02: an invite link, a landing that shows the history first, an
+      explicit claim, and refusal rather than merging.
+    - EPIC-05-03: an Account section, one prompt, a switch to a linked history
+      only from an empty device, and the new-device offer on first-run Brew rather
+      than at start-up.
+  - Section 2.4 (new screens and sheets), section 3 (**one new component, NC-17
+    ReorderList**, and extensions to Toggle, Icon, NumberWheel and Input), section 6
+    (EPIC-05-02's pointer), 7a (ten concerns), section 8 (DQ-29 to DQ-43, each
+    with a recommended answer) and section 9.
+  - Hours: Next goes from 9 tasks and 33 h to 33 tasks and 124 h; the MVP is
+    unchanged at 61 tasks and 328 h. The header and "How to read this file"
+    mark round 7 as draft pending approval.
+  - Sections 1, 2.1 to 2.3, 4 and the rest of 6 are unchanged and stay approved.
+- **Sent to the epic-planner:** nothing yet; proposed, **pending the Head of
+  Product**: PEC-16 (a bag's recipe can be removed, EPIC-02-04), PEC-17 (split
+  run-out from Beans filters, EPIC-03-05), PEC-18 (profile removal, household-level
+  current setup, first dial-in from another profile and a Journal person filter,
+  EPIC-05-01), PEC-19 (the new-device sign-in offer moves off SCR-START;
+  STORY-05-03-02 AC 3 needs rewording, EPIC-05-03), PEC-20 (invites tied to a
+  profile, an invitee with history is refused; stays Later, EPIC-05-02), PEC-21
+  (drift only where a recipe is the starting point, with evals, EPIC-04-02) and
+  PEC-22 (which events prompt a re-dial, a decline is a zero shift, EPIC-04-03).
+  Decisions needed from the Head of Product are DQ-29, DQ-35, DQ-36, DQ-37,
+  DQ-39 (a, d), DQ-40 (b) and DQ-41; the rest are confirmations or for the tech
+  lead.
+
+### Round 8 (2026-11-15)
+
+- **Feedback received:** the Head of Product accepted all of DQ-29 to DQ-43 and
+  PEC-16 to PEC-22 as recommended, except: DQ-32 revised (the bag's measured
+  shots in the last 3 days of the current grind period, at least 3 and at most
+  10, never past the last maintenance, weighted by age in time, pooled across
+  personas on the same coffee and grinder and judged against each shot's own
+  recipe, a separate nudge per recipe; basket fallback if evals diverge); sugar
+  (a pinned recipe remembers sweetened, yes or no, logs start pre-ticked); milk
+  (variations are custom drinks, no milk on any drink); PEC-20 adjusted
+  (EPIC-05-02 is Next, sequenced last). From the epic-planner, `epics.md`
+  revision 11 (read first), with the design-owned follow-ups listed below.
+- **What changed:**
+  - Header, "How to read" and section 5 intro: round 8 status, ten Next epics,
+    counts; section 2.4 unchanged except by reference.
+  - New 5.0a and DES-02-01-06: sweetened on recipes (pin sheet and changes
+    list, enter-values pinning, pre-ticked recipe-based logs, recipe rows, the
+    pulled state). Task also noted under EPIC-02-01 in section 4.
+  - EPIC-02-04: INIT-02 Q1 closed; removal of a bag recipe in scope.
+  - EPIC-02-05: "Americano with froth" custom-drink example with has-milk
+    chosen at creation; no change to milk on existing drinks.
+  - EPIC-03-05 split: run-out only (DES-03-05-01 and 02), and new EPIC-03-07
+    "Find any coffee in Beans" with the filters and origin (DES-03-07-01 and
+    02, renumbered from 03-05-03 and 04). "No run-out line while a filter is
+    on" kept in both. Blend as an origin value added.
+  - EPIC-04-02: SH-DRIFT evidence lines rewritten for the 3-day, reach-back,
+    cross-persona rule; new edge states; prep "left out" line kept; DQ-32
+    rewritten (DES-04-02-02 3 to 4 h).
+  - EPIC-05-01: example placeholder changed to a neutral name; DQ-48 added.
+  - EPIC-05-02: now Next, sequenced last; the claim has no undo and leaving is
+    undesigned, flagged with a recommendation and a proposed DES-05-02-05
+    (since designed, see "Round 8 review fixes").
+  - EPIC-05-03: note that STORY-05-03-02 AC 3 needs rewording.
+  - Section 7: PEC-16 to PEC-22 marked accepted (PEC-17 as a new epic, PEC-20
+    adjusted); sugar and milk recorded as applied decisions. Section 8: DQ-29 to
+    DQ-43 marked accepted; DQ-32 and DQ-41b revised; new DQ-44 to DQ-49.
+  - Section 9: MVP 62 tasks and 332 h (+4 h); Next 34 tasks and 128 h (+4 h).
+  - No new components; no real names or relationships in examples.
+- **Sent to the epic-planner:** the new questions DQ-44 (one-tap copies
+  sweetened; sweetened not changeable on Brew), DQ-45 (the recipe a shot was
+  brewed from: the latest pin in force before the shot), DQ-46 (pooling across
+  setups that share a grinder: intended), DQ-47 (keep a clean resetting drift),
+  DQ-48 (which recipe a new profile starts from), DQ-49 (origin: admin fills the
+  seed list; a blend is its own value), and the leaving-the-household open item
+  (DQ-41b). For the story-writer: reword STORY-05-03-02 AC 3.
+
+### Approval after round 8 (2026-11-15)
+
+- **Outcome:** the Head of Product approved the design and epics after round 8.
+  - DQ-44 to DQ-49 accepted as recommended.
+  - INIT-03 keeps seven epics (EPIC-03-07 kept).
+  - The "Leave this household" screen is kept: DES-05-02-05 is no longer
+    proposed, and DQ-41b is resolved (it ships with invites).
+- **What changed:** the title, header and section 5 intro now read rounds 7 and
+  8 as approved; DQ-44 to DQ-49 are marked accepted; DES-05-02-05 is marked
+  approved. No hours change (MVP 62 tasks and 332 h; Next 34 tasks and 128 h).
+- **Sent to the epic-planner:** nothing new.
+
+### Round 8 review fixes (2026-11-16)
+
+Design-owned findings from the "Revision 5 review" in `review.md` (M2, m6, m7);
+targeted edits only, no scope, hours or ID changes.
+- **M2, leaving the household:** designed in EPIC-05-02 as SH-LEAVE (entry in
+  Profile, Account, shown only with more than one login; plain statement of what
+  stays and what starts new; success, failure, cancel and "alone" states;
+  acceptance criteria), with the rule that the leaver's profile and history stay
+  as an unclaimed profile, the leaver starts a new, empty household with a fresh
+  profile, and if the only owner leaves the longest-standing member becomes
+  owner. Added to the 2.4 table; "open" and "proposed" labels removed (intro,
+  open item, DQ-41b, section 9, the round 8 and 7a notes).
+- **m7:** "Alex" replaced by `{name}`; the note now says only `{name}` or a role
+  is used.
+- **m6:** stale "draft" labels (2.4 and extensions headings, header, section 5
+  pointers, section 9, DES-02-01-06) now say approved; the FilterChips line
+  points to EPIC-03-07; DQ-39 names which parts belong to EPIC-03-05 and 03-07.
+- **Not design-owned or not trivial:** m1 to m5, m8 to m14 and M1, M3, M4, B1 to
+  B3 belong to other roles. The `spec.md` "partner" example (m7) is the
+  strategist's.
 - **Sent to the epic-planner:** nothing new.
