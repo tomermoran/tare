@@ -49,4 +49,25 @@ export const Rows: Story = {
   },
 };
 
+/** A sweetened recipe's row says so in words; a plain row says nothing (STORY-02-01-09 AC 2). */
+export const Sweetened: Story = {
+  args: {
+    rows: [
+      {
+        id: "americano",
+        title: row(drinks.americano),
+        values: { grind: 14, dose: 18, yield: 36, timeMs: 28_000 },
+        lines: [recipe.sweetenedLine],
+        date: recipe.pinnedOn.replace("{date}", "14 Mar 2026"),
+        dialInHref: "/log?drinkId=americano",
+        changeHref: "/log?mode=recipe&batchId=b&drinkId=americano",
+      },
+      meta.args.rows[1],
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getAllByText(recipe.sweetenedLine)).toHaveLength(1);
+  },
+};
+
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

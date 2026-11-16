@@ -364,18 +364,41 @@ export const EditKeepsAnOldValue: Story = {
   },
 };
 
-/** Pinning a recipe, not logging a shot: its own title and button, no sweetened (STORY-02-01-02 AC 4). */
+/** Pinning a recipe, not logging a shot: its own title and button, with sweetened beside the prep (STORY-02-01-02 AC 4, STORY-02-01-07 AC 3). */
 export const RecipeMode: Story = {
   args: { mode: "recipe", readOnly: ["coffee"], milk: { name: messages.milks.oat, startMl: 120 } },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("heading", { name: log.titleRecipe })).toBeVisible();
     await expect(canvas.queryByRole("button", { name: log.save })).toBeNull();
-    await expect(canvas.queryByRole("switch", { name: log.sweetened })).toBeNull();
+    await expect(canvas.getByRole("switch", { name: log.sweetened })).not.toBeChecked();
     await expect(canvas.getByRole("switch", { name: log.prepWdt })).toBeVisible();
     await expect(canvas.getByRole("tab", { name: new RegExp(log.milkAmount) })).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: messages.recipe.pinThis }));
     await expect(args.onSave).toHaveBeenCalled();
+  },
+};
+
+/** Changing a sweetened recipe: the tick starts as the current recipe has it and is pinned with it (STORY-02-01-07 AC 3). */
+export const RecipeModeSweetened: Story = {
+  args: { mode: "recipe", readOnly: ["coffee"], drink: messages.drinks.espresso, sweetened: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("switch", { name: log.sweetened })).toBeChecked();
+    await userEvent.click(canvas.getByRole("button", { name: messages.recipe.pinThis }));
+    await expect(args.onSave).toHaveBeenCalledWith(expect.anything(), true, expect.anything(), expect.anything());
+  },
+};
+
+/** A log started from a sweetened recipe opens ticked; unticking saves not sweetened (STORY-02-01-08 AC 1, AC 3). */
+export const StartsSweetened: Story = {
+  args: { drink: messages.drinks.espresso, sweetened: true, onSweetenedChange: fn() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const toggle = canvas.getByRole("switch", { name: log.sweetened });
+    await expect(toggle).toBeChecked();
+    await userEvent.click(toggle);
+    await expect(args.onSweetenedChange).toHaveBeenCalledWith(false);
   },
 };
 

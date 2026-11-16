@@ -43,6 +43,14 @@ export const AfterTheWindow: Story = {
   },
 };
 
+/** Pulled from a sweetened recipe: the shot is logged as sweetened too (STORY-02-01-09). */
+export const Sweetened: Story = {
+  args: { labels: { pulled: home.pulledSweetened, undo: home.undo } },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(home.pulledSweetened)).toBeVisible();
+  },
+};
+
 export const WithReactions: Story = { args: { onReaction: fn(), reaction: "good" } };
 
 export const WithNotice: Story = {

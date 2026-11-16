@@ -69,4 +69,35 @@ export const Failed: Story = {
   },
 };
 
-export const RightToLeft: Story = { args: { replaces: old, changes }, globals: { direction: "rtl" } };
+/** A sweetened recipe says so in its quiet lines; a plain one says nothing (STORY-02-01-07 AC 1). */
+export const NewSweetened: Story = {
+  args: { recipe: { ...next, lines: [...next.lines, recipe.sweetenedLine] } },
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByText(recipe.sweetenedLine)).toBeVisible());
+  },
+};
+
+export const NewNotSweetened: Story = {
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByRole("heading", { name: title })).toBeVisible());
+    await expect(canvas.queryByText(recipe.sweetenedLine)).toBeNull();
+  },
+};
+
+const sweetenedChange = t("recipe.change", { field: log.sweetened, from: messages.shot.sweetenedNo, to: messages.shot.sweetenedYes });
+
+/** Replacing a plain recipe with a sweetened one: the change reads like the others (AC 2). */
+export const ReplacesWithSweetened: Story = {
+  args: { recipe: { ...next, lines: [...next.lines, recipe.sweetenedLine] }, replaces: old, changes: [...changes, sweetenedChange] },
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByText(sweetenedChange)).toBeVisible());
+  },
+};
+
+export const RightToLeft: Story = {
+  args: { recipe: { ...next, lines: [...next.lines, recipe.sweetenedLine] }, replaces: old, changes: [...changes, sweetenedChange] },
+  globals: { direction: "rtl" },
+};
