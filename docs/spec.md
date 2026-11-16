@@ -32,14 +32,14 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Shot time is stored in milliseconds** and shown in seconds with one decimal, like a scale timer.
 - **Temperature and pressure are optional and follow the machine.** Canonical hardware declares each machine's control: none (fixed), steps (e.g. 1-3), exact (a PID or adjustable pressure), or manual (lever, paddle, valve; peak pressure only if there's a gauge). Fields only appear when the machine can set them. Shots and recipes store either an exact value (°C, bar) or a step number, never one column whose meaning depends on the machine, so swapping machines can't reinterpret old shots. Pressure profiles (a curve per shot) come later.
 
-- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns beans, hardware, setups and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. Only the UI changes between phases.
+- **Households own the kitchen; users are logins.** Modeled on Netflix profiles first, then Spotify Family: the household owns beans, hardware, setups and personas, and users join through membership. Rollout: MVP, one user and one household created silently at sign-up; phase 2, sub personas (profiles without their own login, managed by a household member); phase 3, invites, so the person behind a sub persona signs in and claims it as their main persona, with its history. An invite is a one-use link naming that profile, valid for 7 days; any household member can create one, and Tare collects no email address. Between phases, mostly the UI changes; the schema only gains small additive changes (new optional or defaulted columns, new tables) that never reinterpret existing data. This revision's: a sweetened flag and a removed marker on pinned recipes, an optional origin on catalog coffees, and an invites table (see S-08).
 - **Shots record whose taste and who logged them.** One person often pulls for both, so the persona (whose taste) and the logging user (who tapped) are separate fields.
 - **The network needs the person's own consent.** A persona's shots reach the Cold Start network only when the persona is claimed by a user who opted in. Logging for someone without their own login never shares their data.
 
 - **Accounts use Firebase from day one, with no sign-in screen in the MVP.** Firebase anonymous sign-in gives each device an account; the user record stores its Firebase ID. When Google sign-in arrives, Firebase links it to the same account, so no data moves.
 - **A shared catalog: makers and models, roasters and beans.** Hardware is a maker (with its ID) and a model (with its ID); coffee is a roaster and a bean. The catalog starts from a curated seed list. If something is missing, a household can add it, with a link to the product page; user additions start unverified. Modeled on Untappd: duplicates are merged into a surviving entry, never deleted, and anything that referenced the duplicate follows the merge. Every merge is logged.
 - **URLs and names are evidence, not identity.** The same product is often sold under regional names and pages (Sage in the UK, Breville in the US), so each catalog entry can have many URLs (one per market) and many aliases. The MVP flags exact matches on a normalised URL. Later, an LLM suggests likely duplicates with a confidence and a reason, and a person or a reviewed rule always confirms the merge. That matcher ships with evals: known duplicates, and look-alikes that must not merge.
-- **Drink types are a starter list each household can edit.** New households get Espresso, Ristretto, Lungo, Americano, Cortado, Flat white, Cappuccino, Latte and Macchiato, and can rename, hide or add. Sugar or syrup is a "sweetened" mark on the shot, not a drink type.
+- **Drink types are a starter list each household can edit.** New households get Espresso, Ristretto, Lungo, Americano, Cortado, Flat white, Cappuccino, Latte and Macchiato, and can rename, hide or add. Sugar or syrup isn't a drink type. A pinned recipe remembers whether the drink is sweetened (yes or no, no amount), and a shot logged from that recipe starts ticked; the shot still records what was actually done. Sweetened is never part of a recipe's identity.
 - **The default persona has no stored name.** Until renamed, it shows a translated role label (e.g. "Me"), so no personal data is needed to start.
 - **One-tap shots are recorded but marked as unmeasured.** "Pull This Shot" copies the pinned recipe's values into a shot marked one-tap. It uses the persona selected on the home screen and, in the MVP, the drink that persona last made at this time of day; the recipe's setup; and the earliest-opened open portion of that bean (asking if none is open). With no pinned recipe, the button becomes "Dial in". No rating is asked: silence counts as a weak "fine", and an optional quick reaction (good or off) turns an off shot into a normal pre-filled log. Undo is possible for a few seconds, and editing afterwards. One-tap shots count toward coffee used, but are never treated as measurements and never reach the network.
 - **Unverified catalog entries stay private until verified.** A maker, model, roaster or bean a household adds is visible only to that household. Until the Later merge tooling exists, verification and merges are a manual admin task.
@@ -58,7 +58,7 @@ Agreed while reviewing the schema in S-08, which already reflects them.
 - **Milk is part of the drink, not the recipe's identity.** The amount of milk sets how strong the shot needs to be (a cortado is about 1:1 milk to espresso, a latte 1:3 or more), and the type changes the taste (dairy fat and lactose add body and sweetness; oat is mild and creamy; almond and coconut are flavour-forward and thinner). Households keep their own milk list, starting from whole, semi-skimmed, skimmed, oat, soy, almond and lactose-free, renamable and extendable (e.g. "Oat (barista)"); no brand catalog. Each drink type has a typical milk amount (starter list: cortado 60 ml, flat white 120 ml, cappuccino 120 ml, latte 200 ml, macchiato 15 ml; espresso, ristretto, lungo and americano none). Shots and recipes record milk type and amount, pre-filled from the recipe or drink, and a one-tap pull copies them. A recipe stays scoped to coffee, setup and drink type; someone who alternates milks can add a drink such as "Oat flat white" for separate recipes. Milk amount is also a lever ("try less milk" when the coffee is lost in a large drink). Steamed-milk temperature isn't recorded in the MVP.
 - **Recent shots are visible in the MVP.** A simple list of recent shots lets users find and edit a shot, including one-tap shots after the fact.
 - **The MVP is built in milestones, starting with a lean walking skeleton.** Milestone 1 is the core loop: start brewing (anonymous account, app shell), describe your setup (one setup, from a seeded catalog), add a bag of beans, log a shot, and look back at shots in the Journal. Inside those epics it defers Journal filters and "Dial in from this", milk, puck prep, setup switching, catalog additions, the profile screen, editing a shot, the first-run checklist and the part screen. Estimated at roughly 370 developer hours (the tech breakdown, revision 2, priced the earlier, wider cut at about 422 hours). Prerequisites from the Head of Product: a Firebase project with keys kept outside the repo, and a small seed catalog (their own machine, grinder and baskets with capabilities and dose ranges, plus a few coffees). After Milestone 1, the actual build pace is measured and the rest of the MVP is re-forecast from it.
-- **App sections are named for what people ask.** Four tabs: **Brew** (what am I making?), **Journal** (what did I make? Method-neutral, since Tare may serve more than espresso; individual espresso entries are still "shots"), **Beans** (what do I have?) and **Setup** (what am I making it with?). The Journal is filterable by drink, coffee and setup, and opens pre-filtered to the drink and coffee selected on Brew. Beans has two sections: **On hand** (open, unopened and frozen bags, grouped by state) and **Tried** (every coffee ever used, one row per coffee, with when it was last had, how many bags, and how its shots went; calculated, not stored). Tried ships in the MVP without filters; Beans filters (roaster, roast level, origin, rating) come in Next.
+- **App sections are named for what people ask.** Four tabs: **Brew** (what am I making?), **Journal** (what did I make? Method-neutral, since Tare may serve more than espresso; individual espresso entries are still "shots"), **Beans** (what do I have?) and **Setup** (what am I making it with?). The Journal is filterable by drink, coffee and setup, and opens pre-filtered to the drink and coffee selected on Brew. Beans has two sections: **On hand** (open, unopened and frozen bags, grouped by state) and **Tried** (every coffee ever used, one row per coffee, with when it was last had, how many bags, and how its shots went; calculated, not stored). Tried ships in the MVP without filters; Beans filters (roaster, roast level, origin, rating) come in Next. Origin is an optional field on catalog coffees: a country (as an ISO code), blend, or a short free-text "other" for an origin the country list doesn't cover.
 - **Maintenance events are recorded from Phase 1.** Logging them is small and splits grind history correctly from day one; using them for grind offsets comes later.
 
 - **Technical decisions from the tech-lead review (TQ-01 to TQ-07).**
@@ -70,7 +70,7 @@ Agreed while reviewing the schema in S-08, which already reflects them.
   - *"Not sure" capabilities* are stored as unknown values in the capabilities JSON (see S-08).
   - *Local days use the device's time zone,* sent in a cookie, for "today", grouping by day, the time-of-day drink and bean age. Nothing is stored for it.
 
-Still open: whether pinning a better recipe updates the bag's override or the bean's default.
+- **Pinning updates the coffee's recipe by default (DQ-29).** "This bag only" is an explicit choice that pins a batch override. A coffee's first recipe is always the coffee's, never a bag's. Removing a bag's own recipe marks it removed rather than deleting it: it stops applying and is kept, like older pins.
 
 ## S-03 The North Star Vision & UVP
 
@@ -87,12 +87,12 @@ The system is built on a highly structured, real-world physical hierarchy to all
 - **Household (The Tenant):** Owns everything shared in the kitchen: beans, hardware, setups, personas and recipes. Users sign in with Google and belong to a household through membership. The MVP creates one household per user at sign-up and never shows it.
 - **Personas:** Taste profiles for the different people a household brews for, each with its own taste graph. Two types:
   - **Main persona:** a person's own profile, linked to their login. Every login has exactly one.
-  - **Sub persona:** a profile with no login of its own, e.g. a partner or a regular guest that a household member brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
+  - **Sub persona:** a profile with no login of its own, e.g. another household member or a regular guest that someone in the household brews for. When that person signs up and joins the household, they claim the sub persona, which becomes their main persona and keeps its history.
 
   The type is not stored: a persona is a main persona when it's linked to a login. Who logs a shot and whose taste it records are separate: one person often pulls for both.
 - **Setups (Hardware Groups):** Instead of selecting individual machines daily, hardware is grouped. (e.g., an espresso setup = machine + grinder + basket.) A setup is a fixed combination: changing any of its parts makes a different setup, and recipes belong to one setup. Puck prep (WDT, puck screen) is recorded per shot as checkboxes. Each part is a unit the household owns, pointing to a canonical model that declares what it can control (e.g. a machine's temperature: none, steps or exact; a grinder's scale and which direction is coarser). Only parts that change the recipe belong in a setup.
 - **Beans (Batches and Portions):** Separates the Canonical Bean (the global product) from the User Batch (the bag as bought: roast date, lot, weight). A batch holds one or more Portions, the physical containers on the counter or in the freezer, so a 1 kg bag split into a fresh and a frozen half stays one batch.
-- **Drink Type:** The target output, from a starter list each household can edit (Espresso, Cortado, Flat white, Cappuccino, Latte and more). Additives like sugar are a "sweetened" mark on the shot.
+- **Drink Type:** The target output, from a starter list each household can edit (Espresso, Cortado, Flat white, Cappuccino, Latte and more). Additives like sugar aren't drink types: a pinned recipe remembers whether the drink is sweetened (yes or no, no amount), shots from it start ticked, and each shot records what was actually done.
 - **The Catalog:** Shared, canonical lists of hardware (maker, then model) and coffee (roaster, then bean). Households can add missing entries with a product link; duplicates are merged, never deleted.
 - **The Pinned Recipe:** The exact extraction parameters locked in at the intersection of a Persona, Setup, Drink Type, and Canonical Bean. A recipe can optionally be pinned for one specific Batch, overriding the bean's default for that bag. Day-to-day drift (bean age, the batch's own character, setup maintenance) is calculated from logged shots on top of the pinned recipe, not stored.
 - **Maintenance Events:** Dated work on one owned unit (new burrs, cleaning, re-zero, repair). For a grinder, each event starts a new grind period; shots on either side are not directly comparable.
@@ -177,6 +177,7 @@ export const canonicalBeans = sqliteTable('canonical_beans', {
   name: text('name').notNull(),
   roastLevel: text('roast_level'),
   tastingNotes: text('tasting_notes', { mode: 'json' }),
+  origin: text('origin'), // Optional: a country as an ISO 3166-1 alpha-2 code (e.g. 'ET'), 'blend', or 'other:<text>' (trimmed, case-folded); null if unknown
   source: text('source').notNull(),
   status: text('status').notNull(),
   mergedIntoId: text('merged_into_id').references((): AnySQLiteColumn => canonicalBeans.id),
@@ -277,7 +278,8 @@ export const households = sqliteTable('households', {
   createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
-// Which logins belong to which household. One row in the MVP; invites add rows later.
+// Which logins belong to which household. One row in the MVP. Later, joining through an
+// invite (see invites, which records the invite itself) adds a row here.
 export const householdMembers = sqliteTable('household_members', {
   householdId: text('household_id').references(() => households.id).notNull(),
   userId: text('user_id').references(() => users.id).notNull(),
@@ -293,6 +295,22 @@ export const personas = sqliteTable('personas', {
   userId: text('user_id').references(() => users.id), // The login that claimed it, if any
   name: text('name'), // Null = show the translated role label (e.g. "Me"); user can rename
   isDefault: integer('is_default', { mode: 'boolean' }).default(false),
+});
+
+// Invites (phase 3): a one-use link that names one unclaimed persona, so the person behind
+// it can sign in and claim it. Any household member can create one; it is valid for 7 days,
+// and a new invite for the same persona replaces a pending one. No email is collected.
+// Status (pending, used, withdrawn, expired) is derived from the dates, never stored.
+export const invites = sqliteTable('invites', {
+  id: text('id').primaryKey(),
+  householdId: text('household_id').references(() => households.id).notNull(),
+  personaId: text('persona_id').references(() => personas.id).notNull(), // The profile to claim
+  createdByUserId: text('created_by_user_id').references(() => users.id).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(), // createdAt + 7 days
+  usedAt: integer('used_at', { mode: 'timestamp_ms' }),
+  usedByUserId: text('used_by_user_id').references(() => users.id),
+  withdrawnAt: integer('withdrawn_at', { mode: 'timestamp_ms' }),
 });
 
 // Drinks a household makes. Each new household gets the starter list (Espresso,
@@ -411,7 +429,7 @@ export const extractions = sqliteTable('extractions', {
   setupId: text('setup_id').references(() => setups.id).notNull(),
   portionId: text('portion_id').references(() => batchPortions.id).notNull(), // Batch and bean follow from the portion
   drinkTypeId: text('drink_type_id').references(() => drinkTypes.id).notNull(),
-  sweetened: integer('sweetened', { mode: 'boolean' }).default(false), // Sugar or syrup added
+  sweetened: integer('sweetened', { mode: 'boolean' }).default(false), // Sugar or syrup actually added; pre-filled from the recipe
   // 'measured': values entered or confirmed at the machine.
   // 'one-tap': "Pull This Shot" copied the pinned recipe; nothing was measured. One-tap
   // shots count for coffee used and as "the recipe was fine", but drift detection and
@@ -459,6 +477,9 @@ export const extractions = sqliteTable('extractions', {
 // --- RECIPES ---
 // Pinned per bean, persona, setup and drink type. A set batchId overrides the
 // bean's default for that one bag. Re-pinning adds a row; the latest pinnedAt wins.
+// A pin updates the bean's default unless "this bag only" is chosen, and a coffee's first
+// recipe is always the bean's default. Removing a bag's own recipe sets removedAt: the row
+// stops applying and is kept. Neither sweetened nor removedAt is part of a recipe's identity.
 export const pinnedRecipes = sqliteTable('pinned_recipes', {
   id: text('id').primaryKey(),
   householdId: text('household_id').references(() => households.id).notNull(),
@@ -480,9 +501,11 @@ export const pinnedRecipes = sqliteTable('pinned_recipes', {
   usedPuckScreen: integer('used_puck_screen', { mode: 'boolean' }).notNull().default(false),
   milkTypeId: text('milk_type_id').references(() => milkTypes.id), // The recipe's usual milk, if any
   milkMl: real('milk_ml'),
+  sweetened: integer('sweetened', { mode: 'boolean' }).notNull().default(false), // Yes or no only, no amount; shots from it start ticked
 
   sourceExtractionId: text('source_extraction_id').references(() => extractions.id), // The shot it came from, if any
   pinnedAt: integer('pinned_at', { mode: 'timestamp_ms' }).notNull(),
+  removedAt: integer('removed_at', { mode: 'timestamp_ms' }), // Set when a bag's own recipe is removed
 });
 ```
 

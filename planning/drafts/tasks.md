@@ -1,25 +1,38 @@
-# Tare engineering tasks (revision 4, approved)
+# Tare engineering tasks (revisions 4 and 5, approved)
+
+**Revision 5 (approved, 2026-11-16) adds 208 tasks and 853 hours** for the sweetened
+change on pinned recipes (EPIC-02-01) and ten Next epics: EPIC-02-04, 02-05,
+03-05 (run-out only), 03-07 (new), 04-02, 04-03, 04-04, 05-01, 05-02 and 05-03.
+INIT-06 (AI) is not broken down. Revision 4's 316 tasks and 1,085 hours are
+unchanged. The new tasks are in section 7 (inside each epic), the technical
+approach is section 4a, the schema changes are section 6a, the waves are
+section 8.4, the questions are section 9.3, the risks are R-26 to R-40 and the
+totals are in section 11. Revision 5 reads the built code, so it names real
+files, tables and modules; section 3 still describes the checkout at revision 4
+and is not updated.
 
 Source:
 
-- `planning/drafts/stories.md` (revision 4, approved, 138 stories, with the
-  Head of Product's six answers);
-- `planning/drafts/design.md` (approved through round 7, plus the basket
-  dose-range addendum);
-- `planning/drafts/epics.md` (revision 10, final, MVP build order);
+- `planning/drafts/stories.md` (revision 5, approved, 162 stories, with the
+  Head of Product's answers);
+- `planning/drafts/design.md` (approved after round 8);
+- `planning/drafts/epics.md` (revision 11, final, build order);
 - `planning/drafts/review.md` (the plan review);
 - `docs/spec.md` (S-02 decisions including the Milestone 1 bullet, S-04
   ontology, S-08 schema);
 - the codebase on branch `planning/breakdown-drafts`, plus open PR #3
   (`design/mvp-screens`), described in section 3.
 
-**Status: revision 4, for the Head of Product's approval.** Revision 1 was
-approved by the Head of Product; revisions 2 and 3 are superseded by this one. Nothing is built, no code is written, and no
-GitHub issues are created. Open questions are named in each task's
-dependencies and listed in section 9.
+**Status: revisions 4 and 5 are approved.** Revisions 2 and 3 are
+superseded by revision 4. The MVP is now built; no GitHub issues are created
+and no code is written by this plan. Open questions are named in each task's
+dependencies and listed in section 9 (9.3 for revision 5).
 
-**Scope.** Only the 85 MVP stories in the 16 MVP epics are broken down. Next
-and Later stories are listed in section 1. **Milestone 1** (a lean walking
+**Scope.** Revisions 1 to 4 broke down the 85 MVP stories in the 16 MVP epics.
+Revision 5 adds the ten Next epics (sources: `stories.md` revision 5,
+`epics.md` revision 11, `design.md` approved after round 8) and the three new
+MVP stories STORY-02-01-07 to 09 with seven one-criterion amendments. Later
+stories (INIT-06) are listed in section 1. **Milestone 1** (a lean walking
 skeleton, section 8.1) is a subset of these tasks, not extra work.
 
 ## Changes since revision 3
@@ -247,14 +260,14 @@ Unchanged.
 1. Not broken down yet
 2. How to read this file
 3. What exists and what this plan assumes
-4. Technical approach
+4. Technical approach (4a: the Next epics, revision 5)
 5. Definition of done for every task
-6. Schema and migrations (first)
+6. Schema and migrations (first; 6a: revision 5)
 7. Tasks by story
-8. Build order, Milestone 1 and design schedule
-9. Questions
-10. Technical risks and tech debt
-11. Totals
+8. Build order, Milestone 1 and design schedule (8.4: revision 5 waves)
+9. Questions (9.3: revision 5)
+10. Technical risks and tech debt (R-26 to R-40: revision 5)
+11. Totals (revision 5 table at the end)
 
 ---
 
@@ -262,25 +275,32 @@ Unchanged.
 
 These are **not broken down yet: re-planned before they're built.**
 
-**Next (30 stories, 8 epics).**
+**Next: broken down in revision 5.** All ten Next epics now have tasks in
+section 7, built from `stories.md` revision 5 (their open questions are closed:
+DQ-29 to DQ-49 and the Head of Product's answers of 2026-11-16). The old
+"blocked on" reasons no longer apply.
 
-| Epic | Stories | Why not now |
+| Epic | Stories | Tasks (section 7) |
 |---|---|---|
-| EPIC-05-03 Keep your coffee history when you change phones | STORY-05-03-01, 02, 03 | First Next epic. It builds on the MVP's Firebase session (TQ-01). |
-| EPIC-02-05 Make the drink and milk lists yours | STORY-02-05-01 to 06 | Next. Hidden drinks and milks with recipes are still open. |
-| EPIC-02-04 Give one bag its own recipe | STORY-02-04-01, 02 | Next, and blocked on INIT-02 Q1. |
-| EPIC-03-05 Know when you'll run out, and find any coffee | STORY-03-05-01 to 04 | Next. X-2 is open, origin needs a catalog field, and a coffee's "rating" isn't defined. |
-| EPIC-05-01 Brew for someone else in the household | STORY-05-01-01 to 04 | Next. Removing a persona is still open. |
-| EPIC-04-02 Suggested grind that follows bean age and recent shots | STORY-04-02-01 to 06 | Next. INIT-04 Q2 to Q4 and SQ-18 are open. |
-| EPIC-04-03 Re-dial once after maintenance and keep every recipe | STORY-04-03-01 to 03 | Next. It needs EPIC-04-02's aging estimate. |
-| EPIC-04-04 Keep recipes right after new burrs of a different design | STORY-04-04-01, 02 | Next. The fitting method is still open. |
+| EPIC-05-03 Keep your coffee history when you change phones | STORY-05-03-01 to 04 | 15 |
+| EPIC-02-05 Make the drink and milk lists yours | STORY-02-05-01 to 08 | 29 |
+| EPIC-02-04 Give one bag its own recipe | STORY-02-04-01 to 04 | 13 |
+| EPIC-03-05 Know when you'll run out (run-out only) | STORY-03-05-01 to 03 | 11 |
+| EPIC-03-07 Find any coffee in Beans (new) | STORY-03-07-01 to 05 | 17 |
+| EPIC-05-01 Brew for someone else in the household | STORY-05-01-01 to 07 | 25 |
+| EPIC-04-02 Suggested grind that follows bean age and recent shots | STORY-04-02-01 to 09 | 22 |
+| EPIC-04-03 Re-dial once after maintenance and keep every recipe | STORY-04-03-01 to 05 | 21 |
+| EPIC-04-04 Keep recipes right after new burrs of a different design | STORY-04-04-01 to 03 | 11 |
+| EPIC-05-02 Invite them to take over their own profile (moved from Later, sequenced last) | STORY-05-02-01 to 07 | 25 |
 
-**Later (23 stories, 7 epics).** These are AI and community features. Each
+STORY-03-05-04 is retired (moved to STORY-03-07-01 to 03). The MVP change
+STORY-02-01-07 to 09 and its seven amendments have 19 tasks under EPIC-02-01.
+
+**Later (19 stories, 6 epics).** These are AI and community features. Each
 needs evals and a model choice first (S-01).
 
 | Epic | Stories | Why not now |
 |---|---|---|
-| EPIC-05-02 Invite them to take over their own profile | STORY-05-02-01 to 04 | Later (phase 3). Invite delivery and roles are still open. |
 | EPIC-06-01 Scan a bag instead of typing it | STORY-06-01-01 to 03 | Later. It's an AI feature, and the model and eval set aren't chosen. |
 | EPIC-06-02 Get a grounded fix when a shot goes wrong | STORY-06-02-01 to 03 | Later. It's AI with RAG, and STORY-06-02-02 is flagged to split. |
 | EPIC-06-04 Tare learns your palate as you log | STORY-06-04-01 to 03 | Later. What makes a "drink style" isn't defined. |
@@ -451,6 +471,147 @@ values in the capabilities JSON; and local days from a time-zone cookie.
   - return-to and drafts in sessionStorage;
   - one-tap idempotency through a client-generated ID;
   - an 8-second undo window, with 13 seconds accepted on the server.
+
+---
+
+## 4a. Technical approach for the Next epics (revision 5)
+
+Read from the built code. The decisions below are the tech lead's; the ones
+that need the Head of Product are in section 9.3. TD-n numbers are cited by
+tasks.
+
+- **TD-1 Acting persona (EPIC-05-01).**
+  - Fifteen places select "the default persona" with `personas.isDefault`:
+    `shots.ts`, `pull.ts`, `home.ts`, `logStart.ts`, `dialIn.ts`,
+    `profile.ts`, `recipes.ts` (3), `logContext.ts` (2) and `setups.ts` in
+    `src/server/dal`, plus the bootstrap and fixtures.
+  - One module, `src/server/dal/persona.ts`, replaces them: `mainPersona()`,
+    `listPersonas()` and `actingPersona()`.
+  - **Main persona** for a viewer is the persona claimed by the signed-in user
+    (`personas.userId`), else the household's `isDefault` persona. This is
+    what lets a joiner's claimed profile become "my main persona"
+    (STORY-05-02-03) without changing the schema. `isDefault` is never
+    cleared (a leaver's profile keeps it, unclaimed), so there is always a
+    fallback.
+  - The chosen persona is a field on the existing `brewChoice` cookie
+    (`src/domain/brewChoice.ts`, `src/lib/brewChoiceCookie.ts`,
+    `src/server/brewChoice.ts`). It holds for `BREW_CHOICE_RESET_MS` (30
+    minutes away) and, unlike drink and coffee, it survives a pull.
+  - The server validates the cookie's persona against the household on every
+    request and falls back to the main persona. A persona ID from the client
+    is never trusted for another household.
+  - Writes that record taste take the acting persona; `loggedByUserId` stays
+    the signed-in user.
+- **TD-2 Which recipe a shot was brewed from (DQ-45).** No new column. The rule
+  is a pure function, `src/domain/drift/recipeInForce.ts`: among pins for the
+  same coffee (merge group), persona, setup and drink with `pinnedAt` at or
+  before the shot, the newest; a bag-scoped pin for the shot's own bag wins; a
+  bag recipe removed after the shot (`removedAt`, TD-6) still counted at the
+  time. **Each shot is judged against that recipe's grind with servicing
+  applied** (`resolveRecipeGrind`, TD-5), not the stored grind; otherwise the
+  age and bag terms absorb a confirmed shift and the composition adds it again
+  (about twice the shift on coffees not re-dialled). No match means "left
+  out", counted. The follow-up (a nullable recipe
+  link on shots) is only for the evals to ask for (R-27).
+- **TD-3 Drift is a pure engine (DQ-32 revised, DQ-43).** `src/domain/drift/`
+  holds the window, weights, age term, bag term and composition; every number
+  is in `src/domain/drift/constants.ts` as a starting value the evals tune
+  (3-day window, reach back to at least 3 shots but never past the last
+  grinder event, at most 10, a 3-day half-life so today counts about twice as
+  much as 3 days ago, a 1-step floor, a cap). Composition order, once:
+  recipe grind, servicing shift and stretch (EPIC-04-03/04), age term, bag
+  term, clamp to the grinder's range, round to its step. Same input, same
+  output. Pooling is by grinder unit across personas and setups, each shot
+  judged against its own recipe; the nudge is per recipe in that recipe's own
+  units; no persona name is ever returned.
+- **TD-4 Where the adjustment is computed and recorded.** Server side only
+  (`src/server/dal/grindAdjustment.ts`), called by `getHome`,
+  `getDialInStart`, `pullShot`. A one-tap pull recomputes it and records the
+  grind it computes (the client never sends a grind); "use my recipe's grind
+  for this shot" is a flag on the pull input, not stored. Any failure returns
+  no adjustment and never blocks a pull. Fix mode, dial in from a shot, edit
+  mode and entering a recipe never call it (DQ-34).
+- **TD-5 Servicing on read (EPIC-04-03/04).** `maintenance_events` already has
+  `grind_shift`, `grind_scale` (a factor, 1 meaning none) and
+  `offset_source_recipe_id`, all unused. Nothing is added. State is derived
+  (TD-7). `src/domain/servicing.ts` applies, in date order, every confirmed
+  event after the recipe's `pinnedAt` on that grinder: `grind x scale + shift`.
+  Stored recipes are never rewritten. One reader, `resolveRecipeGrind`, is
+  used by Brew, the log start, the pin sheet's "replaces" block, the bag and
+  coffee rows and the pull.
+- **TD-6 Bag recipes (EPIC-02-04).** `pinned_recipes.batch_id` exists and the
+  readers today skip it. Reads become scope-aware (`getCurrentRecipe(key,
+  batchId?)`). Removing a bag recipe ("stops applying, is kept", Head of
+  Product Q3) needs one new nullable column, `removed_at`, on
+  `pinned_recipes`; every reader of bag recipes filters it (R-33).
+- **TD-7 Re-dial state is derived.** For a grinder event: `awaiting` is
+  recalibrating, `grind_shift` null and a recipe pinned before it on any setup
+  with that grinder; `confirmed` has a shift or scale; `no adjustment` is a
+  stored shift of 0 with scale 1; `nothing to map` is no recipe before it. The
+  set of re-dials for a stretch fit (EPIC-04-04) is also derived: for each
+  coffee/persona/setup/drink with a pin before the event, its first pin after
+  the event on a setup with the grinder. No join table; the confirmed values
+  on the event are the user's decision and are not recomputed. "Not now" is
+  device-only (`src/lib/dismissals.ts` pattern).
+- **TD-8 Run-out is calculated on read (EPIC-03-05).** Pure
+  `src/domain/runOut.ts` from finished portions, doses of all shots (one-tap
+  included), stock checks (`getRemaining`) and `batches.purchasedAt`. Nothing
+  stored. Constants (three finished portions, a month of silence, the span
+  breaks) in one file.
+- **TD-9 Origin (EPIC-03-07).** One nullable `canonical_beans.origin` text
+  column holding a key: an ISO 3166-1 alpha-2 code for a producing country,
+  the literal `blend`, or a normalised `other:` text (trimmed, collapsed,
+  case-folded), all in `src/domain/origin.ts`. Labels come from
+  `Intl.DisplayNames` and message keys, never stored. A household may set it
+  only on a coffee it added that is still unverified (the
+  `canEditCapabilities` pattern in `modelCapabilities.ts`).
+- **TD-10 Drink and milk lists (EPIC-02-05).** No schema change. New DALs
+  `src/server/dal/drinks.ts` and `milks.ts`, one shared name rule in
+  `src/domain/listName.ts` (trim, 1 to 40 characters, unique ignoring case
+  against every drink or milk of the household including hidden ones and
+  starter rows' translated names). "Has milk" and "kind" are written only on
+  creation. Hidden items are excluded by `getLogContext` today; a hidden milk
+  or drink that is already chosen or has recipes is added back by the readers
+  (STORY-02-05-08).
+- **TD-11 Google linking (EPIC-05-03) and invites (EPIC-05-02).**
+  - Linking uses Firebase's `linkWithPopup`, or `linkWithRedirect` on iOS
+    Safari (`getRedirectResult` on return), in one client module,
+    `src/lib/firebase/google.ts`, beside `client.ts`. A successful link keeps
+    the Firebase uid, so no data moves. `auth/credential-already-in-use`
+    returns the Google credential for the switch path.
+  - "Nothing entered yet" is one function, `isHouseholdEmpty`
+    (`src/server/dal/emptiness.ts`): no `owned_hardware`, no `batches`, no
+    `extractions`. Switching (05-03) only signs in as the other uid. Joining
+    (05-02) deletes the joiner's empty household in the same transaction that
+    adds the membership and claims the profile.
+  - Invites are rows in a new `invites` table (id, household, persona,
+    creator, `created_at`, `expires_at`, `used_at`, `used_by_user_id`,
+    `withdrawn_at`). Status (pending, used, withdrawn, expired) is derived,
+    never stored. The link token is `id.hmac(INVITE_SECRET, id)`: it can be
+    shown again without storing the secret part, a database leak yields no
+    working link, and use is a conditional update (`used_at IS NULL`) in an
+    immediate transaction. `INVITE_SECRET` and `APP_ORIGIN` are deployment
+    secrets and names only in `.env.example`.
+  - The join page is a public route group outside `(app)` and `(task)`
+    (`src/app/(public)/join/[token]`), so it has no `SessionGate` and creates
+    no account; it sends `Referrer-Policy: no-referrer` and is not cached or
+    indexed.
+  - Leaving sets the leaver's persona `userId` to null, removes the
+    membership and creates a new household with the bootstrap's own insert
+    code, factored out of `createAccount`. A user has one household at a time
+    (`findAccount` takes the first membership), and that stays true.
+- **TD-12 Evals and observability for drift (STORY-04-02-09).** Scenarios as
+  Vitest tests next to the existing suggestion scenarios
+  (`src/domain/suggest/__tests__/scenarios.test.ts`), a pass-rate report with
+  no target set (X-2), and a constants snapshot test that fails when a number
+  changes without the scenarios being re-run. Outcomes (adjusted, none,
+  limited, failed, with a reason code, no personal data) are one structured
+  log line from one function until an observability stack exists (R-28).
+- **Next.js 16.** The Beans filters (URL search params), the public join route
+  and the persona cookie touch dynamic request APIs under `cacheComponents`.
+  Every FE or BE task that adds a route or reads `searchParams` or cookies
+  starts by reading the matching guide in `node_modules/next/dist/docs/`
+  (AGENTS.md).
 
 ---
 
@@ -684,6 +845,29 @@ The tasks add indexes, which change no behaviour.
   - no toolkit, defect or sensory-score columns;
   - no stored derived values.
 - **Done when:** The test fails on any rename or retype.
+
+---
+
+## 6a. Schema changes for revision 5
+
+Four small migrations (three columns and one table), each its own task and
+each before anything that uses it. Everything else in the Next epics runs on the existing tables
+(`maintenance_events` already has the shift, stretch and source columns;
+`personas.user_id` is already nullable; `household_members.role` exists). The
+next free migration number is taken at the time (the latest is `0012`).
+
+| Task | Change | Used by |
+|---|---|---|
+| TASK-02-01-07-BE1 | `pinned_recipes.sweetened`, not null, default false | Sweetened on recipes, every recipe-based log start |
+| TASK-02-04-04-BE1 | `pinned_recipes.removed_at`, nullable | Removing a bag's own recipe, the recipe readers, recipe-in-force |
+| TASK-03-07-04-BE1 | `canonical_beans.origin`, nullable text | Origin on Add a coffee, the coffee screen, the Beans origin filter |
+| TASK-05-02-01-BE1 | New `invites` table | Inviting, the join page, claiming, withdrawing |
+
+All are additive; no data is moved or backfilled, and none needs the Head of
+Product's data (the origin values for the seed are data work, section 9.3).
+Each migration task updates `src/db/schema.test.ts` (the
+column and type check) and, for `invites`, the isolation suite
+`src/server/__tests__/isolation.test.ts`.
 
 ---
 
@@ -2117,6 +2301,206 @@ Schema: TASK-02-01-01-BE1 (section 6).
   both states.
 - **Done when:** AC 1 to AC 6 are covered.
 
+#### EPIC-02-01, revision 5 change: sweetened on pinned recipes
+
+New MVP stories STORY-02-01-07, 08 and 09, plus one-criterion amendments to
+STORY-01-03-04, 02-01-04, 02-01-06, 02-02-01, 02-02-02, 02-03-02 and 02-03-03.
+**The earlier tasks of those stories are not changed.** Each amendment is
+delivered by a task of the three new stories and tested by a small QA task
+under the amended story. Design: DES-02-01-06 (design 5.0a). 19 tasks, 52 h,
+counted under EPIC-02-01. Built today: `extractions.sweetened`,
+`ShotLogFlow`'s toggle and `RecipeLogFlow` ignoring it (its `_sweetened`
+parameter); `pull.ts` does not copy it; `recipeLines.ts` is the one place the
+Brew and recipe-row quiet lines are made.
+
+##### STORY-02-01-07: Pin whether the drink is sweetened
+
+##### TASK-02-01-07-BE1 · Add the sweetened column to pinned recipes
+`backend` · Parent: STORY-02-01-07 · 2 h · New (rev 5) · Depends on: none
+- **Build:**
+  - `src/db/schema.ts`: add `sweetened: integer("sweetened", { mode: "boolean"
+    }).notNull().default(false)` to `pinnedRecipes`, beside the prep columns.
+    It is not added to the `pinned_recipes_key` index: sweetened is never part
+    of a recipe's identity.
+  - `npm run db:generate` for the migration; update `src/db/schema.test.ts`
+    and `src/db/recipes.test.ts`.
+  - No sugar amount or kind column.
+- **Done when:**
+  - The migration applies to a database that already holds recipes and leaves
+    them false (AC 5).
+  - The index is unchanged and the schema test fails on a rename or retype.
+
+##### TASK-02-01-07-BE2 · Carry sweetened through recipe reads, pins and the changes list
+`backend` · Parent: STORY-02-01-07 · 4 h · New (rev 5) · Depends on: TASK-02-01-07-BE1
+- **Build:**
+  - `src/server/dal/recipes.ts`: `RecipeValues` gains `sweetened: boolean`;
+    `RECIPE_FIELDS` gains `"sweetened"` so `differ` lists it; `toRecipe`,
+    `insert` and `entered` map the column.
+  - `fromShot` copies the shot's `sweetened` (DQ-44c); a one-tap shot still
+    can't be pinned (`OneTapPinError` stays).
+  - `getCurrentRecipe` and `RecipeKey` are unchanged.
+  - Fix every TypeScript construction of `RecipeValues` (`dialIn.ts`,
+    `logStart.ts`, `home.ts`, tests).
+- **Done when:**
+  - Pinning a sweetened shot saves true, an unsweetened one false (AC 1).
+  - `PinPreview.differences` includes `sweetened` when it differs (AC 2).
+  - Pinning an unsweetened flat white after a sweetened one replaces the same
+    recipe (AC 4).
+  - A failed insert leaves no row (AC 6).
+
+##### TASK-02-01-07-FE1 · Show sweetened in the pin sheet and its changes list
+`frontend` · Parent: STORY-02-01-07 · 3 h · New (rev 5) · Depends on: TASK-02-01-07-BE2, DES-02-01-06
+- **Build:**
+  - `src/components/recipes/PinSheet.tsx`: `PinRecipeView` gains `sweetened`;
+    the new-recipe block's quiet lines (beside milk and prep) add
+    `recipe.sweetenedLine` only when yes.
+  - The changes list shows a `recipe.change` row for field `log.sweetened`
+    from no to yes (words from `shot.sweetenedNo` and `shot.sweetenedYes`).
+  - `usePinFlow.tsx` passes the value through; keys in `en.json`.
+  - Stories in `PinSheet.stories.tsx`: new sweetened, replaces with a
+    sweetened change, not sweetened (no line), right-to-left.
+- **Done when:** Stories pass axe; a not-sweetened recipe says nothing (AC 1);
+  the change reads in the same words as the other changed values (AC 2).
+
+##### TASK-02-01-07-FE2 · Add the sweetened toggle to the recipe mode of the log
+`frontend` · Parent: STORY-02-01-07 · 3 h · New (rev 5) · Depends on: TASK-02-01-07-BE2, TASK-02-01-08-BE1, DES-02-01-06
+- **Build:**
+  - `RecipeLogFlow.tsx` ignores its `_sweetened` argument today, and
+    `ShotLogScreen.stories.tsx` asserts there is no sweetened switch in recipe
+    mode (STORY-02-01-02 AC 4). Show the Toggle next to the prep ticks in
+    `ShotLogScreen.tsx`, starting as the current recipe has it, else off.
+  - Pass it into `EnteredRecipe.values.sweetened` and
+    `pinEnteredRecipe`; flip that story's assertion.
+- **Done when:** Entering a recipe by values saves its sweetened tick (AC 3);
+  the story checks the switch is present and starts as the recipe has it.
+
+##### TASK-02-01-07-QA1 · Test pinning sweetened
+`qa` · Parent: STORY-02-01-07 · 4 h · New (rev 5) · Depends on: TASK-02-01-07-FE1, TASK-02-01-07-FE2
+- **Build:**
+  - Node tests (`recipes.test.ts` style, mocked `@/db/client`): pin from a
+    sweetened and an unsweetened measured shot, entered values, replacement
+    across a sweetened/unsweetened pair, legacy rows read as not sweetened,
+    failed insert.
+  - Play tests: the pin sheet's line and change row, the recipe-mode toggle.
+- **Done when:** AC 1 to AC 6 are covered, including that nothing asks for a
+  sugar amount or kind.
+
+##### STORY-02-01-08: Start a log from a recipe with sweetened already ticked
+
+##### TASK-02-01-08-BE1 · Return the recipe's sweetened value in every recipe-based log start
+`backend` · Parent: STORY-02-01-08 · 4 h · New (rev 5) · Depends on: TASK-02-01-07-BE2
+- **Build:**
+  - `src/server/dal/logStart.ts`: `StartValues` and `valuesOf` gain
+    `sweetened`; a recipe gives the recipe's, a past shot its own (Head of
+    Product Q2: "Dial in from this" starts with the shot's value).
+  - Dial in from a recipe and the closest-setup start
+    (`src/server/dal/dialIn.ts`, `DialInStart`): carry the source recipe's
+    value. Fix mode: the current recipe's, else the one-tap shot's.
+  - `getRecipeForBag` (recipe mode) returns the recipe's value.
+  - The log page (`src/app/(task)/log/page.tsx`) passes each setup's start
+    value so a setup change in the log can re-apply it (AC 4); extend
+    `LogApplied` in `ShotLogFlow.tsx` the way prep is.
+- **Done when:** Each start mode returns the right value, false for legacy and
+  blank starts (AC 1, AC 2, AC 5); unit tests per mode.
+
+##### TASK-02-01-08-FE1 · Start the log with sweetened from the recipe
+`frontend` · Parent: STORY-02-01-08 · 4 h · New (rev 5) · Depends on: TASK-02-01-08-BE1, TASK-01-03-04-FE1
+- **Build:**
+  - `ShotLogFlow.tsx`: the draft's `sweetened: false` becomes the start value;
+    a `touched` flag (as prep has) lets a setup change re-apply the new
+    setup's value only while untouched.
+  - `RecipeLogFlow.tsx` uses the same; `ShotEditFlow.tsx` keeps the saved
+    shot's value (AC 5).
+  - Unticking and saving records false and does not touch the recipe (AC 3).
+- **Done when:** AC 1 to AC 5 hold in the log's play tests.
+
+##### TASK-02-01-08-QA1 · Test starting a log with sweetened
+`qa` · Parent: STORY-02-01-08 · 4 h · New (rev 5) · Depends on: TASK-02-01-08-FE1
+- **Build:** Node tests per start mode (dial in, fix, closest-setup, entered
+  recipe, from a past shot, blank); play tests for unticking then saving,
+  following a setup change and keeping a touched tick, edit mode.
+- **Done when:** AC 1 to AC 6 and the Q2 answer are covered.
+
+##### STORY-02-01-09: See and copy sweetened on Brew and recipe rows
+
+##### TASK-02-01-09-BE1 · Copy sweetened in the one-tap pull
+`backend` · Parent: STORY-02-01-09 · 2 h · New (rev 5) · Depends on: TASK-02-01-07-BE2
+- **Build:** `src/server/dal/pull.ts`: the insert adds `sweetened:
+  recipe.sweetened`; `PullResult`'s `pulled` kind gains `sweetened` (also
+  from `madeAlready` for a repeated tap). Undo already deletes the row, so
+  nothing remains (AC 5).
+- **Done when:** A pull from a sweetened recipe records true and reports it; a
+  plain recipe records false and the result is as before (AC 3).
+
+##### TASK-02-01-09-FE1 · Show sweetened on Brew and in the pulled state
+`frontend` · Parent: STORY-02-01-09 · 3 h · New (rev 5) · Depends on: TASK-02-01-09-BE1, TASK-02-01-09-FE2, DES-02-01-06
+- **Build:**
+  - Brew's page and `HomeScreen.tsx` show the sweetened quiet line from
+    `recipeLines` (built in FE2) under the values.
+  - `PulledState` (`src/components/ui/PulledState`) gets a second line
+    `home.pulledSweetened` only when the pull was sweetened; story added.
+  - Brew has no control to change sweetened before a pull (AC 4).
+- **Done when:** Stories pass axe; a plain recipe's Brew and pulled state look
+  as before (AC 1, AC 3).
+
+##### TASK-02-01-09-FE2 · Add the sweetened line to recipe rows
+`frontend` · Parent: STORY-02-01-09 · 2 h · New (rev 5) · Depends on: TASK-02-01-07-BE2, DES-02-01-06
+- **Build:** `src/app/(app)/recipeLines.ts` adds `recipe.sweetenedLine` when
+  `recipe.sweetened`; used by Brew, `beans/recipeRows.ts` (bag and coffee
+  rows) and the pin sheet's blocks. Story added to `RecipeRows.stories.tsx`.
+- **Done when:** A sweetened row says so in words, a plain row says nothing
+  (AC 2; also STORY-02-01-04 AC 1).
+
+##### TASK-02-01-09-QA1 · Test sweetened on Brew, the pull and recipe rows
+`qa` · Parent: STORY-02-01-09 · 3 h · New (rev 5) · Depends on: TASK-02-01-09-FE1
+- **Build:** Node tests for the pull's copy, repeated tap and undo; play tests
+  for the line, the pulled state, and rows on the bag and coffee screens.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### Amendments to earlier stories (one criterion each)
+
+Each task re-tests the amended criterion once its delivering task has landed.
+No earlier task is edited.
+
+##### TASK-01-03-04-QA2 · Re-test the sweetened start rule
+`qa` · Parent: STORY-01-03-04 (AC 2) · 2 h · New (rev 5) · Depends on: TASK-02-01-08-FE1
+- **Build:** Blank log starts off; a recipe-based log starts as the recipe has
+  it; either way the saved shot records what was left.
+- **Done when:** AC 2 passes; AC 1 and AC 3 still pass.
+
+##### TASK-02-01-04-QA2 · Re-test sweetened on a bag's recipe rows
+`qa` · Parent: STORY-02-01-04 (AC 1) · 2 h · New (rev 5) · Depends on: TASK-02-01-09-FE2
+- **Build:** The bag screen's rows say sweetened only when the recipe is.
+- **Done when:** AC 1 passes with a sweetened and a plain recipe.
+
+##### TASK-02-01-06-QA2 · Re-test sweetened in the closest-setup dial-in
+`qa` · Parent: STORY-02-01-06 (AC 3) · 2 h · New (rev 5) · Depends on: TASK-02-01-08-FE1, TASK-02-01-06-FE2
+- **Build:** Dialling in from another setup's sweetened recipe opens the log
+  ticked; its note and the other carried values are unchanged.
+- **Done when:** AC 3 passes.
+
+##### TASK-02-02-01-QA2 · Re-test sweetened on Brew
+`qa` · Parent: STORY-02-02-01 (AC 1) · 2 h · New (rev 5) · Depends on: TASK-02-01-09-FE1
+- **Build:** Brew's recipe block shows sweetened only when the recipe is.
+- **Done when:** AC 1 passes.
+
+##### TASK-02-02-02-QA2 · Re-test sweetened in the one-tap pull
+`qa` · Parent: STORY-02-02-02 (AC 1) · 2 h · New (rev 5) · Depends on: TASK-02-01-09-BE1
+- **Build:** The pulled shot records the recipe's sweetened value with the
+  prep and milk.
+- **Done when:** AC 1 passes for both values.
+
+##### TASK-02-03-02-QA2 · Re-test sweetened in fix mode
+`qa` · Parent: STORY-02-03-02 (AC 1) · 2 h · New (rev 5) · Depends on: TASK-02-01-08-FE1
+- **Build:** Fixing an off one-tap shot opens ticked as the current recipe has
+  it.
+- **Done when:** AC 1 passes.
+
+##### TASK-02-03-03-QA2 · Re-test sweetened in dial-in mode
+`qa` · Parent: STORY-02-03-03 (AC 1) · 2 h · New (rev 5) · Depends on: TASK-02-01-08-FE1
+- **Build:** "Dial in" from Brew opens ticked as the recipe has it.
+- **Done when:** AC 1 passes.
+
 #### EPIC-02-02: Pull your daily shot in one tap
 
 ##### STORY-02-02-01: See my daily shot on Brew
@@ -2762,6 +3146,475 @@ Its dependencies are unchanged.
 - **Done when:** AC 1 to AC 5 are covered, plus STORY-02-06-03's dial-in
   action.
 
+#### EPIC-02-04: Give one bag its own recipe (revision 5, Next)
+
+Design: DES-02-04-01 to 03. 13 tasks, 53 h. `pinned_recipes.batch_id` exists
+and every reader (`getCurrentRecipe`, `listCurrentRecipesForBean`,
+`getCoffeeRecipes`) filters `isNull(batchId)`, so this epic changes reads, not
+the pin table, except one column for removal (TD-6). Built today: `PinSheet`,
+`usePinFlow`, `pinPreview`, `pinFromShot`, `pinEnteredRecipe`,
+`getRecipeForBag`, `getBagRecipes` in `src/server/dal/recipes.ts`; every pin
+is saved for the coffee.
+
+##### STORY-02-04-01: Pin a recipe for one bag only
+
+##### TASK-02-04-01-BE1 · Make recipe reads scope-aware
+`backend` · Parent: STORY-02-04-01 (also 02-04-02, 02-04-03) · 5 h · New (rev 5) · Depends on: TASK-02-04-04-BE1
+- **Build:**
+  - `src/server/dal/recipes.ts`: `getCurrentRecipe(key, batchId?)` returns the
+    bag's newest own pin (`batchId` set, `removedAt` null) for the key, else
+    the coffee's (as today). Add `getBagOwnRecipe`, and `getBagRecipes` returns
+    `{ own, coffee }` per setup and drink. Same merge-group and `NEWEST`
+    ordering; the coffee-level readers keep filtering `isNull(batchId)`.
+  - Every caller keeps compiling with the old signature (the `batchId` is
+    optional); later tasks pass it.
+  - Unit tests with the mocked `@/db/client` (`recipes.test.ts` style).
+- **Done when:** The coffee's recipe is never changed by a bag pin; a removed
+  bag recipe is skipped; merges are followed.
+
+##### TASK-02-04-01-BE2 · Add the scope to pin previews and pins
+`backend` · Parent: STORY-02-04-01 · 5 h · New (rev 5) · Depends on: TASK-02-04-01-BE1, TASK-02-01-07-BE2
+- **Build:**
+  - `pinPreview(shotId)` and `enteredPinPreview` return `scope`: whether it is
+    offered (the coffee already has its own recipe for this drink and setup),
+    the default (bag when the bag already has its own recipe, else coffee),
+    the bag's id and roast date, whether the bag is finished (no unfinished
+    portion), and both replaced blocks so the sheet swaps without loading
+    (design step 5).
+  - `pinFromShot(shotId, scope, now)` and `pinEnteredRecipe(input, scope)`
+    insert with `batchId` for `"batch"`; the shot's portion gives the bag. The
+    server refuses `"batch"` when the coffee has no recipe yet (AC 2), when the
+    bag is finished (AC 6) or when the bag isn't the household's. Older rows
+    are kept.
+  - `src/server/actions/recipes.ts` passes the scope.
+- **Done when:** Unit tests cover offered/not offered, both defaults, a bag
+  pin leaving the coffee's recipe untouched, a second bag pin replacing the
+  first while keeping it (AC 5), a finished bag and a failed insert.
+
+##### TASK-02-04-01-FE1 · Add the scope choice to the pin sheet
+`frontend` · Parent: STORY-02-04-01 · 5 h · New (rev 5) · Depends on: TASK-02-04-01-BE2, DES-02-04-01, DES-02-04-03
+- **Build:**
+  - `PinSheet.tsx` / `usePinFlow.tsx`: a scope row under the title,
+    `recipe.scope` overline and a two-chip single-choice `ChipGroup`
+    (`recipe.scope.bean`, `recipe.scope.batch`), always one chosen; hidden when
+    not offered.
+  - A polite live region under it says what the choice does
+    (`recipe.scope.beanEffect`, `.bagKeeps`, `.batchEffect`). The replaced
+    block swaps in place between `recipe.replaces` and `recipe.insteadOf`, and
+    the changes list follows it.
+  - The bag chip is disabled with `recipe.scope.bagFinished` when finished.
+    Status line `recipe.pinned` or `recipe.pinnedBag`. A failed save keeps the
+    sheet and the choice, with a retry Notice.
+  - Stories in `PinSheet.stories.tsx`: both choices, the bag default, hidden
+    for a first pin, finished bag, failed, right-to-left; the primary stays on
+    screen at 375 x 667.
+- **Done when:** Stories pass axe; AC 1, AC 3, AC 4 and AC 6 are visible in the
+  stories, and AC 2 and AC 5 are checked in TASK-02-04-01-BE2's unit tests.
+
+##### TASK-02-04-01-QA1 · Test pinning for one bag only
+`qa` · Parent: STORY-02-04-01 · 5 h · New (rev 5) · Depends on: TASK-02-04-01-FE1
+- **Build:** Node tests for scope offered/hidden, defaults, the first-pin rule,
+  a bag pin leaving the coffee's recipe, re-pinning keeping the older rows, a
+  finished bag and a failing save (choice kept); play tests for the helper
+  line announcement and the swapping block.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-04-02: Use the bag's recipe while that bag is in use
+
+##### TASK-02-04-02-BE1 · Use the bag's own recipe for Brew, the pull, dial in and fix
+`backend` · Parent: STORY-02-04-02 · 6 h · New (rev 5) · Depends on: TASK-02-04-01-BE1
+- **Build:**
+  - The bag in use is the earliest-opened open portion's batch (`LogPortion`
+    in `logContext.ts`). `home.ts` resolves each coffee's recipe with that
+    batch; `HomeState`'s `recipe` kind gains `bagOwn`.
+  - `pull.ts` picks the portion first and then resolves the recipe with its
+    batch (today it resolves before the portion); the "has a recipe" check
+    stays at coffee level, since a bag recipe can't exist without one.
+  - `getDialInStart` / `getDialInFromRecipe` (`dialIn.ts`, `logStart.ts`) and
+    `getFixStart` pass the portion's batch. A new bag has no own recipe, so
+    the coffee's recipe applies with no prompt (AC 3). Split and frozen
+    portions share the bag's recipe (AC 4). A bag that isn't in use changes
+    nothing on Brew (AC 5).
+  - Prep, milk and sweetened come with the recipe (AC 2).
+- **Done when:** Unit tests cover each call site, a new bag, split and frozen
+  portions and a bag not in use; the full suite still passes.
+
+##### TASK-02-04-02-QA1 · Test using the bag's recipe
+`qa` · Parent: STORY-02-04-02 · 4 h · New (rev 5) · Depends on: TASK-02-04-02-BE1
+- **Build:** Node tests of the pulled shot's values (prep, milk, sweetened),
+  dial in and fix from the bag's recipe, moving to a new bag, split/frozen
+  portions, and a bag with a recipe that isn't in use.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-04-03: See which recipe is for one bag only
+
+##### TASK-02-04-03-FE1 · Mark a bag's own recipe on Brew and in the portion sheet
+`frontend` · Parent: STORY-02-04-03 · 3 h · New (rev 5) · Depends on: TASK-02-04-02-BE1, DES-02-04-02
+- **Build:** `HomeScreen.tsx`: when `bagOwn`, the first quiet line is
+  `recipe.thisBagOnly`. `PortionSheet.tsx` / `PortionChooser.tsx`: an option
+  whose bag has its own recipe carries the same words. Stories for both.
+- **Done when:** The marker is text, never colour; stories pass axe and RTL
+  (AC 1, AC 3, AC 5).
+
+##### TASK-02-04-03-FE2 · Show both recipes on the bag screen and mark bag rows on the coffee screen
+`frontend` · Parent: STORY-02-04-03 · 5 h · New (rev 5) · Depends on: TASK-02-04-01-BE1, DES-02-04-02, DES-02-04-03
+- **Build:**
+  - `BagScreen.tsx` and `app/(app)/beans/[batchId]/page.tsx`: the bag's own
+    recipe first with the overline `recipe.thisBagOnly`, then the coffee's under
+    `recipe.coffeeDefault` ("other bags use") in `ink-secondary`. Rows use
+    `recipeRows.ts` / `recipeLines.ts`.
+  - `CoffeeScreen.tsx` bag rows: `recipe.bagHasOwn` in the secondary line; the
+    recipes listed are the coffee's own.
+  - The Journal and the shot detail get no marker (AC 5).
+  - Stories: bag with own, without, RTL.
+- **Done when:** Stories pass axe; AC 2 and AC 4 are visible.
+
+##### TASK-02-04-03-QA1 · Test the bag-only markers
+`qa` · Parent: STORY-02-04-03 · 3 h · New (rev 5) · Depends on: TASK-02-04-03-FE2, TASK-02-04-03-FE1
+- **Build:** Play tests of each marker's text and position; a check that the
+  Journal and shot detail show none.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-02-04-04: Use the coffee's recipe for this bag again
+
+##### TASK-02-04-04-BE1 · Add removed_at to pinned recipes
+`backend` · Parent: STORY-02-04-04 (also 02-04-01, 02-04-02) · 2 h · New (rev 5) · Depends on: TASK-02-01-07-BE1
+- **Build:** `src/db/schema.ts`: `removedAt: integer("removed_at", { mode:
+  "timestamp_ms" })` on `pinnedRecipes`, nullable. Not in the key index. New
+  migration; update `schema.test.ts`. Written only when a bag's own recipe is
+  removed (Head of Product Q3: it stops applying and is kept, like older
+  pins, STORY-02-01-03). Build it first in the epic: the reads depend on it.
+- **Done when:** The migration applies; existing rows read null; a column
+  rename fails the schema test.
+
+##### TASK-02-04-04-BE2 · Add removing a bag's own recipe
+`backend` · Parent: STORY-02-04-04 · 4 h · New (rev 5) · Depends on: TASK-02-04-04-BE1, TASK-02-04-01-BE1
+- **Build:**
+  - `removeBagRecipe(batchId, setupId, drinkTypeId)` in `recipes.ts` and its
+    action: sets `removedAt` on the bag's unremoved rows for the household's
+    persona, setup and drink (`assertOwned("batches", ...)`); the coffee's
+    recipe and every shot are untouched.
+  - Every reader of bag recipes filters `removedAt` (`getCurrentRecipe`,
+    `getBagOwnRecipe`, `getBagRecipes`, and the recipe-in-force rule in
+    TASK-04-02-02-BE1).
+- **Done when:** After removing, Brew and the pre-filled log use the coffee's
+  recipe for the bag (AC 2); rows are kept; a second pin for the bag applies
+  again; a failure changes nothing (AC 4).
+
+##### TASK-02-04-04-FE1 · Add "use the coffee's recipe for this bag" to the bag screen
+`frontend` · Parent: STORY-02-04-04 · 3 h · New (rev 5) · Depends on: TASK-02-04-04-BE2, TASK-02-04-03-FE2, DES-02-04-02
+- **Build:** A ghost action `recipe.bagRemove` on the bag's own row opens the
+  existing `ConfirmSheet` once; confirming calls the action and refreshes; a
+  failure keeps the sheet with a retry Notice; not confirming changes nothing.
+  Story added.
+- **Done when:** AC 1, AC 3 and AC 4 hold in stories and play tests.
+
+##### TASK-02-04-04-QA1 · Test removing a bag's own recipe
+`qa` · Parent: STORY-02-04-04 · 3 h · New (rev 5) · Depends on: TASK-02-04-04-FE1
+- **Build:** Node tests for removal, the untouched coffee recipe and kept rows,
+  older shots unchanged, re-pinning afterwards; play tests of confirm,
+  cancel, and failure.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-02-05: Make the drink and milk lists yours (revision 5, Next)
+
+Design: DES-02-05-01 to 04. 29 tasks, 116 h. No schema change (TD-10).
+Built today: `drink_types` and `milk_types` with `name`, `nameKey`, `hidden`,
+`sortOrder` (drinks also `hasMilk`, `typicalMilkMl`); `getLogContext` already
+leaves out hidden drinks and milks; `drinkLabel` / `milkLabel` give a stored
+name precedence over the translated key; `SelectSheet` already takes one
+`footerRow`; `Toggle` has no `disabled` or `hint`; `NumberWheel` already has
+the `milliliter` unit. Screens live under Profile
+(`/profile/drinks`, `/profile/milks`, full-screen tasks in `(task)`).
+
+##### STORY-02-05-01: Rename a drink
+
+##### TASK-02-05-01-BE1 · Add the drinks list reads and renaming
+`backend` · Parent: STORY-02-05-01 · 4 h · New (rev 5) · Depends on: none
+- **Build:**
+  - `src/domain/listName.ts`: one name rule for drinks, milks and (later)
+    profiles: trim, 1 to 40 characters, unique ignoring case against every
+    visible and hidden item of the household, starter rows compared by their
+    translated name (the action passes a resolver). Unit tests.
+  - `src/server/dal/drinks.ts`: `listDrinks()` (all, hidden included, in
+    order) and `renameDrink(id, name | null)`; `null` clears the stored name
+    so a starter drink returns to its translated key (AC 2); a custom drink
+    can't be reset. `assertOwned("drinkTypes")`. Action in
+    `src/server/actions/lists.ts`.
+- **Done when:** Empty and duplicate names are refused with a reason code;
+  recipes and shots aren't touched (AC 5).
+
+##### TASK-02-05-01-FE1 · Build the drinks list screen and the drink sheet
+`frontend` · Parent: STORY-02-05-01 (also 02-05-02, 02-05-03, 02-05-06) · 8 h · New (rev 5) · Depends on: TASK-02-05-01-BE1, DES-02-05-01
+- **Build:**
+  - `src/components/screens/DrinksScreen/DrinksScreen.tsx` (SCR-DRINKS):
+    `PageHeader`, intro sentence, one `ListRow` per drink (name, secondary
+    `drinks.withMilk` or `drinks.noMilk`, hidden ones with the overline
+    `drinks.hidden` in `ink-secondary`), a plus row `drinks.add`. No primary
+    button.
+  - The drink sheet (SH-DRINK, `src/components/lists/DrinkSheet.tsx`):
+    `Input` for the name (40 characters, wraps rather than truncates), the
+    ghost `drinks.resetName` only on a renamed starter drink, the read-only
+    `drinks.hasMilk` line, the usual-milk and show/hide controls added by
+    their tasks, one primary `actions.save`, a close-with-changes
+    `ConfirmSheet`. Add mode is the same sheet empty.
+  - Ink-text errors `drinks.nameTaken` and `drinks.nameRequired`; a failed
+    save keeps the typed name with a retry Notice.
+  - Stories: list (with hidden and long names), edit, rename error, add,
+    failed save, loading skeleton, right-to-left.
+- **Done when:** Stories pass axe; AC 3, AC 4 and AC 6 of 02-05-01 are visible
+  (the sheet's other controls land with their tasks).
+
+##### TASK-02-05-01-FE2 · Wire the drinks route
+`frontend` · Parent: STORY-02-05-01 · 4 h · New (rev 5) · Depends on: TASK-02-05-01-FE1
+- **Build:** `src/app/(task)/profile/drinks/page.tsx` reading `listDrinks`
+  (`unlessSignedOut`, skeleton while loading, `LoadFailed` with retry), server
+  actions for save, return-to via `src/lib/returnTo.ts`, route constants in
+  `src/lib/profileRoutes.ts`. `en.json` keys `drinks.*`.
+- **Done when:** A renamed drink shows its name on Brew, in the log, on past
+  shots and in the Journal in every language (AC 1).
+
+##### TASK-02-05-01-QA1 · Test renaming a drink
+`qa` · Parent: STORY-02-05-01 · 5 h · New (rev 5) · Depends on: TASK-02-05-01-FE2
+- **Build:** Node tests for the name rule (empty, duplicate ignoring case,
+  hidden drinks included, 40 characters), reset to the translated name,
+  recipes unchanged; a check that `drinkLabel` is used on Brew, the log, the
+  Journal and the shot detail; play tests for the long name and a failed save
+  keeping the text.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-05-02: Hide drinks I don't make
+
+##### TASK-02-05-02-BE1 · Add hiding and unhiding drinks with the keep-one rule
+`backend` · Parent: STORY-02-05-02 · 4 h · New (rev 5) · Depends on: TASK-02-05-01-BE1
+- **Build:**
+  - `setDrinkHidden(id, hidden)` in `drinks.ts`: in one transaction, refuses
+    to hide the last shown drink (`KeepOneError`).
+  - `getLogContext` already leaves hidden drinks out of Brew and the log;
+    `getJournalFilterOptions` (`journal.ts`) leaves them out of the drink
+    chip unless a shot of the drink is in view; confirm `pickDrink` falls to
+    the next shown drink when the usual one is hidden (AC 3). Past shots keep
+    their drink (AC 2).
+- **Done when:** Unit tests cover hide, unhide, the last shown drink and the
+  fallback.
+
+##### TASK-02-05-02-FE1 · Extend Toggle with a disabled state and a reason line
+`frontend` · Parent: STORY-02-05-02 (also 02-05-05) · 3 h · New (rev 5) · Depends on: DES-02-05-04
+- **Build:** `src/components/ui/Toggle/Toggle.tsx`: optional `disabled` and
+  `hint` (the reason, linked with `aria-describedby`, shown under the switch).
+  Stories in `Toggle.stories.tsx`: disabled with a reason, RTL, axe.
+- **Done when:** The story shows a disabled switch with its reason in text
+  (AC 5); existing Toggle stories still pass.
+
+##### TASK-02-05-02-FE2 · Add show or hide to the drink sheet
+`frontend` · Parent: STORY-02-05-02 · 2 h · New (rev 5) · Depends on: TASK-02-05-02-BE1, TASK-02-05-02-FE1, TASK-02-05-01-FE2
+- **Build:** The `drinks.show` Toggle in the drink sheet, disabled with
+  `drinks.keepOne` on the last shown drink; saved with the sheet; a failed save
+  leaves the setting unchanged with a retry Notice.
+- **Done when:** AC 1, AC 4, AC 5 and AC 6 hold in stories and play tests.
+
+##### TASK-02-05-02-QA1 · Test hiding drinks
+`qa` · Parent: STORY-02-05-02 · 4 h · New (rev 5) · Depends on: TASK-02-05-02-FE2
+- **Build:** Node tests: gone from Brew's select, the log and the Journal
+  filter; past shots keep it; time-of-day fallback; unhide; the last shown
+  drink; failure. Play test for the disabled switch.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-05-03: Add my own drink
+
+##### TASK-02-05-03-BE1 · Add a custom drink
+`backend` · Parent: STORY-02-05-03 · 4 h · New (rev 5) · Depends on: TASK-02-05-01-BE1
+- **Build:** `addDrink({ name, hasMilk, typicalMilkMl? })` in `drinks.ts`:
+  `sortOrder` last, `typicalMilkMl` 120 when it has milk (0 to 500 step 10),
+  none otherwise, unique name by the shared rule. There is no function that
+  changes `hasMilk` afterwards, and `updateDrink` rejects it (AC 3). Existing
+  drinks are untouched.
+- **Done when:** Unit tests cover a milk drink, a plain one, duplicate and
+  empty names, and the missing milk change.
+
+##### TASK-02-05-03-FE1 · Add the add mode to the drink sheet
+`frontend` · Parent: STORY-02-05-03 · 4 h · New (rev 5) · Depends on: TASK-02-05-03-BE1, TASK-02-05-01-FE1
+- **Build:** In add mode: the milk Toggle (default off) with the line that it
+  can't be changed later and the hint `drinks.hasMilk.hint` (a variation is its
+  own drink), and when on the usual-milk `NumberWheel` (`milliliter`, starting
+  120 ml, step 10). Saved at the end of the list. Existing drinks show the
+  milk setting as a line, with nothing offering to add milk. Stories.
+- **Done when:** AC 1 to AC 3 and AC 5 to AC 6 hold in stories.
+
+##### TASK-02-05-03-QA1 · Test adding a drink
+`qa` · Parent: STORY-02-05-03 · 4 h · New (rev 5) · Depends on: TASK-02-05-03-FE1, TASK-02-05-01-FE2
+- **Build:** Node tests: added last and offered on Brew and in the log, milk
+  fields only with milk, a recipe for it separate from the others, duplicates,
+  failure keeping input; play test that milk can't be edited on any existing
+  drink.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-05-04: Put my drinks in my order
+
+##### TASK-02-05-04-BE1 · Add moving drinks
+`backend` · Parent: STORY-02-05-04 (also 02-05-05) · 3 h · New (rev 5) · Depends on: TASK-02-05-01-BE1
+- **Build:** `moveDrink(id, toIndex)` in `drinks.ts` renumbers `sortOrder`
+  densely in one transaction (hidden drinks keep their place), used by every
+  chooser through the existing `(household_id, sort_order)` index. The same
+  function shape for milks in TASK-02-05-05-BE1.
+- **Done when:** Moves up, down, first and last are exact; a failed move
+  changes nothing.
+
+##### TASK-02-05-04-FE1 · Build ReorderList (NC-17) with its story
+`frontend` · Parent: STORY-02-05-04 (also 02-05-05) · 5 h · New (rev 5) · Depends on: DES-02-05-03, DES-02-05-04
+- **Build:**
+  - `src/components/ui/ReorderList`: `ListRow`s with a reorder mode; move-up
+    and move-down buttons (44 px) replace the tap target; the first and last
+    disable the impossible one; focus stays on the button just used; a polite
+    live region says the new place (`reorder.moved`: "Latte, 2 of 9"). No
+    dragging.
+  - `Icon.tsx` gains `up` and `down` strokes (block directions, no mirroring).
+  - Stories: list, mode on, first/last, long names, RTL, axe, a keyboard play
+    test.
+- **Done when:** Reordering works with keyboard and screen reader without
+  dragging and each move is announced (AC 2).
+
+##### TASK-02-05-04-FE2 · Add reordering to the drinks screen
+`frontend` · Parent: STORY-02-05-04 · 3 h · New (rev 5) · Depends on: TASK-02-05-04-BE1, TASK-02-05-04-FE1, TASK-02-05-01-FE2
+- **Build:** The header ghost `drinks.reorder` toggles ReorderList and becomes
+  `actions.done`; each move saves at once; a failed move returns the row and
+  shows `drinks.reorderFailed` with retry. The order shows on Brew, the log
+  and the Journal chip.
+- **Done when:** AC 1, AC 3 and AC 4 hold.
+
+##### TASK-02-05-04-QA1 · Test reordering drinks
+`qa` · Parent: STORY-02-05-04 · 4 h · New (rev 5) · Depends on: TASK-02-05-04-FE2
+- **Build:** Node tests for order everywhere a drink is chosen, a new drink
+  last, a failed move reverting; play tests with the keyboard, the live-region
+  text and RTL.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-05-05: Make the milk list mine
+
+##### TASK-02-05-05-BE1 · Add the milk list: rename, hide, add, move
+`backend` · Parent: STORY-02-05-05 · 6 h · New (rev 5) · Depends on: TASK-02-05-01-BE1, TASK-02-05-04-BE1
+- **Build:** `src/server/dal/milks.ts`: `listMilks`, `renameMilk`,
+  `setMilkHidden` (keep-one in a transaction), `addMilk({ name, kind })`
+  (kind `dairy` or `plant` written only here), `moveMilk`. No delete function
+  exists (AC 5). Names by the shared rule. Actions in `lists.ts`.
+- **Done when:** Unit tests cover each function, the shared name rule across
+  hidden milks, the last shown milk and the absence of a delete.
+
+##### TASK-02-05-05-FE1 · Build the milks screen and the milk sheet
+`frontend` · Parent: STORY-02-05-05 · 6 h · New (rev 5) · Depends on: TASK-02-05-05-BE1, TASK-02-05-02-FE1, TASK-02-05-04-FE1, DES-02-05-02
+- **Build:** `MilksScreen` (SCR-MILKS) and `MilkSheet` (SH-MILK) mirroring the
+  drinks pair: rows with `milks.kind.dairy` / `.plant`, no usual amount; the
+  sheet's name Input, a two-chip kind `ChipGroup` required when adding and a
+  plain line afterwards, the show/hide Toggle with the keep-one reason, one
+  primary. Stories like the drinks, RTL included.
+- **Done when:** Stories pass axe; AC 1 to AC 3 and AC 5 are visible.
+
+##### TASK-02-05-05-FE2 · Wire the milks route and reordering
+`frontend` · Parent: STORY-02-05-05 · 3 h · New (rev 5) · Depends on: TASK-02-05-05-FE1, TASK-02-05-04-FE2
+- **Build:** `src/app/(task)/profile/milks/page.tsx`, actions, skeleton and
+  `LoadFailed`, ReorderList mode with announcements and revert on failure,
+  `milks.*` keys.
+- **Done when:** AC 4 and AC 6 hold; the order shows in the log's milk choice.
+
+##### TASK-02-05-05-QA1 · Test the milk list
+`qa` · Parent: STORY-02-05-05 · 5 h · New (rev 5) · Depends on: TASK-02-05-05-FE2
+- **Build:** Node tests: rename shown on past shots, duplicates across hidden
+  milks, hide and keep-one, add with kind, kind not editable, order, no delete
+  offered, failure keeping input; play tests (keyboard reorder, RTL).
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-02-05-06: Set how much milk a drink usually gets
+
+##### TASK-02-05-06-BE1 · Set a drink's usual milk amount
+`backend` · Parent: STORY-02-05-06 · 2 h · New (rev 5) · Depends on: TASK-02-05-01-BE1
+- **Build:** `setUsualMilk(id, ml)` in `drinks.ts`: milk drinks only, 0 to 500,
+  step 10 (`validateMilk` rules in `src/domain/milk.ts`). New logs read it as
+  before through `getLogContext` (`typicalMilkMl`) when no recipe sets one;
+  past shots and recipes are untouched (AC 3).
+- **Done when:** Unit tests cover the range, a no-milk drink being refused and
+  past data unchanged.
+
+##### TASK-02-05-06-FE1 · Add the usual milk wheel to the drink sheet
+`frontend` · Parent: STORY-02-05-06 · 2 h · New (rev 5) · Depends on: TASK-02-05-06-BE1, TASK-02-05-01-FE1
+- **Build:** `drinks.usualMilk` with `NumberWheel` (`milliliter`, 0 to 500,
+  step 10) in edit mode for a milk drink only. Story.
+- **Done when:** A no-milk drink shows no amount (AC 2); the wheel works
+  without a keyboard (AC 1).
+
+##### TASK-02-05-06-QA1 · Test the usual milk amount
+`qa` · Parent: STORY-02-05-06 · 3 h · New (rev 5) · Depends on: TASK-02-05-06-FE1
+- **Build:** A new log starts from the set amount with no recipe and from the
+  recipe's when one exists; past shots and recipes unchanged; no-milk drink
+  asks nothing.
+- **Done when:** AC 1 to AC 3 are covered.
+
+##### STORY-02-05-07: Reach my lists from Profile and from where I choose
+
+##### TASK-02-05-07-BE1 · Add the list summaries for Profile
+`backend` · Parent: STORY-02-05-07 · 2 h · New (rev 5) · Depends on: TASK-02-05-05-BE1
+- **Build:** `getListSummaries()` in `src/server/dal/lists.ts`: counts of
+  drinks, hidden drinks, milks and hidden milks for the one-line secondaries.
+- **Done when:** Unit tests cover counts with and without hidden items.
+
+##### TASK-02-05-07-FE1 · Add "your lists" to Profile
+`frontend` · Parent: STORY-02-05-07 · 4 h · New (rev 5) · Depends on: TASK-02-05-07-BE1, TASK-05-03-01-FE2, DES-02-05-04
+- **Build:** `ProfileScreen.tsx` / `ProfileFlow.tsx` (sections restructured by
+  TASK-05-03-01-FE2): a `profile.lists` section with two `ListRow`s, Drinks
+  and Milks, each with a mirrored chevron and a plural summary ("9 drinks, 2
+  hidden") through next-intl; placed per design pattern 4. Stories.
+- **Done when:** AC 1 holds, long summaries wrap, RTL mirrors (AC 4).
+
+##### TASK-02-05-07-FE2 · Add "edit your drinks" and "edit your milks" to the choosers
+`frontend` · Parent: STORY-02-05-07 · 5 h · New (rev 5) · Depends on: TASK-02-05-05-FE2, TASK-02-05-04-FE2, DES-02-05-04
+- **Build:**
+  - Pass `footerRow` (`drinks.manage`, `milks.manage`) to the `SelectSheet`s of
+    Brew's drink choice (`HomeScreen.tsx` / `BrewFlow.tsx`), the log's drink
+    and milk choices (`ShotLogFlow.tsx`).
+  - Open the list with return-to (`src/lib/returnTo.ts`) and keep the log's
+    entered values through `src/lib/drafts.ts`; on return the new item is in
+    the list.
+- **Done when:** From a chooser, "Oat flat white" is two taps and back with
+  nothing lost (AC 2, AC 3).
+
+##### TASK-02-05-07-QA1 · Test reaching the lists
+`qa` · Parent: STORY-02-05-07 · 4 h · New (rev 5) · Depends on: TASK-02-05-07-FE2, TASK-02-05-07-FE1
+- **Build:** Play tests: Profile rows and summaries; both footer rows; return
+  with log values kept; long names; RTL.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-02-05-08: Keep recipes and shots that use hidden drinks and milks
+
+##### TASK-02-05-08-BE1 · Keep hidden drinks' recipes and hidden milks readable
+`backend` · Parent: STORY-02-05-08 · 5 h · New (rev 5) · Depends on: TASK-02-05-02-BE1, TASK-02-05-05-BE1
+- **Build:**
+  - Recipe readers for the bag and the coffee (`getBagRecipes`,
+    `getCoffeeRecipes`) return rows of hidden drinks with a `hidden` flag
+    (today the page maps names from the visible drinks only and would drop
+    them). A hidden drink's recipes return on unhide with nothing to restore
+    (AC 2).
+  - `getLogContext` adds a hidden milk to `milks` (marked `hidden`) only when it
+    is the one already chosen (the recipe's, or the shot's being fixed or
+    edited); new choices never include hidden milks (AC 4).
+  - `validateMilk` callers accept any milk of the household, since the
+    "not offered" rule is the chooser's; hiding never swaps a milk silently
+    (AC 3).
+- **Done when:** Unit tests cover each reader; saving a shot whose milk is
+  hidden works; a new log's milk list omits hidden milks.
+
+##### TASK-02-05-08-FE1 · Mark hidden drinks and milks where they still show
+`frontend` · Parent: STORY-02-05-08 · 4 h · New (rev 5) · Depends on: TASK-02-05-08-BE1, DES-02-05-01, DES-02-05-02
+- **Build:** `RecipeRows` and `beans/recipeRows.ts` show a hidden drink's rows
+  in `ink-secondary` with `drinks.hidden`; the log's milk field and the pin
+  sheet show a hidden chosen milk by name with `milks.hidden`. Stories.
+- **Done when:** AC 1 and AC 3 are visible in stories and RTL.
+
+##### TASK-02-05-08-QA1 · Test hidden drinks and milks keeping their data
+`qa` · Parent: STORY-02-05-08 · 4 h · New (rev 5) · Depends on: TASK-02-05-08-FE1
+- **Build:** Node tests for recipes of a hidden drink on the bag and coffee,
+  unhide restoring use, a hidden chosen milk kept by name, never offered anew;
+  play tests of the markers.
+- **Done when:** AC 1 to AC 4 are covered.
+
 ---
 
 ### INIT-03: Always know what beans you have and how old they are
@@ -3327,6 +4180,300 @@ the recipe rows of TASK-02-01-04-FE1.
   coffee; a Node check that the bag lands on the coffee.
 - **Done when:** AC 1 to AC 3 are covered.
 
+#### EPIC-03-05: Know when you'll run out (revision 5, Next, run-out only)
+
+Design: DES-03-05-01 and 02. 11 tasks, 44 h. Calculated on every read, never
+stored (TD-8); the thresholds (three finished portions, a month of silence,
+the span breaks) are starting values in one constants file. Built today:
+`getRemaining` (`src/server/dal/remaining.ts`), `remainingWeight` and
+`totalRemaining` (`src/domain/remaining.ts`), `batches.purchasedAt`,
+`getOnHand`, `BeansScreen` / `BeansFlow`. STORY-03-05-04 is retired; its
+filters are EPIC-03-07.
+
+##### STORY-03-05-01: See how fast we use coffee
+
+##### TASK-03-05-01-BE1 · Add the usage-rate rule
+`backend` · Parent: STORY-03-05-01 · 8 h · New (rev 5) · Depends on: none
+- **Build:**
+  - `src/domain/runOut.ts` (pure, with `now`) and
+    `src/domain/runOutConstants.ts`: from portions (weight, opened, finished,
+    purchase date), the doses of all shots on them (one-tap included) and the
+    stock checks, return a state of `learning` (fewer than three finished
+    portions, with the count so far), `stale` (no shot in a month),
+    `nothing` (nothing on hand) or `estimate` with the weekly grams, the
+    finished portion count and the span in weeks it rests on.
+  - Edge cases tested: a portion finished the day it was opened, stock checks
+    after the last dose, a purchase after the last finish, a zero rate.
+- **Done when:** Unit tests cover each state and edge; the same inputs give
+  the same answer; no value is stored (AC 1, AC 2, AC 4).
+
+##### TASK-03-05-01-BE2 · Add the run-out read
+`backend` · Parent: STORY-03-05-01 · 5 h · New (rev 5) · Depends on: TASK-03-05-01-BE1
+- **Build:** `src/server/dal/runOut.ts` `getRunOut(now)`: household-scoped
+  query for batches, portions, shot doses and stock checks, `getRemaining` for
+  the unfinished portions (frozen included), and `runOut()`; returns `null` on
+  any failure so the Beans page can leave the line out (AC 5). Household-wide:
+  never filtered by persona.
+- **Done when:** Tests with the mocked database cover a normal household, an
+  empty one and a thrown error; the read follows new shots and finished
+  portions (AC 3).
+
+##### TASK-03-05-01-FE1 · Build the run-out sheet (SH-RUNOUT) with its stories
+`frontend` · Parent: STORY-03-05-01 · 5 h · New (rev 5) · Depends on: DES-03-05-02
+- **Build:** `src/components/beans/RunOutSheet.tsx`: the `Sheet` with the span
+  in `text-display` weight 200, four plain rows (coffee on hand with the frozen
+  share, use rate, what it is based on, logged share), the meaning sentence,
+  a learning variant ("1 of 3 so far" and the coffee on hand), a "not
+  available yet" share, and a load-failed variant with retry. No primary
+  button; focus returns to the line. Stories: steady, learning, share
+  unavailable, failed, RTL.
+- **Done when:** Stories pass axe; every figure is formatted through `Intl`
+  and the sheet promises no accuracy (AC 1, AC 2).
+
+##### TASK-03-05-01-FE2 · Add the learning line and the absent states to Beans
+`frontend` · Parent: STORY-03-05-01 · 4 h · New (rev 5) · Depends on: TASK-03-05-01-BE2, TASK-03-05-01-FE1, DES-03-05-01
+- **Build:** `app/(app)/beans/page.tsx` reads `getRunOut` in its own
+  `Suspense`; under the On hand heading a quiet button (a `ListRow`-style
+  target, 44 px, mirrored chevron) shows `beans.learning` in `ink-secondary`
+  while learning; no line when stale, nothing on hand, or the read failed; a
+  one-line skeleton while loading. `BeansFlow` opens the sheet.
+- **Done when:** AC 2, AC 4 and AC 5 hold in stories; the rest of Beans works
+  when the read fails.
+
+##### TASK-03-05-01-QA1 · Test the usage rate and the learning state
+`qa` · Parent: STORY-03-05-01 · 5 h · New (rev 5) · Depends on: TASK-03-05-01-FE2
+- **Build:** Node tests of the rate against hand-worked households (two doses
+  a day, a busy one, a quiet one, one-tap only), the learning count, the
+  stale month and the failing read; play tests for the sheet and the absent
+  line.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-05-02: See when we'll run out
+
+##### TASK-03-05-02-BE1 · Add the run-out span and its breaks
+`backend` · Parent: STORY-03-05-02 · 3 h · New (rev 5) · Depends on: TASK-03-05-01-BE1
+- **Build:** `src/domain/runOutSpan.ts`: grams on hand over the weekly rate
+  gives a span as days under two weeks, weeks up to 26, then months, and a
+  "more than 6 months" bucket; the "around" date; the frozen share of the
+  span. Pure, with unit tests at each boundary.
+- **Done when:** The boundaries (13/14 days, 26/27 weeks, 6 months) are exact
+  (AC 2).
+
+##### TASK-03-05-02-FE1 · Show the span line and the sheet's span
+`frontend` · Parent: STORY-03-05-02 · 3 h · New (rev 5) · Depends on: TASK-03-05-02-BE1, TASK-03-05-01-FE2, DES-03-05-01
+- **Build:** The line reads `beans.runOut`, `beans.runOutFrozen` or
+  `beans.runOutLong`, with spans from `Intl.NumberFormat` unit style; the
+  sheet repeats the span and `beans.runOutBy` ("around 14 December"). The line
+  takes a `filtersActive` prop and is hidden when set (the rule belongs to
+  EPIC-03-07 and works whichever ships first); calm ink only, no buy prompt.
+- **Done when:** AC 1, AC 3, AC 4, AC 5 and AC 6 hold in stories.
+
+##### TASK-03-05-02-QA1 · Test the run-out line
+`qa` · Parent: STORY-03-05-02 · 4 h · New (rev 5) · Depends on: TASK-03-05-02-FE1
+- **Build:** Node tests of the span formats at each break and in a second
+  locale; adding a bag grows the estimate; play tests of the line, the sheet
+  and the hidden cases (nothing on hand, a filter on); a `signal` token check.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-03-05-03: See how much of our coffee gets logged
+
+##### TASK-03-05-03-BE1 · Add the logged-share rule
+`backend` · Parent: STORY-03-05-03 · 2 h · New (rev 5) · Depends on: TASK-03-05-01-BE1
+- **Build:** In `runOut.ts`: the share is the logged doses of finished portions
+  over their total weight, as a fraction; `null` when no portion has finished.
+  Included in `getRunOut`.
+- **Done when:** Unit tests cover the share, no finished portion, and an
+  over-logged portion (above 100 %, shown capped or as is, per the existing
+  `overLogged` flag).
+
+##### TASK-03-05-03-FE1 · Show the share and its meaning in the sheet
+`frontend` · Parent: STORY-03-05-03 · 2 h · New (rev 5) · Depends on: TASK-03-05-03-BE1, TASK-03-05-01-FE1
+- **Build:** The `beans.coverage` row with a percentage through `Intl`, the
+  `beans.coverage.meaning` sentence when it is low (threshold in the
+  constants), "not available yet" before a portion finishes; no accuracy
+  claim.
+- **Done when:** AC 1 to AC 4 are visible in the sheet's stories.
+
+##### TASK-03-05-03-QA1 · Test the logged share
+`qa` · Parent: STORY-03-05-03 · 3 h · New (rev 5) · Depends on: TASK-03-05-03-FE1
+- **Build:** Node tests for the share in a high, a low and an empty case; play
+  tests of the sentence and the unavailable state.
+- **Done when:** AC 1 to AC 4 are covered.
+
+#### EPIC-03-07: Find any coffee in Beans (revision 5, Next, new)
+
+Design: DES-03-07-01 and 02. 17 tasks, 67 h. The 7th INIT-03 epic, by
+exception. Built today: `FilterChips` (`src/components/ui/ChipGroup`), the
+Journal's URL-parameter filters (`src/lib/journalFilters.ts`),
+`ROAST_LEVELS` (`src/domain/roast.ts`), `triedSummary`, `getOnHand` and
+`getTried`, `createCoffeeEntry` (`catalogAdd.ts`), `CoffeeAddFlow`,
+`CoffeeScreen`, the seed loader `src/db/seed/load.ts` and `coffee.json`. The
+origin data for the seed list is the Head of Product's data work, not a task.
+
+##### STORY-03-07-04: Say where a coffee comes from when I add it
+
+##### TASK-03-07-04-BE1 · Add the origin column to canonical beans
+`backend` · Parent: STORY-03-07-04 · 2 h · New (rev 5) · Depends on: none
+- **Build:** `src/db/schema.ts`: `origin: text("origin")` on `canonicalBeans`,
+  nullable; new migration; update `schema.test.ts`. No index (filtering is in
+  memory). Existing rows stay null (AC 5).
+- **Done when:** The migration applies on a database with coffees and leaves
+  them null.
+
+##### TASK-03-07-04-BE2 · Add the origin rules and the list of origins
+`backend` · Parent: STORY-03-07-04 · 4 h · New (rev 5) · Depends on: none
+- **Build:** `src/domain/origin.ts` (TD-9): the curated list from
+  `planning/coffee-origins.json` (81 producing countries with ISO alpha-2
+  codes; the code is stored and the name shown with `Intl.DisplayNames`),
+  `blend`, and `normaliseOther(text)` (trim,
+  collapse whitespace, case-fold, length limit) giving `other:<text>`;
+  `parseOrigin`, `labelOrigin(origin, locale)` with `Intl.DisplayNames`. Unit
+  tests, including "Hawaiian kona" and "hawaiian  Kona" (an unlisted origin)
+  being one value (AC 2).
+- **Done when:** The tests pass and nothing in the module holds display copy.
+
+##### TASK-03-07-04-BE3 · Save origin on new coffees and load it from the seed
+`backend` · Parent: STORY-03-07-04 · 4 h · New (rev 5) · Depends on: TASK-03-07-04-BE1, TASK-03-07-04-BE2
+- **Build:** `CoffeeEntryInput.origin?` validated and stored by
+  `createCoffeeEntry` (`catalogAdd.ts`) and its action; `coffeeCatalog.ts`
+  results carry `origin`; `src/db/seed/load.ts` and `coffee.json` accept an
+  optional `origin` and validate it with `parseOrigin`; merges keep the
+  surviving entry's (no change to `catalogMerge.ts`).
+- **Done when:** Adding without an origin works exactly as before (AC 3); a bad
+  origin is refused; the loader loads a seed with and without origins.
+
+##### TASK-03-07-04-FE1 · Add the optional origin field to Add a coffee
+`frontend` · Parent: STORY-03-07-04 · 5 h · New (rev 5) · Depends on: TASK-03-07-04-BE3, DES-03-07-02
+- **Build:** `CoffeeAddFlow.tsx` / `CatalogAddScreen.tsx`: an optional
+  `SelectField` `catalog.origin` with the list, `catalog.origin.blend` and
+  "other" (which reveals one `Input`); hidden when the list can't be built
+  (AC 4); never blocks saving. Stories in `CatalogAddScreen.stories.tsx`:
+  none chosen, a country, blend, other, list unavailable, RTL.
+- **Done when:** AC 1 to AC 4 hold in stories; `en.json` keys added.
+
+##### TASK-03-07-04-QA1 · Test saying where a coffee comes from
+`qa` · Parent: STORY-03-07-04 · 4 h · New (rev 5) · Depends on: TASK-03-07-04-FE1
+- **Build:** Node tests for save with each kind, the case-folding, no origin,
+  the old rows staying null and the seed loader; play tests of the field and
+  its absence.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-07-05: See and fill in a coffee's origin
+
+##### TASK-03-07-05-BE1 · Add setting origin on an unverified coffee
+`backend` · Parent: STORY-03-07-05 · 3 h · New (rev 5) · Depends on: TASK-03-07-04-BE3
+- **Build:** `setCoffeeOrigin(beanId, origin | null)` in `catalogAdd.ts` (or
+  beside `modelCapabilities.ts`): allowed only when the coffee was created by
+  the household and is `unverified` and not merged (the `canEditCapabilities`
+  pattern); otherwise a `NotEditableError`. `getCoffee` (`coffee.ts`) returns
+  `origin` and `originEditable`.
+- **Done when:** Unit tests cover own unverified, own verified, seeded and
+  another household's coffee (AC 2, AC 3).
+
+##### TASK-03-07-05-FE1 · Show origin on the coffee screen and let a household fill it in
+`frontend` · Parent: STORY-03-07-05 · 4 h · New (rev 5) · Depends on: TASK-03-07-05-BE1, TASK-03-07-04-FE1
+- **Build:** `CoffeeScreen.tsx` / `app/(app)/beans/coffee/[beanId]/page.tsx`:
+  the origin in the details line when set, nothing when not; a set-origin
+  action opening the same origin choice in a `Sheet`, only when
+  `originEditable`. Stories.
+- **Done when:** AC 1 to AC 3 hold; AC 4 is met with the filter (TASK-03-07-03-FE1).
+
+##### TASK-03-07-05-QA1 · Test seeing and filling in an origin
+`qa` · Parent: STORY-03-07-05 · 3 h · New (rev 5) · Depends on: TASK-03-07-05-FE1
+- **Build:** Node tests for who may edit; play tests for the line, the sheet,
+  and a verified coffee showing no action.
+- **Done when:** AC 1 to AC 4 are covered (AC 4 with the origin filter).
+
+##### STORY-03-07-01: Narrow Beans by roaster, roast level or rating
+
+##### TASK-03-07-01-BE1 · Add the Beans filter rules and URL parameters
+`backend` · Parent: STORY-03-07-01 (also 03-07-02, 03-07-03) · 5 h · New (rev 5) · Depends on: none
+- **Build:**
+  - `src/domain/beansFilter.ts` (pure): the row is offered with six or more
+    distinct coffees (constant); `filterOptions` gives only the values present
+    with counts; roast levels in `ROAST_LEVELS` order; rating words are
+    `triedSummary`'s kinds (mostly good, mixed, mostly off, no ratings yet);
+    origin options appear only when some coffee has an origin, with `not
+    stated` and `blend`; `applyFilters` combines one value per filter (AND).
+  - `src/lib/beansFilters.ts` like `journalFilters.ts`: `readBeansFilters`
+    and `beansHref` over `roaster`, `roast`, `origin`, `rating` parameters.
+- **Done when:** Unit tests cover the threshold, counts, ordering, combining
+  and the parameter round trip.
+
+##### TASK-03-07-01-BE2 · Add the coffees read for the filters
+`backend` · Parent: STORY-03-07-01 · 4 h · New (rev 5) · Depends on: TASK-03-07-04-BE1
+- **Build:** `src/server/dal/beanFacets.ts`: one distinct list of the coffees on
+  hand and tried (merge survivors), each with roaster, roast level, origin
+  and the rating kind from the same shots `getTried` reads (refactor
+  `getTried` to expose its per-coffee summary rather than recompute); on-hand
+  coffees never brewed read "no ratings yet". Takes an optional persona
+  (used by TASK-05-01-07-BE1).
+- **Done when:** Tests cover a merged coffee, an on-hand-only coffee, a
+  tried-only coffee and a coffee that is both.
+
+##### TASK-03-07-01-FE1 · Add the Beans filter row
+`frontend` · Parent: STORY-03-07-01 · 6 h · New (rev 5) · Depends on: TASK-03-07-01-BE1, TASK-03-07-01-BE2, DES-03-07-01
+- **Build:**
+  - `BeansScreen.tsx` / `BeansFlow.tsx`: `FilterChips` (the filter variant)
+    under the header with Roaster, Roast level and Rating chips; each opens a
+    `SelectSheet` with only existing values and a count in the secondary line
+    (`beans.filterCount`); active chips fill and can be removed.
+  - `app/(app)/beans/page.tsx` reads `searchParams` (read the Next.js 16
+    guide first) and narrows On hand and Tried together; the row is absent
+    below six coffees.
+  - Stories: no filter, one, several, open choices, below the threshold, RTL;
+    the row scrolls sideways without clipping its focus ring.
+- **Done when:** AC 1 to AC 5 hold in stories and play tests.
+
+##### TASK-03-07-01-QA1 · Test narrowing Beans
+`qa` · Parent: STORY-03-07-01 · 5 h · New (rev 5) · Depends on: TASK-03-07-01-FE1
+- **Build:** Node tests of options and counts from a fixed household of 6 and
+  5 coffees; play tests of each chip, combining, removing one, and keyboard
+  use.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-03-07-02: Keep my filters, clear them, and handle no matches
+
+##### TASK-03-07-02-FE1 · Keep filters across navigation and clear them on the tab
+`frontend` · Parent: STORY-03-07-02 · 4 h · New (rev 5) · Depends on: TASK-03-07-01-FE1
+- **Build:** Filters live in the address, so Back from a bag or a coffee keeps
+  them; the leading ghost "All" (`beans.filterAll`) shows only while a filter
+  is on and clears all at once; choosing the Beans tab again links to
+  `/beans` without parameters (`AppTabBar.tsx`, `src/lib/appTabs.ts`).
+- **Done when:** AC 1 and AC 2 hold in a play test with real navigation.
+
+##### TASK-03-07-02-FE2 · Add the filtered empty states and hide the run-out line
+`frontend` · Parent: STORY-03-07-02 · 4 h · New (rev 5) · Depends on: TASK-03-07-02-FE1 (soft: TASK-03-05-02-FE1, only to pass the filter flag to the run-out line)
+- **Build:** A one-line `beans.filteredOnHandNone` (and the Tried equivalent)
+  when only one section is empty; one `EmptyState` `beans.filteredNone` with a
+  `beans.filterClear` action when both are, the chips staying; the run-out
+  line gets `filtersActive`; a failed load shows `LoadFailed` with retry as
+  elsewhere.
+- **Done when:** AC 3 to AC 6 hold in stories.
+
+##### TASK-03-07-02-QA1 · Test keeping, clearing and no matches
+`qa` · Parent: STORY-03-07-02 · 4 h · New (rev 5) · Depends on: TASK-03-07-02-FE2
+- **Build:** Play tests of Back keeping filters, the tab clearing them, each
+  empty state, the run-out line hidden under a filter and a failed load.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-03-07-03: Narrow Beans by origin
+
+##### TASK-03-07-03-FE1 · Add the origin chip
+`frontend` · Parent: STORY-03-07-03 · 3 h · New (rev 5) · Depends on: TASK-03-07-01-FE1, TASK-03-07-04-BE2
+- **Build:** The Origin chip appears only when at least one coffee has an
+  origin; its choices are the origins present (names through
+  `Intl.DisplayNames`), `blend`, and `beans.originUnknown`; combines with the
+  others. Stories.
+- **Done when:** AC 1 to AC 5 hold in stories.
+
+##### TASK-03-07-03-QA1 · Test the origin filter
+`qa` · Parent: STORY-03-07-03 · 3 h · New (rev 5) · Depends on: TASK-03-07-03-FE1
+- **Build:** Node and play tests: no origin anywhere (no chip), "not stated",
+  a blend, combining, and a coffee moving from "not stated" after its origin
+  is set (also STORY-03-07-05 AC 4).
+- **Done when:** AC 1 to AC 5 are covered.
+
 ---
 
 ### INIT-04: Grind settings stay meaningful through maintenance and time
@@ -3455,6 +4602,1274 @@ Schema: TASK-04-01-01-BE1 (section 6).
   filtered lists and no divider cases (AC 3, AC 4), and a back-dated event
   moving its divider with no shot changed (AC 5); a play test that the divider
   opens the grinder; a screen-reader text check.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-04-02: Suggested grind that follows bean age and recent shots (revision 5, Next)
+
+Design: DES-04-02-01 to 03. 22 tasks, 104 h. The largest Next epic. Rules and
+statistics, not AI, shipped with evals (DQ-43). Decisions TD-2 to TD-4 and
+TD-12 apply; every number lives in `src/domain/drift/constants.ts`. Built
+today: `currentPeriodStart` (`src/domain/grindPeriods.ts`, any grinder event,
+a clean included, DQ-47), `getGrindPeriod` (`maintenance.ts`),
+`roastingClock` / `openedClock`, `grindWheelConfig` (`src/domain/grind.ts`),
+the suggestion engine in `src/domain/suggest/` and its scenario tests,
+`ShotDial`'s "was" value, `getDialInStart`, `pullShot`.
+
+##### STORY-04-02-04: Recent shots count most
+
+##### TASK-04-02-04-BE1 · Add the recent-shots window and time weights
+`backend` · Parent: STORY-04-02-04 · 6 h · New (rev 5) · Depends on: none
+- **Build:** `src/domain/drift/constants.ts` and `window.ts` (pure): from
+  measured shots with dates, the current period's start and `now`, pick the
+  evidence: shots in the last 3 days; if fewer than 3, reach back until 3 but
+  never past the period start; at most 10 (the newest); none if fewer than 3
+  even then. Weights fall with age in time (a 3-day half-life: today about
+  twice a 3-day-old shot). Ties are settled by shot ID, so the same input
+  always gives the same order and weights. Returns whether it reached back
+  and since when.
+- **Done when:** Unit tests cover the window, each reach-back case, the cap, a
+  busy day (many shots, still 10), the weights and determinism (AC 1 to AC 5).
+
+##### TASK-04-02-04-QA1 · Test the window and the weights
+`qa` · Parent: STORY-04-02-04 · 3 h · New (rev 5) · Depends on: TASK-04-02-04-BE1
+- **Build:** Table tests of the five criteria, including exactly 3 days, 2
+  shots in the window with an older third, and a period that starts yesterday.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-04-02-05: Only compare shots from the same grind period
+
+##### TASK-04-02-05-BE1 · Add the grind-period shot read for drift
+`backend` · Parent: STORY-04-02-05 · 4 h · New (rev 5) · Depends on: none
+- **Build:** `src/server/dal/driftShots.ts`: for a grinder part (an
+  `owned_hardware` ID), the grinder's own events (machine and basket events
+  never move it), `currentPeriodStart`, and the household's shots on any setup
+  containing that grinder from the period start (`setup_parts`). A constant
+  `CLEAN_STARTS_PERIOD = true` documents DQ-47 so the evals can flip it. With
+  fewer than 3 measured shots in a new period it returns them and the engine
+  applies no drift (a servicing shift still applies on its own, TD-5).
+- **Done when:** Tests with the mocked database cover shots either side of a
+  burrs event, a clean, a machine event and a basket event (AC 1 to AC 3).
+
+##### TASK-04-02-05-QA1 · Test grind periods for drift
+`qa` · Parent: STORY-04-02-05 · 3 h · New (rev 5) · Depends on: TASK-04-02-05-BE1
+- **Build:** Node tests on the shot read per event kind and a new period with
+  too few shots giving no drift.
+- **Done when:** AC 1 to AC 3 are covered.
+
+##### STORY-04-02-02: Grind that follows this bag's character
+
+##### TASK-04-02-02-BE1 · Add the recipe-in-force rule
+`backend` · Parent: STORY-04-02-02 · 5 h · New (rev 5) · Depends on: TASK-02-04-04-BE1, TASK-02-04-01-BE1
+- **Build:** `src/domain/drift/recipeInForce.ts` (pure, TD-2) and a loader in
+  `driftShots.ts` that reads the household's pins for the coffees involved
+  (merge groups) once and matches each shot in memory. A bag-scoped pin
+  for the shot's bag wins; a bag recipe removed after the shot still counted;
+  a shot with no earlier pin comes back `unmatched`.
+- **Done when:** Unit tests cover a re-pin mid-day, a pin after the shot, a
+  bag recipe over the coffee's, a bag recipe removed later, another persona's
+  pin not matching, and no pin (AC 4 to AC 6).
+
+##### TASK-04-02-02-BE2 · Add the bag-character signal and the per-recipe nudge
+`backend` · Parent: STORY-04-02-02 · 6 h · New (rev 5) · Depends on: TASK-04-02-04-BE1, TASK-04-02-03-BE1, TASK-04-02-07-BE1
+- **Build:** `src/domain/drift/bag.ts`: the weighted mean of each measured
+  shot's shot time against its own recipe's time gives a relative signal
+  ("about 10 % fast"); a constant maps it to grinder steps (starting value in
+  `constants.ts`, tuned by the evals), rounded to the recipe grinder's step
+  (`grindWheelConfig`), computed for each recipe on its own. Only the bag's
+  own shots count; a new bag starts with none.
+- **Done when:** Unit tests cover fast, slow and steady bags, two recipes
+  getting different nudges from one pool, a new bag, no shots, and a shot on
+  another drink or setup judged against its own recipe (AC 1 to AC 4, AC 6).
+
+##### TASK-04-02-02-QA1 · Test the bag's character
+`qa` · Parent: STORY-04-02-02 · 3 h · New (rev 5) · Depends on: TASK-04-02-02-BE2
+- **Build:** Node tests of the six criteria with hand-worked shots, including
+  the unmatched count and a bag with its own recipe.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-02-03: Only measured shots with the recipe's prep count
+
+##### TASK-04-02-03-BE1 · Count only measured shots with matching prep
+`backend` · Parent: STORY-04-02-03 · 3 h · New (rev 5) · Depends on: TASK-04-02-02-BE1
+- **Build:** `src/domain/drift/eligible.ts`: keep `entryMode = "measured"`
+  shots whose WDT and puck screen ticks equal their recipe's; one-tap shots
+  are never measurements (a good one-tap reaction is counted for the
+  evidence line only, not weighted: see 9.3, question 6); count the shots
+  left out for prep and for no recipe; return them for the sheet's evidence.
+- **Done when:** Unit tests cover mixed prep, one-tap only (nothing moves) and
+  too few left (nothing shown) (AC 1 to AC 5).
+
+##### TASK-04-02-03-QA1 · Test measured shots and prep
+`qa` · Parent: STORY-04-02-03 · 3 h · New (rev 5) · Depends on: TASK-04-02-03-BE1
+- **Build:** Node tests of the five criteria incl. a household that never
+  ticks prep consistently.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-04-02-07: Pool shots from everyone on the same coffee and grinder
+
+##### TASK-04-02-07-BE1 · Pool shots across profiles and setups that share the grinder
+`backend` · Parent: STORY-04-02-07 · 4 h · New (rev 5) · Depends on: TASK-04-02-05-BE1, TASK-04-02-02-BE1
+- **Build:** In `driftShots.ts`: the pool is every persona's shots of the
+  coffee on setups that contain the same grinder unit, each carrying its own
+  recipe; never another grinder. Returns the count of distinct personas and
+  whether several setups contributed, never a name. A constant
+  `POOL_WITHIN_BASKET = false` is the evals' fallback switch (DQ-32).
+- **Done when:** Unit tests cover one persona (the pool is theirs and widens
+  by itself), several personas, a second setup with the grinder, a different
+  grinder, and that no name is in the output (AC 1 to AC 6).
+
+##### TASK-04-02-07-QA1 · Test pooling
+`qa` · Parent: STORY-04-02-07 · 3 h · New (rev 5) · Depends on: TASK-04-02-07-BE1
+- **Build:** Node tests of the six criteria with two personas and two setups on
+  one grinder.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-02-01: Grind that follows bean age
+
+##### TASK-04-02-01-BE1 · Add the bean-age term
+`backend` · Parent: STORY-04-02-01 · 6 h · New (rev 5) · Depends on: TASK-04-02-04-BE1, TASK-04-02-03-BE1
+- **Build:** `src/domain/drift/age.ts`: with at least 3 measured shots on the
+  coffee in the period spread over at least 2 ages, a weighted least-squares
+  line of each shot's grind minus its own recipe's servicing-applied grind
+  (TD-2; never the stored grind) against its age since
+  roasting gives the term at the portion's current age (the since-opening clock
+  adds a smaller term, its weight a constant). Ages come from `roastingClock`
+  and `openedClock`, so freezing pauses them and an unopened portion uses the
+  roasting clock only. Under one grinder step it is none; a stepped grinder
+  rounds to its steps, a stepless one to its finest increment; the result is
+  kept within the grinder's range and capped (`limited` flag).
+- **Done when:** Unit tests cover too few shots or ages (none), a clear ageing
+  bag, the sub-step case, stepped and stepless, the cap, the range clamp and
+  frozen/unopened portions (AC 1 to AC 6); the stored recipe is untouched.
+
+##### TASK-04-02-01-QA1 · Test the age term
+`qa` · Parent: STORY-04-02-01 · 4 h · New (rev 5) · Depends on: TASK-04-02-01-BE1
+- **Build:** Node tests of the six criteria with fixed shots and dates in two
+  time zones.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-02-06: See the suggested grind where I brew
+
+##### TASK-04-02-06-BE1 · Compose the grind adjustment and the trail
+`backend` · Parent: STORY-04-02-06 (also 04-02-08) · 7 h · New (rev 5) · Depends on: TASK-04-02-01-BE1, TASK-04-02-02-BE2, TASK-04-02-07-BE1
+- **Build:**
+  - `src/domain/drift/index.ts` `adjustGrind(input)`: the composition order of
+    TD-3 returns `{ shown, recipeGrind, steps, limited, evidence }`, where
+    `steps` is the trail (aged, bag, serviced with its event dates) and
+    `evidence` is data only: measured shot count, the window in days, the date
+    it reached back to or "since servicing", counts left out for prep and for
+    no recipe, one-tap not counted, number of personas, across setups.
+  - `src/server/dal/grindAdjustment.ts` `getGrindAdjustment(key, portion,
+    now)` loads the recipe, the grinder's events, shots, pins and the grinder
+    scale, calls the engine and returns `null` on any error (after the log
+    line of TASK-04-02-09-BE1).
+  - An adjustment under one step returns `null`.
+- **Done when:** Unit tests cover the composition order, the trail adding up to
+  the shown grind, the limited flag, and the error path returning `null`.
+
+##### TASK-04-02-06-BE2 · Apply the adjustment on Brew, in dial in and in the one-tap pull
+`backend` · Parent: STORY-04-02-06 · 7 h · New (rev 5) · Depends on: TASK-04-02-06-BE1, TASK-02-04-02-BE1
+- **Build:**
+  - `home.ts`: the `recipe` state carries the adjustment; `dialIn.ts` /
+    `getDialInFromRecipe`: the log's start grind is the adjusted one with the
+    recipe's as the "was" value, including the closest-setup start when the
+    grinder is the same (a different grinder gets none).
+  - `pullShot` (TD-4): recomputes server side, records the adjusted grind
+    unless the new `useRecipeGrind` flag is set, stays `one-tap` and
+    `isNetworkEligible: false`, leaves the recipe unchanged.
+  - Not called by `getFixStart`, `getDialInFromShot`, edit or entered
+    recipes.
+  - Any error returns the recipe's grind; a pull is never blocked.
+- **Done when:** Unit tests cover each caller, the recorded grind, the flag, the
+  untouched recipe and the error path; a test counts the queries and fails if
+  `getHome` with an adjustment makes more than 4 more than without, or takes
+  more than 50 ms longer (median of 20 runs, local file database, 500 shots)
+  (budget in R-28). Pull wording: a race with another device's shot can make
+  the recorded grind differ from the shown one by one step (TQ-22); the test
+  fixes `now` and asserts equality, and the story note records the race.
+
+##### TASK-04-02-06-FE1 · Show the adjusted grind and the reason on Brew
+`frontend` · Parent: STORY-04-02-06 · 5 h · New (rev 5) · Depends on: TASK-04-02-06-BE2, TASK-04-02-08-FE1, DES-04-02-01
+- **Build:** `HomeScreen.tsx`: the grind in the values grid is the adjusted one
+  (same size and weight); a quiet ghost line under the grid (`home.grindAdjusted`,
+  "recipe 15 · beans have aged", reasons from `home.grindReason.*`) opens the
+  trail sheet; nothing is shown when there is no adjustment. "Use my recipe's
+  grind for this shot" sets Brew's `useRecipeGrind` for one pull only (client
+  state, not saved). Stories: adjusted, none, with and without the line at
+  375 x 667 with the Pull button visible, RTL.
+- **Done when:** The no-adjustment HomeScreen story renders identically to the
+  existing Brew story (a play test compares the two DOM snapshots) (AC 2); the
+  Pull button stays on screen (design acceptance).
+
+##### TASK-04-02-06-FE2 · Start the log at the adjusted grind
+`frontend` · Parent: STORY-04-02-06 · 4 h · New (rev 5) · Depends on: TASK-04-02-06-BE2, TASK-04-02-08-FE1, DES-04-02-01
+- **Build:** `ShotLogFlow.tsx` / `RecipeLogFlow.tsx`: for a dial in from a
+  recipe the grind tab opens at the adjusted value, the recipe's grind is the
+  "was" value (`ShotDial`), and the same reason line sits under the grind wheel;
+  fix, dial in from a shot, edit and entering a recipe are unchanged (AC 4).
+- **Done when:** AC 3 and AC 4 hold in the log's play tests.
+
+##### TASK-04-02-06-QA1 · Test seeing the suggested grind
+`qa` · Parent: STORY-04-02-06 · 5 h · New (rev 5) · Depends on: TASK-04-02-06-FE2, TASK-04-02-06-FE1
+- **Build:** Node tests of all six criteria (the pull records the grind shown;
+  fix and edit unadjusted; a failing calculation never blocks a pull); play
+  tests of Brew with and without the line.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-02-08: See why this grind
+
+##### TASK-04-02-08-FE1 · Build the grind trail sheet (SH-DRIFT) with its stories
+`frontend` · Parent: STORY-04-02-08 · 6 h · New (rev 5) · Depends on: DES-04-02-02, DES-04-02-03
+- **Build:** `src/components/recipes/GrindTrailSheet.tsx`: the recipe's grind
+  (`text-h3`), one signed row per step (formatted through `Intl`
+  `signDisplay`), a hairline and the shown grind in `text-display` weight 200;
+  evidence lines (`drift.basedOn`, the reached-back date or `drift.sinceServicing`,
+  `drift.onlyMeasured`, `drift.recentMore`, `drift.prepLeftOut`, `drift.pooled`,
+  `drift.acrossSetups`, `drift.perRecipe`); "finer" or "coarser" only when the
+  grinder's direction is known; a "limited to N steps" line; footer
+  `drift.useRecipe`. Ink only. Stories: aged, bag, both, reached back, pooled,
+  prep left out, direction unknown, limited, RTL.
+- **Done when:** Stories pass axe; the rows add up to the shown grind (AC 1 to
+  AC 4, AC 6); the servicing rows come later with EPIC-04-03.
+
+##### TASK-04-02-08-QA1 · Test the reason sheet
+`qa` · Parent: STORY-04-02-08 · 4 h · New (rev 5) · Depends on: TASK-04-02-08-FE1, TASK-04-02-06-FE1
+- **Build:** Play tests of the arithmetic, each evidence line, the direction
+  words with and without a known direction, "use my recipe's grind" lasting
+  one pull and the limited line.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-02-09: A grind adjustment that's checked before each release
+
+##### TASK-04-02-09-BE1 · Log the adjustment's outcomes
+`backend` · Parent: STORY-04-02-09 · 3 h · New (rev 5) · Depends on: TASK-04-02-06-BE1
+- **Build:** `src/server/observe.ts`: one function writing a structured line
+  (`drift.outcome` with `applied`, `none`, `limited` or `failed` and a reason
+  code, counts only, no IDs of people, no values from the user's profile) used
+  by `getGrindAdjustment`; the function is the single place to swap in a real
+  observability tool (R-28).
+- **Done when:** Each outcome is emitted once per calculation and tests check
+  the shape and that no name or ID is logged (AC 3).
+
+##### TASK-04-02-09-QA1 · Write the drift scenario suite and the pass-rate report
+`qa` · Parent: STORY-04-02-09 · 10 h · New (rev 5) · Depends on: TASK-04-02-06-BE1
+- **Build:**
+  - `src/domain/drift/__tests__/scenarios.test.ts` (in the style of
+    `suggest/__tests__/scenarios.test.ts`): at least 24 scenarios across an
+    ageing bag, a fast bag, a busy multi-person household, mixed prep, a
+    low-volume household, a fresh period after servicing, and single against
+    double baskets, each with an expected direction and size band.
+  - A report (`npm run evals:drift`) printing the pass rate against a target
+    constant that stays unset (X-2).
+  - A constants snapshot test that fails when any number in `constants.ts`
+    changes until the scenarios are re-run and the snapshot updated (AC 2).
+  - One scenario for the servicing case (M1): a serviced grinder, an old
+    recipe and shots at the shifted grind give no age term and show the shift
+    once, not twice. It needs servicing applied on read, so it is added and
+    run in wave 24 with TASK-04-03-03-BE2; until then servicing has no effect
+    on the adjustment (no event carries a shift before wave 24).
+  - The tech lead writes the scenarios; the Head of Product signs off the
+    scenario table before release.
+- **Done when:** AC 1 to AC 3 are covered; a changed constant fails the build
+  until the suite is re-run.
+
+#### EPIC-04-03: Re-dial once after maintenance and keep every recipe (revision 5, Next)
+
+Design: DES-04-03-01 to 05. 21 tasks, 93 h. No schema change (TD-5, TD-7).
+Built today: `maintenance_events.grind_shift`, `grind_scale` and
+`offset_source_recipe_id` (unused), `addMaintenance` / `listMaintenance`
+(`src/server/dal/maintenance.ts`; there is no way to edit or delete an event,
+see 9.3 question 3), `canRecalibrate`, `recalibrationDefault`, `UnitScreen`
+with plain event rows, `PeriodDivider`, `NumberWheel` (signed ranges work).
+
+##### STORY-04-03-04: Be invited to re-dial one coffee after servicing
+
+##### TASK-04-03-04-BE1 · Add the re-dial state and the candidate read
+`backend` · Parent: STORY-04-03-04 (also 04-03-05) · 5 h · New (rev 5) · Depends on: none
+- **Build:**
+  - `src/domain/redial.ts` (TD-7): the event state (`awaiting`, `confirmed`,
+    `noAdjustment`, `nothingToMap`, `notRecalibration`) from the event and
+    whether a recipe predates it; "before" means `pinnedAt` earlier than the
+    event's time, so a pin earlier today counts for an event logged today.
+  - `src/server/dal/redial.ts`: `getGrinderRedial(grinderPartId)` (status for
+    the grinder's screen), `getBrewRedialCard(currentSetupId)` (the current
+    setup contains this grinder, an event awaits, a recipe predates it on any
+    setup with the grinder; names the grinder when the household has two),
+    and `listRedialCandidates(eventId)` (coffees on hand with a recipe before
+    the event on this grinder, Brew's coffee first, each with drink and
+    setup).
+  - `listMaintenance` returns the state.
+- **Done when:** Unit tests cover each state, a clean, a repair, a machine or
+  basket event, no recipe before, two grinders and a same-day pin (AC 1, AC 2,
+  AC 4).
+
+##### TASK-04-03-04-BE2 · Add the re-dial dial-in start
+`backend` · Parent: STORY-04-03-04 · 3 h · New (rev 5) · Depends on: TASK-04-03-04-BE1
+- **Build:** `getRedialStart(eventId, recipeKey)` in `logStart.ts`: the old
+  recipe's raw grind as the start and the "was" value, its other values and
+  prep, milk and sweetened, no drift adjustment (the old number only means
+  something as a starting point), and the event ID so the log can show the
+  banner.
+- **Done when:** Unit tests cover the start values and that no adjustment is
+  applied (AC 5).
+
+##### TASK-04-03-04-FE1 · Build the re-dial card for Brew
+`frontend` · Parent: STORY-04-03-04 · 4 h · New (rev 5) · Depends on: DES-04-03-01, DES-04-03-05
+- **Build:** `src/components/home/RedialCard.tsx`: an outline `Card` (`padding
+  md`) with `home.redial.title`, one sentence, a secondary `home.redial.start`
+  and a ghost `home.redial.later`; the grinder's name when two. Stories: one
+  grinder, two grinders, 375 x 667 with the Pull button visible, RTL.
+- **Done when:** Stories pass axe; Pull and Dial in stay untouched.
+
+##### TASK-04-03-04-FE2 · Show the status on the grinder's screen and the card on Brew
+`frontend` · Parent: STORY-04-03-04 · 5 h · New (rev 5) · Depends on: TASK-04-03-04-BE1, TASK-04-03-04-FE1
+- **Build:** `UnitScreen.tsx`: the status block above the events
+  (`maintenance.redialAwaiting` with `maintenance.redialStart`), only when
+  there is something to map. `HomeScreen.tsx` / `BrewFlow.tsx`: the card slot
+  (one card at a time: this one wins over the link prompt of EPIC-05-03);
+  "not now" is remembered per event on this device
+  (`src/lib/dismissals.ts` pattern) and leaves the grinder's status; the
+  coffee choice opens a `SelectSheet` (`redial.pick`).
+- **Done when:** AC 1 to AC 4 and AC 6 hold in stories and play tests.
+
+##### TASK-04-03-04-FE3 · Open the log in re-dial mode
+`frontend` · Parent: STORY-04-03-04 · 5 h · New (rev 5) · Depends on: TASK-04-03-04-BE2, TASK-04-03-04-FE2, DES-04-03-01
+- **Build:** `/log` accepts a re-dial context (event and recipe key);
+  `ShotLogFlow.tsx` shows the `log.redialing` banner under the header and
+  starts from `getRedialStart`; saving and tasting are the normal flow and the
+  final pin leads to the offset sheet (TASK-04-03-01-FE1).
+- **Done when:** AC 5 holds: the banner shows, the old grind is the "was"
+  value and no adjustment is applied.
+
+##### TASK-04-03-04-QA1 · Test the re-dial invitation
+`qa` · Parent: STORY-04-03-04 · 5 h · New (rev 5) · Depends on: TASK-04-03-04-FE3
+- **Build:** Node tests of every state and condition above; play tests of the
+  card, "not now" (card gone, status stays), the coffee pick and the banner,
+  and the one-card rule with the link prompt.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-03-01: Re-dial one coffee and get the shift
+
+##### TASK-04-03-01-BE1 · Add the shift proposal rule
+`backend` · Parent: STORY-04-03-01 · 4 h · New (rev 5) · Depends on: TASK-04-02-01-BE1
+- **Build:** `src/domain/offset.ts` `proposeShift({ oldGrind, newGrind, ageNote
+  })`: new minus old, with the bean-ageing change between the two dial-ins
+  (the age term of `drift/age.ts` over the days between the pins) taken off
+  first, and returned separately for the quiet line; no age estimate means
+  nothing is taken off; words ("3 steps finer") only when the grinder's
+  direction is known.
+- **Done when:** Unit tests cover with and without an age estimate, a zero
+  shift and the words rule (AC 2, AC 3).
+
+##### TASK-04-03-01-BE2 · Find the event and the baseline for a new pin
+`backend` · Parent: STORY-04-03-01 · 5 h · New (rev 5) · Depends on: TASK-04-03-01-BE1, TASK-04-03-04-BE1
+- **Build:** `getOffsetProposal(recipeId)` in `src/server/dal/redial.ts`: for a
+  pin on a setup with a grinder, the most recent recalibrating grinder event
+  between the previous pin and this one; that previous pin is the baseline;
+  with none, no proposal (and on the card path, a `noBaseline` result so the
+  sheet can offer another coffee, AC 4). Any failure returns an error the
+  caller turns into "no shift could be proposed" (AC 6).
+- **Done when:** Unit tests cover no event, no baseline, two events, a same-day
+  event and a thrown error; the pin is never rolled back.
+
+##### TASK-04-03-01-FE1 · Open the offset sheet after a pin
+`frontend` · Parent: STORY-04-03-01 · 4 h · New (rev 5) · Depends on: TASK-04-03-01-BE2, TASK-04-03-02-FE1
+- **Build:** `usePinFlow.tsx`'s `onPinned` asks for a proposal and opens the
+  offset sheet when one exists; with the card or the grinder's screen as the
+  source and no baseline, the sheet shows `offset.noBaseline` with
+  `offset.pickAnother`; a plain pin with no baseline shows nothing; a failed
+  proposal says the pin is saved and no shift could be proposed.
+- **Done when:** AC 1 and AC 4 to AC 6 hold in play tests.
+
+##### TASK-04-03-01-QA1 · Test proposing a shift
+`qa` · Parent: STORY-04-03-01 · 5 h · New (rev 5) · Depends on: TASK-04-03-01-FE1
+- **Build:** Node tests of the proposal from hand-worked recipes (including
+  ageing taken off and a same-day event); play tests of the flows from the
+  card, the grinder's screen and an ordinary pin.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-04-03-02: Confirm, edit or decline the shift
+
+##### TASK-04-03-02-BE1 · Add confirming, editing and declining a shift
+`backend` · Parent: STORY-04-03-02 · 4 h · New (rev 5) · Depends on: TASK-04-03-04-BE1
+- **Build:** `confirmShift(eventId, shift, sourceRecipeId)` in
+  `src/server/dal/redial.ts` stores `grind_shift`, `grind_scale` 1 and
+  `offset_source_recipe_id` on a recalibrating grinder event of the household
+  (`assertOwned("maintenanceEvents")`); declining stores a shift of 0
+  (DQ-42d); its action in `src/server/actions/maintenance.ts`.
+- **Done when:** Unit tests cover confirm, edit before saving, decline,
+  another household's event and a non-grinder event (AC 2, AC 3).
+
+##### TASK-04-03-02-BE2 · Add the preview of other recipes
+`backend` · Parent: STORY-04-03-02 · 3 h · New (rev 5) · Depends on: TASK-04-03-02-BE1
+- **Build:** `previewShift(eventId, shift)`: up to three other recipes pinned
+  before the event on any setup with the grinder (newest per coffee, drink and
+  setup, every profile), each as coffee, drink, old grind and shifted grind,
+  and the count of the rest.
+- **Done when:** Unit tests cover none, three, more than three ("and 4 more")
+  (AC 1).
+
+##### TASK-04-03-02-FE1 · Build the offset sheet (SH-OFFSET) with its stories
+`frontend` · Parent: STORY-04-03-02 · 6 h · New (rev 5) · Depends on: TASK-04-03-02-BE2, DES-04-03-02, DES-04-03-05
+- **Build:** `src/components/recipes/OffsetSheet.tsx`: the evidence line
+  (`offset.line`), the signed shift in `text-display` weight 200 with its unit,
+  the words when known, the ageing note, a compact `NumberWheel` for the shift
+  (step = the grinder's step; add a story with a negative range), up to three
+  preview rows with the arrow `Icon` and "and N more", primary
+  `offset.confirm`, ghost `offset.decline`, a failed save keeping the sheet
+  with a retry Notice. Variants: no baseline, edit mode (from "your re-dial of
+  X on a date", `offset.save`, `offset.remove`). Stories each, RTL.
+- **Done when:** Stories pass axe; the sheet shows evidence, shift, ageing
+  note and preview, all editable in place.
+
+##### TASK-04-03-02-QA1 · Test confirming, editing and declining
+`qa` · Parent: STORY-04-03-02 · 4 h · New (rev 5) · Depends on: TASK-04-03-01-FE1
+- **Build:** Node tests of what is stored in each case and that old recipes
+  read unshifted after declining; play tests of the preview and a failed save.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-04-03-03: Old recipes read right after maintenance
+
+##### TASK-04-03-03-BE1 · Add the servicing rule
+`backend` · Parent: STORY-04-03-03 · 3 h · New (rev 5) · Depends on: none
+- **Build:** `src/domain/servicing.ts` (TD-5): `applyServicing(grind,
+  pinnedAt, events)` applies, in date order, each confirmed event after the
+  pin as `grind x scale + shift` (scale 1 until EPIC-04-04) and returns the
+  list of steps with their dates for the trail; events before the pin, on
+  another grinder or unconfirmed are ignored.
+- **Done when:** Unit tests cover several events in order, an event before the
+  pin, a zero shift and a back-dated event slotting into its date place
+  (AC 3, AC 4, AC 5).
+
+##### TASK-04-03-03-BE2 · Apply servicing wherever a recipe's grind is read
+`backend` · Parent: STORY-04-03-03 · 8 h · New (rev 5) · Depends on: TASK-04-03-03-BE1, TASK-04-03-02-BE1, TASK-04-02-06-BE1
+- **Build:**
+  - One `resolveRecipeGrind(recipe)` in `src/server/dal/recipes.ts` used by
+    `home.ts`, `getDialInStart` / `logStart.ts` (including `getFixStart`,
+    which today starts from the recipe's raw grind), `pinPreview`'s "replaces"
+    block, `getBagRecipes` / `getCoffeeRecipes` rows and `pullShot` (the pull
+    records the grind Brew shows).
+  - The drift composition (TASK-04-02-06-BE1) takes the servicing step as its
+    first step, so its trail lists the servicing rows with dates.
+  - Stored recipes are never rewritten.
+  - The drift reads (`recipeInForce`, the age and bag terms) judge each shot
+    against its recipe's servicing-applied grind from this same function, so a
+    confirmed shift is never absorbed by the age line and added again (TD-2).
+- **Done when:** A test with a confirmed shift and shots at the shifted grind
+  shows the shift once, not twice; unit tests cover each call site with a shifted and an unshifted
+  recipe, a recipe after the event, a different grinder, and the stored row
+  staying as pinned (AC 1 to AC 3).
+
+##### TASK-04-03-03-FE1 · Label shifted grinds wherever they show
+`frontend` · Parent: STORY-04-03-03 · 5 h · New (rev 5) · Depends on: TASK-04-03-03-BE2, TASK-04-02-08-FE1, DES-04-03-04
+- **Build:** Add the servicing rows (with dates, `drift.serviced`) to the trail
+  sheet; Brew's reason line gains `home.grindReason.serviced`; the pin
+  sheet's replaced block, the recipe rows and the log's "was" label the shifted
+  value in words. Stories with one and several events.
+- **Done when:** A shifted recipe is always labelled where it shows (AC 1, AC 4).
+
+##### TASK-04-03-03-QA1 · Test old recipes after servicing
+`qa` · Parent: STORY-04-03-03 · 4 h · New (rev 5) · Depends on: TASK-04-03-03-FE1
+- **Build:** Node tests across Brew, the log, the pin sheet and the rows; play
+  tests of the labels and the sheet's rows; a back-dated event reordering at
+  once (AC 5, with the limit in 9.3 question 3).
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-04-03-05: Review and change a shift from the grinder's screen
+
+##### TASK-04-03-05-BE1 · Add changing, removing and re-opening a shift
+`backend` · Parent: STORY-04-03-05 · 3 h · New (rev 5) · Depends on: TASK-04-03-02-BE1
+- **Build:** `setEventShift(eventId, shift)` (0 removes it, a declined event
+  can get one later); `getEvent(eventId)` returns the state, the shift, the
+  source re-dial's coffee and date, and whether a re-dial can start; later
+  reads follow the new value, stored recipes don't change.
+- **Done when:** Unit tests cover edit, remove, set after decline and the
+  untouched recipes (AC 2 to AC 4).
+
+##### TASK-04-03-05-FE1 · Make the grinder's event rows open the offset sheet
+`frontend` · Parent: STORY-04-03-05 · 5 h · New (rev 5) · Depends on: TASK-04-03-05-BE1, TASK-04-03-02-FE1, DES-04-03-03
+- **Build:** `UnitScreen.tsx`: grinder events become tappable `ListRow`s with
+  their state in words (`maintenance.redialAwaiting`, `maintenance.shift` such
+  as "-3 steps", no adjustment, nothing to map) at the end; other parts'
+  events stay plain; opening one shows the offset sheet in edit mode, and an
+  awaiting event can start the re-dial from there.
+- **Done when:** AC 1 to AC 5 hold in stories and play tests.
+
+##### TASK-04-03-05-QA1 · Test the event rows
+`qa` · Parent: STORY-04-03-05 · 3 h · New (rev 5) · Depends on: TASK-04-03-05-FE1
+- **Build:** Play tests of each state's text, editing, removing, setting after a
+  decline and starting a re-dial.
+- **Done when:** AC 1 to AC 5 are covered.
+
+#### EPIC-04-04: Keep recipes right after new burrs of a different design (revision 5, Next)
+
+Design: DES-04-04-01 to 03. 11 tasks, 46 h. The lowest-value Next epic, built
+after EPIC-04-03. Shift and stretch are fitted by a least-squares line through
+the event's re-dials (DQ-43b); the re-dials are derived from pins (TD-7).
+
+##### STORY-04-04-01: Work out a stretch from two or more re-dials
+
+##### TASK-04-04-01-BE1 · Add the shift and stretch fit
+`backend` · Parent: STORY-04-04-01 · 6 h · New (rev 5) · Depends on: TASK-04-03-01-BE1
+- **Build:** `src/domain/offsetFit.ts`: from (old grind, new grind with the
+  ageing taken off) pairs, a least-squares line gives the stretch (the slope)
+  and the shift (the intercept) so that new = old x stretch + shift. Returns
+  `uncertain` when the residual passes a threshold constant, `tooClose` when
+  the old grinds are within about two grinder steps (stretch stays 1), and the
+  number of coffees. With one pair it is a plain shift. Constants in one
+  file (starting values).
+- **Done when:** Unit tests cover two exact points, three or more with noise,
+  an uncertain fit, two coffees too close and a single re-dial (AC 1 to AC 4).
+
+##### TASK-04-04-01-BE2 · Propose a stretch with the shift for burrs events
+`backend` · Parent: STORY-04-04-01 · 5 h · New (rev 5) · Depends on: TASK-04-04-01-BE1, TASK-04-03-01-BE2
+- **Build:** `getOffsetProposal` (TASK-04-03-01-BE2) gathers the event's
+  derived re-dials (each coffee/profile/setup/drink's first pin after the event
+  with a pin before it) and calls the fit; it proposes a stretch only for
+  events of kind burrs (AC 5) and with two or more coffees (AC 2); returns
+  the evidence per coffee and the count.
+- **Done when:** Unit tests cover non-burrs, one coffee, two, three and the
+  too-close case.
+
+##### TASK-04-04-01-FE1 · Add the stretch to the offset sheet
+`frontend` · Parent: STORY-04-04-01 · 6 h · New (rev 5) · Depends on: TASK-04-04-01-BE2, TASK-04-04-02-FE1, TASK-04-03-02-FE1, DES-04-04-01
+- **Build:** `OffsetSheet.tsx`: with two or more coffees the evidence names each
+  coffee, the stretch block shows `offset.stretch` as a percentage in
+  `text-display` with the sentence `offset.stretch.explain` and a percent
+  `NumberWheel`; the preview covers both effects; `offset.basedOn` for three
+  or more; a neutral `offset.uncertain` Notice (never `signal`); the
+  `offset.tooClose` line with `offset.pickAnother`. Stories: two, three,
+  uncertain, too close, RTL.
+- **Done when:** Stories pass axe; nothing about stretch shows with one
+  coffee (AC 2).
+
+##### TASK-04-04-01-QA1 · Test proposing a stretch
+`qa` · Parent: STORY-04-04-01 · 5 h · New (rev 5) · Depends on: TASK-04-04-01-FE1
+- **Build:** Node tests of the fit against hand-worked examples and the five
+  criteria; play tests of every sheet variant.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-04-04-02: Confirm or edit the stretch
+
+##### TASK-04-04-02-FE1 · Add the percent unit to NumberWheel with a story
+`frontend` · Parent: STORY-04-04-02 · 3 h · New (rev 5) · Depends on: DES-04-04-03
+- **Build:** `percent` added to `CanonicalUnit` in `src/lib/units.ts` (display
+  only) and handled by `NumberWheel.tsx` (-30 to +30, step 1, signed); a story
+  with 0 shown as "steps mean the same"; unit tests in `units.test.ts`.
+- **Done when:** The story passes axe and RTL; the value formats through
+  `Intl`.
+
+##### TASK-04-04-02-BE1 · Save and apply the stretch
+`backend` · Parent: STORY-04-04-02 · 4 h · New (rev 5) · Depends on: TASK-04-04-01-BE2, TASK-04-03-03-BE1
+- **Build:** `confirmShift` also takes a stretch: the percent from -30 to +30 is
+  validated and stored as the factor in `grind_scale` (1 meaning none);
+  declining the stretch stores a scale of 1 and refits the shift with the
+  stretch fixed at 1 (the fitted intercept no longer applies); editing later (including
+  an event that is not burrs but has one) follows; `applyServicing` already
+  uses the scale (TASK-04-03-03-BE1).
+- **Done when:** Unit tests cover the range, a factor round trip, decline,
+  later edit and the formula on a recipe (AC 1 to AC 5).
+
+##### TASK-04-04-02-FE2 · Edit the stretch from the event and show it in the trail
+`frontend` · Parent: STORY-04-04-02 · 3 h · New (rev 5) · Depends on: TASK-04-04-02-BE1, TASK-04-03-05-FE1
+- **Build:** The event's edit mode shows the stretch wheel when one exists or
+  the event is burrs; the trail shows one row with both parts
+  (`drift.servicedStretch`); stored recipes unchanged.
+- **Done when:** AC 3 to AC 5 hold in stories.
+
+##### TASK-04-04-02-QA1 · Test confirming and editing the stretch
+`qa` · Parent: STORY-04-04-02 · 4 h · New (rev 5) · Depends on: TASK-04-04-02-FE2
+- **Build:** Node and play tests of the five criteria incl. 0 % and -30 %/+30 %
+  edges.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-04-04-03: Be invited to re-dial a second coffee
+
+##### TASK-04-04-03-BE1 · Order the second-coffee choices by distance
+`backend` · Parent: STORY-04-04-03 · 3 h · New (rev 5) · Depends on: TASK-04-04-01-BE1
+- **Build:** `listRedialCandidates(eventId)` for a burrs event with one re-dial
+  puts the coffee whose old grind is farthest from the first coffee's first and
+  flags it `farFromFirst`; other events are unchanged.
+- **Done when:** Unit tests cover the ordering and a non-burrs event (AC 2,
+  AC 3).
+
+##### TASK-04-04-03-FE1 · Add the second re-dial invitation to the event
+`frontend` · Parent: STORY-04-04-03 · 4 h · New (rev 5) · Depends on: TASK-04-04-03-BE1, TASK-04-03-05-FE1, DES-04-04-02
+- **Build:** In the event's detail for a burrs event with a confirmed shift and
+  one re-dial: `maintenance.redialMore.body` and the action
+  `maintenance.redialMore`; the pick marks the farthest coffee
+  `offset.farFromFirst`; pinning leads to the stretch proposal. Nothing for
+  other events and nothing on Brew (AC 4).
+- **Done when:** AC 1 to AC 5 hold in stories and play tests.
+
+##### TASK-04-04-03-QA1 · Test the second re-dial invitation
+`qa` · Parent: STORY-04-04-03 · 3 h · New (rev 5) · Depends on: TASK-04-04-03-FE1
+- **Build:** Play tests of burrs and non-burrs events, the ordering and mark,
+  no Brew card, and the stretch proposal after the second pin.
+- **Done when:** AC 1 to AC 5 are covered.
+
+---
+
+### INIT-05: Brew for the whole household, each to their own taste
+
+Revision 5. The epics are in ID order here; the build order is EPIC-05-03,
+then EPIC-05-01, and EPIC-05-02 last (section 8.4).
+
+#### EPIC-05-01: Brew for someone else in the household (revision 5, Next)
+
+Design: DES-05-01-01 to 04. 25 tasks, 109 h. The widest change in the plan:
+the "default persona" is read in fifteen places (TD-1), so STORY-05-01-03's
+first three backend tasks go first and the rest build on them. Built today:
+one persona per household (`isDefault`), `renamePersona` and `ProfileScreen`
+(`profile.ts`), the brew choice cookie (30-minute reset), `FilterChips` and
+the Journal filters, `personaLabel` (`src/domain/personaLabel.ts`). Names in
+the examples are placeholders; the app holds no personal data.
+
+##### STORY-05-01-03: Choose who I'm brewing for on Brew
+
+##### TASK-05-01-03-BE1 · Add the main persona resolver and the persona choice
+`backend` · Parent: STORY-05-01-03 · 6 h · New (rev 5) · Depends on: none
+- **Build:**
+  - `src/server/dal/persona.ts` (TD-1): `mainPersona()` (claimed by the signed-in
+    user, else the household's `isDefault`), `listPersonas()`, `actingPersona()`
+    (the cookie's persona if it belongs to the household, else the main one).
+  - The `brewChoice` cookie (`src/domain/brewChoice.ts`,
+    `src/lib/brewChoiceCookie.ts`, `src/server/brewChoice.ts`) gains
+    `personaId`; it holds until Brew has been away for `BREW_CHOICE_RESET_MS`
+    and, unlike drink and coffee, `clearBrewChoice` after a pull keeps it.
+  - Add `personas` to `assertOwned`'s checks if not covered.
+- **Done when:** Unit tests cover claimed, default-only and foreign IDs
+  (falls back to main), expiry after 30 minutes and surviving a pull (AC 6).
+
+##### TASK-05-01-03-BE2 · Thread the acting persona through reads and writes
+`backend` · Parent: STORY-05-01-03 (also 05-01-04) · 8 h · New (rev 5) · Depends on: TASK-05-01-03-BE1, TASK-05-01-03-BE3
+- **Build:** Replace every `isDefault` lookup in `src/server/dal`: `shots.ts`
+  (`saveMeasuredShot` records the acting persona, `loggedByUserId` stays the
+  user), `pull.ts`, `home.ts` (the usual drink and the last pulled coffee per
+  persona; a new persona gets the first shown drink), `logStart.ts`,
+  `dialIn.ts`, `recipes.ts` (`entered`, `getRecipeForBag`, `getCoffeeRecipes`),
+  `logContext.ts` (milk memory and the default setup's shot), `profile.ts`.
+  Fix the tests and fixtures (`src/test/fixtures.ts`). With one persona every
+  result is unchanged.
+- **Done when:** A grep finds no `isDefault` outside the resolver, the
+  bootstrap and fixtures; the full suite passes; new tests show two personas
+  never mixing recipes, drinks or last-pulled coffee; the isolation suite
+  still passes.
+
+##### TASK-05-01-03-BE3 · Make the current setup the household's last shot
+`backend` · Parent: STORY-05-01-03 · 2 h · New (rev 5) · Depends on: none
+- **Build:** `latestShotSetup` in `src/server/dal/setups.ts` drops its join on
+  `personas.isDefault` (DQ-36): the current setup follows the household's
+  latest shot, whoever it was for. `currentSetupId` and the device cookie are
+  unchanged.
+- **Done when:** A test with two personas shows switching person never changes
+  the setup (AC 7); one-persona results are the same.
+
+##### TASK-05-01-03-FE1 · Add the persona select to Brew
+`frontend` · Parent: STORY-05-01-03 · 6 h · New (rev 5) · Depends on: TASK-05-01-03-BE2, TASK-05-01-01-BE1, DES-05-01-01, DES-05-01-04
+- **Build:** `HomeScreen.tsx` / `BrewFlow.tsx`: with one persona the label
+  opens Profile as today; with more it becomes a quiet `SelectField` (hidden
+  label `home.changePerson`) opening a `SelectSheet` (`home.whoFor`): the main
+  persona first (`home.usual`) and the others by most recent brewing, each with
+  their usual drink, and a footer row `home.profileAndPeople`. Choosing updates
+  Brew in place (drink, coffee and recipe of that persona, a 200 ms
+  cross-fade) and saves the choice in the cookie; "for {name}"
+  (`home.brewingFor`) shows whenever it isn't the main persona. Stories: one
+  persona (unchanged), several, chosen, RTL.
+- **Done when:** AC 1 to AC 3 hold in stories.
+
+##### TASK-05-01-03-FE2 · Keep the chosen persona across pulls and reset it after 30 minutes
+`frontend` · Parent: STORY-05-01-03 · 3 h · New (rev 5) · Depends on: TASK-05-01-03-FE1
+- **Build:** `BrewFlow` saves the persona with `saveBrewChoice`, keeps it after
+  a pull and a visit away shorter than 30 minutes (`touchBrewChoice`), and
+  returns to the main persona after that; a pull, log or tasting from Brew is
+  for the chosen persona (AC 5).
+- **Done when:** AC 5 and AC 6 hold in play tests with a controllable clock.
+
+##### TASK-05-01-03-QA1 · Test choosing who to brew for
+`qa` · Parent: STORY-05-01-03 · 5 h · New (rev 5) · Depends on: TASK-05-01-03-FE2, TASK-05-01-03-BE3
+- **Build:** Node tests of the resolver, the persona's usual drink, coffee and
+  recipe, no recipe giving Dial in only, the shot recorded for the persona, the
+  setup not changing; play tests of one persona, several, hold and reset.
+- **Done when:** AC 1 to AC 7 are covered.
+
+##### STORY-05-01-01: Add a profile for someone I brew for
+
+##### TASK-05-01-01-BE1 · Add profiles for people without a login
+`backend` · Parent: STORY-05-01-01 (also 05-01-02) · 4 h · New (rev 5) · Depends on: TASK-05-01-03-BE1, TASK-02-05-01-BE1
+- **Build:** `src/server/dal/people.ts`: `listPeople()` (the main persona first,
+  the rest by most recently brewed for, each with a shot count and the last
+  shot's date, from `extractions`) and `addPerson(name)` creating a persona
+  with no `userId` and `isDefault` false; name 1 to 40 characters, unique among
+  profiles and not equal to the main persona's label, using
+  `src/domain/listName.ts`. Every household member sees every profile.
+- **Done when:** Unit tests cover ordering, counts, "no shots yet", empty and
+  duplicate names (AC 1 to AC 4).
+
+##### TASK-05-01-01-FE1 · Build the people screen and the person sheet
+`frontend` · Parent: STORY-05-01-01 · 7 h · New (rev 5) · Depends on: TASK-05-01-01-BE1, DES-05-01-02, DES-05-01-04
+- **Build:** `PeopleScreen` (SCR-PEOPLE): `PageHeader`, intro, one `ListRow`
+  per profile (the main one first with the overline `people.you`; secondary
+  "12 shots, last 3 days ago" or "no shots yet"), a plus row `people.add`.
+  `PersonSheet` (SH-PERSON): the name `Input` with the nickname hint, ink
+  errors for empty and duplicate, one primary `actions.save`, a failed save
+  keeping the name. Stories: list, add, edit, errors, failure, loading,
+  RTL.
+- **Done when:** Stories pass axe; AC 2, AC 3 and AC 5 are visible.
+
+##### TASK-05-01-01-FE2 · Wire the people route and the Profile row
+`frontend` · Parent: STORY-05-01-01 · 4 h · New (rev 5) · Depends on: TASK-05-01-01-FE1, TASK-05-03-01-FE2
+- **Build:** `src/app/(task)/profile/people/page.tsx` with its skeleton and
+  `LoadFailed`; the Profile section "People" (`profile.people`, secondary "Just
+  you" or the count) per design pattern 4; actions with return-to.
+- **Done when:** A profile added by one member shows to the others (AC 4).
+
+##### TASK-05-01-01-QA1 · Test adding a profile
+`qa` · Parent: STORY-05-01-01 · 4 h · New (rev 5) · Depends on: TASK-05-01-01-FE2
+- **Build:** Node tests (ordering, counts, name rules, household sharing,
+  isolation); play tests of the list, add and failure.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-05-01-02: Rename or remove a profile
+
+##### TASK-05-01-02-BE1 · Add renaming and removing profiles
+`backend` · Parent: STORY-05-01-02 · 4 h · New (rev 5) · Depends on: TASK-05-01-01-BE1
+- **Build:** `renamePerson(id, name)` (the main persona's rename is
+  `renamePersona`: one function, one place of logic); `removePerson(id)` allowed
+  only for a persona with no shots (`extractions`) and no recipes
+  (`pinned_recipes`), not the main one and not claimed; otherwise it returns
+  the counts for the explanation. The cookie's persona falls back to the main
+  one when removed (TASK-05-01-03-BE1).
+- **Done when:** Unit tests cover empty, with shots, with only recipes, main
+  and claimed (AC 2 to AC 5).
+
+##### TASK-05-01-02-FE1 · Add rename and remove to the person sheet
+`frontend` · Parent: STORY-05-01-02 · 4 h · New (rev 5) · Depends on: TASK-05-01-02-BE1, TASK-05-01-01-FE1
+- **Build:** The sheet's edit mode shows a ghost `people.remove` only when the
+  profile is empty (one `ConfirmSheet`), otherwise `people.cantRemove` with the
+  counts and rename still works; the main profile has no remove. Stories.
+- **Done when:** AC 1 to AC 4 hold in stories; a removed chosen profile sends
+  Brew back to the main one (AC 5).
+
+##### TASK-05-01-02-QA1 · Test renaming and removing a profile
+`qa` · Parent: STORY-05-01-02 · 4 h · New (rev 5) · Depends on: TASK-05-01-02-FE1
+- **Build:** Node tests of each rule and the rename shown on past shots; play
+  tests of confirm, the explanation and Brew returning to the main persona.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-05-01-04: Log, taste and pin for someone else
+
+##### TASK-05-01-04-BE1 · Carry the persona into the log, tasting and pin
+`backend` · Parent: STORY-05-01-04 · 3 h · New (rev 5) · Depends on: TASK-05-01-03-BE2
+- **Build:** The log context, the tasting and off contexts
+  (`reaction.ts`'s `getOffContext`) and `PinPreview` return the shot's persona
+  and whether the household has more than one profile, so screens can say
+  "for {name}". A pin from a shot uses the shot's persona (`fromShot` already
+  does); answers are saved the same way for any persona (AC 4).
+- **Done when:** Unit tests show the pin is the sub persona's and the main
+  persona's recipes are unchanged (AC 3).
+
+##### TASK-05-01-04-FE1 · Say "for {name}" on the log, tasting, off sheet and pin sheet
+`frontend` · Parent: STORY-05-01-04 · 4 h · New (rev 5) · Depends on: TASK-05-01-04-BE1, DES-05-01-03
+- **Build:** One quiet `log.forPerson` line under the headers of `ShotLogScreen`,
+  `TasteScreen`, `OffSheet` and `recipe.forPerson` in `PinSheet`, only when
+  there is more than one profile. Stories with and without.
+- **Done when:** With only the main persona nothing extra shows (AC 2).
+
+##### TASK-05-01-04-QA1 · Test logging, tasting and pinning for someone else
+`qa` · Parent: STORY-05-01-04 · 4 h · New (rev 5) · Depends on: TASK-05-01-04-FE1
+- **Build:** Node tests: shot, one-tap pull and pin for a sub persona record the
+  persona and the logger; play tests of the lines.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-05-01-05: Start someone's first dial-in from another profile's recipe
+
+##### TASK-05-01-05-BE1 · Start from another profile's recipe
+`backend` · Parent: STORY-05-01-05 · 6 h · New (rev 5) · Depends on: TASK-05-01-03-BE2, TASK-02-01-08-BE1
+- **Build:** `getDialInStart` (`dialIn.ts`) order for a persona with no recipe on
+  this setup: another profile's recipe for the same coffee, drink and setup (the
+  main persona's if it has one, else the most recently pinned; Q4: it wins over
+  the closest setup), then the closest setup's as built, then blank. Returns
+  the source persona; prep, milk and sweetened come with it. `getHome` gets a
+  state for it that never offers a one-tap pull; saving and pinning gives the
+  persona their own recipe (AC 6).
+- **Done when:** Unit tests cover the ordering, several sources, nobody having
+  one (as STORY-02-01-06 and STORY-02-02-05) and the carry-over (AC 1 to AC 5).
+
+##### TASK-05-01-05-FE1 · Show whose recipe a dial-in starts from
+`frontend` · Parent: STORY-05-01-05 · 4 h · New (rev 5) · Depends on: TASK-05-01-05-BE1, TASK-05-01-03-FE1
+- **Build:** Brew's no-recipe state shows `home.startsFromPerson` and only
+  `home.dialIn`; the log's note names the source; stories.
+- **Done when:** AC 1 and AC 3 hold in stories.
+
+##### TASK-05-01-05-QA1 · Test starting from another profile's recipe
+`qa` · Parent: STORY-05-01-05 · 4 h · New (rev 5) · Depends on: TASK-05-01-05-FE1
+- **Build:** Node and play tests of the six criteria.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-05-01-06: Tell whose shots are whose in the Journal
+
+##### TASK-05-01-06-BE1 · Add the person to the Journal reads and its filter
+`backend` · Parent: STORY-05-01-06 · 5 h · New (rev 5) · Depends on: TASK-05-01-03-BE2
+- **Build:** `src/server/dal/journal.ts`: `JournalShot.person` (the profile's
+  name, only for a profile that isn't the viewer's main one),
+  `JournalFilters.personaId`, person options in `getJournalFilterOptions` and
+  the detail's `forPerson` and `loggedBy` (the logger's claimed profile, else
+  the role label). `src/lib/journalFilters.ts` reads and writes the parameter.
+- **Done when:** Unit tests cover the marker rule, the filter on every page
+  ("show older" too) and the detail fields (AC 1 to AC 3).
+
+##### TASK-05-01-06-FE1 · Add the person marker, the Person chip and the detail lines
+`frontend` · Parent: STORY-05-01-06 · 6 h · New (rev 5) · Depends on: TASK-05-01-06-BE1, TASK-05-01-03-FE1, DES-05-01-03
+- **Build:** `JournalList.tsx`: a text marker (`journal.forPerson`) among the
+  existing ones; a Person chip in `FilterChips` only with more than one
+  profile, defaulting to the person chosen on Brew (`AppTabBar.tsx` builds the
+  Journal link as it does for drink and coffee), "All" clearing it; the
+  filtered empty state offers to clear it; `app/(app)/journal/[shotId]/page.tsx`
+  shows `shot.forPerson` and `shot.loggedBy` in text. With only the main
+  persona nothing changes (AC 5). Stories.
+- **Done when:** AC 1 to AC 5 hold in stories and play tests.
+
+##### TASK-05-01-06-QA1 · Test the persona in the Journal
+`qa` · Parent: STORY-05-01-06 · 4 h · New (rev 5) · Depends on: TASK-05-01-06-FE1
+- **Build:** Node tests of marker and filter; play tests of the chip default,
+  clear, empty and a single-persona household.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-05-01-07: See how a coffee's shots went for the person I'm brewing for
+
+##### TASK-05-01-07-BE1 · Make Tried per profile
+`backend` · Parent: STORY-05-01-07 · 3 h · New (rev 5) · Depends on: TASK-05-01-03-BE2, TASK-03-07-01-BE2
+- **Build:** `getTried(personaId)` (`src/server/dal/tried.ts`) summarises only
+  that persona's shots; `beanFacets` takes the same persona for the rating
+  filter; with one persona the result is as today. A coffee only another
+  persona brewed stays listed with "no ratings yet".
+- **Done when:** Unit tests cover two personas with different ratings on one
+  coffee.
+
+##### TASK-05-01-07-FE1 · Say whose shots Tried describes
+`frontend` · Parent: STORY-05-01-07 · 2 h · New (rev 5) · Depends on: TASK-05-01-07-BE1, DES-05-01-03
+- **Build:** `app/(app)/beans/page.tsx` passes the Brew-chosen persona; when it
+  isn't the main one a line under the Tried heading (`beans.triedFor`); no
+  chip is added to Beans.
+- **Done when:** AC 1 to AC 4 hold in stories.
+
+##### TASK-05-01-07-QA1 · Test Tried per profile
+`qa` · Parent: STORY-05-01-07 · 3 h · New (rev 5) · Depends on: TASK-05-01-07-FE1
+- **Build:** Node and play tests of the summary and the rating filter following
+  the chosen person, and a single-persona household unchanged.
+- **Done when:** AC 1 to AC 4 are covered.
+
+#### EPIC-05-02: Invite them to take over their own profile (revision 5, Next, sequenced last)
+
+Design: DES-05-02-01 to 05. 25 tasks, 110 h. Needs EPIC-05-01 (profiles to
+claim) and EPIC-05-03 (the Google sign-in and `isHouseholdEmpty`). Decisions in
+TD-11. Built today: `household_members` (role, composite key),
+`personas.user_id`, `findAccount` (first membership), `ensureAccount` /
+`createAccount` in `src/server/auth/bootstrap.ts`, `users.share_data_consent`
+(unused), `ConfirmSheet`, `Input`, `EmptyState`, `Notice`, `LogoWordmark`.
+Prerequisites that are not tasks: Google sign-in enabled in the Firebase
+project and `INVITE_SECRET` and `APP_ORIGIN` set as deployment secrets (names
+only in `.env.example`).
+
+##### STORY-05-02-01: Invite someone to my household
+
+##### TASK-05-02-01-BE1 · Add the invites table
+`backend` · Parent: STORY-05-02-01 (also 05-02-02, 05-02-03, 05-02-05, 05-02-06) · 3 h · New (rev 5) · Depends on: none
+- **Build:** `src/db/schema.ts`: `invites` (`id`, `household_id`, `persona_id`,
+  `created_by_user_id`, `created_at`, `expires_at`, `used_at`, `used_by_user_id`,
+  `withdrawn_at`, the last three nullable), indexes on `(persona_id,
+  created_at)` and `household_id`; foreign keys to the household, persona and
+  users. No token or status column (TD-11). New migration; update
+  `schema.test.ts`; add the table to `assertOwned` and the isolation suite
+  (`src/server/__tests__/isolation.test.ts`).
+- **Done when:** The migration applies; another household's invite is not
+  found by an owned check.
+
+##### TASK-05-02-01-BE2 · Create an invite link
+`backend` · Parent: STORY-05-02-01 · 5 h · New (rev 5) · Depends on: TASK-05-02-01-BE1, TASK-05-01-01-BE1
+- **Build:** `src/server/dal/invites.ts` `createInvite(personaId)`: the persona is
+  the household's and unclaimed (`userId` null), else refused (AC 4); one
+  transaction marks the profile's earlier pending invite withdrawn (AC 5) and
+  inserts a row expiring in 7 days (a constant). The link is
+  `APP_ORIGIN/join/<id>.<hmac>` (TD-11), built by `src/server/auth/inviteToken.ts`
+  with a constant-time check; any member of the household may create one
+  (AC 3). Returns the link; asks for and stores no email.
+- **Done when:** Unit tests cover create, replace, claimed profile, foreign
+  profile, expiry, a wrong or edited token and no secret in the output other
+  than the link.
+
+##### TASK-05-02-01-FE1 · Build the invite sheet (SH-INVITE) with its stories
+`frontend` · Parent: STORY-05-02-01 · 5 h · New (rev 5) · Depends on: DES-05-02-01, DES-05-02-04
+- **Build:** `src/components/people/InviteSheet.tsx`: the three plain lines of
+  what a joiner shares (`invite.shares`) before any link exists, primary
+  `invite.create`, then the link in a read-only `Input` (with a story added to
+  `Input.stories.tsx` for the read-only field with a copy button), a copy
+  button announcing "copied", `invite.share` only when `navigator.share`
+  exists, `invite.valid` ("works once, for 7 days"), a failed create with a
+  retry Notice. Stories: before, created, share available, failed, RTL.
+- **Done when:** Stories pass axe; AC 1, AC 2 and AC 6 are visible.
+
+##### TASK-05-02-01-FE2 · Add the invite action to the person sheet
+`frontend` · Parent: STORY-05-02-01 · 3 h · New (rev 5) · Depends on: TASK-05-02-01-BE2, TASK-05-02-01-FE1, TASK-05-01-01-FE1
+- **Build:** `PersonSheet`: a secondary `people.invite` for a profile with no
+  login opening the invite sheet; a claimed profile shows `people.claimed` and
+  nothing to invite; wired to the create action.
+- **Done when:** AC 3 and AC 4 hold in stories.
+
+##### TASK-05-02-01-QA1 · Test inviting
+`qa` · Parent: STORY-05-02-01 · 4 h · New (rev 5) · Depends on: TASK-05-02-01-FE2
+- **Build:** Node and play tests of the six criteria, including that the shared
+  warning is shown before a link exists and the link is never emailed.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-05-02-06: See and withdraw a pending invite
+
+##### TASK-05-02-06-BE1 · Read and withdraw pending invites
+`backend` · Parent: STORY-05-02-06 · 3 h · New (rev 5) · Depends on: TASK-05-02-01-BE2
+- **Build:** `getPendingInvite(personaId)` returns the link again (recomputed,
+  TD-11) while pending; `withdrawInvite(personaId)` sets `withdrawn_at`;
+  `listPeople` flags pending invites; used, withdrawn and expired are derived.
+- **Done when:** Unit tests cover each derived state and a foreign profile.
+
+##### TASK-05-02-06-FE1 · Show the pending state and withdraw
+`frontend` · Parent: STORY-05-02-06 · 3 h · New (rev 5) · Depends on: TASK-05-02-06-BE1, TASK-05-02-01-FE2
+- **Build:** The profile's row shows `people.invitePending`; its sheet shows the
+  link again with copy and a ghost `invite.withdraw`; a failed withdraw keeps
+  the link pending with a retry Notice.
+- **Done when:** AC 1, AC 2 and AC 4 hold in stories.
+
+##### TASK-05-02-06-QA1 · Test pending invites
+`qa` · Parent: STORY-05-02-06 · 3 h · New (rev 5) · Depends on: TASK-05-02-06-FE1
+- **Build:** Node tests that a withdrawn, expired or used link stops working
+  (AC 3); play tests of the row, copy and withdraw.
+- **Done when:** AC 1 to AC 4 are covered.
+
+##### STORY-05-02-05: See what I'm being invited to, before signing in
+
+##### TASK-05-02-05-BE1 · Read the invitation preview without an account
+`backend` · Parent: STORY-05-02-05 · 5 h · New (rev 5) · Depends on: TASK-05-02-01-BE2
+- **Build:** `src/server/dal/invitePreview.ts` `getInvitePreview(token)`: no
+  session needed; verifies the token and returns the profile's name, its shot
+  count, its most-made drinks and when it was last brewed for, nothing else (no
+  other profile, no equipment); a used, withdrawn, expired, claimed or
+  malformed token all return the same `invalid` result with no reason. It
+  creates nothing.
+- **Done when:** Unit tests cover each invalid reason returning the identical
+  result, the data returned, and that no user or household row is created.
+
+##### TASK-05-02-05-FE1 · Build the join screen states with their stories
+`frontend` · Parent: STORY-05-02-05 (also 05-02-02, 05-02-03) · 6 h · New (rev 5) · Depends on: DES-05-02-02, DES-05-02-03, DES-05-02-04
+- **Build:** `src/components/screens/JoinScreen`: the landing (`LogoWordmark`,
+  `join.title`, a `Card` summary, `join.shares` lines, primary `join.signIn`,
+  ghost `join.notNow`), the loading skeleton card, the invalid-link
+  `EmptyState` (`join.invalidTitle`, `join.invalid`, `join.openTare`), the
+  blocked notice (`join.hasHistory`) and the claim confirmation with its done
+  line (built here for TASK-05-02-03-FE1). Stories for each state at 375 px and
+  in RTL.
+- **Done when:** Stories pass axe; every state is reachable in Storybook.
+
+##### TASK-05-02-05-FE2 · Add the public join route
+`frontend` · Parent: STORY-05-02-05 · 5 h · New (rev 5) · Depends on: TASK-05-02-05-BE1, TASK-05-02-05-FE1
+- **Build:** `src/app/(public)/join/[token]/page.tsx` with its own layout:
+  no `SessionGate`, no tab bar, `Referrer-Policy: no-referrer`, not indexed
+  or cached, a Suspense skeleton (read the Next.js 16 guide for dynamic params
+  first). The Firebase client loads only after the user chooses to continue,
+  so just opening the page creates nothing. "Not now" leaves with the link
+  still usable.
+- **Done when:** AC 1 to AC 5 hold; a test shows opening the page writes no
+  row.
+
+##### TASK-05-02-05-QA1 · Test the invitation page
+`qa` · Parent: STORY-05-02-05 · 4 h · New (rev 5) · Depends on: TASK-05-02-05-FE2
+- **Build:** Node tests that the preview shows only the allowed data and no
+  account is created; play tests of landing, loading, not now and every
+  invalid case with identical text.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-05-02-02: Join a household from an invite
+
+##### TASK-05-02-02-BE1 · Add the joinable check and replacing an empty account
+`backend` · Parent: STORY-05-02-02 · 6 h · New (rev 5) · Depends on: TASK-05-02-05-BE1, TASK-05-03-04-BE1
+- **Build:** `checkJoinable(token)` after sign-in: `ok`, `hasHistory` (the
+  signed-in user's household is not empty by `isHouseholdEmpty`, so nothing is
+  merged or lost, AC 5) or `invalid`; and a shared helper
+  `replaceEmptyHousehold(tx, userId, toHouseholdId)` that deletes the user's
+  empty household (personas, starter drinks and milks, membership, household)
+  in foreign-key order and adds the new membership with role `member` (AC 4,
+  AC 6). Used by the claim transaction (TASK-05-02-03-BE1); it is irreversible
+  (R-31).
+- **Done when:** Unit tests cover an empty account replaced, an account with
+  history refused untouched, a user already in that household and the
+  deletion order with foreign keys on.
+
+##### TASK-05-02-02-FE1 · Sign in with Google from the invitation
+`frontend` · Parent: STORY-05-02-02 · 6 h · New (rev 5) · Depends on: TASK-05-02-05-FE2, TASK-05-03-01-FE1, TASK-05-02-02-BE1
+- **Build:** On `join.signIn`, `src/lib/firebase/google.ts`'s sign-in for joining:
+  a browser with an anonymous Firebase user links Google to it, and on
+  `credential-already-in-use` signs in with the credential; otherwise a plain
+  Google sign-in (popup, or redirect on iOS Safari, keeping the token in
+  `sessionStorage` across the redirect); then the session exchange
+  (`startSession.ts`) and `checkJoinable`; success opens the claim
+  confirmation, cancelling returns to the landing with the link usable.
+- **Done when:** AC 1 to AC 3 hold with the Firebase client mocked; no key is in
+  the repository.
+
+##### TASK-05-02-02-FE2 · Handle the blocked and failure cases of joining
+`frontend` · Parent: STORY-05-02-02 · 4 h · New (rev 5) · Depends on: TASK-05-02-02-FE1
+- **Build:** `hasHistory` shows the neutral `join.hasHistory` notice (nothing
+  merged, use a different Google account); a sign-in or join failure shows a
+  retry Notice and joins nothing; an empty account joins without a fuss.
+- **Done when:** AC 3, AC 4 and AC 5 hold in stories and play tests.
+
+##### TASK-05-02-02-QA1 · Test joining
+`qa` · Parent: STORY-05-02-02 · 5 h · New (rev 5) · Depends on: TASK-05-02-02-FE2
+- **Build:** Node tests of the empty/history/same-household cases; play tests
+  with mocked Firebase for cancel, failure and retry; a manual device
+  checklist for popup and redirect sign-in (R-29).
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-05-02-03: Claim my profile and keep its history
+
+##### TASK-05-02-03-BE1 · Claim a profile on confirmation
+`backend` · Parent: STORY-05-02-03 · 6 h · New (rev 5) · Depends on: TASK-05-02-02-BE1, TASK-05-01-03-BE1
+- **Build:** `claimInvite(token)` (action in `src/server/actions/invites.ts`): one
+  immediate transaction re-verifies the token, sets the invite's `used_at`
+  with a conditional update (so two claimers can't both win), replaces the
+  user's empty household, adds the membership and sets the persona's `userId`;
+  from then on `mainPersona` is that profile for the new member. A claim of a
+  profile claimed meanwhile, or any invalid token, fails as `invalid`
+  (AC 4); nothing changes before confirm (AC 2).
+- **Done when:** Unit tests cover success with shots and recipes intact, a
+  second concurrent claim failing, an expired or withdrawn token, an
+  inviter's People list showing the profile as claimed (AC 6), and rollback
+  on error.
+
+##### TASK-05-02-03-FE1 · Wire the claim confirmation and the done state
+`frontend` · Parent: STORY-05-02-03 · 5 h · New (rev 5) · Depends on: TASK-05-02-03-BE1, TASK-05-02-05-FE1, TASK-05-02-02-FE1, DES-05-02-03
+- **Build:** The confirmation (`claim.title`, what happens, `claim.consent`
+  "your shots stay private to this household", the sentence that it is final)
+  with primary `claim.confirm` and ghost `claim.cancel`; on success land on
+  Brew in the household with a polite `claim.done`; a failure keeps the
+  confirmation with a retry Notice.
+- **Done when:** AC 1, AC 2, AC 3 and AC 5 hold in stories and play tests.
+
+##### TASK-05-02-03-QA1 · Test claiming a profile
+`qa` · Parent: STORY-05-02-03 · 5 h · New (rev 5) · Depends on: TASK-05-02-03-FE1
+- **Build:** Node tests of the full path (invite, join, claim, history intact,
+  main persona resolution, no re-invite); a concurrent-claim test; play tests
+  of confirm, cancel and the final wording.
+- **Done when:** AC 1 to AC 6 are covered.
+
+##### STORY-05-02-04: My shots follow my own consent
+
+##### TASK-05-02-04-BE1 · Add the network-eligibility rule for claimed profiles
+`backend` · Parent: STORY-05-02-04 · 3 h · New (rev 5) · Depends on: TASK-05-02-03-BE1
+- **Build:** `src/domain/networkEligibility.ts` (pure): a shot is eligible only
+  if it is measured, has the full payload, its persona is claimed and that
+  user's `shareDataConsent` is true; never for an unclaimed profile, whoever
+  logged it. Production code still writes `is_network_eligible` false (X-3);
+  a test scans the writers to keep it so.
+- **Done when:** Unit tests cover each combination (AC 1, AC 2).
+
+##### TASK-05-02-04-QA1 · Test consent
+`qa` · Parent: STORY-05-02-04 · 3 h · New (rev 5) · Depends on: TASK-05-02-04-BE1, TASK-05-02-03-FE1
+- **Build:** Node tests of the rule and the writer scan; a play test that the
+  claim confirmation says shots stay private to the household.
+- **Done when:** AC 1 to AC 3 are covered.
+
+##### STORY-05-02-07: Leave a household
+
+##### TASK-05-02-07-BE1 · Factor household creation out of the account bootstrap
+`backend` · Parent: STORY-05-02-07 · 3 h · New (rev 5) · Depends on: none
+- **Build:** `src/server/auth/bootstrap.ts`: `createAccount` is split so the
+  household, owner membership, default persona, starter drinks and milks are one
+  reusable function `createHousehold(tx, userId, now)`; `ensureAccount`
+  behaves exactly as before.
+- **Done when:** The bootstrap tests (`bootstrap.test.ts`,
+  `bootstrap-rollback.test.ts`, `bootstrap-milk-rollback.test.ts`) pass
+  unchanged.
+
+##### TASK-05-02-07-BE2 · Leave a household
+`backend` · Parent: STORY-05-02-07 · 5 h · New (rev 5) · Depends on: TASK-05-02-07-BE1, TASK-05-02-03-BE1
+- **Build:** `leaveHousehold()` (action and DAL): in one immediate transaction,
+  the leaver's persona `userId` becomes null (it stays, with every shot and
+  recipe, as an unclaimed profile that anyone can invite again, AC 2, AC 3,
+  AC 6), the membership row is removed, and a new household is created for the
+  user with `createHousehold`. If the leaver was the household's only owner
+  and members remain, the longest-standing member becomes owner (9.3,
+  question 2). The session is unaffected (the uid is the same); device cookies
+  naming the old household's persona or setup fall back through their
+  existing validation.
+- **Done when:** Unit tests cover leaving as a member, as an owner with
+  others remaining, as the last member, nothing deleted, the new household
+  being empty with starter lists, and a failure changing nothing.
+
+##### TASK-05-02-07-FE1 · Add "leave this household" to the account section
+`frontend` · Parent: STORY-05-02-07 · 5 h · New (rev 5) · Depends on: TASK-05-02-07-BE2, TASK-05-03-01-FE2, DES-05-02-05
+- **Build:** In Profile's Account section, a ghost action for a member who
+  claimed a profile (shown only in a household with more than one login, 9.3
+  question 1); one `ConfirmSheet` with the plain statement of what happens
+  (profile and history stay, you start a new empty household); after leaving,
+  Brew shows the first-run checklist of the new household; cancel or failure
+  changes nothing.
+- **Done when:** AC 1, AC 4 and AC 5 hold in stories and play tests.
+
+##### TASK-05-02-07-QA1 · Test leaving a household
+`qa` · Parent: STORY-05-02-07 · 5 h · New (rev 5) · Depends on: TASK-05-02-07-FE1
+- **Build:** Node tests of the six criteria across two logins (the former
+  household keeps everything, the leaver sees only an empty one, the old
+  profile can be invited again); play tests of the confirmation and cancel.
+- **Done when:** AC 1 to AC 6 are covered.
+
+#### EPIC-05-03: Keep your coffee history when you change phones (revision 5, Next)
+
+Design: DES-05-03-01 to 03. 15 tasks, 59 h. The first Next epic after the
+sweetened change. Decisions in TD-11. Built today: `src/lib/firebase/client.ts`
+(`ensureSignedIn`, anonymous), `/api/session` and `ensureAccount`,
+`startSession.ts`, `ProfileScreen` / `ProfileFlow` (name, a device sentence,
+about), `Checklist`, `getSetupProgress`, `ConfirmSheet`. Prerequisites that are
+not tasks: Google sign-in enabled in the Firebase project and its authorised
+domains set; the keys stay deployment secrets. The Google button look is
+checked against Google's current guidelines before FE2 (DQ-40a).
+
+##### STORY-05-03-01: Link my account to Google
+
+##### TASK-05-03-01-FE1 · Add Google linking to the Firebase client
+`frontend` · Parent: STORY-05-03-01 · 5 h · New (rev 5) · Depends on: none
+- **Build:** `src/lib/firebase/google.ts` beside `client.ts` (export
+  `firebaseAuth`): `linkGoogle()` using `linkWithPopup`, or `linkWithRedirect`
+  with `getRedirectResult` on iOS Safari; returns `linked`, `cancelled`,
+  `failed` or `accountTaken` (carrying the credential for the switch path,
+  TASK-05-03-04-FE2). The Firebase uid does not change on a link, so no new
+  session is needed. Nothing from the Google profile is read or kept.
+- **Done when:** Unit tests with `firebase/auth` mocked cover each result,
+  offline and the redirect return.
+
+##### TASK-05-03-01-BE1 · Read whether the account is linked
+`backend` · Parent: STORY-05-03-01 · 3 h · New (rev 5) · Depends on: none
+- **Build:** `src/server/auth/linked.ts` `isLinkedToGoogle()`: asks Firebase
+  Admin (`adminAuth().getUser(uid)`) for the sign-in providers only; any
+  failure reads as "not linked, unknown" and never blocks the page.
+- **Done when:** Unit tests cover linked, anonymous and an admin error.
+
+##### TASK-05-03-01-FE2 · Build the account section of Profile
+`frontend` · Parent: STORY-05-03-01 · 5 h · New (rev 5) · Depends on: TASK-05-03-01-BE1, TASK-05-03-01-FE1, DES-05-03-01
+- **Build:** `ProfileScreen.tsx` / `ProfileFlow.tsx` are restructured into the
+  sections of design pattern 4 (name, Account, About; People and Your lists
+  are added by their epics): the Account section replaces the device
+  sentence with `profile.accountTitle`, the plain sentence and a plain text
+  Button `profile.linkGoogle` (no logo, no colour); busy while linking;
+  `profile.linked` and `profile.linkedBody` once linked; cancelled returns
+  silently; failed shows `profile.linkFailed` with retry; no unlink or
+  sign-out. Stories for each state, RTL.
+- **Done when:** Stories pass axe; AC 1, AC 3, AC 4 and AC 5 are visible (AC 2's
+  data claim is tested in TASK-05-03-01-QA1); the profile's label
+  is unchanged.
+
+##### TASK-05-03-01-QA1 · Test linking a Google account
+`qa` · Parent: STORY-05-03-01 · 4 h · New (rev 5) · Depends on: TASK-05-03-01-FE2
+- **Build:** Play tests with Firebase mocked (link, cancel, fail, offline);
+  a Node check that data and uid are unchanged after a link; a manual device
+  checklist (desktop, iOS Safari).
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-05-03-04: Keep two histories apart
+
+##### TASK-05-03-04-BE1 · Add the "nothing entered yet" test
+`backend` · Parent: STORY-05-03-04 (also 05-03-02, 05-03-03, 05-02-02) · 3 h · New (rev 5) · Depends on: none
+- **Build:** `src/server/dal/emptiness.ts` `isHouseholdEmpty(db, householdId)`:
+  true when the household has no `owned_hardware`, no `batches` and no
+  `extractions`; the starter drinks, milks and profile do not count. One
+  function for the switch, the first-run link and joining.
+- **Done when:** Unit tests cover empty, each kind of entry alone, and starter
+  lists only.
+
+##### TASK-05-03-04-BE2 · Check that this device can switch to the linked history
+`backend` · Parent: STORY-05-03-04 · 5 h · New (rev 5) · Depends on: TASK-05-03-04-BE1
+- **Build:** `canSwitchHistoryAction()` (and the DAL call) answers for the
+  signed-in session's household: empty means the switch is allowed. After the
+  client signs in with the other account's credential, the existing session
+  exchange (`/api/session`) finds the other history by its uid. The old,
+  empty anonymous account is left unreferenced; no clean-up in this epic
+  (R-32).
+- **Done when:** Tests cover empty and non-empty households and the exchange
+  landing on the existing account; nothing is merged.
+
+##### TASK-05-03-04-FE1 · Build the switch confirmation (SH-SWITCH)
+`frontend` · Parent: STORY-05-03-04 · 3 h · New (rev 5) · Depends on: DES-05-03-02
+- **Build:** `src/components/account/SwitchSheet.tsx` on `ConfirmSheet`:
+  `switch.title`, primary `switch.confirm`, ghost `actions.cancel`; a failed
+  switch keeps it with a retry Notice. Stories, RTL.
+- **Done when:** Stories pass axe.
+
+##### TASK-05-03-04-FE2 · Handle an account that already has a history
+`frontend` · Parent: STORY-05-03-04 · 5 h · New (rev 5) · Depends on: TASK-05-03-04-BE2, TASK-05-03-04-FE1, TASK-05-03-01-FE2
+- **Build:** When linking returns `accountTaken`: an empty device opens the
+  switch sheet, and on confirm signs in with the credential, runs the session
+  exchange and refreshes to Brew with `switch.done`; a device with history
+  shows the neutral `profile.linkTaken` notice and changes nothing; decline
+  changes nothing; a failure or being offline says so and changes nothing.
+- **Done when:** AC 1 to AC 5 hold in play tests with Firebase mocked.
+
+##### TASK-05-03-04-QA1 · Test keeping two histories apart
+`qa` · Parent: STORY-05-03-04 · 5 h · New (rev 5) · Depends on: TASK-05-03-04-FE2
+- **Build:** Node tests of the empty rule and the account landing; play tests of
+  the switch, decline, refusal, failure and offline; a manual two-device
+  checklist.
+- **Done when:** AC 1 to AC 5 are covered.
+
+##### STORY-05-03-02: Reach my history on another phone
+
+##### TASK-05-03-02-FE1 · Add "already use Tare? Sign in with Google" to first-run Brew
+`frontend` · Parent: STORY-05-03-02 · 4 h · New (rev 5) · Depends on: TASK-05-03-04-FE2, TASK-05-03-04-BE1, DES-05-03-03
+- **Build:** A quiet ghost link `home.firstRun.haveAccount` under the `Checklist`
+  on Brew, shown only while the household is empty (the checklist's own
+  condition, from `getSetupProgress` / `isHouseholdEmpty`); it runs the same
+  link-or-switch flow as Profile (link first, so an unused Google account
+  becomes this device's account and a used one offers the switch). The start
+  screen is unchanged and offers no sign-in. Stories.
+- **Done when:** AC 3 and AC 6 hold; nothing stands between a new user and
+  starting.
+
+##### TASK-05-03-02-QA1 · Test reaching a history on another phone
+`qa` · Parent: STORY-05-03-02 · 4 h · New (rev 5) · Depends on: TASK-05-03-02-FE1
+- **Build:** Play tests that a first-time user gets an account with no sign-in
+  choice and without waiting (AC 4), the link's presence and absence (AC 3,
+  AC 6), the same link in Profile after storage is cleared (AC 5), and the
+  switch landing on the full history (AC 1, AC 2, AC 7).
+- **Done when:** AC 1 to AC 7 are covered.
+
+##### STORY-05-03-03: Be reminded once to keep my history safe
+
+##### TASK-05-03-03-BE1 · Add the history-worth-keeping trigger
+`backend` · Parent: STORY-05-03-03 · 3 h · New (rev 5) · Depends on: TASK-05-03-01-BE1
+- **Build:** `getLinkPromptDue()`: not linked, and either a pinned recipe exists or
+  the household has logged ten shots; returns a boolean only.
+- **Done when:** Unit tests cover the first recipe, the tenth shot, either first
+  and already linked.
+
+##### TASK-05-03-03-FE1 · Build the link prompt card
+`frontend` · Parent: STORY-05-03-03 · 3 h · New (rev 5) · Depends on: DES-05-03-01, DES-05-03-03
+- **Build:** `src/components/home/LinkPromptCard.tsx`: an outline `Card`,
+  `home.linkPrompt.title`, one sentence, a secondary `home.linkPrompt.action`,
+  a ghost `home.linkPrompt.dismiss`. Stories: shown, at 375 x 667 with the Pull
+  button visible, RTL.
+- **Done when:** Stories pass axe.
+
+##### TASK-05-03-03-FE2 · Show the prompt on Brew with the one-card rule
+`frontend` · Parent: STORY-05-03-03 · 4 h · New (rev 5) · Depends on: TASK-05-03-03-BE1, TASK-05-03-03-FE1, TASK-05-03-01-FE1
+- **Build:** `HomeScreen.tsx` / `BrewFlow.tsx`: the prompt shows only when due,
+  not dismissed, not linked, no re-dial card is due (that one wins,
+  TASK-04-03-04-FE2) and no pulled state is showing; "not now" is remembered
+  on the device for good (`src/lib/dismissals.ts` pattern); accepting runs the
+  linking flow.
+- **Done when:** AC 1 to AC 5 hold in play tests; the Pull button stays visible.
+
+##### TASK-05-03-03-QA1 · Test the one-time reminder
+`qa` · Parent: STORY-05-03-03 · 3 h · New (rev 5) · Depends on: TASK-05-03-03-FE2
+- **Build:** Play tests of the trigger points, dismissal for good, the one-card
+  rule with a re-dial card and the pulled state, and accepting.
 - **Done when:** AC 1 to AC 5 are covered.
 
 ---
@@ -3921,6 +6336,174 @@ in wave 6.
 | **Rest of the MVP** | **217** | **717** |
 | **MVP** | **316** | **1,085** |
 
+### 8.4 Waves for the sweetened change and the Next epics (revision 5)
+
+These follow wave 15 and the epics' build order (`epics.md` revision 11, items
+17 to 26), with the cheap sweetened change first and **EPIC-05-02 last**. Wave
+numbers continue from section 8.3. Sizes are task hours (design is separate).
+Two developers (one mostly backend, one mostly frontend) can overlap adjacent
+waves where the dependencies below allow.
+
+**Before wave 17 (not tasks).**
+
+- Done (2026-11-16): Google sign-in is enabled in the Firebase project.
+  Localhost is authorised by default; add any hosted domain when there is
+  one. Keys stay deployment secrets (waves 18 and 26).
+- `INVITE_SECRET` and `APP_ORIGIN` exist as deployment secrets, names only in
+  `.env.example` (wave 26).
+- The Google button's look is checked against Google's current guidelines
+  (DQ-40a, before TASK-05-03-01-FE2).
+- Done (2026-11-16): the Head of Product's list of producing countries, 81
+  entries with ISO 3166-1 codes, in `planning/coffee-origins.json`. Store the
+  code; show the name with `Intl.DisplayNames`. Origins for the seed coffees
+  are still optional (wave 21b).
+- Design runs one wave ahead (section 8.2 for the MVP; the Next design is 128 h
+  plus DES-02-01-06's 4 h). Order: DES-04-02-02 before DES-04-03-04, and
+  DES-05-03-02 before DES-05-02-03.
+
+**Wave 17: sweetened on recipes (EPIC-02-01 change), 19 tasks, 52 h.**
+
+1. Backend: TASK-02-01-07-BE1, TASK-02-01-07-BE2, TASK-02-01-08-BE1,
+   TASK-02-01-09-BE1.
+2. Frontend: TASK-02-01-09-FE2, TASK-02-01-07-FE1, TASK-02-01-08-FE1,
+   TASK-02-01-07-FE2, TASK-02-01-09-FE1.
+3. QA: TASK-02-01-07-QA1, TASK-02-01-08-QA1, TASK-02-01-09-QA1 and the seven
+   amendment tests (TASK-01-03-04-QA2, TASK-02-01-04-QA2, TASK-02-01-06-QA2,
+   TASK-02-02-01-QA2, TASK-02-02-02-QA2, TASK-02-03-02-QA2,
+   TASK-02-03-03-QA2).
+
+**Wave 18: keep your history across phones (EPIC-05-03), 15 tasks, 59 h.**
+Moved ahead of the lists because it restructures the Profile screen that
+three later epics add rows to.
+
+1. TASK-05-03-04-BE1 (the emptiness test, reused by wave 26),
+   TASK-05-03-01-FE1, TASK-05-03-01-BE1.
+2. TASK-05-03-01-FE2 (restructures Profile into sections), QA1.
+3. Switching: TASK-05-03-04-BE2, FE1, FE2, QA1.
+4. First-run link: TASK-05-03-02-FE1, QA1.
+5. Prompt: TASK-05-03-03-BE1, FE1, FE2, QA1 (the re-dial card does not exist
+   yet, so the one-card rule is re-run in wave 24).
+
+**Wave 19a: drinks list (EPIC-02-05, stories 01 to 04 and 06), 18 tasks, 68 h.**
+
+1. TASK-02-05-01-BE1, then BE1 of 02, 03, 04 and 06; TASK-02-05-02-FE1 (Toggle)
+   and TASK-02-05-04-FE1 (ReorderList and Icon strokes) in parallel.
+2. TASK-02-05-01-FE1, FE2; TASK-02-05-02-FE2; TASK-02-05-03-FE1;
+   TASK-02-05-04-FE2; TASK-02-05-06-FE1.
+3. QA of 01, 02, 03, 04, 06.
+
+**Wave 19b: milks, entry points and hidden items (EPIC-02-05, stories 05, 07,
+08), 11 tasks, 48 h.**
+
+1. TASK-02-05-05-BE1, FE1, FE2, QA1.
+2. TASK-02-05-07-BE1, FE1, FE2, QA1.
+3. TASK-02-05-08-BE1, FE1, QA1.
+
+**Wave 20: one bag's own recipe (EPIC-02-04), 13 tasks, 53 h.** Runs beside
+wave 21 (different areas).
+
+1. Backend: TASK-02-04-04-BE1 (the `removed_at` migration first),
+   TASK-02-04-01-BE1, TASK-02-04-01-BE2, TASK-02-04-02-BE1,
+   TASK-02-04-04-BE2.
+2. Frontend: TASK-02-04-01-FE1, TASK-02-04-03-FE1, TASK-02-04-03-FE2,
+   TASK-02-04-04-FE1.
+3. QA: TASK-02-04-01-QA1, 02-QA1, 03-QA1, 04-QA1.
+
+**Wave 21a: run-out (EPIC-03-05), 11 tasks, 44 h.**
+
+1. TASK-03-05-01-BE1, TASK-03-05-02-BE1, TASK-03-05-03-BE1, then
+   TASK-03-05-01-BE2.
+2. TASK-03-05-01-FE1, FE2; TASK-03-05-02-FE1; TASK-03-05-03-FE1.
+3. QA of 01, 02, 03.
+
+**Wave 21b: Beans filters and origin (EPIC-03-07), 17 tasks, 67 h.** Independent
+of wave 21a except one soft link: TASK-03-07-02-FE2 passes the filter flag to
+the run-out line, so it follows TASK-03-05-02-FE1 (or ships first and the flag
+does nothing).
+
+1. Origin: TASK-03-07-04-BE1 (migration), BE2, BE3, FE1, QA1; then
+   TASK-03-07-05-BE1, FE1, QA1.
+2. Filters: TASK-03-07-01-BE1, BE2, FE1, QA1.
+3. TASK-03-07-02-FE1, FE2, QA1; TASK-03-07-03-FE1, QA1.
+
+**Wave 22: brew for someone else (EPIC-05-01), 25 tasks, 109 h.**
+
+1. The persona foundation, as one focused stretch with other DAL work paused:
+   TASK-05-01-03-BE1, BE2, BE3.
+2. People: TASK-05-01-01-BE1, FE1, FE2; TASK-05-01-02-BE1, FE1.
+3. Brew: TASK-05-01-03-FE1, FE2.
+4. Across the app: TASK-05-01-04-BE1, FE1; TASK-05-01-05-BE1, FE1;
+   TASK-05-01-06-BE1, FE1; TASK-05-01-07-BE1, FE1.
+5. QA of 01 to 07.
+
+**Wave 23: suggested grind (EPIC-04-02), 22 tasks, 104 h.**
+
+1. Engine pieces (backend, mostly parallel): TASK-04-02-04-BE1,
+   TASK-04-02-05-BE1, TASK-04-02-02-BE1, TASK-04-02-03-BE1,
+   TASK-04-02-07-BE1, TASK-04-02-01-BE1, TASK-04-02-02-BE2; the scenario
+   suite TASK-04-02-09-QA1 is drafted alongside.
+2. Composition and use: TASK-04-02-06-BE1, TASK-04-02-09-BE1,
+   TASK-04-02-06-BE2.
+3. Frontend: TASK-04-02-08-FE1 (the sheet, can start earlier), then
+   TASK-04-02-06-FE1, FE2.
+4. QA of 01 to 08 and the scenario suite run to completion.
+
+**Wave 24: re-dial after maintenance (EPIC-04-03), 21 tasks, 93 h.**
+
+1. TASK-04-03-04-BE1, BE2; TASK-04-03-03-BE1; TASK-04-03-01-BE1, BE2;
+   TASK-04-03-02-BE1, BE2.
+2. TASK-04-03-03-BE2 (servicing applied on read) straight after wave 23's
+   composition, since both touch the same readers.
+3. Frontend: TASK-04-03-04-FE1, FE2, FE3; TASK-04-03-02-FE1;
+   TASK-04-03-01-FE1; TASK-04-03-03-FE1; TASK-04-03-05-BE1, FE1.
+4. QA of 04, 01, 02, 03, 05, and re-run TASK-05-03-03-QA1 for the one-card
+   rule.
+
+**Wave 25: stretch (EPIC-04-04), 11 tasks, 46 h.** The lowest-value Next epic;
+it can wait or be cut without breaking anything.
+
+1. TASK-04-04-02-FE1 (percent unit), TASK-04-04-01-BE1, BE2,
+   TASK-04-04-02-BE1, TASK-04-04-03-BE1.
+2. TASK-04-04-01-FE1, TASK-04-04-02-FE2, TASK-04-04-03-FE1.
+3. QA of 01, 02, 03.
+
+**Wave 26: invites, claiming and leaving (EPIC-05-02), last, 25 tasks, 110 h.**
+Leaving ships with it: TASK-05-02-07-* are part of the release gate, since a
+claim cannot be undone otherwise (DQ-41b).
+
+1. TASK-05-02-01-BE1 (the migration), TASK-05-02-07-BE1 (the bootstrap split).
+2. Inviting: TASK-05-02-01-BE2, FE1, FE2; TASK-05-02-06-BE1, FE1.
+3. The invitation page: TASK-05-02-05-BE1, FE1, FE2.
+4. Joining and claiming: TASK-05-02-02-BE1, FE1, FE2; TASK-05-02-03-BE1, FE1;
+   TASK-05-02-04-BE1.
+5. Leaving: TASK-05-02-07-BE2, FE1.
+6. QA of 01, 06, 05, 02, 03, 04, 07, plus the manual device checklist.
+
+**Hours per wave (revision 5).**
+
+| Wave | Tasks | Hours |
+|---|---|---|
+| 17 Sweetened | 19 | 52 |
+| 18 EPIC-05-03 | 15 | 59 |
+| 19a EPIC-02-05 drinks | 18 | 68 |
+| 19b EPIC-02-05 milks, entry points, hidden | 11 | 48 |
+| 20 EPIC-02-04 | 13 | 53 |
+| 21a EPIC-03-05 | 11 | 44 |
+| 21b EPIC-03-07 | 17 | 67 |
+| 22 EPIC-05-01 | 25 | 109 |
+| 23 EPIC-04-02 | 22 | 104 |
+| 24 EPIC-04-03 | 21 | 93 |
+| 25 EPIC-04-04 | 11 | 46 |
+| 26 EPIC-05-02 | 25 | 110 |
+| **Revision 5** | **208** | **853** |
+
+The critical path is 18, 22, 23, 24, 26: Google linking and the emptiness test
+feed joining; the persona refactor feeds the pooled drift and the Journal's
+person filter; drift feeds the shift's ageing note; leaving closes the claim.
+Waves 19, 20 and 21 are off the critical path and can absorb a second
+developer. With the measured pace after Milestone 1, these hours are re-forecast
+like the rest (S-02).
+
 ---
 
 ## 9. Questions
@@ -4008,6 +6591,90 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
 (taste tags), INIT-03 Q2 (no estimated age) and the retired-unit question
 (no retire).
 
+### 9.3 Questions for the Next epics (revision 5)
+
+The Head of Product's answers of 2026-11-16 are applied: leaving stays in
+EPIC-05-02 and the leaver starts a new empty household (Q1); "Dial in from
+this" starts with the past shot's sweetened value (Q2); a removed bag recipe
+stops applying but is kept (Q3, so `removed_at`); another profile's same-setup
+recipe wins over a closest-setup recipe (Q4). The questions below are new and
+none changes scope; each has the plan's working answer.
+
+**For the Head of Product.**
+
+1. **Who sees "leave this household"** (TASK-05-02-07-FE1). STORY-05-02-07 says
+   "a member who claimed a profile", and the household's original owner has a
+   claimed profile too. Working answer: show it only when the household has
+   more than one login, so a solo user can't strand their own history in an
+   orphaned household. Confirm.
+2. **Ownership and abandoned households** (TASK-05-02-07-BE2). `owner` and
+   `member` have no different rights in the plan (any member invites, any
+   member sees every profile). Working answer: if the only owner leaves, the
+   longest-standing member becomes owner; if the last member leaves, the
+   household stays with its data and no one can open it. Confirm both.
+3. **STORY-04-03-03 AC 5, "I change an event's date".** The built app can add an
+   event with a past date but has no way to edit or delete one, and no story
+   asks for it. Working answer: the criterion is met by back-dating at
+   creation (an event slots into date order on read); an edit screen is not
+   planned. Confirm, or say it is wanted (about 8 h, new scope).
+4. **Joining from a browser that already has history** (STORY-05-02-02 AC 5).
+   If the invitee's browser already holds a Tare account with data, signing in
+   with Google links that data to the Google account and joining is then
+   refused ("use a different Google account"). That is correct but means the
+   same browser can't be used to join. Working answer: accept; no new
+   story. Confirm.
+5. **Does the grind adjustment apply to a borrowed or closest-setup recipe?**
+   STORY-04-02-06 names the closest-setup dial-in; STORY-05-01-05 is silent.
+   Working answer: yes when the starting recipe's grind is carried over
+   (same grinder), no when the grind isn't carried over (different grinder).
+   Confirm.
+6. **Do good one-tap shots feed the adjustment?** STORY-04-02-03 AC 2 says
+   they count "only as the recipe was fine". Working answer: evidence only
+   (they appear in the sheet's wording but never weight the result), which is
+   the cautious reading. Confirm.
+7. **Coffees never brewed under the rating filter** (STORY-03-07-01). They read
+   "no ratings yet". Working answer: yes.
+8. **Data work, not tasks.** The curated list of producing countries for the
+   origin question, and origins for the seed coffees (DQ-49), come from the
+   Head of Product as admin; the Google button wording is checked against
+   Google's guidelines before TASK-05-03-01-FE2. The spec text in S-02, S-04
+   and S-08 about sweetened ("a mark on the shot") needs the spec owner's edit.
+
+**Technical decisions made here (tech lead; shout if you disagree).**
+
+- **TQ-18 Origin storage.** One nullable text key (alpha-2 code, `blend` or
+  `other:<folded text>`), TD-9. Alternative: a lookup table (more weight, no
+  gain at this size).
+- **TQ-19 Invite tokens.** `id.hmac(INVITE_SECRET, id)` rather than a stored
+  hash, so the link can be shown again (STORY-05-02-06 AC 2) without keeping a
+  working credential in the database. Costs one more secret to manage.
+- **TQ-20 Re-dials are derived from pins, not stored.** An event's re-dial set
+  is the first pin after the event for each coffee, profile, setup and drink
+  that had a pin before it. Only the confirmed shift, stretch and the first
+  source recipe are stored. A later re-pin of the same coffee is not a new
+  re-dial.
+- **TQ-21 Main persona.** The profile claimed by the signed-in user, else
+  `isDefault` (TD-1). No schema change.
+- **TQ-22 The pull records what the server computes.** Brew shows an adjusted
+  grind and the pull recomputes it; if another device logged a shot between the
+  two, the recorded grind can differ from the displayed one by a step.
+  Alternative: send the shown grind and accept it within a tolerance.
+- **TQ-23 Drift constants.** The window, half-life, floor, cap, the steps per
+  percent of bag speed, the thresholds of the stretch fit and the run-out
+  numbers are starting values in constants files; the scenario suite
+  (TASK-04-02-09-QA1) tunes them. The age term and the bag term can overlap
+  (both react to the user re-dialling); the evals must include that case.
+- **TQ-24 Orphaned empty accounts.** After a switch (EPIC-05-03) the old
+  anonymous account stays in the database, unused. Harmless; a clean-up job is
+  tech debt.
+- **TQ-25 Observability.** Drift outcomes are one structured log line until an
+  observability tool is chosen for the AI epics; the function is the single
+  place to swap.
+- **TQ-26 Name rules.** Drink, milk and profile names share one rule (1 to 40
+  characters, unique ignoring case, hidden items included). Starter names are
+  compared by the current locale's translation, so a clash that exists only in
+  another language isn't detected.
+
 ---
 
 ## 10. Technical risks and tech debt
@@ -4089,6 +6756,100 @@ temperature lever (SQ-21), typical milk amounts, the basket dose range
   in wave 6 (13 h) and TASK-02-01-06-FE2 and QA1 (7 h) in wave 12. Wave 11a is
   still the largest (110 h); the re-forecast after Milestone 1 should measure
   against the per-wave hours in section 8.3.
+- **R-26 The persona change is wide (revision 5, highest regression risk).**
+  Fifteen reads and writes choose "the default persona". A missed one records
+  a shot, a recipe or a last-pulled coffee against the wrong profile, silently.
+  Mitigation: one resolver (TD-1); TASK-05-01-03-BE2 is done as one stretch with
+  other DAL work paused; a grep gate in its done-when; two-persona tests on
+  every call site; the isolation suite.
+- **R-27 Drift correctness (revision 5).** The rules are statistics on small
+  samples (3 to 10 shots). The age term and the bag term can both react to
+  the same re-dial and double count; pooling across personas assumes the signal
+  is mechanical; "which recipe a shot came from" is inferred (TD-2). A wrong
+  grind number is more visible than most bugs. Mitigation: it never blocks a
+  pull and shows nothing under one step; the scenario suite includes a
+  mixed-technique household and a re-pin mid-day; every constant is tunable in
+  one file; the snapshot test forces a re-run. If misattribution shows up, the
+  follow-up is a nullable recipe link on shots (a schema change).
+- **R-28 Brew read cost and observability (revision 5).** `getHome` and the pull
+  gain the recipe-in-force match, a window of shots and the grinder's events,
+  and Brew is the hot path. Mitigation: one query
+  per input table, matching in memory, an adjustment that fails or is slow
+  returns nothing; the budget is at most 4 extra queries and 50 ms extra (median of 20 runs,
+  local file database, 500 shots) for `getHome`, checked in a test in
+  TASK-04-02-06-BE2. There is no
+  observability tool yet, so outcomes are one structured log line
+  (TASK-04-02-09-BE1) and "showed nothing, limited, failed" are countable only
+  from logs.
+- **R-29 Google linking is hard to test (revision 5).** `auth/credential-already-in-use`,
+  popup blockers, the iOS Safari redirect, an anonymous user with data and a
+  cleared browser are all real paths. Tests mock `firebase/auth`; the real
+  flows need a manual two-device checklist (in TASK-05-03-01-QA1,
+  TASK-05-03-04-QA1, TASK-05-02-02-QA1). The Firebase project, its Google
+  provider and authorised domains are set up outside the repository; no key is
+  ever committed.
+- **R-30 An invite link is a credential (revision 5).** It can leak by
+  `Referer`, logs, browser history or a shared screenshot. Mitigation: 256-bit
+  HMAC token, single use by conditional update, 7-day expiry, withdraw, one
+  uniform invalid page, `Referrer-Policy: no-referrer`, no caching or indexing,
+  and URLs kept out of the structured logs. There is no rate limiting on the
+  public page (tokens are not guessable); accepted.
+- **R-31 Joining deletes an empty household (revision 5).** The replace is
+  irreversible and runs on the strength of `isHouseholdEmpty`. A bug there
+  deletes real data. Mitigation: the test is one function with a test per
+  entry kind, the delete runs in the same immediate transaction as the check,
+  foreign keys are verified on, and nothing is deleted when anything is found.
+- **R-32 Leaving and the one-household rule (revision 5).** `findAccount` takes
+  one membership; everything assumes a user has one household. Leaving creates a
+  new one in the same transaction so there is never a gap. Abandoned
+  households (no members left) and orphaned empty anonymous accounts (after a
+  switch) stay in the database; both are harmless but untidy tech debt.
+- **R-33 Removed bag recipes (revision 5).** `removed_at` must be honoured by
+  every reader of bag recipes (`getCurrentRecipe`, `getBagOwnRecipe`,
+  `getBagRecipes`, the recipe-in-force rule, `pullShot`). A missed reader
+  resurrects a removed recipe. Mitigation: the reads go through the one
+  scope-aware function; a test per reader.
+- **R-34 Recipe reads change shape (revision 5).** `getCurrentRecipe` becomes
+  scope-aware (about eight call sites), recipe rows must keep hidden drinks, and
+  sweetened joins `RecipeValues`. TypeScript finds the callers, but the
+  EPIC-02-04 and EPIC-02-05 changes touch the same files
+  (`recipes.ts`, `home.ts`, `recipeRows.ts`); wave 20 and wave 19b should not
+  run on the same files at once.
+- **R-35 Servicing is read at many sites (revision 5).** `resolveRecipeGrind`
+  must be used by Brew, the log start, fix mode, the pin sheet, the rows and the
+  pull, or one screen shows the old number. Fix mode starts from the recipe's
+  raw grind today; it is changed in TASK-04-03-03-BE2. A one-tap shot made
+  while a shift applies records the shifted grind.
+- **R-36 Run-out quality (revision 5).** No accuracy target (X-2). A household
+  that drinks more than it logs, or has few finished portions, gets a
+  poor estimate. Mitigation: it shows nothing while learning or stale, and the
+  sheet shows its inputs and the logged share rather than a precision.
+- **R-37 The Profile screen has four owners (revision 5).** EPIC-05-03, 02-05,
+  05-01 and 05-02 all add to it. TASK-05-03-01-FE2 does the restructure first;
+  later tasks add one section each in the place design pattern 4 gives.
+- **R-38 Size (revision 5).** 853 hours for ten Next epics and the sweetened
+  change; EPIC-04-02 (104 h) and EPIC-05-01 (109 h) and EPIC-05-02 (110 h) are
+  the big three, each above the 80 to 100 h of a typical MVP epic. The stories
+  total about 152 points, so this is about 5.6 hours a point, close to the
+  MVP's. The levers in `stories.md` apply: EPIC-04-04 (46 h) can wait; the
+  origin fill-in (STORY-03-07-05, 10 h) and the list footer rows
+  (TASK-02-05-07-FE2, 5 h) are separable.
+- **R-39 Next.js 16 specifics (revision 5).** Filters in `searchParams`, the
+  persona in a cookie and the public join route all depend on request-time APIs
+  under `cacheComponents`; static shells with Suspense are required. Each task
+  that adds one starts from `node_modules/next/dist/docs/` (AGENTS.md).
+- **R-40 No way to edit a maintenance event (revision 5).** STORY-04-03-03 AC 5
+  and STORY-04-03-05 imply events can be corrected; the built app only adds
+  them. Question 3 in 9.3. Without edit, a wrong date can't be fixed and a
+  wrong shift is fixed only through the shift.
+- **Tech debt accepted for revision 5.**
+  - Dismissals of the re-dial card and the link prompt are device state.
+  - A drift outcome is a log line, not a metric.
+  - The invite page has no rate limit.
+  - No unlink or sign-out (out of scope).
+  - Starter-name clashes across languages aren't detected.
+  - `isNetworkEligible` is still never computed (X-3); the rule is written and
+    tested only (TASK-05-02-04-BE1).
 - **Accepted as is (new).** TASK-02-03-06-BE1 depends on
   TASK-01-03-02-FE2 (the grind scale config). That task is pure TypeScript
   labelled frontend; the dependency is acceptable.
@@ -4159,5 +6920,48 @@ task.
   01-03-06, 01-03-07, 02-01-06, 02-02-07, 02-03-04 to 07, 02-06-04 to 06,
   03-02-05, 03-03-04 and 03-06-01 to 04.
 
-**Not included:** Next and Later epics (section 1), design hours (328 h for
-the MVP, section 8.2), GitHub issues, and any change to scope.
+**Not included:** Later epics (INIT-06, section 1), design hours (328 h for
+the MVP, section 8.2; 132 h for the Next epics and the sweetened change),
+GitHub issues, and any change to scope.
+
+### Revision 5: the sweetened change and the Next epics
+
+**By epic.**
+
+| Epic | Title | Stories | Tasks | Hours |
+|---|---|---|---|---|
+| EPIC-02-01 (change) | Sweetened on pinned recipes, with 7 amendments | 3 new, 7 amended | 19 | 52 |
+| EPIC-02-04 | Give one bag its own recipe | 4 | 13 | 53 |
+| EPIC-02-05 | Make the drink and milk lists yours | 8 | 29 | 116 |
+| EPIC-03-05 | Know when you'll run out (run-out only) | 3 | 11 | 44 |
+| EPIC-03-07 | Find any coffee in Beans (new) | 5 | 17 | 67 |
+| EPIC-04-02 | Suggested grind that follows bean age and recent shots | 9 | 22 | 104 |
+| EPIC-04-03 | Re-dial once after maintenance and keep every recipe | 5 | 21 | 93 |
+| EPIC-04-04 | Keep recipes right after new burrs of a different design | 3 | 11 | 46 |
+| EPIC-05-01 | Brew for someone else in the household | 7 | 25 | 109 |
+| EPIC-05-02 | Invite them to take over their own profile | 7 | 25 | 110 |
+| EPIC-05-03 | Keep your coffee history when you change phones | 4 | 15 | 59 |
+| **Revision 5** | | **58 stories, 7 amended** | **208** | **853** |
+
+**By discipline.**
+
+| Epic | Backend | Frontend | QA | Total |
+|---|---|---|---|---|
+| EPIC-02-01 (change) | 4 tasks, 12 h | 5 tasks, 15 h | 10 tasks, 25 h | 19 tasks, 52 h |
+| EPIC-02-04 | 5 tasks, 22 h | 4 tasks, 16 h | 4 tasks, 15 h | 13 tasks, 53 h |
+| EPIC-02-05 | 8 tasks, 30 h | 13 tasks, 53 h | 8 tasks, 33 h | 29 tasks, 116 h |
+| EPIC-03-05 | 4 tasks, 18 h | 4 tasks, 14 h | 3 tasks, 12 h | 11 tasks, 44 h |
+| EPIC-03-07 | 6 tasks, 22 h | 6 tasks, 26 h | 5 tasks, 19 h | 17 tasks, 67 h |
+| EPIC-04-02 | 10 tasks, 51 h | 3 tasks, 15 h | 9 tasks, 38 h | 22 tasks, 104 h |
+| EPIC-04-03 | 9 tasks, 38 h | 7 tasks, 34 h | 5 tasks, 21 h | 21 tasks, 93 h |
+| EPIC-04-04 | 4 tasks, 18 h | 4 tasks, 16 h | 3 tasks, 12 h | 11 tasks, 46 h |
+| EPIC-05-01 | 9 tasks, 41 h | 9 tasks, 40 h | 7 tasks, 28 h | 25 tasks, 109 h |
+| EPIC-05-02 | 9 tasks, 39 h | 9 tasks, 42 h | 7 tasks, 29 h | 25 tasks, 110 h |
+| EPIC-05-03 | 4 tasks, 14 h | 7 tasks, 29 h | 4 tasks, 16 h | 15 tasks, 59 h |
+| **Total** | **72 tasks, 305 h** | **71 tasks, 300 h** | **65 tasks, 248 h** | **208 tasks, 853 h** |
+
+**With the MVP.** 316 tasks and 1,085 hours become **524 tasks and 1,938
+hours**. Every one of the 58 stories and the 7 amended ones has at least one
+`qa` task; STORY-02-01-07 to 09 and the amendments are tested in wave 17.
+No task is over 16 hours (the largest is 10 h, TASK-04-02-09-QA1). The
+migrations are four small tasks (section 6a).

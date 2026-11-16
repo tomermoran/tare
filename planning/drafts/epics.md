@@ -1,4 +1,4 @@
-# Tare epics (final, revision 10)
+# Tare epics (final, revision 11)
 
 Source: `planning/drafts/initiatives.md` (approved by the Head of Product) and
 `docs/spec.md`, sections S-01 to S-09. S-01 and S-02 override older sections
@@ -15,15 +15,19 @@ revision 9 applied the taste model, rule-based dial-in suggestions, milk
 tracking, basket dose ranges and the journal filters; revision 10 names the
 app's sections for what people ask (Brew, Journal, Beans, Setup), adds the
 Tried list of coffees and the coffee screen (S-02, design PEC-15), and gives
-Beans filters a Next home.
+Beans filters a Next home; revision 11 applies design review round 8
+(2026-11-15): the Head of Product accepted PEC-16 to PEC-22 and DQ-29 to DQ-43
+for the Next epics (with the adjustments below), splits Beans filters into
+their own epic, moves invites into Next, and records the sugar and milk
+decisions.
 
-**Status: final, approved by the Head of Product** (revision 10, with the
+**Status: final, approved by the Head of Product** (revision 11, with the
 review fixes, design round 3 changes, the setup change, the taste and milk
-changes and the section names below as approved amendments). The Head of
-Product has confirmed the MVP must be a fully usable logging tool, including
-choosing a setup and beans. Its size is to be confirmed, or cuts picked, at
-final sign-off (review m9); nothing has been cut. No GitHub issues have been
-created.
+changes, the section names and the round 8 decisions below as approved
+amendments). The Head of Product has confirmed the MVP must be a fully usable
+logging tool, including choosing a setup and beans. Its size is to be
+confirmed, or cuts picked, at final sign-off (review m9); nothing has been cut.
+No GitHub issues have been created.
 
 Initiative open questions are referenced as `INIT-NN Q#`, numbered in the order
 they appear in `initiatives.md`. Cross-cutting questions are `X-1` (timestamp
@@ -42,11 +46,100 @@ so "log a shot" and "Pull This Shot" stay, and an entry is never called a
 "journal entry" in the app. Beans has two parts: **On hand** (the bags in the
 house) and **Tried** (every coffee ever used); a coffee's own screen is the
 coffee screen (design `SCR-COFFEE`). "Just right" questions are the four taste
-scales rated against the persona's own ideal (S-02). Earlier revisions said
-"toolkit", then "kit", "pantry" and "recent shots"; the older change-log
-entries below keep the names used at the time.
+scales rated against the persona's own ideal (S-02). A "profile" is a persona
+as people see it (a name, no login needed). Earlier revisions said "toolkit",
+"kit", "pantry" and "recent shots"; the older change-log entries below keep the
+names used at the time.
 
 ## Changes in this revision
+
+Revision 11 (design review round 8, 2026-11-15; PEC-16 to PEC-22 and DQ-29 to
+DQ-43 accepted by the Head of Product, with the adjustments listed):
+
+- **New epic EPIC-03-07 "Find any coffee in Beans" (Next, M after the 2026-11-16 re-size; first listed S), parent INIT-03
+  (PEC-17).** Beans filters leave EPIC-03-05, which becomes run-out only
+  (retitled "Know when you'll run out", M at the small end). The ID is the next
+  free one in INIT-03, so EPIC-03-05 keeps its ID and any issue or story
+  written against it stays valid. INIT-03 now has seven epics, one over the
+  2-to-6 guideline; the reasoning and the alternative are in the epic's
+  "Parent decision". The origin filter needs a catalog field the schema lacks
+  (S-08 `canonical_beans` has no origin); that migration and the question in
+  Add a coffee are owned by EPIC-03-07.
+- **EPIC-02-04 (PEC-16, DQ-29):** pin scope is chosen in the pin sheet; a pin
+  defaults to the coffee's recipe, the first recipe for a coffee is always the
+  coffee's, and when the bag already has its own recipe the default is "this
+  bag only". Adds "remove a bag's own recipe". Closes INIT-02 Q1. Stays S.
+- **EPIC-02-01 (sugar, DQ-29 note):** a pinned recipe remembers the shot's
+  sweetened toggle (yes or no, no amount) and logs started from the recipe
+  start pre-ticked. Today sweetened is on the shot only and always starts off.
+  Placed here because the recipe owns pinning and what a recipe remembers; the
+  copy points are noted in EPIC-01-03, EPIC-02-02, EPIC-02-03 and EPIC-02-06.
+  Needs a new column on recipes (S-08 lacks it). Stays M.
+- **EPIC-02-05 (milk decision, DQ-38):** conventional drink types define milk
+  inherently (an Americano has none); a variation such as "Americano with
+  froth" is a custom drink, added here. No change to milk on any existing
+  drink. Also records DQ-38 (hidden drinks and milks). Re-sized from S to M on
+  2026-11-16 (Head of Product, stories Q5; 17 story points).
+- **EPIC-03-05 (DQ-39):** run-out only. Prediction is in the product now (in
+  Next), shown only after about three finished portions, hidden when use is
+  stale or any Beans filter is on, and the sheet shows its inputs and the
+  logged share rather than promising an accuracy. Closes INIT-03 Q1.
+- **EPIC-04-02 (PEC-21, DQ-30, DQ-31, DQ-32 revised, DQ-33, DQ-34, DQ-43):**
+  - Scope now shows drift only where a recipe is the starting point (Brew,
+    dial in from a recipe), not in fix mode, "Dial in from this" or edit.
+  - The bag signal uses the bag's measured shots in the last 3 days of the
+    current grind period, at least 3 (reaching further back if needed, never
+    past the last maintenance) and at most 10, weighted by age in time (today
+    about twice 3 days ago). This **replaces** the earlier "last 5 shots"
+    recommendation.
+  - Shots from every persona on the same coffee and grinder are pooled as a
+    relative signal (for example "running about 10% fast against its recipe"),
+    each judged against the recipe it was brewed from, then converted into a
+    separate grind nudge per recipe. The window is time-based because personas
+    differ in volume (2 versus 5 shots a day; more people means more shots from
+    one bag). Fall back to pooling within the same basket if evals show single
+    and double baskets diverge. Numbers are starting values the evals tune.
+  - Only shots with the recipe's puck prep count; SH-DRIFT says how many were
+    left out (DQ-33).
+  - Rules and statistics, not AI, but shipped with evals (DQ-43). Stays L.
+- **EPIC-04-03 (PEC-22, DQ-42):** only grinder events marked as a recalibration
+  prompt a re-dial; declining stores a zero shift; shifts chain in date order;
+  non-grinder events have no effect. Stays M.
+- **EPIC-04-04 (DQ-43):** the shift and stretch are fitted by a least-squares
+  line through all re-dials, flagged uncertain past a threshold and always
+  editable; stretch applies to burrs events only. Stays S.
+- **EPIC-05-01 (PEC-18, DQ-35, DQ-36, DQ-37):** a profile with history cannot
+  be removed (an empty one can); the current setup follows the household's last
+  shot, so switching person never switches setup; a profile's first dial-in
+  starts from another profile's recipe for the same coffee, drink and setup; the
+  Journal gains a Person filter and Tried a per-person summary. Stays M at the
+  top.
+- **EPIC-05-03 (PEC-19, DQ-40):** the offer to sign in on a new device moves to
+  the first-run Brew screen and Profile (not the start screen); a plain
+  monochrome text button, no Google logo; a Google account already linked is
+  never merged (an empty device may switch to that history after one
+  confirmation, a device with history is refused); the one-time prompt's
+  dismissal is remembered on the device. STORY-05-03-02 AC 3 needs rewording by
+  the story-writer. Stays S.
+- **EPIC-05-02 (PEC-20, DQ-41):** **moves from Later to Next, sequenced last
+  among the Next epics** (the Head of Product's adjustment: it stays in this
+  breakdown and gets stories and tasks now). Scope rules: every invite names a
+  profile; an invitee with history is refused; a new invites table is needed. A
+  one-use link valid 7 days, sent by the member, with no email collected. Stays
+  L.
+- **EPIC-01-02 and EPIC-02-02 (DQ-36 wording):** "the current setup is the
+  setup of the household's last shot", which is the same as the persona's last
+  shot until EPIC-05-01 adds profiles. No scope change.
+- **Other DQs accepted as recommended:** DQ-29 to DQ-31, DQ-34 to DQ-43.
+- **Spec text to update (Head of Product or spec owner):** S-02, S-04 and S-08
+  say sugar is "a mark on the shot" (now also remembered by the recipe, with a
+  new `pinned_recipes` column); S-02 says "only the UI changes between phases"
+  (invites need a new table, and recipes a new column); S-02's "still open"
+  line on pinning is now answered (DQ-29); the S-02 Beans filters line should
+  mention origin needs a catalog field.
+- **Build order:** EPIC-05-02 moves from 25th (Later) to 26th and last of Next;
+  EPIC-03-07 joins Next after EPIC-03-05. Later now starts at 27th.
+- Counts: 16 MVP, 10 Next, 6 Later (32 epics).
 
 Revision 10 (section names, Tried and the coffee screen; S-02 "App sections
 are named for what people ask" and design PEC-15):
@@ -75,16 +168,13 @@ are named for what people ask" and design PEC-15):
       logged at all. Putting Tried in EPIC-03-01 would stall it.
     - Sized M rather than S because it's a calculated list plus a new screen.
   - **Beans filters** (roaster, roast level, origin, rating) are **Next**.
-    INIT-03 is now at six epics (the limit), so they join the Next epic
-    EPIC-03-05, retitled "Know when you'll run out, and find any coffee" (size
-    stays M, now at the top). Both are Next improvements to Beans; the epic
-    should be split if INIT-03 is restructured.
+    (Revision 10 joined them to EPIC-03-05; superseded in revision 11, which
+    gives them EPIC-03-07.)
 - **MVP scope note:** the Head of Product confirmed the MVP must be a fully
   usable logging tool, including choosing a setup and beans. Recorded in the
   header and in "MVP size".
 - **Build order:** EPIC-03-06 is added at the end of the MVP (16th), after
-  EPIC-03-04. EPIC-03-05 now also follows EPIC-03-06. Next and Later
-  positions move down by one.
+  EPIC-03-04. Next and Later positions move down by one.
 - Counts: 16 MVP, 8 Next, 7 Later (31 epics).
 
 Revision 9 (taste model, dial-in suggestions, milk, basket dose ranges and
@@ -175,20 +265,21 @@ to MVP.
 | EPIC-02-02 | Pull your daily shot in one tap | INIT-02 | MVP | M |
 | EPIC-02-03 | Fix a bad shot from your recipe | INIT-02 | MVP | M |
 | EPIC-02-04 | Give one bag its own recipe | INIT-02 | Next | S |
-| EPIC-02-05 | Make the drink and milk lists yours | INIT-02 | Next | S |
+| EPIC-02-05 | Make the drink and milk lists yours | INIT-02 | Next | M |
 | EPIC-02-06 | Look back in your journal | INIT-02 | MVP | M |
 | EPIC-03-01 | Add a bag of beans | INIT-03 | MVP | M |
 | EPIC-03-02 | Split and freeze a bag | INIT-03 | MVP | M |
 | EPIC-03-03 | Know how fresh your beans really are | INIT-03 | MVP | S |
 | EPIC-03-04 | See how much coffee is left | INIT-03 | MVP | S |
-| EPIC-03-05 | Know when you'll run out, and find any coffee | INIT-03 | Next | M |
+| EPIC-03-05 | Know when you'll run out | INIT-03 | Next | M |
 | EPIC-03-06 | See every coffee you've tried | INIT-03 | MVP | M |
+| EPIC-03-07 | Find any coffee in Beans | INIT-03 | Next | M |
 | EPIC-04-01 | Record maintenance on your equipment | INIT-04 | MVP | S |
 | EPIC-04-02 | Suggested grind that follows bean age and recent shots | INIT-04 | Next | L |
 | EPIC-04-03 | Re-dial once after maintenance and keep every recipe | INIT-04 | Next | M |
 | EPIC-04-04 | Keep recipes right after new burrs of a different design | INIT-04 | Next | S |
 | EPIC-05-01 | Brew for someone else in the household | INIT-05 | Next | M |
-| EPIC-05-02 | Invite them to take over their own profile | INIT-05 | Later | L |
+| EPIC-05-02 | Invite them to take over their own profile | INIT-05 | Next (last) | L |
 | EPIC-05-03 | Keep your coffee history when you change phones | INIT-05 | Next | S |
 | EPIC-06-01 | Scan a bag instead of typing it | INIT-06 | Later | M |
 | EPIC-06-02 | Get a grounded fix when a shot goes wrong | INIT-06 | Later | L |
@@ -197,7 +288,7 @@ to MVP.
 | EPIC-06-06 | Start a new bag from the community, tuned to you | INIT-06 | Later | L |
 | EPIC-06-07 | Merge duplicate catalog entries, with AI suggestions | INIT-06 | Later | L |
 
-Counts: 16 MVP, 8 Next, 7 Later (31 epics).
+Counts: 16 MVP, 10 Next, 6 Later (32 epics).
 
 ## Cross-cutting constraints (not epics)
 
@@ -213,21 +304,31 @@ scope, so they don't count as overlap:
   warm grey, one muted colour only for shot warnings. Built on the Phase 0
   design system.
 - Calculated, never stored (S-02): remaining weight, bag status, bean age (both
-  clocks), usage rate, drift adjustments, dial-in suggestions, the Tried list.
+  clocks), usage rate, drift adjustments, dial-in suggestions, the Tried list,
+  run-out.
 - Timestamps are integer milliseconds (S-02, TQ-04); local days use the
   device's time zone (TQ-07).
 - Phase 1 has no AI features (S-01): no LLM calls in any MVP or Next epic.
-  Dial-in suggestions are rules, not AI (S-02).
+  Dial-in suggestions are rules, not AI (S-02). Drift (EPIC-04-02) and offsets
+  (EPIC-04-03, EPIC-04-04) are rules and statistics, not AI, but ship with
+  evals like the suggestion rules (DQ-43).
 - Catalog merges (S-02, S-08): any code that reads a catalog reference follows
   the merge pointer to the surviving entry. Merges only happen from EPIC-06-07,
   but readers built earlier must respect the pointer.
 - Setups never change (S-02, confirmed by the Head of Product): no epic edits a
   setup's parts. A setup is machine, grinder and basket; a different
   combination of those is a different setup. Puck prep (WDT, puck screen) is a
-  checkbox on shots and recipes, never part of a setup. Milk is part of the
-  drink, never part of a recipe's identity.
+  checkbox on shots and recipes, never part of a setup. Milk and sweetened are
+  part of the drink, never part of a recipe's identity.
 - Taste is relative to the persona (S-02): "just right" answers and tags, never
   absolute scores; all optional.
+- Households are never merged (DQ-40, DQ-41): linking Google (EPIC-05-03) and
+  joining by invite (EPIC-05-02) may replace an empty household and refuse one
+  with history. The "nothing entered yet" test (no parts, no bags, no shots; the
+  starter lists don't count) is defined once, in EPIC-05-03.
+- Brew shows at most one Card at a time (design pattern): the re-dial Card
+  (EPIC-04-03) wins over the link Card (EPIC-05-03), and neither shows beside a
+  pulled state.
 
 ---
 
@@ -314,9 +415,12 @@ is kept as approved.)
   - In: a setup's name is optional; without one it's shown by its parts or a
     translated default (S-08). The name is a label, not a part, so it can be
     set or changed at any time without making a new setup (DQ-21).
-  - In (DQ-18): the current setup is the setup of the persona's last shot
-    (measured or one-tap); before any shot, the newest setup. Choosing a setup
-    makes it current at once, without waiting for a shot.
+  - In (DQ-18, amended by DQ-36 in round 8): the current setup is the setup of
+    the household's last shot (measured or one-tap); before any shot, the
+    newest setup. With one persona this is the persona's last shot, so nothing
+    differs in the MVP; it matters once EPIC-05-01 adds profiles, because the
+    machine on the counter is the same for everyone. Choosing a setup makes it
+    current at once, without waiting for a shot.
   - In (PEC-09): "change a part" builds the new combination from the current
     setup with one part swapped, and finds or creates the matching setup,
     which becomes current. The selects that offer it on Brew and in the shot
@@ -354,8 +458,8 @@ is kept as approved.)
   - Closed (S-02): setups are not edited.
   - Closed (S-08, DQ-21): a setup's name is optional and can change at any
     time.
-  - Closed (DQ-18, PEC-09, working assumption): which setup is current, and how
-    the user switches.
+  - Closed (DQ-18, PEC-09, working assumption; DQ-36, round 8): which setup is
+    current, and how the user switches.
 
 ### EPIC-01-03: Log a shot in seconds
 
@@ -373,6 +477,9 @@ is kept as approved.)
     visible list) and portion of beans; optional "sweetened" mark. The shot
     stores setup, portion, persona, logging user and entry mode "measured";
     grinder, machine and basket follow from the setup.
+  - In: "sweetened" is a yes/no on the shot and starts off on a blank log. When
+    the log is started from a recipe that remembers it, it starts ticked
+    (EPIC-02-01); the user can untick it.
   - In: puck prep checkboxes, "used WDT" and "used puck screen" (`usedWdt`,
     `usedPuckScreen`, S-02), stored on the shot.
   - In: for a drink with milk, milk type (from the household's visible milk
@@ -397,7 +504,8 @@ is kept as approved.)
     and INIT-03. Assigned here, since the portion is picked while logging.
   - Finding and editing saved shots is EPIC-02-06 (the Journal).
   - Do the prep checkboxes and milk type on a blank log start from the last
-    shot on this setup, or empty? Not in the spec.
+    shot on this setup, or empty? Not in the spec. Sweetened is decided: it
+    starts off (Head of Product, round 8).
   - Does logging a shot against an unopened portion mark it opened? Not in the
     spec (see EPIC-03-02).
   - INIT-03 Q3: what to do when the chosen portion is already finished.
@@ -470,7 +578,8 @@ is kept as approved.)
     suggestions? This draft shows the warning only for "channelling seen".
   - The "ran fast" threshold is not defined, so that warning stays out (DQ-09).
     Shot time is a diagnostic in suggestions (EPIC-02-03), which may need the
-    same threshold.
+    same threshold. (EPIC-04-02's "running about 10% fast against its recipe"
+    is a relative signal for drift, not this warning.)
   - Closed (S-02): DQ-08, the defect list (the six tags), and INIT-01 Q3 (no
     taste field is required).
 
@@ -505,6 +614,8 @@ is kept as approved.)
     later. Changes apply to the shot log and suggestions from then on; old
     shots keep their stored values, so nothing is reinterpreted.
   - Out: editing capabilities of seeded or verified models.
+  - Out: an origin question on adding a coffee (EPIC-03-07, which owns the new
+    catalog field and extends this flow when it ships).
   - Out: in-app tooling for verification and merges. Until EPIC-06-07 these
     are a manual admin task (S-02).
   - Out: fuzzy or LLM matching (EPIC-06-07).
@@ -551,19 +662,29 @@ is kept as approved.)
 - **Description:** From a good shot, or by entering values, the user pins a
   recipe for this coffee, persona, setup and drink type. Every bag of that
   coffee then starts from it on that setup, and pinning again replaces it
-  while keeping the old ones. On a new setup, the closest previous setup's
-  recipe gives the dial-in a head start.
+  while keeping the old ones. The recipe also remembers whether the shot was
+  sweetened, so the next log starts pre-ticked. On a new setup, the closest
+  previous setup's recipe gives the dial-in a head start.
 - **Source sections:** S-02, S-04, S-08 (S-01 roadmap)
 - **Scope**
   - In: pin from a logged shot (recipe points back to it) or enter values
     directly; the recipe records its setup, the same optional temperature and
     pressure pairs as shots, the puck prep checkboxes and, for milk drinks,
     the usual milk type and amount, copied from the shot when pinned from one.
-  - In: milk is part of the drink, not the recipe's identity (S-02): a recipe
-    stays scoped to coffee, persona, setup and drink type, whatever the milk.
+  - In (Head of Product, round 8): the recipe remembers the shot's
+    **sweetened** toggle: yes or no only, no amount or kind of sugar. Pinning
+    from a shot copies it; entering values offers the same toggle. Any log
+    started from the recipe (Dial in, fix, the closest-setup dial-in, and the
+    one-tap copy in EPIC-02-02) starts with it as the recipe has it. Existing
+    recipes read as not sweetened. Needs a new boolean column on recipes (S-08
+    has it on shots only).
+  - In: milk and sweetened are part of the drink, not the recipe's identity
+    (S-02): a recipe stays scoped to coffee, persona, setup and drink type,
+    whatever the milk or sugar.
   - In: re-pinning adds a row; the latest pin wins.
   - In: see the current recipe for a coffee, persona, setup and drink type; it
-    applies to every bag of that coffee.
+    applies to every bag of that coffee. (A pin updates the coffee's recipe by
+    default, DQ-29; choosing "this bag only" is EPIC-02-04.)
   - In: recipes belong to exactly one setup (S-02). When the current setup has
     no recipe for this coffee, persona and drink, Dial in starts pre-filled
     from the recipe on the closest previous setup (most parts in common),
@@ -578,24 +699,35 @@ is kept as approved.)
     pressure carry over only with the same machine.
   - Out: batch overrides (EPIC-02-04).
   - Out: drift or offset adjustments when reading (INIT-04).
+  - Out: a new profile's first dial-in starting from another profile's recipe
+    (EPIC-05-01; it only exists once there are several profiles).
   - Out: listing a coffee's recipes on the coffee screen (EPIC-03-06 shows
     them, using this epic's resolution).
+  - Out: the sweetened amount or kind, and sweetened on Brew before a pull
+    (see risks).
 - **Dependencies:** EPIC-01-03 (pin from a shot), EPIC-01-04 (recipes carry the
   same temperature and pressure fields), EPIC-03-01 (the coffee comes from
   Beans), EPIC-01-02 (setups).
 - **Priority:** MVP
-- **Rough size:** M
+- **Rough size:** M, at the top (22 story points with sweetened on recipes; re-sized 2026-11-16)
 - **Risks and open questions**
-  - INIT-02 Q1 (S-02 still open): does pinning update the bag's override or the
-    coffee's default? This epic assumes the coffee's default only, which is
-    safe until EPIC-02-04 exists; confirm.
+  - **Closed (DQ-29, round 8): INIT-02 Q1.** A pin updates the coffee's
+    recipe, as built; "this bag only" is an explicit choice in EPIC-02-04.
+  - Sweetened on recipes changes the spec's wording ("a mark on the shot"):
+    S-02, S-04 and S-08 need updating, and `pinned_recipes` gets a column. Two
+    shots of the same drink, one with sugar and one without, still share one
+    recipe, so someone who sometimes sweetens has to untick on those days; the
+    toggle is the whole feature and no amount is kept.
+  - Which shot's sweetened value wins when a recipe is pinned from a past shot
+    is simple (that shot's), but a one-tap shot cannot be pinned (below), so a
+    household that only uses one-tap shots has the value only from the last
+    manual pin.
   - Is pinning a recipe without a source shot allowed? `source_extraction_id`
     is nullable, so the schema allows it, but no flow is described.
   - Can a one-tap shot be pinned? It only copies a recipe, so pinning it would
     add nothing; confirm it's excluded.
-  - Do the prep checkboxes and milk carry over in a closest-setup pre-fill?
-    They don't depend on the setup, so carrying them over seems natural;
-    confirm with DQ-20.
+  - Do the prep checkboxes, milk and sweetened carry over in a closest-setup
+    pre-fill? Closed (STORY-02-01-06 AC 3): they carry over.
   - Someone who alternates milks shares one recipe per drink unless they add a
     drink such as "Oat flat white" (S-02), which needs drink editing
     (EPIC-02-05, Next). Is that acceptable for the MVP?
@@ -608,15 +740,16 @@ is kept as approved.)
 - **Description:** Brew shows the pinned recipe for the selected persona, the
   current setup and the drink they usually make at this time of day. One tap
   on "Pull This Shot" records a one-tap shot copied from the recipe, prep
-  checkboxes and milk included, so daily use is counted. With no recipe on
-  this setup, the button reads "Dial in". The user can switch setup, or change
-  a part, right there.
+  checkboxes, milk and sweetened included, so daily use is counted. With no
+  recipe on this setup, the button reads "Dial in". The user can switch setup,
+  or change a part, right there.
 - **Source sections:** S-06, S-02, S-08
 - **Scope**
   - In: Brew uses the persona selected there (in the MVP, the one main
-    persona), the current setup (DQ-18, EPIC-01-02) and that persona's last
-    drink type at this time of day. Brew always shows the recipe on the
-    current setup, so a one-tap pull always uses that recipe's setup.
+    persona), the current setup (DQ-18 as amended by DQ-36, EPIC-01-02) and
+    that persona's last drink type at this time of day. Brew always shows the
+    recipe on the current setup, so a one-tap pull always uses that recipe's
+    setup.
   - In (PEC-03): before a pull, the user can change the drink and the coffee
     on Brew; the recipe shown updates in place, and the pull uses the chosen
     drink and coffee. The drink and coffee selected here also pre-filter the
@@ -625,12 +758,13 @@ is kept as approved.)
     selects offering the household's setups and "change a part". The setup
     chosen becomes the current setup, and the recipe shown updates in place.
   - In: "Pull This Shot" copies the pinned recipe's values, including the
-    puck prep checkboxes and the milk type and amount (S-02), into a shot
-    marked one-tap, with the recipe's setup and the earliest-opened open
-    portion of that coffee. "Open" means opened, not finished and not in the
-    freezer (S-02): an opened-then-frozen portion isn't open until thawed, and
-    one-tap never uses frozen coffee on its own. If no portion of the coffee is
-    open, it asks; frozen coffee is used only when the user picks it.
+    puck prep checkboxes, the milk type and amount (S-02) and the sweetened
+    toggle (EPIC-02-01), into a shot marked one-tap, with the recipe's setup
+    and the earliest-opened open portion of that coffee. "Open" means opened,
+    not finished and not in the freezer (S-02): an opened-then-frozen portion
+    isn't open until thawed, and one-tap never uses frozen coffee on its own.
+    If no portion of the coffee is open, it asks; frozen coffee is used only
+    when the user picks it.
   - In: no rating is asked. Undo for a few seconds.
   - In: edit a one-tap shot afterwards, found through the Journal and its edit
     flow (EPIC-02-06).
@@ -642,6 +776,8 @@ is kept as approved.)
     (EPIC-02-03).
   - Out: switching between several personas (EPIC-05-01).
   - Out: palate learning from these shots (EPIC-06-04).
+  - Out: the drift-adjusted grind shown on Brew (EPIC-04-02) and the
+    servicing shift (EPIC-04-03); this epic's Brew hosts them.
 - **Dependencies:** EPIC-02-01 (needs a pinned recipe), EPIC-01-03 (the shot
   log for "Dial in", and the setup field PEC-09 extends), EPIC-01-02 (setups
   and the current-setup rule), EPIC-03-01 (needs a portion), EPIC-02-06
@@ -656,15 +792,17 @@ is kept as approved.)
     Brew shows by default is a design assumption (DQ-03); confirm.
   - Does a drink or coffee changed on Brew stick for the next pull? Design
     assumes no saved setting (DQ-17); confirm.
-  - A one-tap shot copies the recipe's prep checkboxes and milk, so a day with
-    a different milk or without the WDT tool is recorded wrongly unless the
-    shot is edited. That's the price of zero inputs; editing in EPIC-02-06
-    fixes it. Should milk be changeable on Brew before a pull, like drink and
-    coffee? Not in the spec.
+  - A one-tap shot copies the recipe's prep checkboxes, milk and sweetened
+    toggle, so a day with a different milk, without sugar or without the WDT
+    tool is recorded wrongly unless the shot is edited. That's the price of
+    zero inputs; editing in EPIC-02-06 fixes it. Should milk or sweetened be
+    changeable on Brew before a pull, like drink and coffee? Not in the spec.
+    Closed (DQ-44a and b, accepted): a one-tap pull copies sweetened, and
+    sweetened isn't changeable on Brew.
   - Opening a portion when none is open: does answering the prompt mark a
     portion opened? Links to the EPIC-03-02 question on who sets "opened".
-  - Closed (DQ-18, PEC-09, working assumption): which setup is current, and how
-    the user switches.
+  - Closed (DQ-18, PEC-09, working assumption; DQ-36, round 8): which setup is
+    current, and how the user switches.
   - Undo window length ("a few seconds") to be set at story level (design
     assumes 8 seconds, DQ-04).
   - X-2: success metric targets.
@@ -705,9 +843,11 @@ is kept as approved.)
     explanations, never as levers: coffee past its peak or too fresh, fast and
     sour means under-extracted.
   - In: the shot log opens pre-filled from the pinned recipe (or, on a setup
-    without one, the closest previous setup's recipe, EPIC-02-01), prep and
-    milk included, with the suggested change applied and marked. The user can
-    accept, change or ignore it, and saves a normal measured shot.
+    without one, the closest previous setup's recipe, EPIC-02-01), prep, milk
+    and sweetened included, with the suggested change applied and marked. The
+    user can accept, change or ignore it, and saves a normal measured shot.
+    Fix mode applies no drift adjustment: it starts from the evidence of the
+    off shot plus one suggested change (DQ-34, EPIC-04-02).
   - In: a dial-in from Brew opens the same pre-filled log, with a suggestion
     when the last shot on this recipe was off.
   - In: the rules are tested against a fixed set of scenarios, like any advice
@@ -746,28 +886,60 @@ is kept as approved.)
     This draft says no: a rating has no direction.
   - For a new coffee with no pin on any setup, does "Dial in" start from a
     blank log or from another coffee's recipe? Not in the spec.
+  - Closed (DQ-34, round 8): when drift (EPIC-04-02) and a suggestion could
+    both apply, they never meet; drift applies only where the recipe is the
+    starting point, and fix mode starts from the off shot.
 
 ### EPIC-02-04: Give one bag its own recipe
 
 - **Parent:** INIT-02
 - **Description:** If one bag behaves differently from the coffee's usual, the
-  user pins a recipe for that bag only. The coffee's default stays as it was
-  for the next bag.
+  user chooses "this bag only" when pinning, and the recipe applies to that bag
+  alone. The coffee's recipe stays as it was for the next bag, and the user can
+  drop the bag's own recipe later to go back to the coffee's.
 - **Source sections:** S-02, S-04, S-08
 - **Scope**
-  - In: pin a recipe for one bag (batch); it overrides the coffee's default for
-    that bag only.
-  - In: Brew and pre-fill use the override while that bag is in use.
+  - In (DQ-29): a scope choice in the pin sheet, two options: every bag of this
+    coffee, and this bag only. Pinning for this bag only leaves the coffee's
+    recipe untouched; the sheet says what the bag would otherwise use.
+  - In (DQ-29): defaults. A pin defaults to the coffee's recipe, as the MVP
+    does. The first recipe for a coffee (for the drink and setup) is always the
+    coffee's, and the scope choice isn't offered then, so a coffee never ends
+    up with only a bag recipe. When the bag already has its own recipe for this
+    drink and setup, the default is "this bag only". One option is always
+    selected; never a silent choice.
+  - In: Brew and pre-fill (Dial in, fix) use the bag's recipe while that bag is
+    the portion in use (earliest-opened open portion); a new bag of the same
+    coffee starts from the coffee's recipe again, with no prompt.
+  - In: shown as text, never colour: a marker on Brew, the bag's screen
+    (its own recipe first, then the coffee's), the portion picker and the
+    coffee screen's bag rows.
+  - In (PEC-16): remove a bag's own recipe ("use the coffee's recipe for this
+    bag"), after one confirmation. The coffee's recipe is unchanged.
+  - In: a finished bag can't be chosen as the scope of a new pin (the choice
+    explains why).
   - Out: anything else about recipes (EPIC-02-01).
-- **Dependencies:** EPIC-02-01, EPIC-02-02.
-- **Priority:** Next. Differs from the initiative (MVP): the spec calls the
-  override optional, the coffee's default delivers the initiative's goal on
-  its own, and deferring it avoids building on the unresolved
-  override-vs-default question (INIT-02 Q1).
+  - Out: a bag recipe per persona beyond what recipes already scope by
+    (recipes are per coffee, persona, setup and drink; so is a bag's).
+  - Out: recording which recipe a shot came from; shots store their values only.
+- **Dependencies:** EPIC-02-01 (the pin flow and the recipe it overrides),
+  EPIC-02-02 (Brew and the portion in use), EPIC-03-06 (the coffee screen's bag
+  rows; the bag marker can ship without it).
+- **Priority:** Next. Differs from the initiative (MVP): the coffee's default
+  delivers the initiative's goal on its own, and deferring it avoids building
+  on an unresolved question, now answered (DQ-29).
 - **Rough size:** S
 - **Risks and open questions**
-  - INIT-02 Q1 (still open) decides how a pin chooses between override and
-    default; this epic can't be specified until it's answered.
+  - Closed (DQ-29, PEC-16, round 8): INIT-02 Q1. A pin defaults to the
+    coffee's recipe; "this bag only" is explicit.
+  - Existing data: the `pinned_recipes` table already has an optional bag
+    column, and today's readers look only at recipes with no bag; they must
+    start reading the bag's recipe first (tech note).
+  - Overlap flag: the pin sheet is EPIC-02-01's flow; this epic adds the scope
+    choice to it. Pinning itself stays in EPIC-02-01.
+  - How the bag's recipe interacts with a servicing shift (EPIC-04-03) and with
+    drift (EPIC-04-02): both read the bag's recipe like any other recipe. Not in
+    the spec; confirm.
   - Should the Head of Product want it in MVP, it slots in after EPIC-02-03.
 
 ### EPIC-02-05: Make the drink and milk lists yours
@@ -775,31 +947,56 @@ is kept as approved.)
 - **Parent:** INIT-02
 - **Description:** The household renames, hides or adds drink types and milks,
   and sets how much milk each drink usually gets, so the lists match what they
-  actually make. Hidden entries stop showing on Brew and in the shot log.
+  actually make. Hidden entries stop showing on Brew and in the shot log. A
+  variation such as "Americano with froth" is added as a custom drink.
 - **Source sections:** S-02, S-04, S-08
 - **Scope**
   - In: drinks: rename a starter drink (stores its own name over the
-    translated one), hide or unhide, add a custom drink (with or without
-    milk), set the order, and set its typical milk amount.
+    translated one, with a way back to the original), hide or unhide, add a
+    custom drink (with or without milk), set the order, and set its typical
+    milk amount. The last shown drink can't be hidden.
   - In: milks: rename a starter milk, hide or unhide, add one (for example
-    "Oat (barista)"), set the order. No brand catalog (S-02).
-  - Out: the starter lists themselves (EPIC-01-01); the sweetened mark
-    (EPIC-01-03).
-- **Dependencies:** EPIC-01-01, EPIC-02-02 (Brew uses the lists).
+    "Oat (barista)"), set the order. No brand catalog (S-02). The last shown
+    milk can't be hidden.
+  - In (Head of Product, round 8): conventional drink types define milk
+    inherently: a starter drink has milk or it doesn't (an Americano has none),
+    and that setting is not editable on an existing drink (it would
+    reinterpret past shots). A variation such as "Americano with froth" is a
+    **custom drink** added here, where the user chooses whether it has milk at
+    creation. No change to milk on any existing drink.
+  - In (DQ-38): names are unique within the household's drinks and within its
+    milks, hidden ones included. Recipes for a hidden drink are kept and return
+    on unhide (shown, marked hidden, on the bag and coffee screens). A hidden
+    milk that is already chosen on a recipe or shot stays shown by name there
+    and is never swapped silently; it just isn't offered as a new choice.
+  - In: reordering works without dragging (keyboard and screen reader), each
+    move saved at once. A new entry goes last.
+  - In: reached from Profile and from a footer row in the selects that use the
+    lists, each returning to where it started.
+  - Out: the starter lists themselves (EPIC-01-01).
+  - Out: the sweetened mark (EPIC-01-03, EPIC-02-01); sugar is never a drink.
+  - Out: deleting a drink or milk (hiding is the removal).
+  - Out: brand milk catalog; steamed-milk temperature (S-02).
+- **Dependencies:** EPIC-01-01, EPIC-02-02 (Brew uses the lists), EPIC-05-03
+  (the Profile restructure, used by TASK-02-05-07-FE1).
 - **Priority:** Next. Differs from the initiative (MVP): the starter lists
   cover the common drinks and milks, and S-02 doesn't place editing in a phase.
   Moves to MVP if the Head of Product wants it.
-- **Rough size:** S
+- **Rough size:** M (was S; 17 story points with custom drinks and the milks list; re-sized 2026-11-16)
 - **Risks and open questions**
   - Placed under INIT-02 because drink type scopes recipes and Brew; it could
     equally sit under INIT-01. Flagged as ambiguous.
   - Until this ships, a household can't add "Oat flat white" to keep separate
     recipes per milk (S-02), and the typical milk amounts are the starter
     values. See EPIC-02-01.
-  - What happens to recipes and Brew's default when their drink type or milk is
-    hidden? Not in the spec.
+  - Closed (DQ-38, round 8): what happens to recipes and Brew's default when
+    their drink type or milk is hidden. If a hidden drink is the one the
+    time-of-day rule would pick, it moves on to the next shown drink (DQ-02).
   - Closed (S-08): `has_milk` decides whether a drink shows milk fields and the
     milk wording of the strength question.
+  - A custom drink has no typical history; its recipes start empty, and it
+    counts as its own drink style for later palate learning (EPIC-06-04 open
+    question).
 
 ### EPIC-02-06: Look back in your journal
 
@@ -819,12 +1016,15 @@ is kept as approved.)
     currently selected on Brew (EPIC-02-02), with a one-tap clear that shows
     everything.
   - In: open a shot and edit its values, including the prep checkboxes, milk,
-    rating, "just right" answers and tags, in the shot log UI.
+    sweetened, rating, "just right" answers and tags, in the shot log UI.
   - In: on a shot's detail, "Dial in from this" opens the shot log pre-filled
-    from that past shot (values, prep and milk), to log a new measured shot.
-    The past shot is unchanged.
+    from that past shot (values, prep, milk and sweetened), to log a new
+    measured shot. The past shot is unchanged and no drift adjustment is
+    applied (DQ-34).
   - In: the Journal can be opened already filtered to one coffee, which the
     coffee screen (EPIC-03-06) uses.
+  - Out: a Person filter and a "for {name}" marker on shots (EPIC-05-01, once
+    there are several profiles).
   - Out: free-text search, charts or analysis (not in the spec).
   - Out: undo right after a one-tap shot (EPIC-02-02).
   - Out: the suggestion after an off shot (EPIC-02-03).
@@ -873,6 +1073,9 @@ is kept as approved.)
 
 ## INIT-03: Always know what beans you have and how old they are
 
+INIT-03 has seven epics after revision 11, one more than the 2-to-6 guideline;
+see EPIC-03-07's parent decision.
+
 ### EPIC-03-01: Add a bag of beans
 
 - **Parent:** INIT-03
@@ -893,7 +1096,8 @@ is kept as approved.)
     their portions, and a bag's own screen.
   - Out: grouping On hand by state (EPIC-03-02).
   - Out: the Tried section and the coffee screen (EPIC-03-06).
-  - Out: Beans filters (EPIC-03-05, Next).
+  - Out: the run-out line (EPIC-03-05, Next) and Beans filters (EPIC-03-07,
+    Next); this epic's Beans tab hosts them.
   - Out: adding missing roasters or coffees (EPIC-01-06).
   - Out: splitting, freezing and lifecycle dates (EPIC-03-02).
   - Out: bean age (EPIC-03-03).
@@ -967,7 +1171,8 @@ is kept as approved.)
   - In: identify shots ground from frozen and mark them where shots and
     portions are shown.
   - In: the clocks are available to dial-in suggestions as explanations (too
-    fresh or past its peak), never as levers (EPIC-02-03).
+    fresh or past its peak), never as levers (EPIC-02-03), and to drift as its
+    age input (EPIC-04-02).
   - Out: using age to adjust grind (EPIC-04-02).
 - **Dependencies:** EPIC-03-02 (opened, frozen and thawed dates), EPIC-01-03
   (shots to mark), EPIC-03-01 (roast, packing and best-before dates).
@@ -975,7 +1180,9 @@ is kept as approved.)
 - **Rough size:** S
 - **Risks and open questions**
   - What counts as "too fresh" or "past its peak" for the suggestion
-    explanations isn't defined in the spec.
+    explanations: design DQ-24 assumes under 5 days since roast or packing, and
+    over 35 days since roast or 21 days open, confirmed by the Head of Product
+    before wave 12 and tuned by the rule evals.
   - Closed (S-02): INIT-03 Q2, the age rule for best-before-only and undated
     bags (review blocker B1).
   - Closed (S-02): the S-09 "days since batch opened" input is the
@@ -1008,40 +1215,53 @@ is kept as approved.)
   - Unlogged shots make remaining weight overstate stock. Should the app prompt
     a stock check, and when? Not in the spec.
 
-### EPIC-03-05: Know when you'll run out, and find any coffee
+### EPIC-03-05: Know when you'll run out
 
 - **Parent:** INIT-03
 - **Description:** Beans tells the household roughly when it will run out of
-  coffee, counting frozen stock, based on its real usage rate. It also lets
-  them narrow Beans down by roaster, roast level, origin or rating, to find a
-  coffee in a long Tried list.
+  coffee, counting frozen stock, based on its real usage rate. One tap shows
+  how Tare worked it out: the rate, what it's based on and how much of the
+  household's real use logging captures. Until it has enough history it says
+  it is still learning and shows no number.
 - **Source sections:** S-02, S-08
 - **Scope**
   - In: usage rate from finished portions, doses (one-tap included), stock
     checks and purchase dates; calculated, never stored.
-  - In: predicted run-out date across all portions, frozen included.
-  - In: how much of real usage logging captures (S-02).
-  - In (revision 10): Beans filters by roaster, roast level, origin and rating
-    (S-02), over On hand and Tried.
+  - In: predicted run-out across all portions, frozen included, as one calm
+    line under On hand ("about 5 weeks of coffee, 2 of them in the freezer"),
+    never a precise date in the line.
+  - In: a "how we worked this out" sheet: the span, coffee on hand and how much
+    is frozen, usage rate, what it is based on (finished portions over how
+    many weeks) and the share of finished portions' weight that logged shots
+    account for (S-02), with a sentence on what a low share means.
+  - In (DQ-39): shown only after about three finished portions (a threshold the
+    rules owner sets); before that, "still learning" with the progress and no
+    estimate. Absent when nothing is on hand and when there has been no
+    brewing for a month (stale use). Ink only: no warning colour, no buy
+    prompt.
+  - Out: Beans filters, and hiding this line while a filter is on (EPIC-03-07
+    owns the rule).
   - Out: reorder prompts or buying (not in the spec).
-- **Dependencies:** EPIC-03-04 (run-out), EPIC-03-06 (Tried, which the filters
-  narrow), EPIC-03-02 (On hand groups).
-- **Priority:** Next. Run-out differs from the initiative (MVP): INIT-03 Q1
-  asks whether prediction is Phase 1, and a prediction needs weeks of
-  finished portions to be useful, which the MVP epics collect. Beans filters
-  are Next by S-02. Either part moves to MVP if the Head of Product says so.
-- **Rough size:** M, at the top (the filters are small on their own).
-- **Placement decision:** Beans filters needed a Next home and INIT-03 has six
-  epics (the limit), so they join this epic, the only Next epic about Beans.
-  Run-out and filters are separate pieces of value; split them if INIT-03 is
-  restructured.
+  - Out: promising an accuracy: the sheet shows its inputs and the logged
+    share instead (DQ-39d; X-2 for this feature).
+- **Dependencies:** EPIC-03-04 (remaining weight and doses), EPIC-03-02
+  (finished portions), EPIC-02-02 (one-tap doses count), EPIC-03-01 (purchase
+  dates).
+- **Priority:** Next. Differs from the initiative (MVP): a prediction needs
+  weeks of finished portions to be useful, which the MVP epics collect. Closed
+  (DQ-39a, round 8): prediction is in the product now, as a Next epic.
+- **Rough size:** M, at the small end (was M at the top with the filters;
+  PEC-17 split them out).
 - **Risks and open questions**
-  - INIT-03 Q1: is prediction (and any reorder prompt) Phase 1?
-  - Accuracy method and target are not given (X-2).
-  - The catalog has no origin field (S-08), so filtering by origin needs one,
-    filled in the seed list and asked for user-added coffees.
-  - What "rating" means for a coffee isn't defined: the same summary as
-    Tried's "how its shots went" (EPIC-03-06), or something else?
+  - Closed (DQ-39, round 8): INIT-03 Q1, whether prediction is Phase 1. Yes,
+    in Next; reorder prompts stay out.
+  - The three-portion threshold, the stale-use period and the span formats are
+    starting values the rules owner can tune.
+  - Households that drink more than they log will see run-out sooner than
+    shown; the coverage sentence is the honest answer, not a correction.
+  - Households with a single person and a single bag a month have very few
+    finished portions in the first months; the "still learning" state may show
+    for a long time.
 
 ### EPIC-03-06: See every coffee you've tried
 
@@ -1063,7 +1283,9 @@ is kept as approved.)
     (EPIC-02-01's resolution); and a link to the Journal filtered to this
     coffee (EPIC-02-06).
   - In: the coffee screen is reachable from Tried and from a bag in On hand.
-  - Out: filters by roaster, roast level, origin or rating (EPIC-03-05, Next).
+  - Out: filters by roaster, roast level, origin or rating (EPIC-03-07, Next);
+    showing origin on the coffee screen is part of that epic.
+  - Out: a per-person summary once there are several profiles (EPIC-05-01).
   - Out: editing the coffee's catalog entry (EPIC-01-06 for a household's own
     unverified coffee; otherwise not in the MVP).
   - Out: recommending coffees to buy (EPIC-06-04, EPIC-06-06).
@@ -1079,20 +1301,96 @@ is kept as approved.)
 - **Rough size:** M, at the small end (a calculated list plus one light screen
   over existing data).
 - **Risks and open questions**
-  - "How its shots went" isn't defined: the average overall rating, the share
-    of shots marked good or off, or a summary of "just right" answers? Taste
-    is relative to the persona (S-02), so a household summary mixes personas
-    once there are several (EPIC-05-01). This draft assumes a simple summary
-    for the one MVP persona; confirm.
+  - "How its shots went" is defined by the design as a working assumption
+    (DQ-28): with three or more rated shots, "mostly good", "mixed" or "mostly
+    off"; with fewer, "last rated N of 5"; with no ratings but reactions, from
+    good and off; otherwise "no ratings yet". Taste is relative to the persona
+    (S-02), so a household summary mixes personas once there are several;
+    EPIC-05-01 makes it per person. Confirm the words.
   - The summary line can read as a verdict on the coffee ("mostly off") when
     the user simply hadn't dialled it in yet (design concern). It should
     describe the shots, never judge the coffee, and never use colour.
   - Does a coffee count as tried once a bag is added, or only once a shot is
-    logged from it? S-02 says "every coffee ever used"; this draft assumes a
-    shot is needed, so bags never opened appear only in On hand.
+    logged from it? S-02 says "every coffee ever used"; the design assumes a
+    shot is needed (DQ-27), so bags never opened appear only in On hand.
   - With many bags on hand, Tried sits below the fold (design concern); the
     design keeps its heading reachable.
   - Merged catalog entries (EPIC-06-07) must collapse into one row.
+
+### EPIC-03-07: Find any coffee in Beans
+
+- **Parent:** INIT-03 (see parent decision)
+- **Description:** Once the household has a long list of coffees, they narrow
+  Beans, On hand and Tried together, by roaster, roast level, origin or how its
+  shots went, to find the coffee they want. Filters only show choices that
+  exist, with counts, and one tap clears them.
+- **Source sections:** S-02, S-08 (S-02 "Beans filters"; S-08 for the missing
+  origin field)
+- **Scope**
+  - In (DQ-39c): a filter row under the Beans header, shown only once the
+    household has six or more distinct coffees (on hand and tried together).
+    Beans always opens unfiltered.
+  - In: four filters: roaster, roast level (the fixed S-09 scale, light to
+    dark), origin and rating. One value per filter; several filters combine
+    (AND). Each filter's choices are only values that exist among the
+    household's coffees, each with a count. "All" and each filter's own control
+    clear them.
+  - In (DQ-39b): "rating" for a coffee is Tried's own summary words (mostly
+    good, mixed, mostly off, no ratings yet; DQ-28), so nothing new is invented.
+  - In: the filters narrow On hand and Tried together; filters are kept when
+    returning from a bag or a coffee, and cleared by tapping the Beans tab
+    again; a section with no matches says so in one line; when nothing matches,
+    one empty state offers "clear filters".
+  - In: the run-out line (EPIC-03-05) is hidden while any filter is on, because
+    its figure is for all coffee.
+  - In (origin, a catalog field the schema lacks): add an optional origin to the
+    coffee catalog entry (a nullable column on `canonical_beans`; existing
+    entries are unaffected), chosen from a curated list of producing countries
+    plus "other", normalised so spellings are one value; ask for it, optionally,
+    when a household adds a coffee (EPIC-01-06's flow); fill it in the seed list;
+    show it in the coffee screen's details (EPIC-03-06's screen).
+  - In: the origin filter is hidden until at least one coffee has an origin;
+    coffees without one are findable under "not stated" so they can be filled
+    in.
+  - Out: free-text search, sorting, saved filters, filters on the Journal
+    (EPIC-02-06).
+  - Out: a Person filter on Beans: Tried's summary, and so the rating filter,
+    follows the person chosen on Brew once there are several profiles
+    (EPIC-05-01).
+  - Out: editing a verified coffee's origin (admin, then EPIC-06-07).
+- **Dependencies:** EPIC-03-06 (Tried, the coffee screen and the rating words),
+  EPIC-03-02 (On hand groups), EPIC-03-01 (the Beans tab); EPIC-01-06 (the Add a
+  coffee flow it adds a field to; if that epic is split with coffee additions
+  first, the origin field goes in with those). Independent of EPIC-03-05; the
+  hide rule above works whichever of the two ships first.
+- **Priority:** Next (S-02: Beans filters come in Next). Differs from the
+  initiative (MVP) because S-02 places them after the MVP.
+- **Parent decision (PEC-17):** INIT-03, ID EPIC-03-07 (the next free ID, so
+  EPIC-03-05 keeps its number). INIT-03 already has six epics, so this is a
+  **seventh, by exception**, which needs the Head of Product's agreement. It is
+  thematically right (it is about finding coffee in Beans), and the alternatives
+  are worse: INIT-02 is also full, and INIT-04 and INIT-05 have room but are
+  about grind drift and households, so a filter epic there would make
+  traceability misleading. If the guideline must hold, the fallback is to fold
+  it back into EPIC-03-05 as before and ship the filters without the origin chip
+  until a coffee has an origin (the design hides the chip then anyway).
+- **Rough size:** M, at the small end (was S; 11 story points with the origin field; re-sized 2026-11-16)
+- **Risks and open questions**
+  - Origin is a data gap: the catalog has no such field (S-08), the seed list
+    must be filled in by hand, and a household's own coffees only get one if it
+    answers an optional question. Closed (DQ-49): the Head of Product as admin
+    fills the seed list (the list of producing countries was supplied on
+    2026-11-16, planning/coffee-origins.json); households may set it for coffees
+    they add.
+  - Closed (DQ-49): a blend is its own origin value, never inferred from a
+    coffee's name.
+  - A merged coffee (EPIC-06-07) with two different origins: decided with that
+    Later epic (DQ-49 keeps the surviving entry's value).
+  - Six coffees is a design threshold (DQ-39c), starting value; a household
+    with an active Tried list passes it within months.
+  - "Rating" depends on Tried's summary words (a working assumption, DQ-28);
+    if the words change, so do the filter's choices.
+  - INIT-03 now exceeds the epic guideline (see parent decision).
 
 ---
 
@@ -1112,7 +1410,7 @@ is kept as approved.)
     part's events. The setup doesn't change (S-02).
   - In: for grinders, each event starts a new grind period (derived from the
     dates); shots and recipes are placed in a period through their setup's
-    grinder.
+    grinder. Any grinder event starts a period, a clean included (as built).
   - In: mark an event as a recalibration, a flag on the event (S-01, TQ-05).
   - In (PEC-06): where grind periods show: maintenance dividers between shots
     in the Journal, for the grinders of the shots listed (including when the
@@ -1128,8 +1426,12 @@ is kept as approved.)
   limit), and keeping the ID avoids churn.
 - **Rough size:** S
 - **Risks and open questions**
-  - Should a grind suggestion (EPIC-02-03) look only at shots in the current
-    grind period? It reacts to the last off shot, so this draft assumes yes.
+  - Closed for drift (DQ-32, round 8): the grind suggestion in EPIC-04-02 looks
+    only at shots in the current grind period and never reaches back past the
+    last maintenance event. Consequence: because a plain clean starts a new
+    period, drift data resets after cleaning (design 7a). Whether a clean
+    should start a period at all is a product question for the Head of Product;
+    the epic keeps S-02's wording.
   - Should "Dial in from this" (EPIC-02-06) warn when the past shot is from an
     earlier grind period? Its grind may no longer mean the same. Not in the
     spec.
@@ -1137,90 +1439,199 @@ is kept as approved.)
   - Closed (PEC-06): grind periods show as dividers in the Journal and as the
     period start on the part's screen.
   - Should the recalibration flag default on for burrs and re-zero? Design
-    assumes so (DQ-15); confirm.
+    assumes so (DQ-15), and EPIC-04-03 prompts only on flagged grinder events
+    (DQ-42); confirm.
 
 ### EPIC-04-02: Suggested grind that follows bean age and recent shots
 
 - **Parent:** INIT-04
 - **Description:** When the user opens their recipe, Tare shows a grind
   adjusted for how the beans have aged and how this bag has been behaving,
-  learned from their own measured shots with recent ones counting most. The
-  stored recipe is unchanged.
+  learned from the household's measured shots on that coffee and grinder with
+  the most recent days counting most, and gives a separate nudge for each
+  recipe. The stored recipe is unchanged, and the reason is one line away.
 - **Source sections:** S-01, S-02, S-04
 - **Scope**
   - In: drift adjustments for bean age and the bag's own character,
     calculated from logged shots at read time, never stored.
-  - In: only measured shots count as measurements; one-tap shots count only as
-    "the recipe was fine" (S-08 entry mode).
-  - In: recent shots weighted more than older ones.
-  - In: show the adjustment on Brew and in the pre-filled log.
+  - In (DQ-31): the bean-age term is driven by the since-roasting clock (the
+    since-opening clock may add a smaller one); it needs at least three
+    measured shots on the coffee in the current grind period, spread over at
+    least two different ages. With fewer there is no adjustment and nothing
+    shown.
+  - In (DQ-32, revised): the bag's signal uses the bag's measured shots in the
+    last 3 days of the current grind period, at least 3 (reaching further back
+    if needed, never past the last maintenance) and at most 10, weighted by
+    age in time (today about twice 3 days ago). The window is time-based
+    because personas differ in volume (2 versus 5 shots a day; more people
+    means more shots from one bag). Same shots in, same answer out.
+  - In (DQ-32, revised): shots from every persona on the same coffee and
+    grinder are pooled as a relative signal (for example "running about 10%
+    fast against its recipe"), each judged against the recipe it was brewed
+    from, then converted into a separate grind nudge per recipe (per persona,
+    drink and setup). Fall back to pooling within the same basket if evals show
+    single and double baskets diverge.
+  - In (DQ-33): only shots whose puck prep matches the recipe's count towards
+    the adjustment; the others are left out and the "why this grind" sheet
+    says how many.
+  - In: only measured shots count as measurements; one-tap shots never do
+    (S-08 entry mode).
+  - In (DQ-30): shown as both a value and a note: the adjusted grind in the
+    usual place on Brew, and one quiet line giving the recipe's grind and the
+    reason ("recipe 15 · beans have aged"), only when the adjustment is at least
+    one grinder step. The line opens a sheet with the trail (recipe's grind,
+    each step, the grind shown, the evidence) and "use my recipe's grind for this
+    shot" (this pull only, not remembered). Numbers are in the grinder's own
+    units; "finer" and "coarser" only when the direction is known.
+  - In (DQ-34, PEC-21): drift applies only where the recipe is the starting
+    point: Brew and a dial-in from a recipe (including the closest-setup
+    dial-in). Not in fix mode, "Dial in from this", edit or entering a recipe.
+    A one-tap pull records the grind that was shown.
+  - In (DQ-43): rules and statistics, not AI, but shipped with evals like the
+    suggestion rules, because it moves a number the user sets a grinder to.
+    The window, minimums, weighting and caps are starting values the evals tune.
+  - In: with too little evidence, a new grind period or a calculation failure,
+    nothing is shown and nothing blocks a pull.
+  - Out: a combined freshness score. Drift adjusts grind from shots and bean
+    age; no combined score is computed or shown. S-02 defers it (its weighting
+    depends on roast level, storage and the coffee) and no epic owns it yet.
   - Out: the one-change suggestion after an off shot (EPIC-02-03).
   - Out: maintenance offsets (EPIC-04-03).
   - Out: AI explanations (EPIC-06-02).
-- **Dependencies:** EPIC-03-03 (bean age), EPIC-02-02 and EPIC-02-03 (where it
-  is shown), EPIC-04-01 (only shots in the current grind period are
-  comparable).
+- **Dependencies:** EPIC-03-03 (bean age), EPIC-02-02 and EPIC-02-03 (Brew and
+  the pre-filled log, where it is shown), EPIC-04-01 (only shots in the current
+  grind period are comparable), EPIC-02-01 (recipes to judge shots against),
+  EPIC-02-04 (bag recipes and removed ones, read by TASK-04-02-02-BE1).
+  EPIC-05-01 is not required: with one persona the pool is that persona's
+  shots, and it widens by itself once profiles exist.
 - **Priority:** Next
 - **Rough size:** L
 - **Risks and open questions**
-  - Overlap flag: EPIC-02-03 suggests one change after an off shot and treats
-    freshness only as an explanation; this epic adjusts the starting grind
-    ahead of time from history. When both apply, which one wins on the
-    pre-filled log? Not in the spec.
-  - Overlap flag: S-02 and S-04 list "kit maintenance" as a drift adjustment.
-    It is assigned to EPIC-04-03 (offsets).
-  - INIT-04 Q2: recency weighting strength and window.
-  - INIT-04 Q3: how bean-aging drift is estimated, and from how many shots.
-    Which of the two freshness clocks (S-02) drives it, or both?
-  - INIT-04 Q4: shown as a changed grind, a note, or both.
-  - Should shots with and without WDT or puck screen be compared as equals?
-    Prep changes how a shot runs; not in the spec.
-  - Is this an algorithm, not AI? Confirm it fits the "no AI" rule when it
-    ships, or whether it needs evals like the AI features.
+  - Closed (round 8): INIT-04 Q2 (recency window and weight: DQ-32 revised), Q3
+    (bean-aging estimate: DQ-31), Q4 (value, note or both: DQ-30), SQ-18 (prep:
+    DQ-33), the overlap with EPIC-02-03 (DQ-34), and whether it needs evals
+    (DQ-43).
+  - Shots do not record which recipe they were brewed from (nothing stores it).
+    "Each judged against the recipe it was brewed from" therefore needs a rule,
+    for example the recipe in force for that coffee, persona, setup and drink at
+    the shot's time (the latest pin before it). Closed (DQ-45): the latest pin
+    in force before the shot, a bag's own recipe winning for its bag; shots
+    with no earlier recipe are left out.
+  - The "relative signal" is not defined in the spec. The design's example
+    ("about 10% fast against its recipe") suggests measured shot time against
+    the recipe's time; whether yield counts too, and how a percentage becomes a
+    grind nudge in the grinder's own steps, is the rules owner's to define and
+    the evals' to tune.
+  - Pooling across personas treats the signal as mechanical (the beans are
+    running fast), not a matter of taste; one person's habits (a different
+    tamp, say) could bias the others' nudge. Prep matching (DQ-33) reduces this;
+    the evals should include a mixed-technique household.
+  - Low-volume households may rarely have three shots in three days; the rule
+    then reaches back, and a clean or burrs change can leave the period with
+    fewer than three, in which case nothing is shown.
+  - Pooling is "same coffee and grinder", so shots on different setups that
+    share the grinder are pooled, each against its own recipe. Closed (DQ-46):
+    intended; shots on a different grinder are never pooled.
+  - Single and double baskets may behave differently; the fallback (pool within
+    the same basket) is decided by the evals, so the pooling unit may change
+    after launch.
+  - Shots with different prep than the recipe are left out. A household that
+    never ticks prep consistently will often see "nothing to show"; that is the
+    safe outcome.
+  - Closed (round 8) / flagged: a plain clean starts a new grind period (as
+    built, S-02), so drift resets after cleaning (see EPIC-04-01).
 
 ### EPIC-04-03: Re-dial once after maintenance and keep every recipe
 
 - **Parent:** INIT-04
-- **Description:** After maintenance on a grinder, the user re-dials one
-  coffee. Tare turns the difference into an offset, the user confirms or edits
-  it, and every recipe pinned before the event reads correctly again.
+- **Description:** After maintenance on a grinder that changes what its numbers
+  mean, the user re-dials one coffee. Tare turns the difference into an offset,
+  the user confirms or edits it (or declines), and every recipe pinned before
+  the event reads correctly again.
 - **Source sections:** S-02, S-08
 - **Scope**
-  - In: after an event, re-dial one coffee and propose the shift in grinder
-    units, with bean aging between the two dial-ins subtracted first.
-  - In: user confirms or edits; the shift is stored on the event with the
-    re-dial it came from, and stays editable.
-  - In: apply the shift when reading recipes pinned before the event on
-    setups that include that grinder; stored recipes are never rewritten.
+  - In (DQ-42): only a grinder event marked as a recalibration prompts a
+    re-dial (on by default for burrs and re-zero, DQ-15). A clean or a repair
+    doesn't prompt. Events on a machine or basket never do and have no effect.
+  - In: the prompt is a calm Card on Brew and a status block on the grinder's
+    screen, shown only when at least one recipe pinned before the event exists
+    on a setup with this grinder; "not now" hides the Card for that event.
+  - In: re-dial one coffee: pick one with a recipe from before the event, dial in
+    and pin as normal. A pin of a recipe whose predecessor was pinned before the
+    event, on a setup with the serviced grinder, counts as a re-dial wherever it
+    came from.
+  - In: propose the shift in grinder units from the old and new recipe, with the
+    bean aging between the two dial-ins subtracted first (EPIC-04-02's estimate;
+    with none, nothing is subtracted). The user confirms or edits it in the same
+    control, and sees up to three other recipes it will change before agreeing.
+  - In (DQ-42d): declining stores a shift of zero, with no separate "declined"
+    state; the shift stays editable from the event.
+  - In (DQ-42e): a re-dial of a coffee with no earlier recipe makes no shift and
+    says why, offering another coffee.
+  - In: the shift is stored on the event with the re-dial it came from. When
+    reading, apply it to recipes pinned before the event on setups that include
+    that grinder; stored recipes are never rewritten. Shifted recipes are
+    labelled where shown (the "why this grind" trail).
+  - In (DQ-42c): several events chain: each confirmed shift after a recipe's
+    pin is applied in date order.
+  - In: events on the grinder's screen become tappable to view and edit the
+    shift.
   - Out: stretch factor from two or more coffees (EPIC-04-04).
+  - Out: drift from bean age and the bag (EPIC-04-02); this epic only reuses its
+    aging estimate and its "why this grind" sheet.
 - **Dependencies:** EPIC-04-01 (events), EPIC-04-02 (bean-aging estimate to
-  subtract), EPIC-02-01 (recipes to map).
+  subtract and the sheet that lists the servicing step), EPIC-02-01 (recipes to
+  map).
 - **Priority:** Next
 - **Rough size:** M
 - **Risks and open questions**
-  - INIT-04 Q3: the aging estimate this epic subtracts.
-  - How are offsets chained across several events on one grinder? S-08 gives
-    one formula per event; chaining is implied but not stated.
-  - Non-grinder events (machine repair): do they affect anything? Not in the
-    spec.
+  - Closed (round 8): which events prompt a re-dial (DQ-42a), non-grinder
+    events (DQ-42b), chaining (DQ-42c), declining (DQ-42d), no baseline
+    (DQ-42e); INIT-04 Q3 as shared with EPIC-04-02 (DQ-31).
+  - A plain clean still starts a new grind period (EPIC-04-01) although it never
+    prompts a re-dial, so grind history is split without an offset after a
+    clean. This is a consequence, not a defect (design 7a), but it affects
+    EPIC-04-02.
+  - Back-dating or editing an event's date moves it in the chain at once; the
+    resulting shifts of already-confirmed events need a rule. Not in the spec.
+  - Should an event dated today count recipes pinned earlier today as "before"?
+    The design says yes (counts from the moment it is saved); confirm.
+  - Brew's Card must not show beside the link Card (EPIC-05-03); the re-dial
+    Card wins.
 
 ### EPIC-04-04: Keep recipes right after new burrs of a different design
 
 - **Parent:** INIT-04
 - **Description:** When the user re-dials two or more coffees after the same
-  event, Tare also works out a stretch factor, so recipes stay right when new
-  burrs change what each step means.
+  burrs event, Tare also works out a stretch factor, so recipes stay right when
+  new burrs change what each step means.
 - **Source sections:** S-02, S-08
 - **Scope**
   - In: stretch factor from two or more re-dials after one event; stays 1
     otherwise.
+  - In (DQ-43b): the shift and stretch are fitted by a least-squares line
+    through all the re-dials of that event; flagged as uncertain when the
+    re-dials disagree past a threshold; the user can always edit both.
+  - In: the invitation to re-dial a second coffee is shown for burrs events only
+    (stretch applies to burrs events only); stretch is shown in plain terms and
+    as a percentage, and stored as a factor with 1 meaning no stretch (S-02).
   - In: confirmed and editable like the shift; applied at read time.
+  - Out: stretch for non-burrs events (not offered; an existing stretch can still
+    be edited by hand).
 - **Dependencies:** EPIC-04-03.
-- **Priority:** Next
+- **Priority:** Next. The lowest-value Next epic (only people who change to
+  different burrs, and only after a second re-dial); it can be the last of the
+  Next epics built before invites without harming anything else.
 - **Rough size:** S
 - **Risks and open questions**
-  - How to fit shift and stretch from more than two coffees (which method),
-    and what to do when re-dials disagree. Not in the spec.
+  - Closed (DQ-43b, round 8): how to fit shift and stretch from more than two
+    coffees, and what to do when they disagree.
+  - Re-dials whose old grinds are close together cannot tell a stretch from a
+    shift. The design assumes about two steps apart as the limit and leaves the
+    stretch factor at 1 (0 %) with an explanation; the threshold is a starting value for
+    the tech lead to confirm.
+  - The uncertainty threshold for "re-dials disagree" is a tech-lead number, not
+    in the spec.
 
 ---
 
@@ -1230,65 +1641,148 @@ is kept as approved.)
 
 - **Parent:** INIT-05
 - **Description:** A household member adds profiles for people they brew for
-  who don't have a login, such as a partner or a regular guest. They pick a
-  profile on Brew, and each has its own pinned recipes, usual drinks, taste
-  answers and shots in the Journal.
+  who don't have a login, such as a guest or another household member who
+  doesn't use the app. They pick a profile on Brew, and each has its own pinned
+  recipes, usual drinks, taste answers and shots in the Journal. A name is
+  enough; a nickname works.
 - **Source sections:** S-02, S-04, S-08
 - **Scope**
-  - In: create, rename and manage sub personas (no login).
-  - In: choose the persona on Brew; recipes, the time-of-day drink, logging
-    and "just right" answers follow it.
+  - In: create, rename and manage sub personas (profiles with no login) from a
+    People screen in Profile. Asking for a name only; no other personal data.
+  - In (DQ-35): a profile with no shots and no recipes can be removed after one
+    confirmation; a profile with history cannot, says why, and can be renamed.
+    The main profile is never removed. (An "archive" flag, one column, is the
+    follow-up if old guests become a nuisance; not in this epic, since S-02 says
+    only the UI changes.)
+  - In: choose the persona on Brew; recipes, the time-of-day drink (per person; a
+    new person gets the first shown drink), logging, "just right" answers and
+    pins follow it. Brew says who it is for in words whenever it isn't the main
+    profile.
+  - In (DQ-36): a chosen person holds until Brew has been away for 30 minutes
+    and doesn't reset after a pull. The **current setup follows the household's
+    last shot**, not the persona's, so switching person never switches setup
+    (the machine on the counter is the same for everyone; amends DQ-18).
+  - In (DQ-37a): a profile's first dial-in on a coffee, drink and setup starts
+    from another profile's recipe for the same, and says so; never as a one-tap
+    pull. (The resolution of "which recipe applies" otherwise stays in
+    EPIC-02-01; this only exists with several profiles.)
+  - In (DQ-37b): the log, tasting, off sheet and pin sheet say "for {name}" when
+    the household has more than one profile. A taste answer a member gives for
+    someone else is asked the same way; nothing extra is stored.
   - In: shots record the sub persona as whose taste and the member as who
     logged.
+  - In (DQ-37c): the Journal marks a shot for a non-main profile in text and
+    gains a Person filter chip, defaulting to the person chosen on Brew (a
+    change to EPIC-02-06's list); shot detail shows whose taste and who logged.
+    Tried's "how its shots went" is the summary for the person chosen on Brew,
+    with a subtitle saying so; no filter chip on Beans (a change to
+    EPIC-03-06's list).
   - Out: invites and claiming (EPIC-05-02).
   - Out: schema changes (S-02: only the UI changes).
-- **Dependencies:** EPIC-02-02 (persona selection on Brew), EPIC-01-03.
+  - Out: pooling taste across profiles; learning a profile's palate
+    (EPIC-06-04).
+- **Dependencies:** EPIC-02-02 (persona selection on Brew), EPIC-01-03,
+  EPIC-02-01 (recipes to start a new profile from), EPIC-02-06 (the Journal it
+  adds a filter to), EPIC-03-06 (Tried), EPIC-01-05 (taste answers), EPIC-02-05
+  (the shared name rule), EPIC-05-03 (the Profile restructure) and EPIC-03-07
+  (STORY-05-01-07 AC 3).
 - **Priority:** Next
-- **Rough size:** M
+- **Rough size:** M, at the top (PEC-18 adds the pieces above)
 - **Risks and open questions**
-  - Can a sub persona be deleted, and what happens to its shots? Not in the
-    spec.
-  - Does a sub persona have a default label like "Me", or must it be named?
-    S-02 covers only the default persona.
-  - The current setup follows the persona's last shot (DQ-18), so switching
-    persona can switch setup too; confirm that's wanted.
+  - Closed (round 8): can a profile be deleted (DQ-35); does switching person
+    switch setup, and does it stick (DQ-36); a new profile's first dial-in,
+    second-hand answers, the Journal and Tried (DQ-37).
+  - If several other profiles have a recipe for the same coffee, drink and
+    setup, which one does a new profile start from? Closed (DQ-48): the main
+    profile's, else the most recently pinned or used.
+  - Does a profile have a default label, or must it be named? S-02 covers only
+    the default persona; the design requires a name.
   - "Just right" answers only mean something for the persona who tasted the
-    shot; when one member answers for another, the answers are second-hand.
-    Not in the spec.
-  - Should the Journal (EPIC-02-06) and Tried (EPIC-03-06) gain a persona
-    filter once there are several personas? Tried's "how its shots went"
-    mixes personas otherwise. Not in the spec.
+    shot; second-hand answers are indistinguishable from first-hand ones because
+    nothing extra is stored (DQ-37b). This limits palate learning later
+    (EPIC-06-04); confirm that's acceptable.
+  - Drift (EPIC-04-02) pools shots across profiles by design; once this epic
+    ships, the pool widens by itself.
+  - The design's example copy for the Journal marker must use a neutral
+    name, never a relationship (public repo).
 
 ### EPIC-05-02: Invite them to take over their own profile
 
 - **Parent:** INIT-05
-- **Description:** A member invites the person behind a sub persona. That
-  person signs in with Google, joins the household and claims the profile as
-  their own main persona, keeping all its history.
+- **Description:** A member invites the person behind a profile with a one-use
+  link they send themselves. That person sees the profile's history, signs in
+  with Google, joins the household and claims the profile as their own main
+  persona, keeping all its history. An invite always names a profile, and
+  someone who already has history of their own is refused, never merged.
 - **Source sections:** S-02, S-04, S-07, S-08
 - **Scope**
-  - In: send an invite to join the household; joining adds a membership with a
-    role (owner, member).
-  - In: the joiner claims a sub persona, which becomes their main persona with
-    its history.
+  - In (DQ-41a): any household member can invite for a profile that has no login
+    of its own, and can withdraw the invite; the joiner becomes a member
+    (owner/member roles, S-08).
+  - In (PEC-20a, DQ-41d): every invite names a profile to claim. Joining without
+    a profile to claim is not supported.
+  - In (DQ-41c): the invite is a link, single use, valid 7 days, that the member
+    sends themselves; Tare collects no email address and sends nothing. A
+    pending invite can be copied again or withdrawn; a withdrawn, used, expired
+    or claimed link says only that it no longer works, revealing nothing.
+  - In: before creating the link, the inviter is told what a joiner shares:
+    this household's equipment, beans, recipes and everyone's shots.
+  - In: the link opens a page that works signed out. It shows the profile's
+    history summary (name, shots, most-made drinks, last brewed) and what
+    joining means before anything is claimed; the invitee signs in with Google
+    (EPIC-05-03's sign-in), then explicitly confirms the claim. Nothing changes
+    until Confirm; cancelling at any step leaves the link usable.
+  - In: on Confirm, the profile becomes the signed-in user's own persona (the
+    persona gets that user) with its shots and recipes, and the user joins the
+    household. Others in the household can still brew for them.
+  - In (PEC-20b, DQ-41e): an invitee whose own account has history is refused
+    with a plain explanation, never merged; an invitee whose account is empty
+    (the "nothing entered yet" test, EPIC-05-03) has it replaced silently. No
+    undo after Confirm in this epic.
   - In: a claimed persona's shots follow its own user's consent; an unclaimed
-    persona never qualifies, whoever logged it (S-02, S-07).
+    persona never qualifies, whoever logged it (S-02, S-07). The claim screen
+    says the shots stay private to the household.
+  - In (tech note, PEC-20): a **new invites store** (token, the profile it names,
+    who made it, expiry, status). The schema has none today; S-02's "only the UI
+    changes" and S-08's note that invites "add rows later" (to membership) do not
+    cover it.
   - Out: the consent setting and the network (EPIC-06-05).
   - Out: Google sign-in and account linking (EPIC-05-03).
-- **Dependencies:** EPIC-05-01 (sub personas to claim), EPIC-05-03 (the invitee
-  signs in with Google).
-- **Priority:** Later, per the initiative (phase 3 invites).
+  - In: leaving the household (DQ-41b, DES-05-02-05, STORY-05-02-07; Head of
+    Product, 2026-11-16). The member's profile and history stay with the
+    household as an unclaimed profile, and the leaver starts a new, empty
+    household of their own with a fresh profile.
+  - Out: email delivery, roles beyond owner and member, and merging accounts.
+- **Dependencies:** EPIC-05-01 (profiles to claim and the People screen it adds
+  the invite to), EPIC-05-03 (the invitee signs in with Google; the "nothing
+  entered yet" test is defined there).
+- **Priority:** Next, **sequenced last among the Next epics**. Differs from the
+  initiative (Later, "phase 3 invites"): the Head of Product moved it into this
+  breakdown with stories and tasks now (PEC-20 adjustment). It stays last so
+  nothing else in Next waits on it.
 - **Rough size:** L
 - **Risks and open questions**
-  - INIT-05 Q1: phase 2 and 3 timing (this epic's priority).
-  - INIT-05 Q2: owner versus member permissions.
-  - INIT-05 Q3: what happens if the person leaves the household.
-  - Can an invitee join without a sub persona to claim (getting a new main
-    persona)? Every login has one main persona (S-04), but this path isn't
-    described.
-  - How an invite is delivered (link, email) is not in the spec.
-  - An invitee who already has their own anonymous account and household:
-    what happens to it on joining? Not in the spec.
+  - Closed (round 8): INIT-05 Q2 (anyone can invite and withdraw; other
+    permissions are not defined), delivery (DQ-41c), joining without a profile
+    (DQ-41d), an invitee with history (DQ-41e), and INIT-05 Q1 for priority
+    (Next, last).
+  - Closed (2026-11-16): leaving the household (INIT-05 Q3) is folded into this
+    epic and ships with invites; the leaver gets a new, empty household.
+  - A claimed persona stays brewable by other members (design); does the
+    claiming person get a say? The consent rule keeps their shots out of the
+    network until they opt in, but not private within the household. Not in the
+    spec; confirm.
+  - Does opening the link create an anonymous account and household before the
+    invitee chooses (EPIC-01-01 creates one silently on any visit)? The design
+    says no account is created before the choice; the tech lead decides how the
+    landing page is served, and the "nothing entered yet" test covers the case
+    where one already exists.
+  - Token handling (unguessable, single use, expiry enforced on the server) is a
+    tech-lead point; a link is a credential.
+  - S-02's "only the UI changes between phases" needs a correction for the
+    invites table.
+  - A household with several claimed members shares everyone's shots; the
+    warning before creating a link is the only protection. Confirm it is enough.
 
 ### EPIC-05-03: Keep your coffee history when you change phones
 
@@ -1296,15 +1790,41 @@ is kept as approved.)
 - **Description:** The user signs in with Google, and Firebase links that to the
   anonymous account they've been using, so nothing moves and nothing is lost.
   Their history is no longer tied to one device and survives a lost or reset
-  phone, or a browser clearing its storage.
+  phone, or a browser clearing its storage. On a new phone, a user who already
+  has a linked history can switch to it.
 - **Source sections:** S-02, S-04, S-08
 - **Scope**
   - In: Google sign-in linked by Firebase to the existing anonymous account;
     `firebase_uid` and all data stay as they are.
-  - In: signing in with Google on another device reaches the same account.
+  - In (DQ-40a): a plain monochrome text button ("link your Google account")
+    with no Google logo, in the Profile's account section, which replaces the
+    device section. To be checked against Google's current guidelines before
+    build.
+  - In: linked state says the history is kept; nothing from the Google account
+    (name, email) is shown or stored beyond the sign-in, and the persona's
+    label is unchanged. Cancelling returns silently; failing says nothing has
+    changed and offers retry. No unlink in this epic.
+  - In (DQ-40b): a Google account already linked to another history is never
+    merged. An **empty** device (the "nothing entered yet" test: no parts, no
+    bags and no shots; the starter lists don't count) may switch to that history
+    after one explicit confirmation (the new-phone case); a device **with
+    history** is refused with an explanation and keeps its data.
+  - In (DQ-40c, PEC-19): where the new-device offer lives: the first-run Brew
+    screen (a quiet "already use Tare? sign in with Google" link under the
+    first-run checklist) and Profile, not the start screen. The account is
+    created silently within a second, so a choice in front of it would break
+    "start brewing without setting anything up". EPIC-01-01 is unchanged.
+  - In: one gentle prompt on Brew, once, after the first recipe is pinned or the
+    tenth shot is logged, whichever comes first; dismissing it means it never
+    returns; never beside the re-dial Card or a pulled state, and never once
+    linked.
+  - In (DQ-40d): the prompt's dismissal is remembered on the device, with no
+    schema change; a cleared browser may show it again, which is acceptable.
   - Out: invites, joining a household and claiming a persona (EPIC-05-02).
   - Out: data-sharing consent (EPIC-06-05).
-- **Dependencies:** EPIC-01-01 (the anonymous account to link).
+  - Out: signing out, unlinking, or merging two histories.
+- **Dependencies:** EPIC-01-01 (the anonymous account to link). The Brew
+  prompt waits for the first recipe (EPIC-02-01) but not on any other epic.
 - **Priority:** Next, ordered first among the Next epics and ahead of invites
   (S-02). Decided (S-02, review M6): it stays Next. The MVP explicitly accepts,
   for a prototype, both the lost-or-reset-device risk and the risk that Safari
@@ -1316,13 +1836,20 @@ is kept as approved.)
   scope in `initiatives.md`, which predates this decision.
 - **Rough size:** S
 - **Risks and open questions**
-  - What happens if the Google account is already linked to a different
-    Firebase account (for example the user set up a second device anonymously
-    first)? Two households would exist; merging them isn't in the spec.
-  - Should the app prompt anonymous users to link, and when? Not in the spec.
+  - Closed (DQ-40, PEC-19, round 8): the Google button, the account-already-
+    linked case, where the new-device offer lives and the prompt's dismissal.
+  - STORY-05-03-02 AC 3 says "before a new account is set up" and needs
+    rewording by the story-writer: the offer is now on the first-run Brew
+    screen and Profile.
+  - Redirect versus pop-up for Google on iOS Safari is a build detail (pop-ups
+    are unreliable there).
+  - Should the app prompt anonymous users to link at other times, such as after
+    a lost-data scare? Only the one-time prompt is in scope.
   - Does the default persona's label change once a Google account is linked?
-    S-02 keeps no personal data by default; confirm the name isn't taken from
-    Google.
+    The design keeps it unchanged and takes no name from Google; confirm.
+  - A cleared browser plus a Google link made earlier is the main recovery
+    path; a user who never linked and loses the device has nothing to switch to
+    (accepted risk, S-02).
 
 ---
 
@@ -1356,6 +1883,8 @@ become its own epic again.
     search, or by the EPIC-06-07 matcher? Not in the spec.
   - The eval set for the scanner isn't described; S-09 only defines one for
     the Coach.
+  - The scanner does not read origin (S-09 schema has none); EPIC-03-07 adds an
+    origin field, and whether the scanner should fill it is not in the spec.
 
 ### EPIC-06-02: Get a grounded fix when a shot goes wrong
 
@@ -1432,6 +1961,9 @@ become its own epic again.
     feasible; if wanted, a non-AI slice of this epic moves to Next.
   - What makes two drinks the same "drink style" (a household's custom
     drinks) isn't defined.
+  - Second-hand taste answers (a member answering for another profile,
+    EPIC-05-01) are not flagged, so they can't be told apart from first-hand
+    ones.
 
 ### EPIC-06-05: Share your shots, with your consent
 
@@ -1528,8 +2060,8 @@ become its own epic again.
   - Who is the "person" who confirms an LLM-suggested merge here: the admin,
     or the households involved? Not in the spec.
   - What happens when two merged entries carry conflicting data (different
-    capabilities, dose ranges or roast level)? Merging two models used in
-    setups could also make two setups identical, and merging two coffees
+    capabilities, dose ranges, roast level or origin)? Merging two models used
+    in setups could also make two setups identical, and merging two coffees
     combines their Tried rows and coffee screens; not in the spec.
   - INIT-06 Q5: model choice for the matcher.
 
@@ -1539,9 +2071,9 @@ become its own epic again.
 
 | Initiative | Source sections | Covered by |
 |---|---|---|
-| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01 (tab names, starter milks), 01-02 (fixed setups, current setup, basket dose range), 01-03 (prep, milk), 01-04, 01-05 ("just right" taste), 01-06; S-04: 01-01, 01-02 (setups), 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
-| INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01 and 02-03 (grind doesn't transfer); S-02: 02-01 to 02-06 (recipes per setup with prep and milk in 02-01; setup switching, prep and milk copy and "open" excludes frozen in 02-02; rule-based suggestions and SQ-17 in 02-03; milk list editing in 02-05; the Journal with filters in 02-06); S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
-| INIT-03 | S-02, S-04, S-08 | S-02: all (Beans with On hand in 03-01 and 03-02, two freshness clocks in 03-03, packing date in 03-01, open-vs-frozen in 03-02, Beans filters in 03-05, Tried and the coffee screen in 03-06); S-04: 03-01, 03-02; S-08: 03-01, 03-02, 03-04, 03-05, 03-06 |
+| INIT-01 | S-01, S-02, S-04, S-06, S-07, S-08 | S-01: 01-01 (app shell), 01-03, 01-05 (shot warnings), and the design constraint; S-02: 01-01 (tab names, starter milks), 01-02 (fixed setups, current setup, basket dose range), 01-03 (prep, milk, sweetened), 01-04, 01-05 ("just right" taste), 01-06; S-04: 01-01, 01-02 (setups), 01-06; S-06: 01-01 (app shell), 01-03, 01-05; S-07: 01-01, 01-03 (and localization constraint); S-08: all |
+| INIT-02 | S-01, S-02, S-04, S-06, S-08 | S-01: 02-01 and 02-03 (grind doesn't transfer); S-02: 02-01 to 02-06 (recipes per setup with prep, milk and sweetened in 02-01; setup switching, prep, milk and sweetened copy and "open" excludes frozen in 02-02; rule-based suggestions and SQ-17 in 02-03; bag recipes in 02-04; milk list editing and custom drinks in 02-05; the Journal with filters in 02-06); S-04: 02-01, 02-04, 02-05; S-06: 02-02, 02-03; S-08: 02-01 to 02-06 |
+| INIT-03 | S-02, S-04, S-08 | S-02: all (Beans with On hand in 03-01 and 03-02, two freshness clocks in 03-03, packing date in 03-01, open-vs-frozen in 03-02, run-out in 03-05, Tried and the coffee screen in 03-06, Beans filters in 03-07); S-04: 03-01, 03-02; S-08: 03-01, 03-02, 03-04, 03-05, 03-06, 03-07 (origin column) |
 | INIT-04 | S-01, S-02, S-04, S-08 | S-01: 04-01, 04-02; S-02: all; S-04: 04-01, 04-02; S-08: 04-01, 04-03, 04-04 |
 | INIT-05 | S-02, S-04, S-07, S-08 | S-02, S-04, S-08: 05-01, 05-02, 05-03 (accepted storage risks); S-07: 05-02 |
 | INIT-06 | S-01, S-03, S-05, S-07, S-09 | S-01: 06-01, 06-02, 06-04; S-03: 06-02, 06-06; S-05: 06-05, 06-06 (similar palates, S-05 C); S-07: 06-05; S-09: 06-01, 06-02 |
@@ -1552,24 +2084,29 @@ eviction risks (EPIC-01-01, EPIC-05-03), section names Brew, Journal, Beans and
 Setup (EPIC-01-01 shell; EPIC-02-02, EPIC-02-06, EPIC-03-01, EPIC-01-02), the
 Journal with filters and "Dial in from this" (EPIC-02-06), Beans On hand
 (EPIC-03-01, EPIC-03-02), Tried and the coffee screen (EPIC-03-06), Beans
-filters (EPIC-03-05), private unverified entries and manual admin review
-(EPIC-01-06, EPIC-06-07), catalog (EPIC-01-02, EPIC-03-01, EPIC-01-06,
-EPIC-06-07), drink types (EPIC-01-01, EPIC-01-03, EPIC-02-05), default persona
-label (EPIC-01-01), one-tap shots (EPIC-02-02, EPIC-02-03, EPIC-03-04,
-EPIC-04-02, EPIC-06-04, EPIC-06-05), maintenance from Phase 1 (EPIC-04-01),
-setups as machine, grinder and basket (EPIC-01-02, EPIC-01-06, EPIC-02-01,
-EPIC-02-02, EPIC-04-01), puck prep checkboxes (EPIC-01-03, EPIC-02-01,
-EPIC-02-02, EPIC-02-03, EPIC-02-06, EPIC-06-02), two freshness clocks
-(EPIC-03-01, EPIC-03-03, EPIC-06-02), "open" excludes frozen (EPIC-02-02,
-EPIC-03-02), taste relative to the persona (EPIC-01-05, EPIC-02-03,
-EPIC-02-06, EPIC-03-06), rule-based dial-in suggestions (EPIC-02-03,
-EPIC-06-02), palate learning per persona, drink and milk (EPIC-06-04), learn
-only from similar palates (EPIC-06-05, EPIC-06-06), milk (EPIC-01-01,
-EPIC-01-03, EPIC-02-01, EPIC-02-02, EPIC-02-03, EPIC-02-05), basket dose range
-(EPIC-01-02, EPIC-01-06, EPIC-02-03), technical decisions TQ-04 to TQ-07
-(cross-cutting constraints, EPIC-01-06, EPIC-04-01). Design: PEC-09
-(EPIC-02-02, EPIC-01-02), PEC-15 (EPIC-03-06, EPIC-03-05), DQ-18 and DQ-21
-(EPIC-01-02), DQ-19 and DQ-20 (EPIC-02-01).
+filters (EPIC-03-07), run-out (EPIC-03-05), private unverified entries and
+manual admin review (EPIC-01-06, EPIC-06-07), catalog (EPIC-01-02, EPIC-03-01,
+EPIC-01-06, EPIC-06-07), drink types (EPIC-01-01, EPIC-01-03, EPIC-02-05),
+default persona label (EPIC-01-01), one-tap shots (EPIC-02-02, EPIC-02-03,
+EPIC-03-04, EPIC-04-02, EPIC-06-04, EPIC-06-05), maintenance from Phase 1
+(EPIC-04-01), setups as machine, grinder and basket (EPIC-01-02, EPIC-01-06,
+EPIC-02-01, EPIC-02-02, EPIC-04-01), puck prep checkboxes (EPIC-01-03,
+EPIC-02-01, EPIC-02-02, EPIC-02-03, EPIC-02-06, EPIC-06-02), two freshness
+clocks (EPIC-03-01, EPIC-03-03, EPIC-06-02), "open" excludes frozen
+(EPIC-02-02, EPIC-03-02), taste relative to the persona (EPIC-01-05,
+EPIC-02-03, EPIC-02-06, EPIC-03-06), rule-based dial-in suggestions
+(EPIC-02-03, EPIC-06-02), palate learning per persona, drink and milk
+(EPIC-06-04), learn only from similar palates (EPIC-06-05, EPIC-06-06), milk
+(EPIC-01-01, EPIC-01-03, EPIC-02-01, EPIC-02-02, EPIC-02-03, EPIC-02-05),
+sweetened on the recipe (EPIC-02-01, with EPIC-01-03, EPIC-02-02), basket dose
+range (EPIC-01-02, EPIC-01-06, EPIC-02-03), households, profiles and invites
+(EPIC-05-01, EPIC-05-02), drift and offsets (EPIC-04-02, EPIC-04-03,
+EPIC-04-04), technical decisions TQ-04 to TQ-07 (cross-cutting constraints,
+EPIC-01-06, EPIC-04-01). Design: PEC-09 (EPIC-02-02, EPIC-01-02), PEC-15
+(EPIC-03-06), PEC-16 (EPIC-02-04), PEC-17 (EPIC-03-05, EPIC-03-07), PEC-18
+(EPIC-05-01), PEC-19 (EPIC-05-03), PEC-20 (EPIC-05-02), PEC-21 (EPIC-04-02),
+PEC-22 (EPIC-04-03), DQ-18 and DQ-21 (EPIC-01-02), DQ-19 and DQ-20
+(EPIC-02-01).
 
 ## Overlap and ambiguity flags
 
@@ -1583,34 +2120,56 @@ EPIC-01-03, EPIC-02-01, EPIC-02-02, EPIC-02-03, EPIC-02-05), basket dose range
 - Recipe resolution ("which recipe applies now", including the closest
   previous setup's recipe for a dial-in on a new setup, its ties and what
   carries over) lives in EPIC-02-01; Brew (EPIC-02-02), pre-fill (EPIC-02-03)
-  and the coffee screen (EPIC-03-06) only use it.
+  and the coffee screen (EPIC-03-06) only use it. Two additions live elsewhere
+  because they need a later feature: the bag's own recipe (EPIC-02-04) and a new
+  profile's first dial-in from another profile's recipe (EPIC-05-01).
+- Pin scope: pinning is EPIC-02-01; the choice between every bag and this bag
+  only, and removing a bag's recipe, are EPIC-02-04, which extends the same pin
+  sheet.
+- Sweetened: the mark on a shot is EPIC-01-03; remembering it on a recipe is
+  EPIC-02-01; the one-tap copy is EPIC-02-02; editing it on a past shot and
+  "Dial in from this" are EPIC-02-06. It is never a drink type or recipe
+  identity.
 - Pre-filled shot logs: from a recipe, with a suggestion, is EPIC-02-03; from a
   past shot ("Dial in from this"), EPIC-02-06; from the closest setup's
-  recipe, EPIC-02-01. All open EPIC-01-03's shot log.
+  recipe, EPIC-02-01; from another profile's recipe, EPIC-05-01. All open
+  EPIC-01-03's shot log.
 - Catalog: picking from the seed list is split by catalog (hardware in
   EPIC-01-02, coffee in EPIC-03-01); adding entries for both is EPIC-01-06;
   merging for both is EPIC-06-07. The catalog serves INIT-01, INIT-03 and
-  INIT-06 but has no initiative of its own.
-- Beans (revision 10): the tab, its On hand list and a bag's screen are
-  EPIC-03-01; grouping On hand by state is EPIC-03-02; freshness and remaining
-  weight shown on it are EPIC-03-03 and EPIC-03-04; Tried and the coffee
-  screen are EPIC-03-06, which shows recipes (EPIC-02-01) and links to the
-  Journal (EPIC-02-06) without owning them; Beans filters are EPIC-03-05.
-- EPIC-03-05 holds two Next pieces of Beans value (run-out and filters)
-  because INIT-03 is at its six-epic limit; flagged for splitting.
+  INIT-06 but has no initiative of its own. The origin field on the coffee
+  catalog is the one catalog change owned outside INIT-01 (EPIC-03-07).
+- Beans: the tab, its On hand list and a bag's screen are EPIC-03-01; grouping
+  On hand by state is EPIC-03-02; freshness and remaining weight shown on it
+  are EPIC-03-03 and EPIC-03-04; the run-out line is EPIC-03-05; Tried and the
+  coffee screen are EPIC-03-06, which shows recipes (EPIC-02-01) and links to
+  the Journal (EPIC-02-06) without owning them; Beans filters, the origin field
+  and the rule hiding the run-out line while a filter is on are EPIC-03-07.
+- INIT-03 has seven epics (EPIC-03-07 is by exception, PEC-17); needs the
+  Head of Product's agreement.
 - Taste: the controls (rating, "just right" questions, tags) and the
   channelling warning are EPIC-01-05; the good/off reaction, the off one-tap
   answers (SQ-17) and the suggestion are EPIC-02-03; editing answers later is
-  EPIC-02-06; Tried's "how its shots went" summary is EPIC-03-06; learning a
-  target is EPIC-06-04.
+  EPIC-02-06; Tried's "how its shots went" summary is EPIC-03-06 (per person
+  from EPIC-05-01); learning a target is EPIC-06-04.
 - Suggestions: the one change after an off shot is EPIC-02-03; ahead-of-time
-  drift from bean age and history is EPIC-04-02; AI advice is EPIC-06-02,
-  building on the rules.
-- Milk: starter list and typical amounts are EPIC-01-01; editing both is
-  EPIC-02-05; milk on a measured shot is EPIC-01-03; on recipes, EPIC-02-01;
-  the one-tap copy, EPIC-02-02; milk amount as a lever, EPIC-02-03.
+  drift from bean age and history is EPIC-04-02, which never applies in fix
+  mode (DQ-34); AI advice is EPIC-06-02, building on the rules.
+- Drift and offsets: the "why this grind" sheet is built in EPIC-04-02 and
+  extended by EPIC-04-03 (the servicing step) and EPIC-04-04 (stretch).
+- Milk: starter list and typical amounts are EPIC-01-01; editing both, and
+  adding variations as custom drinks, is EPIC-02-05; milk on a measured shot is
+  EPIC-01-03; on recipes, EPIC-02-01; the one-tap copy, EPIC-02-02; milk amount
+  as a lever, EPIC-02-03. Whether a drink has milk is fixed at creation.
 - Journal filters: the filters, the default pre-filter and its clear are
-  EPIC-02-06; Brew's drink and coffee selection they follow is EPIC-02-02.
+  EPIC-02-06; Brew's drink and coffee selection they follow is EPIC-02-02; the
+  Person filter is EPIC-05-01.
+- Current setup: the rule is EPIC-01-02 (the household's last shot, DQ-36); the
+  selects are EPIC-02-02; EPIC-05-01 relies on it so switching person never
+  switches setup.
+- "Nothing entered yet": defined in EPIC-05-03, reused by EPIC-05-02.
+- Brew Cards: the re-dial Card (EPIC-04-03) and the link Card (EPIC-05-03) are
+  mutually exclusive; the re-dial Card wins.
 - Drink and milk list editing (EPIC-02-05) could sit under INIT-01 or INIT-02.
 - Google sign-in and linking is its own epic (EPIC-05-03); EPIC-05-02 only
   depends on it.
@@ -1632,10 +2191,10 @@ EPIC-01-03, EPIC-02-01, EPIC-02-02, EPIC-02-03, EPIC-02-05), basket dose range
   even though the shot log is EPIC-01-03's screen.
 - Puck prep: the checkboxes on a measured shot are EPIC-01-03; on recipes and
   pinning, EPIC-02-01; the one-tap copy, EPIC-02-02; prep as a suggestion
-  lever, EPIC-02-03; editing, EPIC-02-06.
+  lever, EPIC-02-03; as a drift filter, EPIC-04-02; editing, EPIC-02-06.
 - Freshness: both clocks and where they show are owned by EPIC-03-03; Brew
   (EPIC-02-02) and the bag's screen in Beans (EPIC-03-01) host them, and
-  suggestions (EPIC-02-03) use them as explanations. The "open" rule for
+  suggestions (EPIC-02-03) and drift (EPIC-04-02) use them. The "open" rule for
   portions is stated in EPIC-03-02 and applied by EPIC-02-02.
 
 ## Resolved questions
@@ -1708,7 +2267,7 @@ Closed in revision 7 (PEC-09, design working assumptions and Head of Product
 decisions):
 
 - Which setup is current, and how the user switches (EPIC-01-02, EPIC-02-02):
-  DQ-18, PEC-09.
+  DQ-18, PEC-09 (amended by DQ-36 in revision 11).
 - Closest-setup ties (EPIC-02-01): the most recently used setup wins (DQ-19).
 - Grind pre-fill from a setup with a different grinder (EPIC-02-01): DQ-20.
 - One part per kind (EPIC-01-02): DQ-21. Whether a basket is required is
@@ -1751,9 +2310,71 @@ design PEC-15 and the Head of Product):
 - The section names (EPIC-01-01): Brew, Journal, Beans, Setup.
 - Whether past coffees can be found after the bag is gone (EPIC-03-06): Tried
   and the coffee screen, in the MVP, without filters.
-- Where Beans filters go (EPIC-03-05): Next, joined with run-out.
+- Where Beans filters go: Next (placed in revision 11, EPIC-03-07).
 - Whether the MVP must let people choose their setup and beans (MVP size):
   yes, confirmed by the Head of Product.
+
+Closed in revision 11 (design round 8, 2026-11-15; the Head of Product accepted
+PEC-16 to PEC-22 and DQ-29 to DQ-43, with the adjustments noted):
+
+- INIT-02 Q1, pin updates the bag's override or the coffee's default
+  (EPIC-02-01, EPIC-02-04): the coffee's recipe by default; "this bag only" is
+  explicit; the first recipe is always the coffee's (DQ-29).
+- Where Beans filters go (EPIC-03-07): their own Next epic under INIT-03 (by
+  exception, PEC-17); the origin filter needs a catalog field the schema lacks.
+- INIT-03 Q1, is prediction Phase 1 (EPIC-03-05): in the product now, in Next;
+  shown after about three finished portions; the sheet shows inputs, no
+  accuracy promised (DQ-39).
+- "Rating" for the Beans filter (EPIC-03-07): Tried's summary words (DQ-39b);
+  filters appear from six coffees (DQ-39c).
+- INIT-04 Q2, recency (EPIC-04-02): the bag's measured shots in the last 3 days
+  of the current grind period, 3 to 10 shots, age-weighted by time; pooled
+  across personas on the same coffee and grinder as a relative signal, judged
+  against each shot's own recipe, then a nudge per recipe (DQ-32 revised, which
+  replaces "last 5").
+- INIT-04 Q3, bean-aging drift (EPIC-04-02, EPIC-04-03): the since-roasting
+  clock drives it; at least three measured shots in the current period over at
+  least two ages (DQ-31).
+- INIT-04 Q4, value or note (EPIC-04-02): both, when at least one grinder step
+  (DQ-30).
+- SQ-18, prep (EPIC-04-02): only shots with the recipe's puck prep count; the
+  sheet says how many were left out (DQ-33).
+- Drift versus the one-change suggestion (EPIC-02-03, EPIC-04-02): they never
+  meet; drift applies only where the recipe is the starting point (DQ-34).
+- Is drift AI (EPIC-04-02): no, rules and statistics, with evals (DQ-43a).
+- Fitting shift and stretch from several coffees (EPIC-04-04): least squares,
+  flagged uncertain, always editable (DQ-43b).
+- Which events prompt a re-dial, non-grinder events, chaining, declining, no
+  baseline (EPIC-04-03): DQ-42.
+- Removing a profile (EPIC-05-01): only with no shots and no recipes (DQ-35).
+- Switching person and the current setup (EPIC-05-01, EPIC-01-02): the setup
+  follows the household's last shot (DQ-36).
+- A new profile's first dial-in, second-hand answers, Journal and Tried
+  (EPIC-05-01): DQ-37.
+- Hidden drinks and milks (EPIC-02-05): DQ-38.
+- The Google button, an account already linked, where the new-device offer lives,
+  prompt dismissal (EPIC-05-03): DQ-40.
+- INIT-05 Q1 for priority, Q2, delivery, joining without a profile, an invitee
+  with history (EPIC-05-02): Next and last; any member invites; a one-use link
+  valid 7 days; every invite names a profile; an invitee with history is
+  refused (PEC-20 as adjusted, DQ-41).
+- Sugar on recipes (EPIC-02-01): a recipe remembers the sweetened toggle, yes or
+  no, and logs from it start pre-ticked (Head of Product).
+- Re-sized on 2026-11-16 to match the stories (Head of Product, stories Q5):
+  EPIC-02-05 and EPIC-03-07 are now M, and EPIC-02-01 is "M, at the top". No
+  splits.
+- Milk (EPIC-02-05): conventional drinks define milk inherently; variations are
+  custom drinks; no change to milk on any drink (Head of Product).
+
+Closed after revision 11 (2026-11-16): leaving the household is in EPIC-05-02
+scope and the leaver starts a new, empty household (DQ-41b); one-tap pulls copy
+sweetened (DQ-44a and b); the seventh INIT-03 epic, EPIC-03-07, is approved
+(PEC-17, stories Q7); the recipe a shot was brewed from is the latest pin in
+force before it (DQ-45).
+
+Still open for the rules owner and the evals: the exact "relative signal" in
+EPIC-04-02 (shot time against recipe time, and how a percentage becomes grinder
+steps).
 
 DQ-18 to DQ-21 are working assumptions: the plan builds on them, and the Head
 of Product can reverse any of them without changing the epic structure.
@@ -1770,18 +2391,22 @@ hours of MVP tasks before revision 9, large for a "basic app" (S-01). Nothing
 has been cut. Revision 9 added rule-based suggestions (EPIC-02-03, S to M),
 Journal filters and "Dial in from this" (EPIC-02-06, S to M) and milk fields
 across logging, recipes and one-tap, partly offset by the simpler setup of
-revision 8. Revision 10 adds Tried and the coffee screen (EPIC-03-06, M). The
-Head of Product will confirm the size or pick cuts at final sign-off. Levers
-that keep the MVP usable: splitting EPIC-01-06 so coffee additions ship first;
-the milk-amount and temperature suggestion levers; the setup filter and "Dial
-in from this"; the coffee screen's bag list and Tried's "how its shots went"
-summary; and the cut candidates already listed in the stories.
+revision 8. Revision 10 adds Tried and the coffee screen (EPIC-03-06, M).
+Revision 11 changes no MVP epic's size: the sweetened toggle on recipes
+(EPIC-02-01, with copy points in EPIC-02-02) is a small addition inside M, and
+the DQ-36 wording in EPIC-01-02 changes nothing in the MVP. The Head of Product
+will confirm the size or pick cuts at final sign-off. Levers that keep the MVP
+usable: splitting EPIC-01-06 so coffee additions ship first; the milk-amount and
+temperature suggestion levers; the setup filter and "Dial in from this"; the
+coffee screen's bag list and Tried's "how its shots went" summary; the
+sweetened toggle on recipes (it can follow the MVP at no cost to the rest); and
+the cut candidates already listed in the stories.
 
 ## Suggested build order
 
 Dependencies first; within a priority, earlier delivers daily value sooner.
-Revision 10 adds EPIC-03-06 at the end of the MVP; Next and Later move down by
-one.
+Revision 11 adds EPIC-03-07 to Next after EPIC-03-05 and moves EPIC-05-02 from
+Later to the end of Next; Later now starts at 27th.
 
 **MVP**
 1. EPIC-01-01 Start brewing without setting anything up (none)
@@ -1805,31 +2430,36 @@ one.
     01-03)
 15. EPIC-03-04 See how much coffee is left (after 03-02, 02-02)
 16. EPIC-03-06 See every coffee you've tried (after 03-01, 01-03, 01-05,
-    02-01, 02-02, 02-06; new in revision 10)
+    02-01, 02-02, 02-06)
 
 **Next**
 17. EPIC-05-03 Keep your coffee history when you change phones (after 01-01;
     first Next epic per S-02)
 18. EPIC-02-05 Make the drink and milk lists yours (after 01-01, 02-02)
-19. EPIC-02-04 Give one bag its own recipe (after 02-02; needs INIT-02 Q1)
-20. EPIC-03-05 Know when you'll run out, and find any coffee (after 03-02,
-    03-04, 03-06)
-21. EPIC-05-01 Brew for someone else in the household (after 02-02)
-22. EPIC-04-02 Suggested grind that follows bean age and recent shots (after
-    03-03, 02-03, 04-01)
-23. EPIC-04-03 Re-dial once after maintenance (after 04-02)
-24. EPIC-04-04 Stretch factor after new burrs (after 04-03)
+19. EPIC-02-04 Give one bag its own recipe (after 02-01, 02-02; INIT-02 Q1 is
+    now closed)
+20. EPIC-03-05 Know when you'll run out (after 03-02, 03-04, 02-02)
+21. EPIC-03-07 Find any coffee in Beans (after 03-06, 03-02, 01-06; new in
+    revision 11; independent of 03-05)
+22. EPIC-05-01 Brew for someone else in the household (after 02-02, 02-01,
+    02-06, 03-06)
+23. EPIC-04-02 Suggested grind that follows bean age and recent shots (after
+    03-03, 02-03, 04-01; sits after 05-01 so the pool already spans profiles,
+    though it doesn't require it)
+24. EPIC-04-03 Re-dial once after maintenance (after 04-02)
+25. EPIC-04-04 Stretch factor after new burrs (after 04-03)
+26. EPIC-05-02 Invite them to take over their own profile (after 05-01, 05-03;
+    last among Next, moved from Later in revision 11)
 
 **Later**
-25. EPIC-05-02 Invite them to take over their own profile (after 05-01, 05-03)
-26. EPIC-06-01 Scan a bag instead of typing it (after 03-01, 01-06)
-27. EPIC-06-04 Tare learns your palate as you log (after 01-05, 02-03)
-28. EPIC-06-02 Get a grounded fix when a shot goes wrong (after 02-03, 01-05,
+27. EPIC-06-01 Scan a bag instead of typing it (after 03-01, 01-06)
+28. EPIC-06-04 Tare learns your palate as you log (after 01-05, 02-03)
+29. EPIC-06-02 Get a grounded fix when a shot goes wrong (after 02-03, 01-05,
     01-03, 03-03; placed after 06-04 so the palate-alignment eval has a
     learned target)
-29. EPIC-06-07 Merge duplicate catalog entries, with AI suggestions (after
+30. EPIC-06-07 Merge duplicate catalog entries, with AI suggestions (after
     01-06)
-30. EPIC-06-05 Share your shots, with your consent (after 01-03, 01-05; 05-02
+31. EPIC-06-05 Share your shots, with your consent (after 01-03, 01-05; 05-02
     for claimed sub personas)
-31. EPIC-06-06 Start a new bag from the community (after 06-05, 06-04, 06-01,
+32. EPIC-06-06 Start a new bag from the community (after 06-05, 06-04, 06-01,
     06-02, 06-07)
