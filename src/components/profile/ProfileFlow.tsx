@@ -23,6 +23,7 @@ export function ProfileFlow({
   linkLabel,
   deps = googleLinkDeps,
   lists,
+  people,
 }: {
   labels: ProfileLabels;
   backHref: string;
@@ -31,6 +32,7 @@ export function ProfileFlow({
   linkLabel: string;
   deps?: GoogleLinkDeps;
   lists?: ComponentProps<typeof ProfileScreen>["lists"];
+  people?: ComponentProps<typeof ProfileScreen>["people"];
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
@@ -58,6 +60,7 @@ export function ProfileFlow({
       pending={pending}
       linked={linked}
       lists={lists}
+      people={people}
       linkAction={
         <GoogleLink
           deps={deps}

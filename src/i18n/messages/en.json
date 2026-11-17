@@ -84,7 +84,10 @@
     "linkFailed": "Couldn't link right now. Nothing has changed.",
     "linkTaken": "That Google account already has a Tare history, so it can't be linked to this one. Your data here is unchanged. Use a different Google account.",
     "about": "About",
-    "version": "Version {version}"
+    "version": "Version {version}",
+    "peopleTitle": "People",
+    "people": "People you brew for",
+    "peopleSummary": "{count, plural, =1 {Just you} other {# people}}"
   },
   "drinks": {
     "espresso": "Espresso",
@@ -942,5 +945,26 @@
     "discardTitle": "Discard your changes?",
     "discardBody": "What you changed in this milk won't be saved.",
     "manage": "Edit your milks"
+  },
+  "people": {
+    "title": "People",
+    "intro": "Add people you brew for. Each gets their own recipes, usual drinks and taste answers.",
+    "you": "You",
+    "add": "Add someone",
+    "added": "Added {name}.",
+    "removed": "Removed {name}.",
+    "summary": "{count, plural, one {# shot} other {# shots}}, last {when}",
+    "noShots": "No shots yet",
+    "addTitle": "Add someone",
+    "editTitle": "Edit profile",
+    "name": "Name",
+    "nameHint": "A nickname works. Tare asks for nothing else.",
+    "nameRequired": "Give them a name.",
+    "nameTaken": "Someone in your household already has that name.",
+    "remove": "Remove profile",
+    "removeTitle": "Remove this profile?",
+    "removeBody": "It has no shots or recipes, so nothing else changes.",
+    "removeConfirm": "Remove",
+    "cantRemove": "{shots, plural, one {# shot} other {# shots}} and {recipes, plural, one {# recipe} other {# recipes}} belong to this profile, so it stays. You can rename it."
   }
 }

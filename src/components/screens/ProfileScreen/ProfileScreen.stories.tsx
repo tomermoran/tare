@@ -18,6 +18,8 @@ const labels = {
   save: profile.save,
   saved: profile.saved,
   saveFailed: profile.saveFailed,
+  peopleTitle: profile.peopleTitle,
+  people: profile.people,
   listsTitle: profile.listsTitle,
   drinks: profile.drinks,
   milks: profile.milks,
@@ -55,6 +57,7 @@ function Controlled(props: {
       linked={props.linked}
       linkAction={<Button onClick={props.onLink}>{profile.linkGoogle}</Button>}
       lists={lists}
+      people={{ href: "/profile/people", summary: t("profile.peopleSummary", { count: 3 }) }}
     />
   );
 }
@@ -151,6 +154,16 @@ export const YourLists: Story = {
     await expect(canvas.getByText("1 milk")).toBeVisible();
     await expect(canvas.getByRole("link", { name: new RegExp(profile.drinks) })).toHaveAttribute("href", "/profile/drinks");
     await expect(canvas.getByRole("link", { name: new RegExp(profile.milks) })).toHaveAttribute("href", "/profile/milks");
+  },
+};
+
+/** People: who the user brews for, opening SCR-PEOPLE (STORY-05-01-01 AC 2). */
+export const People: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: profile.peopleTitle })).toBeVisible();
+    await expect(canvas.getByRole("link", { name: new RegExp(profile.people) })).toHaveAttribute("href", "/profile/people");
+    await expect(canvas.getByText("3 people")).toBeVisible();
   },
 };
 
