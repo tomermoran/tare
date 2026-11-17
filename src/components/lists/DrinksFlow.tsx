@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
-import { DrinksScreen } from "@/components/screens/DrinksScreen/DrinksScreen";
+import { ListScreen } from "@/components/screens/ListScreen/ListScreen";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { addDrinkAction, moveDrinkAction, saveDrinkAction, type ListError } from "@/server/actions/lists";
@@ -75,7 +75,7 @@ export function DrinksFlow({ drinks, backHref }: { drinks: ListDrink[]; backHref
   const open = editing?.id ? list.find((d) => d.id === editing.id) : undefined;
   return (
     <>
-      <DrinksScreen
+      <ListScreen
         backHref={backHref}
         reordering={reordering}
         announcement={said}
