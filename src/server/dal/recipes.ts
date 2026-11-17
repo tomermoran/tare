@@ -2,14 +2,15 @@ import "server-only";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { batches, batchPortions, canonicalBeans, drinkTypes, extractions, milkTypes, personas, pinnedRecipes } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, drinkTypes, extractions, milkTypes, pinnedRecipes } from "@/db/schema";
 import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
 import { validateMilk } from "@/domain/milk";
 import type { NamedMilk } from "@/domain/milkName";
 import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { setupMachine } from "./logContext";
-import { assertOwned, NotFoundError, requireHousehold } from "./scope";
+import { assertOwned, requireHousehold } from "./scope";
 import { checkValues } from "./shots";
+import { actingPersona, actingPersonaId } from "./persona";
 
 /*
  * Pinned recipes (EPIC-02-01). A recipe is keyed by coffee, persona, setup
@@ -361,11 +362,10 @@ async function entered(input: EnteredRecipe): Promise<{ key: RecipeKey; values: 
     ]);
     validateMilk({ hasMilk: drink.hasMilk, ...milk, visibleMilkIds: milks.map((m) => m.id) });
   }
-  const [[bag], [persona]] = await Promise.all([
+  const [[bag], persona] = await Promise.all([
     db.select({ beanId: batches.beanId }).from(batches).where(eq(batches.id, input.batchId)),
-    db.select({ id: personas.id }).from(personas).where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true))),
+    actingPersona(),
   ]);
-  if (!persona) throw new NotFoundError();
   const beanId = (await resolveEntity(db, canonicalBeans, bag.beanId)) ?? bag.beanId;
   return {
     key: { beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId },
@@ -411,11 +411,10 @@ export async function getRecipeForBag(input: { batchId: string; setupId: string;
     assertOwned("setups", input.setupId, householdId),
     assertOwned("drinkTypes", input.drinkTypeId, householdId),
   ]);
-  const [[bag], [persona]] = await Promise.all([
+  const [[bag], persona] = await Promise.all([
     db.select({ beanId: batches.beanId }).from(batches).where(eq(batches.id, input.batchId)),
-    db.select({ id: personas.id }).from(personas).where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true))),
+    actingPersona(),
   ]);
-  if (!persona) throw new NotFoundError();
   const beanId = (await resolveEntity(db, canonicalBeans, bag.beanId)) ?? bag.beanId;
   const [bean] = await db.select({ id: canonicalBeans.id, name: canonicalBeans.name }).from(canonicalBeans).where(eq(canonicalBeans.id, beanId));
   const recipe = await getCurrentRecipe({ beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId }, input.batchId);
@@ -451,11 +450,10 @@ export type BagRecipes = {
 export async function getBagRecipes(batchId: string): Promise<BagRecipes> {
   const { householdId } = await requireHousehold();
   await assertOwned("batches", batchId, householdId);
-  const [[bag], [persona]] = await Promise.all([
+  const [[bag], persona] = await Promise.all([
     db.select({ beanId: batches.beanId }).from(batches).where(eq(batches.id, batchId)),
-    db.select({ id: personas.id }).from(personas).where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true))),
+    actingPersona(),
   ]);
-  if (!persona) throw new NotFoundError();
   const [own, coffee] = await Promise.all([listBagOwnRecipes(batchId, persona.id), getCoffeeRecipes(bag.beanId)]);
   return { own, coffee };
 }
@@ -467,13 +465,12 @@ export async function bagsWithOwnRecipe(batchIds: readonly string[]): Promise<Se
   const rows = await db
     .selectDistinct({ batchId: pinnedRecipes.batchId })
     .from(pinnedRecipes)
-    .innerJoin(personas, eq(personas.id, pinnedRecipes.personaId))
     .where(
       and(
         eq(pinnedRecipes.householdId, householdId),
         inArray(pinnedRecipes.batchId, [...batchIds]),
         isNull(pinnedRecipes.removedAt),
-        eq(personas.isDefault, true),
+        eq(pinnedRecipes.personaId, await actingPersonaId()),
       ),
     );
   return new Set(rows.map((r) => r.batchId!));
@@ -492,11 +489,7 @@ export async function removeBagRecipe(input: { batchId: string; setupId: string;
     assertOwned("setups", input.setupId, householdId),
     assertOwned("drinkTypes", input.drinkTypeId, householdId),
   ]);
-  const [persona] = await db
-    .select({ id: personas.id })
-    .from(personas)
-    .where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
-  if (!persona) throw new NotFoundError();
+  const persona = await actingPersona();
   await db
     .update(pinnedRecipes)
     .set({ removedAt: now })
@@ -512,14 +505,9 @@ export async function removeBagRecipe(input: { batchId: string; setupId: string;
     );
 }
 
-/** The same rows for a coffee (STORY-03-06-03), for the default persona. */
+/** The same rows for a coffee (STORY-03-06-03), for the persona brewed for. */
 export async function getCoffeeRecipes(beanId: string): Promise<Recipe[]> {
-  const { householdId } = await requireHousehold();
-  const [persona] = await db
-    .select({ id: personas.id })
-    .from(personas)
-    .where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
-  if (!persona) throw new NotFoundError();
+  const persona = await actingPersona();
   const resolved = (await resolveEntity(db, canonicalBeans, beanId)) ?? beanId;
   return listCurrentRecipesForBean(resolved, persona.id);
 }

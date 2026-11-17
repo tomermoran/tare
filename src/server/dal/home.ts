@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db/client";
-import { batches, batchPortions, canonicalBeans, extractions, personas, roasters } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, extractions, roasters } from "@/db/schema";
 import { closestSetup } from "@/domain/closestSetup";
 import { pickCoffee, pickDrink, portionOf, DRINK_LOOKBACK_DAYS, type CoffeePortion } from "@/domain/homeDefaults";
 import { pantryGroup } from "@/domain/onHandGroups";
@@ -13,6 +13,7 @@ import { getBagOwnRecipe, getCurrentRecipe, listCurrentRecipesForBean, type Reci
 import { getRemaining } from "./remaining";
 import { setupsLastUsed } from "./setups";
 import { requireHousehold } from "./scope";
+import { actingPersona } from "./persona";
 
 /*
  * Brew (STORY-02-02-01): the drink usually made at this time of day, the
@@ -70,10 +71,7 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
   const setup = context.setups.find((s) => s.id === context.defaultSetupId);
   if (!setup || !context.drinks.length) return null;
 
-  const [persona] = await db
-    .select({ id: personas.id })
-    .from(personas)
-    .where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
+  const persona = await actingPersona();
   const timeZone = await getTimeZone();
 
   // DQ-02: the last 14 days, plus the latest shot for the fallback.

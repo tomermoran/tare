@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db/client";
-import { batchPortions, canonicalBeans, extractions, personas, setups } from "@/db/schema";
+import { batchPortions, canonicalBeans, extractions, setups } from "@/db/schema";
 import { isOpen } from "@/domain/portionState";
 import type { Remaining } from "@/domain/remaining";
 import { resolveEntity } from "./catalogMerge";
@@ -10,6 +10,7 @@ import { bagsWithOwnRecipe, getCurrentRecipe } from "./recipes";
 import { getRemaining } from "./remaining";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
+import { actingPersona } from "./persona";
 
 /*
  * The one-tap pull (STORY-02-02-02), choosing a bag when none is open
@@ -71,9 +72,9 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
 
   await assertOwned("drinkTypes", input.drinkTypeId, householdId);
   const beanId = (await resolveEntity(db, canonicalBeans, input.beanId)) ?? input.beanId;
-  const [setupList, [persona]] = await Promise.all([
+  const [setupList, persona] = await Promise.all([
     db.select({ id: setups.id, createdAt: setups.createdAt }).from(setups).where(eq(setups.householdId, householdId)),
-    db.select({ id: personas.id }).from(personas).where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true))),
+    actingPersona(),
   ]);
   const setupId = await currentSetupOf(householdId, setupList);
   if (!setupId || !persona) throw new NotFoundError();

@@ -1,14 +1,15 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { batchPortions, drinkTypes, extractions, milkTypes, personas } from "@/db/schema";
+import { batchPortions, drinkTypes, extractions, milkTypes } from "@/db/schema";
 import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
 import { validateMilk } from "@/domain/milk";
 import { tastingColumns, type Tasting } from "@/domain/tasting";
 import { portionState } from "@/domain/portionState";
 import { setupMachine } from "./logContext";
-import { assertOwned, NotFoundError, requireHousehold } from "./scope";
+import { assertOwned, requireHousehold } from "./scope";
+import { actingPersona } from "./persona";
 
 /*
  * Saving a measured shot (STORY-01-03-03). A shot records its setup only;
@@ -96,11 +97,7 @@ export async function saveMeasuredShot(input: MeasuredShot, now = new Date()): P
   const state = portionState(portion);
   if (state === "finished") throw new PortionFinishedError();
 
-  const [persona] = await db
-    .select({ id: personas.id })
-    .from(personas)
-    .where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
-  if (!persona) throw new NotFoundError();
+  const persona = await actingPersona();
 
   const id = newId();
   const shot = db.insert(extractions).values({

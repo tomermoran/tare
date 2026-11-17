@@ -65,12 +65,12 @@ describe("the current setup", () => {
     expect(list[0]).toMatchObject({ id: k.setup.id, current: true });
   });
 
-  it("follows the default persona's shots, not another persona's", async () => {
+  it("follows the household's latest shot, whoever it was for (DQ-36, STORY-05-01-03 AC 7)", async () => {
     await shot(k.setup.id, daysAgo(2));
     const guest = newId();
     await db().insert(personas).values({ id: guest, householdId: k.household.id, name: "Guest", isDefault: false });
     await shot(second.id, daysAgo(1), guest);
-    expect((await getSetups(NOW))[0].id).toBe(k.setup.id);
+    expect((await getSetups(NOW))[0].id).toBe(second.id);
   });
 
   it("switches at once on \"use this\", and a later shot switches it back (AC 3, AC 1)", async () => {
