@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { ProfileFlow } from "@/components/profile/ProfileFlow";
+import { getAccountLink } from "@/server/dal/account";
 import { getProfile } from "@/server/dal/profile";
 import { unlessSignedOut } from "@/server/dal/scope";
 import pkg from "../../../../package.json";
@@ -15,12 +16,14 @@ export default function ProfilePage() {
 }
 
 async function Profile() {
-  const [t, profile] = await Promise.all([getTranslations(), unlessSignedOut(getProfile())]);
-  if (!profile) return null;
+  const [t, profile, account] = await Promise.all([getTranslations(), unlessSignedOut(getProfile()), unlessSignedOut(getAccountLink())]);
+  if (!profile || !account) return null;
   return (
     <ProfileFlow
       backHref="/"
       initialName={profile.name ?? ""}
+      linked={account.linked}
+      linkLabel={t("profile.linkGoogle")}
       labels={{
         back: t("nav.brew"),
         title: t("profile.title"),
@@ -29,8 +32,10 @@ async function Profile() {
         save: t("profile.save"),
         saved: t("profile.saved"),
         saveFailed: t("profile.saveFailed"),
-        deviceTitle: t("profile.deviceTitle"),
-        device: t("profile.device"),
+        accountTitle: t("profile.accountTitle"),
+        account: t("profile.account"),
+        linked: t("profile.linked"),
+        linkedBody: t("profile.linkedBody"),
         about: t("profile.about"),
         appName: t("app.name"),
         version: t("profile.version", { version: pkg.version }),
