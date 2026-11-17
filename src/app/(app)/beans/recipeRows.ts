@@ -16,10 +16,19 @@ import { recipeLines } from "../recipeLines";
  * hidden (STORY-02-05-08 AC 1, AC 3).
  */
 export async function recipeRowsFor(recipes: Recipe[], bag: { batchId: string; portionId?: string }, timeZone: string): Promise<RecipeRow[]> {
+  return (await recipeRowMaker(bag, timeZone))(recipes);
+}
+
+/**
+ * Loads what the rows need once, for several groups of recipes (a bag's own
+ * and its coffee's). Not twice in parallel: the log context starts a
+ * transaction, and two at once lock the database.
+ */
+export async function recipeRowMaker(bag: { batchId: string; portionId?: string }, timeZone: string): Promise<(recipes: Recipe[]) => RecipeRow[]> {
   const [t, format, context, drinks, milks] = await Promise.all([getTranslations(), getFormatter(), getLogContext(), listDrinks(), listMilks()]);
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
   const day = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeZone });
-  return recipes.flatMap((r) => {
+  return (recipes) => recipes.flatMap((r) => {
     const drink = drinks.find((d) => d.id === r.drinkTypeId);
     const setup = context.setups.find((s) => s.id === r.setupId);
     if (!drink || !setup) return [];
@@ -27,6 +36,8 @@ export async function recipeRowsFor(recipes: Recipe[], bag: { batchId: string; p
     return [
       {
         id: r.id,
+        setupId: setup.id,
+        drinkTypeId: drink.id,
         title: t("recipe.row", { drink: drinkName, setup: setupLabel(setup, context.setups, list) }),
         values: { grind: r.grind, dose: r.dose, yield: r.yield, timeMs: r.timeMs },
         hidden: drink.hidden ? t("drinkList.hidden") : undefined,
