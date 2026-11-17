@@ -16,6 +16,8 @@ export type CoffeeResult = {
   name: string;
   roasterId: string;
   roasterName: string;
+  /** Where it comes from (src/domain/origin.ts), or null when not stated. */
+  origin: string | null;
   addedByYou: boolean;
   matchedAlias: string | null;
   /** A bean of one of the household's bags. */
@@ -46,6 +48,7 @@ async function beansByIds(db: Db, householdId: string, ids: string[] | null): Pr
       name: canonicalBeans.name,
       roasterId: roasters.id,
       roasterName: roasters.name,
+      origin: canonicalBeans.origin,
       status: canonicalBeans.status,
     })
     .from(canonicalBeans)

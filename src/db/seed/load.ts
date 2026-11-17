@@ -1,5 +1,6 @@
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import { parseCapabilities, type HardwareKind } from "../../domain/capabilities";
+import { parseOrigin } from "../../domain/origin";
 import { isRoastLevel } from "../../domain/roast";
 import { normalizeUrl } from "../../domain/url";
 import * as schema from "../schema";
@@ -50,6 +51,8 @@ export type CoffeeSeed = {
       name: string;
       roastLevel: string | null;
       tastingNotes: string[];
+      /** An ISO country code, "blend" or "other:<text>"; left out when not known. */
+      origin?: string | null;
       aliases: Alias[];
       links: Link[];
     }[];
@@ -149,6 +152,9 @@ export function validateSeed(hardware: HardwareSeed, coffee: CoffeeSeed): string
       if (b.roastLevel !== null && !isRoastLevel(b.roastLevel)) {
         errors.push(`${w}: unknown roast level ${b.roastLevel}`);
       }
+      if (b.origin != null && parseOrigin(b.origin) !== b.origin) {
+        errors.push(`${w}: unknown origin ${b.origin}`);
+      }
       if (!Array.isArray(b.tastingNotes) || b.tastingNotes.some((n) => typeof n !== "string" || !n.trim())) {
         errors.push(`${w}: tasting notes must be a list of words`);
       }
@@ -232,10 +238,10 @@ export async function loadSeed(db: SeedDb, hardware: HardwareSeed, coffee: Coffe
         const id = seedIds.bean(r.key, b.key);
         await tx
           .insert(canonicalBeans)
-          .values({ id, roasterId, name: b.name, roastLevel: b.roastLevel, tastingNotes: b.tastingNotes, ...seeded })
+          .values({ id, roasterId, name: b.name, roastLevel: b.roastLevel, tastingNotes: b.tastingNotes, origin: b.origin ?? null, ...seeded })
           .onConflictDoUpdate({
             target: canonicalBeans.id,
-            set: { roasterId, name: b.name, roastLevel: b.roastLevel, tastingNotes: b.tastingNotes },
+            set: { roasterId, name: b.name, roastLevel: b.roastLevel, tastingNotes: b.tastingNotes, origin: b.origin ?? null },
           });
         counts.beans++;
         await addAliases("bean", id, b.aliases);

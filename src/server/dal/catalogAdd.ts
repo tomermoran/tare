@@ -6,10 +6,11 @@ import { newId } from "@/db/ids";
 import { canonicalBeans, canonicalHardware, catalogAliases, catalogUrls, hardwareMakers, roasters, type CatalogEntityType } from "@/db/schema";
 import { notSureCapabilities, parseCapabilities, type HardwareKind } from "@/domain/capabilities";
 import { isMarket } from "@/domain/markets";
+import { parseOrigin, type Origin } from "@/domain/origin";
 import { isRoastLevel } from "@/domain/roast";
 import { normalizeUrl } from "@/domain/url";
 import { assertVisibleCatalog, visibleCatalogId } from "./catalogVisibility";
-import { requireHousehold } from "./scope";
+import { NotFoundError, requireHousehold } from "./scope";
 
 /*
  * Adding to the catalog (STORY-01-06-01, 01-06-04): a missing model, and
@@ -38,6 +39,14 @@ export class MissingNameError extends Error {
   constructor(readonly field: "maker" | "model") {
     super("Missing name");
     this.name = "MissingNameError";
+  }
+}
+
+/** An origin that isn't a listed country, blend or other text (src/domain/origin.ts); nothing was saved. */
+export class InvalidOriginError extends Error {
+  constructor() {
+    super("Invalid origin");
+    this.name = "InvalidOriginError";
   }
 }
 
@@ -112,7 +121,7 @@ export type HardwareEntryInput = CatalogExtras & {
 export type CoffeeEntryInput = CatalogExtras & {
   /** An existing roaster, or a new one with its own link (AC 2). */
   roaster: { id: string } | { name: string; url: string };
-  bean: { name: string; url: string; roastLevel?: string | null; tastingNotes?: string[] };
+  bean: { name: string; url: string; roastLevel?: string | null; tastingNotes?: string[]; origin?: string | null };
 };
 
 const MAX_EXTRAS = 10;
@@ -331,6 +340,7 @@ export async function createCoffeeEntry(input: CoffeeEntryInput): Promise<{ id: 
   const name = cleanName(input.bean.name ?? "");
   if (!name) throw new MissingNameError("model");
   const roastLevel = isRoastLevel(input.bean.roastLevel) ? input.bean.roastLevel : null;
+  const origin = optionalOrigin(input.bean.origin);
 
   const duplicate = await findByNormalizedUrl("coffee", url, householdId);
   if (duplicate) throw new DuplicateEntryError(duplicate);
@@ -382,6 +392,7 @@ export async function createCoffeeEntry(input: CoffeeEntryInput): Promise<{ id: 
       name,
       roastLevel,
       tastingNotes: cleanTastingNotes(input.bean.tastingNotes),
+      origin,
       source: "user",
       status: "unverified",
       createdByHouseholdId: householdId,
@@ -400,4 +411,35 @@ export async function createCoffeeEntry(input: CoffeeEntryInput): Promise<{ id: 
   );
   await db.batch(statements as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
   return { id };
+}
+
+/** Origin is optional (STORY-03-07-04 AC 3); one that's given must be valid. */
+function optionalOrigin(value: unknown): Origin | null {
+  if (value === undefined || value === null || value === "") return null;
+  const origin = parseOrigin(value);
+  if (!origin) throw new InvalidOriginError();
+  return origin;
+}
+
+const originEditableBy = (householdId: string, beanId: string) =>
+  and(
+    eq(canonicalBeans.id, beanId),
+    eq(canonicalBeans.source, "user"),
+    eq(canonicalBeans.status, "unverified"),
+    isNull(canonicalBeans.mergedIntoId),
+    eq(canonicalBeans.createdByHouseholdId, householdId),
+  );
+
+/** Whether the household may set this coffee's origin: one it added that is still unverified (STORY-03-07-05 AC 2, AC 3). */
+export async function canEditOrigin(householdId: string, beanId: string): Promise<boolean> {
+  const [row] = await db.select({ id: canonicalBeans.id }).from(canonicalBeans).where(originEditableBy(householdId, beanId));
+  return !!row;
+}
+
+/** Sets or clears the origin of a coffee the household added and is still unverified; anything else isn't found. */
+export async function setCoffeeOrigin(beanId: string, origin: string | null): Promise<void> {
+  const { householdId } = await requireHousehold();
+  const value = optionalOrigin(origin);
+  if (!(await canEditOrigin(householdId, beanId))) throw new NotFoundError();
+  await db.update(canonicalBeans).set({ origin: value }).where(originEditableBy(householdId, beanId));
 }
