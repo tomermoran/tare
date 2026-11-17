@@ -3,7 +3,9 @@ import { desc, eq, inArray, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { batches, batchPortions, canonicalBeans, extractions, roasters } from "@/db/schema";
 import { triedSummary, type TriedSummary } from "@/domain/triedSummary";
+import { parseOrigin, type Origin } from "@/domain/origin";
 import { getCoffeeBags, type BagView } from "./bags";
+import { canEditOrigin } from "./catalogAdd";
 import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { listJournal, type JournalShot } from "./journal";
 import { getCoffeeRecipes, type Recipe } from "./recipes";
@@ -18,7 +20,9 @@ import { NotFoundError, requireHousehold } from "./scope";
 export const RECENT_SHOTS = 5;
 
 export type Coffee = {
-  bean: { id: string; name: string; roasterName: string; roastLevel: string | null; tastingNotes: string[] };
+  bean: { id: string; name: string; roasterName: string; roastLevel: string | null; tastingNotes: string[]; origin: Origin | null };
+  /** The household added it and it's still unverified, so it can set the origin (STORY-03-07-05). */
+  originEditable: boolean;
   /** How its shots went; null before its first shot. */
   summary: TriedSummary | null;
   recipes: Recipe[];
@@ -43,6 +47,7 @@ export async function getCoffee(beanId: string, now = new Date()): Promise<Coffe
         roasterName: roasters.name,
         roastLevel: canonicalBeans.roastLevel,
         tastingNotes: canonicalBeans.tastingNotes,
+        origin: canonicalBeans.origin,
       })
       .from(canonicalBeans)
       .innerJoin(roasters, eq(roasters.id, canonicalBeans.roasterId))
@@ -57,13 +62,15 @@ export async function getCoffee(beanId: string, now = new Date()): Promise<Coffe
   ]);
   if (!bags.length || !bean) throw new NotFoundError();
 
-  const [recipes, recent] = await Promise.all([
+  const [originEditable, recipes, recent] = await Promise.all([
+    canEditOrigin(householdId, id),
     getCoffeeRecipes(id),
     // Newest first from just after now, whatever their age.
     listJournal({ before: { at: now.getTime() + 1, id: "" }, limit: RECENT_SHOTS, now, filters: { beanId: id } }),
   ]);
   return {
-    bean: { ...bean, tastingNotes: bean.tastingNotes ?? [] },
+    bean: { ...bean, tastingNotes: bean.tastingNotes ?? [], origin: parseOrigin(bean.origin) },
+    originEditable,
     summary: shots.length ? triedSummary(shots.map((s) => ({ rating: s.rating, reaction: s.reaction ?? null }))) : null,
     recipes,
     recentShots: recent.shots,

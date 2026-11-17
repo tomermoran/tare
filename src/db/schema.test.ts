@@ -14,7 +14,7 @@ import { createTestDb } from "@/test/db";
 const EXPECTED: Record<string, string> = {
   batch_portions: "id:text! batch_id:text! weight:real! frozen_at:integer thawed_at:integer opened_at:integer finished_at:integer created_at:integer!",
   batches: "id:text! household_id:text! bean_id:text! lot_code:text roast_date:integer packed_at:integer best_before:integer bag_weight:real! purchased_at:integer created_at:integer!",
-  canonical_beans: "id:text! roaster_id:text! name:text! roast_level:text tasting_notes:text source:text! status:text! merged_into_id:text created_by_household_id:text created_at:integer!",
+  canonical_beans: "id:text! roaster_id:text! name:text! roast_level:text tasting_notes:text source:text! status:text! merged_into_id:text created_by_household_id:text created_at:integer! origin:text",
   canonical_hardware: "id:text! maker_id:text! kind:text! name:text! capabilities:text source:text! status:text! merged_into_id:text created_by_household_id:text created_at:integer!",
   catalog_aliases: "id:text! entity_type:text! entity_id:text! name:text! market:text created_at:integer!",
   catalog_merges: "id:text! entity_type:text! from_id:text! into_id:text! suggested_by:text! confidence:real reason:text decided_at:integer!",

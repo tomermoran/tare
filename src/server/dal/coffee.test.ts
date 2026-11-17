@@ -35,7 +35,7 @@ describe("getCoffee (STORY-03-06-03)", () => {
   it("has the catalog details, and empty sections before any shot (AC 1, AC 5)", async () => {
     await db().update(canonicalBeans).set({ roastLevel: "Medium", tastingNotes: ["cocoa", "plum"] }).where(eq(canonicalBeans.id, k.bean.id));
     const c = await getCoffee(k.bean.id, NOW);
-    expect(c.bean).toEqual({ id: k.bean.id, name: k.bean.name, roasterName: "Example Roasters", roastLevel: "Medium", tastingNotes: ["cocoa", "plum"] });
+    expect(c.bean).toEqual({ id: k.bean.id, name: k.bean.name, roasterName: "Example Roasters", roastLevel: "Medium", tastingNotes: ["cocoa", "plum"], origin: null });
     expect(c).toMatchObject({ summary: null, recipes: [], recentShots: [], onHand: true });
     expect(c.bags.map((b) => b.id)).toEqual([k.batch.id]);
   });

@@ -201,6 +201,7 @@ export const canonicalBeans = sqliteTable("canonical_beans", {
   name: text("name").notNull(),
   roastLevel: text("roast_level"), // One of the S-09 levels, or null if not stated
   tastingNotes: text("tasting_notes", { mode: "json" }).$type<string[]>(),
+  origin: text("origin"), // An ISO country code, "blend" or "other:<text>" (src/domain/origin.ts); null if not stated
   source: text("source").notNull(),
   status: text("status").notNull(),
   mergedIntoId: text("merged_into_id").references(

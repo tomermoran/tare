@@ -2,6 +2,7 @@
 
 import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
 import { Input } from "@/components/ui/Input/Input";
+import { SelectField } from "@/components/ui/SelectField/SelectField";
 import { ROAST_LEVELS, type RoastLevel } from "@/domain/roast";
 
 /** The roast chip that leaves the level empty. */
@@ -15,19 +16,22 @@ export type CoffeeDetailsLabels = {
   notesHint: string;
 };
 
-/** The optional roast level (S-09's fixed list, or not sure) and tasting notes. */
+/** The optional roast level (S-09's fixed list, or not sure), origin and tasting notes. */
 export function CoffeeDetails({
   labels,
   roast,
   onRoastChange,
   notes,
   onNotesChange,
+  origin,
 }: {
   labels: CoffeeDetailsLabels;
   roast: string | null;
   onRoastChange: (value: string) => void;
   notes: string;
   onNotesChange: (value: string) => void;
+  /** The optional origin field (STORY-03-07-04); left out when the list of origins can't be built (AC 4). */
+  origin?: { label: string; value: string; onClick: () => void };
 }) {
   return (
     <>
@@ -40,6 +44,7 @@ export function CoffeeDetails({
           onChange={onRoastChange}
         />
       </div>
+      {origin && <SelectField label={origin.label} value={origin.value} onClick={origin.onClick} />}
       <Input
         label={labels.notes}
         hint={labels.notesHint}

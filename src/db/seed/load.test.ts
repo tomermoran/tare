@@ -118,6 +118,21 @@ describe("loadSeed", () => {
     expect(validateSeed(hw, bad)).toEqual([expect.stringContaining("unknown roast level")]);
   });
 
+  it("loads a coffee's origin when given, and none when left out (STORY-03-07-04)", async () => {
+    const withOrigin = clone(cf);
+    withOrigin.roasters[0].beans[0].origin = "ET";
+    await loadSeed(db, hw, withOrigin);
+    const rows = await db.select({ id: canonicalBeans.id, origin: canonicalBeans.origin }).from(canonicalBeans);
+    expect(rows.filter((r) => r.origin === "ET")).toHaveLength(1);
+    expect(rows.filter((r) => r.origin === null)).toHaveLength(rows.length - 1);
+  });
+
+  it("fails on an unknown origin", async () => {
+    const bad = clone(cf);
+    bad.roasters[0].beans[0].origin = "Ethiopia";
+    expect(validateSeed(hw, bad)).toEqual([expect.stringContaining("unknown origin")]);
+  });
+
   it("keeps Crema's double basket link distinct from its other variants", async () => {
     await loadSeed(db, hw, cf);
     const [link] = await db.select().from(catalogUrls).where(eq(catalogUrls.entityId, "seed:model:crema-coffee-products:54mm-double"));

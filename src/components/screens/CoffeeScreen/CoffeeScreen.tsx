@@ -50,6 +50,7 @@ export function CoffeeScreen({
   name,
   roaster,
   details,
+  originAction,
   summary,
   addBag,
   recipes,
@@ -63,8 +64,10 @@ export function CoffeeScreen({
   onRetry?: () => void;
   name?: string;
   roaster?: string;
-  /** Roast level and tasting notes when the catalog has them, formatted. */
+  /** Origin, roast level and tasting notes when the catalog has them, formatted. */
   details?: string;
+  /** Setting the origin, only on a coffee the household added that is unverified (STORY-03-07-05). */
+  originAction?: ReactNode;
   /** How its shots went, in words only (DQ-28). */
   summary?: string;
   addBag?: { href: string; primary: boolean };
@@ -124,6 +127,7 @@ export function CoffeeScreen({
           <p className="text-body text-ink-secondary">{roaster}</p>
           {details && <p className="text-label text-ink-secondary">{details}</p>}
           {summary && <p className="text-label text-ink-secondary">{summary}</p>}
+          {originAction}
         </header>
         {addBag && (
           <Link href={addBag.href} className={buttonClass({ variant: addBag.primary ? "primary" : "secondary", fullWidth: true })}>

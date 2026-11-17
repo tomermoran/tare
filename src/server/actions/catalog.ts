@@ -8,6 +8,7 @@ import {
   DuplicateEntryError,
   InvalidLinkError,
   MissingNameError,
+  setCoffeeOrigin,
   type CatalogMatch,
   type CoffeeEntryInput,
   type HardwareEntryInput,
@@ -52,4 +53,10 @@ export async function createCoffeeEntryAction(input: CoffeeEntryInput): Promise<
 export async function updateModelCapabilitiesAction(input: { hardwareId: string; capabilities: unknown }): Promise<ActionResult<{ id: string }>> {
   if (typeof input?.hardwareId !== "string" || !input.hardwareId) return fail("notFound");
   return runAction(() => updateModelCapabilities(input.hardwareId, input.capabilities));
+}
+
+/** Sets or clears the origin of the household's own unverified coffee (STORY-03-07-05). */
+export async function setCoffeeOriginAction(input: { beanId: string; origin: string | null }): Promise<ActionResult<void>> {
+  if (typeof input?.beanId !== "string" || !input.beanId) return fail("notFound");
+  return runAction(() => setCoffeeOrigin(input.beanId, input.origin ?? null));
 }

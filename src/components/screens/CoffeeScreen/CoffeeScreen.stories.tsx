@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { createTranslator } from "next-intl";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import { CoffeeOrigin } from "@/components/catalog/CoffeeOrigin";
 import { ListRow } from "@/components/ui/ListRow/ListRow";
 import messages from "@/i18n/messages/en.json";
 import { PhoneFrame } from "../PhoneFrame";
@@ -125,3 +126,58 @@ export const BagWithOwnRecipe: Story = {
 export const BagWithOwnRecipeRightToLeft: Story = { args: BagWithOwnRecipe.args, globals: { direction: "rtl" } };
 
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
+
+const { catalog, actions } = messages;
+const originAction = (origin: string | null, onSave = fn(async () => true)) => (
+  <CoffeeOrigin
+    origin={origin}
+    onSave={onSave}
+    labels={{
+      title: catalog.origin.title,
+      close: actions.close,
+      notStated: catalog.origin.notStated,
+      blend: catalog.origin.blend,
+      other: catalog.origin.other,
+      otherLabel: catalog.origin.otherLabel,
+      otherHint: catalog.origin.otherHint,
+      done: catalog.origin.done,
+      set: catalog.origin.set,
+      change: catalog.origin.change,
+      saveFailed: states.saveFailed,
+    }}
+  />
+);
+
+/** The origin leads the details line when stated (STORY-03-07-05 AC 1); a verified coffee offers no change (AC 3). */
+export const WithOrigin: Story = {
+  args: { details: t("coffee.detailsMore", { first: "Ethiopia", rest: t("coffee.details", { roast: "Light", notes: "jasmine and peach" }) }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Ethiopia · Light · jasmine and peach")).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: catalog.origin.change })).toBeNull();
+  },
+};
+
+/** The household's own unverified coffee: it can set the origin (AC 2). */
+export const SetOrigin: Story = {
+  args: { originAction: originAction(null) },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: catalog.origin.set }));
+    const dialog = await within(document.body).findByRole("dialog", { name: catalog.origin.title });
+    await waitFor(() => expect(dialog).toBeVisible());
+    await userEvent.click(within(dialog).getByRole("button", { name: "Colombia" }));
+    await waitFor(() => expect(dialog).not.toBeVisible());
+  },
+};
+
+/** A failed save keeps the sheet open and says so. */
+export const SetOriginFailed: Story = {
+  args: { originAction: originAction("CO", fn(async () => false)) },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: catalog.origin.change }));
+    const dialog = await within(document.body).findByRole("dialog", { name: catalog.origin.title });
+    await waitFor(() => expect(dialog).toBeVisible());
+    await userEvent.click(within(dialog).getByRole("button", { name: catalog.origin.blend }));
+    await expect(await within(dialog).findByText(states.saveFailed)).toBeVisible();
+  },
+};
