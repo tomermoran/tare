@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { CoffeeOriginLive } from "@/components/catalog/CoffeeOriginLive";
 import { RecipeRows } from "@/components/recipes/RecipeRows";
 import { CoffeeScreen, type CoffeeBagRow, type CoffeeShotRow } from "@/components/screens/CoffeeScreen/CoffeeScreen";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
+import { labelOrigin } from "@/domain/origin";
 import { journalHref } from "@/lib/journalFilters";
 import { getCoffee } from "@/server/dal/coffee";
 import { bagsWithOwnRecipe } from "@/server/dal/recipes";
@@ -29,7 +31,7 @@ async function CoffeeLoading() {
 
 async function Coffee({ params }: Pick<PageProps<"/beans/coffee/[beanId]">, "params">) {
   const beanId = decodeURIComponent((await params).beanId);
-  const [t, format, timeZone, labels] = await Promise.all([getTranslations(), getFormatter(), getTimeZone(), coffeeLabels()]);
+  const [t, format, timeZone, labels, locale] = await Promise.all([getTranslations(), getFormatter(), getTimeZone(), coffeeLabels(), getLocale()]);
   // Recent shots and bag states depend on the request time.
   await connection();
   const c = await unlessSignedOut(getCoffee(beanId)).catch((e) => {
@@ -42,7 +44,10 @@ async function Coffee({ params }: Pick<PageProps<"/beans/coffee/[beanId]">, "par
   const day = (d: Date) => format.dateTime(d, { day: "numeric", month: "short", timeZone });
   const roast = c.bean.roastLevel ? t(`catalog.roast.${c.bean.roastLevel}` as "catalog.roast.Medium") : null;
   const notes = c.bean.tastingNotes.length ? format.list(c.bean.tastingNotes, { type: "conjunction" }) : null;
-  const details = roast && notes ? t("coffee.details", { roast, notes }) : (roast ?? notes ?? undefined);
+  const roastAndNotes = roast && notes ? t("coffee.details", { roast, notes }) : (roast ?? notes);
+  // Origin leads the details line when it's stated (STORY-03-07-05 AC 1).
+  const origin = c.bean.origin ? labelOrigin(c.bean.origin, locale, { blend: t("catalog.origin.blend") }) : null;
+  const details = (origin && roastAndNotes ? t("coffee.detailsMore", { first: origin, rest: roastAndNotes }) : (origin ?? roastAndNotes)) ?? undefined;
   const summary = c.summary
     ? c.summary.kind === "lastRated"
       ? t("beans.summary.lastRated", { rating: c.summary.rating })
@@ -80,6 +85,7 @@ async function Coffee({ params }: Pick<PageProps<"/beans/coffee/[beanId]">, "par
       name={c.bean.name}
       roaster={c.bean.roasterName}
       details={details}
+      originAction={c.originEditable ? <CoffeeOriginLive beanId={c.bean.id} origin={c.bean.origin} /> : undefined}
       summary={summary}
       addBag={{
         href: `/beans/add?${new URLSearchParams({ beanId: c.bean.id, returnTo: `/beans/coffee/${encodeURIComponent(c.bean.id)}` })}`,
