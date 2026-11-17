@@ -561,7 +561,19 @@
     "anyMarket": "Everywhere",
     "addLink": "Add a link",
     "addName": "Add a name",
-    "remove": "Remove {item}"
+    "remove": "Remove {item}",
+    "origin": {
+      "label": "Origin",
+      "title": "Where it comes from",
+      "notStated": "Not stated",
+      "blend": "Blend",
+      "other": "Other",
+      "otherLabel": "Origin",
+      "otherHint": "A country or region that isn't in the list.",
+      "done": "Done",
+      "set": "Set origin",
+      "change": "Change origin"
+    }
   },
   "bag": {
     "addTitle": "Add a bag",
@@ -882,7 +894,8 @@
     "allShots": "All shots of this coffee",
     "bags": "Bags",
     "loading": "Loading this coffee",
-    "details": "{roast} · {notes}"
+    "details": "{roast} · {notes}",
+    "detailsMore": "{first} · {rest}"
   },
   "milkList": {
     "title": "Milks",

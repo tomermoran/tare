@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { createTranslator } from "next-intl";
 import { useState } from "react";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { BasketQuestions, CapabilitySection } from "@/components/catalog/BasketQuestions";
 import { CoffeeDetails } from "@/components/catalog/CoffeeDetails";
+import { OriginSheet } from "@/components/catalog/OriginSheet";
+import { labelOrigin, originChoices, parseOrigin } from "@/domain/origin";
 import { ROAST_LEVELS } from "@/domain/roast";
 import type { DoseAnswer } from "@/domain/capabilityQuestions";
 import messages from "@/i18n/messages/en.json";
@@ -224,4 +226,127 @@ export const NewRoaster: Story = {
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByLabelText(catalog.roasterUrl)).toBeVisible();
   },
+};
+
+const originLabels = {
+  title: catalog.origin.title,
+  close: actions.close,
+  notStated: catalog.origin.notStated,
+  blend: catalog.origin.blend,
+  other: catalog.origin.other,
+  otherLabel: catalog.origin.otherLabel,
+  otherHint: catalog.origin.otherHint,
+  done: catalog.origin.done,
+};
+
+/** A coffee with the optional origin field (STORY-03-07-04); `available` false is a runtime with no country names. */
+function CoffeeWithOrigin({ initial = null, available = true }: { initial?: string | null; available?: boolean }) {
+  const [origin, setOrigin] = useState<string | null>(initial);
+  const [open, setOpen] = useState(false);
+  const countries = available ? originChoices("en") : [];
+  const chosen = parseOrigin(origin);
+  return (
+    <>
+      <CoffeeDetails
+        labels={{
+          roastLevel: catalog.roastLevel,
+          levels: Object.fromEntries(ROAST_LEVELS.map((l) => [l, catalog.roast[l]])) as Record<(typeof ROAST_LEVELS)[number], string>,
+          notSure: catalog.cap.notSure,
+          notes: catalog.tastingNotes,
+          notesHint: catalog.tastingNotesHint,
+        }}
+        roast={null}
+        onRoastChange={fn()}
+        notes=""
+        onNotesChange={fn()}
+        origin={
+          countries.length
+            ? {
+                label: catalog.origin.label,
+                value: chosen ? labelOrigin(chosen, "en", { blend: catalog.origin.blend }) : catalog.origin.notStated,
+                onClick: () => setOpen(true),
+              }
+            : undefined
+        }
+      />
+      {open && (
+        <OriginSheet
+          open
+          onClose={() => setOpen(false)}
+          value={origin}
+          countries={countries}
+          onChoose={(o) => {
+            setOrigin(o);
+            setOpen(false);
+          }}
+          labels={originLabels}
+        />
+      )}
+    </>
+  );
+}
+
+const originField = (canvas: ReturnType<typeof within>) => canvas.getByRole("button", { name: new RegExp(`^${catalog.origin.label}`) });
+async function chooseOrigin(canvas: ReturnType<typeof within>, row: string) {
+  await userEvent.click(originField(canvas));
+  const dialog = await within(document.body).findByRole("dialog", { name: catalog.origin.title });
+  await waitFor(() => expect(dialog).toBeVisible());
+  await userEvent.click(within(dialog).getByRole("button", { name: row }));
+  return dialog;
+}
+
+/** Origin is optional and starts not stated (STORY-03-07-04 AC 1, AC 3). */
+export const OriginNotChosen: Story = {
+  args: { labels: coffeeLabels, kinds: undefined, kind: undefined, name: "Morning Blend", capabilities: <CoffeeWithOrigin /> },
+  play: async ({ canvasElement }) => {
+    await expect(originField(within(canvasElement))).toHaveTextContent(catalog.origin.notStated);
+  },
+};
+
+/** A producing country, named through Intl (AC 1). */
+export const OriginCountry: Story = {
+  args: OriginNotChosen.args,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await chooseOrigin(canvas, "Ethiopia");
+    await waitFor(() => expect(originField(canvas)).toHaveTextContent("Ethiopia"));
+  },
+};
+
+/** A blend has its own choice, never guessed from a name. */
+export const OriginBlend: Story = {
+  args: OriginNotChosen.args,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await chooseOrigin(canvas, catalog.origin.blend);
+    await waitFor(() => expect(originField(canvas)).toHaveTextContent(catalog.origin.blend));
+  },
+};
+
+/** Other asks for the origin in words, saved case-folded (AC 2). */
+export const OriginOther: Story = {
+  args: OriginNotChosen.args,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await chooseOrigin(canvas, catalog.origin.other);
+    const sheet = within(dialog);
+    await expect(sheet.getByRole("button", { name: catalog.origin.done })).toBeDisabled();
+    await userEvent.type(sheet.getByLabelText(catalog.origin.otherLabel), "Hawaiian  KONA");
+    await userEvent.click(sheet.getByRole("button", { name: catalog.origin.done }));
+    await waitFor(() => expect(originField(canvas)).toHaveTextContent("Hawaiian kona"));
+  },
+};
+
+/** No list of origins: the question isn't asked, and adding still works (AC 4). */
+export const OriginUnavailable: Story = {
+  args: { ...OriginNotChosen.args, capabilities: <CoffeeWithOrigin available={false} /> },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByRole("button", { name: new RegExp(`^${catalog.origin.label}`) })).toBeNull();
+    await expect(within(canvasElement).getByRole("button", { name: catalog.save })).toBeEnabled();
+  },
+};
+
+export const OriginRightToLeft: Story = {
+  args: { ...OriginNotChosen.args, capabilities: <CoffeeWithOrigin initial="KE" /> },
+  globals: { direction: "rtl" },
 };

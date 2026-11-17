@@ -1,17 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useLayoutEffect, useRef, useState } from "react";
 import { CatalogAddScreen, type CatalogAddErrors } from "@/components/screens/CatalogAddScreen/CatalogAddScreen";
 import { useUnsavedChanges } from "@/components/task/useUnsavedChanges";
 import { SelectSheet } from "@/components/ui/SelectSheet/SelectSheet";
+import { labelOrigin, originChoices, parseOrigin } from "@/domain/origin";
 import { ROAST_LEVELS, type RoastLevel } from "@/domain/roast";
 import { normalizeUrl } from "@/domain/url";
 import { returnWithSelection } from "@/lib/returnTo";
 import { createCoffeeEntryAction } from "@/server/actions/catalog";
 import type { CatalogMatch } from "@/server/dal/catalogAdd";
 import { CoffeeDetails, NOT_SURE } from "./CoffeeDetails";
+import { OriginSheet } from "./OriginSheet";
+import { useOriginLabels } from "./useOriginLabels";
 import { useCatalogExtras } from "./useCatalogExtras";
 
 /*
@@ -42,6 +45,11 @@ export function CoffeeAddFlow({
   const [name, setName] = useState(initialName);
   const [roast, setRoast] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [origin, setOrigin] = useState<string | null>(null);
+  const [choosingOrigin, setChoosingOrigin] = useState(false);
+  const locale = useLocale();
+  const originLabels = useOriginLabels();
+  const [countries] = useState(() => originChoices(locale));
   const [picking, setPicking] = useState(false);
   const [check, setCheck] = useState<"idle" | "checking" | "failed">("idle");
   const [duplicate, setDuplicate] = useState<CatalogMatch | null>(null);
@@ -60,6 +68,7 @@ export function CoffeeAddFlow({
       setName(initialName);
       setRoast(null);
       setNotes("");
+      setOrigin(null);
       setDuplicate(null);
       setErrors({});
       setState("idle");
@@ -71,7 +80,7 @@ export function CoffeeAddFlow({
   );
 
   const dirty =
-    url.trim() !== "" || roasterId !== null || name !== initialName || roast !== null || notes.trim() !== "" || extras.dirty;
+    url.trim() !== "" || roasterId !== null || name !== initialName || roast !== null || notes.trim() !== "" || origin !== null || extras.dirty;
   const { leave, proceed, confirm } = useUnsavedChanges(dirty, () => router.replace(returnTo));
   const backWith = (id: string) => proceed(() => router.replace(returnWithSelection(returnTo, id)));
 
@@ -112,6 +121,7 @@ export function CoffeeAddFlow({
         url,
         roastLevel: roast && roast !== NOT_SURE ? roast : undefined,
         tastingNotes: notes.split(","),
+        origin,
       },
       ...extras.input,
     });
@@ -127,6 +137,8 @@ export function CoffeeAddFlow({
     setState("failed");
   };
 
+  const chosenOrigin = parseOrigin(origin);
+  const originText = chosenOrigin ? labelOrigin(chosenOrigin, locale, { blend: originLabels.blend }) : originLabels.notStated;
   const chosenRoaster =
     roasterId === NEW_ROASTER ? t("catalog.newRoaster") : (roasters.find((r) => r.id === roasterId)?.name ?? null);
 
@@ -183,6 +195,15 @@ export function CoffeeAddFlow({
             onRoastChange={setRoast}
             notes={notes}
             onNotesChange={setNotes}
+            origin={
+              countries.length
+                ? {
+                    label: t("catalog.origin.label"),
+                    value: originText,
+                    onClick: () => setChoosingOrigin(true),
+                  }
+                : undefined
+            }
           />
         }
         more={extras.more}
@@ -213,6 +234,19 @@ export function CoffeeAddFlow({
           },
         }}
       />
+      {choosingOrigin && (
+        <OriginSheet
+          open
+          onClose={() => setChoosingOrigin(false)}
+          value={origin}
+          countries={countries}
+          onChoose={(o) => {
+            setOrigin(o);
+            setChoosingOrigin(false);
+          }}
+          labels={originLabels}
+        />
+      )}
       {extras.marketSheet}
       {confirm}
     </>
