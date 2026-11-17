@@ -500,6 +500,9 @@ export const pinnedRecipes = sqliteTable(
       () => extractions.id,
     ), // The shot it came from, if any
     pinnedAt: integer("pinned_at", { mode: "timestamp_ms" }).notNull(),
+    // Set only when a bag's own recipe is removed (STORY-02-04-04): it stops
+    // applying and is kept, like older pins. Not part of the key.
+    removedAt: integer("removed_at", { mode: "timestamp_ms" }),
   },
   (t) => [
     index("pinned_recipes_key").on(
