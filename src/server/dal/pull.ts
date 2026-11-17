@@ -77,9 +77,10 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
   const setupId = await currentSetupOf(householdId, setupList);
   if (!setupId || !persona) throw new NotFoundError();
 
-  // The recipe is resolved again here, never taken from the client (AC 1).
-  const recipe = await getCurrentRecipe({ beanId, personaId: persona.id, setupId, drinkTypeId: input.drinkTypeId });
-  if (!recipe) throw new NoRecipeError();
+  // The recipe is resolved again here, never taken from the client (AC 1). Whether
+  // there is one is the coffee's question: a bag recipe can't exist without it.
+  const key = { beanId, personaId: persona.id, setupId, drinkTypeId: input.drinkTypeId };
+  if (!(await getCurrentRecipe(key))) throw new NoRecipeError();
 
   const portions = (await unfinishedPortions(householdId, now)).filter((p) => p.bean.id === beanId);
   if (!portions.length) return { kind: "noneLeft" };
@@ -87,6 +88,8 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
   const portion = input.portionId ? portions.find((p) => p.id === input.portionId) : portions.find((p) => p.openedAt !== null);
   if (input.portionId && !portion) throw new NotFoundError();
   if (!portion) return { kind: "needsPortion", portions: await withRemaining(portions) };
+  // The portion's bag may have its own recipe (STORY-02-04-02 AC 1); split and frozen portions share it (AC 4).
+  const recipe = (await getCurrentRecipe(key, portion.batchId))!;
 
   const shot = db.insert(extractions).values({
     id: input.clientId,

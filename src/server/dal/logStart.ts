@@ -145,7 +145,8 @@ async function applying(suggestedShotId: string | undefined): Promise<ShotSugges
 export async function getFixStart(shotId: string, suggested?: string): Promise<LogStart> {
   const r = await shotRow(shotId);
   const s = r.shot;
-  const recipe = await getCurrentRecipe({ beanId: r.beanId, personaId: s.personaId, setupId: s.setupId, drinkTypeId: s.drinkTypeId });
+  // The shot's bag may have its own recipe (STORY-02-04-02).
+  const recipe = await getCurrentRecipe({ beanId: r.beanId, personaId: s.personaId, setupId: s.setupId, drinkTypeId: s.drinkTypeId }, r.portion.batchId);
   // A one-tap shot is its recipe's copy, so it stands in when the recipe was replaced.
   const start = recipe ? valuesOf(recipe, "recipe") : valuesOf(s, "shot");
   const suggestion = await applying(suggested);
@@ -218,6 +219,17 @@ export async function dialInPortion(shotId: string, now = new Date()): Promise<D
 }
 
 /**
+ * The bag a dial-in is for (STORY-02-04-02): the chosen portion's, else the
+ * earliest-opened open portion of the coffee, like the pull. None when
+ * nothing of it is open.
+ */
+async function bagInUse(householdId: string, beanId: string, portionId: string | undefined): Promise<string | null> {
+  const portions = (await unfinishedPortions(householdId, new Date())).filter((p) => p.bean.id === beanId);
+  const portion = portionId ? portions.find((p) => p.id === portionId) : portions.find((p) => p.openedAt !== null);
+  return portion?.batchId ?? null;
+}
+
+/**
  * Dial in from Brew (STORY-02-03-03, STORY-02-01-06): the recipe on the
  * current setup, else the closest setup's carried over; null when no setup
  * has one, so the log starts blank. A pending suggestion is applied when
@@ -229,7 +241,7 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
   const setupId = await currentSetupOf(householdId, setupList);
   if (!setupId) return null;
   const beanId = (await resolveEntity(db, canonicalBeans, key.beanId)) ?? key.beanId;
-  const dialIn = await getDialInStart({ beanId, drinkTypeId: key.drinkTypeId, setupId });
+  const dialIn = await getDialInStart({ beanId, drinkTypeId: key.drinkTypeId, setupId, batchId: await bagInUse(householdId, beanId, key.portionId) });
   if (!dialIn) return null;
   const start: StartValues = { ...dialIn.values, brew: dialIn.brew, prep: dialIn.prep, milkMl: dialIn.milk.milkMl };
   const suggestion = await applying(key.suggested);
