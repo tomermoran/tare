@@ -207,3 +207,44 @@ export const NothingOnHandNoRunOut: Story = {
     await expect(within(canvasElement).queryByRole("button", { name: /of coffee/ })).toBeNull();
   },
 };
+
+const filterRow = <div role="group" aria-label={beans.filters} />;
+const filtering = {
+  onHandNone: beans.filteredOnHandNone,
+  triedNone: beans.filteredTriedNone,
+  none: { title: beans.filteredNoneTitle, body: beans.filteredNone, clear: { label: beans.filterClear, href: "/beans" } },
+};
+
+/** Filtered: On hand has no match but Tried does, in one line; Add a bag stays the primary (STORY-03-07-02 AC 3). */
+export const FilteredOnHandNone: Story = {
+  args: { groups: [], tried, filters: filterRow, filtering },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(beans.filteredOnHandNone)).toBeVisible();
+    await expect(canvas.queryByRole("heading", { name: beans.onHandEmptyTitle })).toBeNull();
+    await expect(primaries(canvasElement)).toHaveLength(1);
+  },
+};
+
+/** And the reverse. */
+export const FilteredTriedNone: Story = {
+  args: { filters: filterRow, filtering },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(beans.filteredTriedNone)).toBeVisible();
+  },
+};
+
+/** Nothing matches: one message with clear filters, and the filters stay (STORY-03-07-02 AC 4). */
+export const FilteredNone: Story = {
+  args: { groups: [], filters: filterRow, filtering },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: beans.filteredNoneTitle })).toBeVisible();
+    await expect(canvas.getByRole("link", { name: beans.filterClear })).toHaveAttribute("href", "/beans");
+    await expect(canvas.getByRole("group", { name: beans.filters })).toBeInTheDocument();
+    await expect(canvas.queryByRole("heading", { name: beans.onHand })).toBeNull();
+    await expect(primaries(canvasElement)).toHaveLength(1);
+  },
+};
+
+export const FilteredRightToLeft: Story = { args: FilteredOnHandNone.args, globals: { direction: "rtl" } };

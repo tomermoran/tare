@@ -55,12 +55,24 @@ export type BeansLabels = {
   loading: string;
 };
 
+/** Beans narrowed by its filters (EPIC-03-07): what each section says when it has no match. */
+export type BeansFiltering = {
+  /** On hand has no match but Tried does. */
+  onHandNone: string;
+  /** Tried has no match but On hand does. */
+  triedNone: string;
+  /** Neither has a match: one message, with clearing the filters as a secondary action. */
+  none: { title: string; body: string; clear: { label: string; href: string } };
+};
+
 export function BeansScreen({
   labels,
   state = "ready",
   groups,
   tried,
   runOut,
+  filters,
+  filtering,
   addBagHref,
   onPortion,
   onWeigh,
@@ -77,6 +89,10 @@ export function BeansScreen({
   tried?: ReactNode;
   /** The run-out line (EPIC-03-05), under the On hand heading while bags are on hand. */
   runOut?: ReactNode;
+  /** The filter row (EPIC-03-07), when there are enough coffees for it. */
+  filters?: ReactNode;
+  /** Set while any filter is on: the sections show only matching coffees. */
+  filtering?: BeansFiltering;
   addBagHref: string;
 }) {
   if (state === "loading") {
@@ -97,6 +113,22 @@ export function BeansScreen({
   }
 
   const hasBags = groups.some((g) => g.bags.length > 0);
+  if (filtering && !hasBags && !tried) {
+    return (
+      <div className="flex flex-col gap-8">
+        <PageHeader title={labels.title} end={addBagLink(addBagHref, labels.addBag)} />
+        {filters}
+        <div className="flex flex-col items-center gap-2">
+          <EmptyState title={filtering.none.title} className="pb-4">
+            {filtering.none.body}
+          </EmptyState>
+          <Link href={filtering.none.clear.href} className={buttonClass({ variant: "secondary" })}>
+            {filtering.none.clear.label}
+          </Link>
+        </div>
+      </div>
+    );
+  }
   if (!hasBags && !tried) {
     return (
       <div className="flex flex-col gap-8">
@@ -112,20 +144,17 @@ export function BeansScreen({
     <div className="flex flex-col gap-10">
       <PageHeader
         title={labels.title}
-        end={
-          hasBags ? (
-            <Link href={addBagHref} className={buttonClass({ variant: "primary", size: "sm" })}>
-              {labels.addBag}
-            </Link>
-          ) : undefined
-        }
+        end={hasBags || filtering ? addBagLink(addBagHref, labels.addBag) : undefined}
       />
+      {filters && <div className="-mt-6">{filters}</div>}
 
       <section aria-labelledby="beans-on-hand" className="flex flex-col gap-6">
         <h2 id="beans-on-hand" className="text-h2 text-ink">
           {labels.onHand}
         </h2>
-        {!hasBags ? (
+        {!hasBags && filtering ? (
+          <p className="text-body text-ink-secondary">{filtering.onHandNone}</p>
+        ) : !hasBags ? (
           <EmptyState
             title={labels.onHandEmptyTitle}
             action={{ label: labels.addBag, href: addBagHref }}
@@ -152,7 +181,7 @@ export function BeansScreen({
         <h2 id="beans-tried" className="text-h2 text-ink">
           {labels.tried}
         </h2>
-        {tried ?? <p className="text-body text-ink-secondary">{labels.triedEmpty}</p>}
+        {tried ?? <p className="text-body text-ink-secondary">{filtering ? filtering.triedNone : labels.triedEmpty}</p>}
       </section>
     </div>
   );
@@ -181,5 +210,13 @@ function BagList({ bags, onPortion, onWeigh }: { bags: BagCard[]; onPortion?: (i
         </li>
       ))}
     </ul>
+  );
+}
+
+function addBagLink(href: string, label: string) {
+  return (
+    <Link href={href} className={buttonClass({ variant: "primary", size: "sm" })}>
+      {label}
+    </Link>
   );
 }
