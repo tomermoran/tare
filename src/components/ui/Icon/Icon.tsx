@@ -7,6 +7,7 @@ import { cx } from "@/lib/cx";
  * decorative by default; pass `label` when one stands alone, e.g. a close
  * button with no visible text. The chevron and arrow point to the inline
  * end and back to the inline start; all three mirror in right-to-left.
+ * Up and down are block directions (reordering), so they never mirror.
  */
 
 const paths = {
@@ -18,6 +19,10 @@ const paths = {
   close: "M6.5 6.5l11 11M17.5 6.5l-11 11",
   /** From one value to the next, as in "15 → 13". */
   arrow: "M5 12h14M13.5 6.5 19 12l-5.5 5.5",
+  /** Move earlier in a list. */
+  up: "M5.5 15 12 8.5 18.5 15",
+  /** Move later in a list. */
+  down: "M5.5 9 12 15.5 18.5 9",
 };
 
 const MIRRORED: ReadonlySet<IconName> = new Set(["chevron", "back", "arrow"]);

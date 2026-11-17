@@ -3,7 +3,7 @@ import { expect, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { Icon, type IconName } from "./Icon";
 
-const names: IconName[] = ["chevron", "back", "check", "plus", "close", "arrow"];
+const names: IconName[] = ["chevron", "back", "check", "plus", "close", "arrow", "up", "down"];
 
 const meta = {
   title: "Components/Icon",
@@ -46,6 +46,16 @@ export const ChevronRightToLeft: Story = {
 
 export const ChevronLeftToRight: Story = {
   args: { name: "chevron", size: 24 },
+  play: async ({ canvasElement }) => {
+    const svg = canvasElement.querySelector("svg")!;
+    await expect(getComputedStyle(svg).scale.startsWith("-1")).toBe(false);
+  },
+};
+
+/** Up and down are block directions (reordering): they never mirror. */
+export const UpRightToLeft: Story = {
+  args: { name: "up", size: 24 },
+  globals: { direction: "rtl" },
   play: async ({ canvasElement }) => {
     const svg = canvasElement.querySelector("svg")!;
     await expect(getComputedStyle(svg).scale.startsWith("-1")).toBe(false);
