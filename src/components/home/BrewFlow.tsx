@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { Suspense, useEffect, useRef, useState, type ComponentProps } from "react";
 import { HomeScreen } from "@/components/screens/HomeScreen/HomeScreen";
 import { Button, buttonClass } from "@/components/ui/Button/Button";
 import { Notice } from "@/components/ui/Notice/Notice";
@@ -18,6 +18,8 @@ import { getOffContextAction, setReactionAction } from "@/server/actions/reactio
 import { chooseSetupAction } from "@/server/actions/setups";
 import type { PortionChoice } from "@/server/dal/pull";
 import type { OffContext } from "@/server/dal/reaction";
+import { googleLinkDeps } from "@/components/account/googleLinkDeps";
+import { LinkPrompt } from "./LinkPrompt";
 import { OffFlow } from "./OffFlow";
 import { PortionChooser } from "./PortionChooser";
 
@@ -77,6 +79,7 @@ export function BrewFlow({
   setupId,
   changePartHref,
   addBagHref,
+  linkPrompt,
 }: {
   screen: Omit<ComponentProps<typeof HomeScreen>, "actions" | "onChangeDrink" | "onChangeCoffee">;
   primary: BrewAction;
@@ -93,6 +96,8 @@ export function BrewFlow({
   /** The builder from the current setup, coming back to Brew (STORY-02-02-07 AC 3). */
   changePartHref: string;
   addBagHref: string;
+  /** Whether the one-time reminder to link Google is due (STORY-05-03-03); it never holds Brew up. */
+  linkPrompt?: Promise<boolean>;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -306,6 +311,12 @@ export function BrewFlow({
           </>
         }
       />
+      {/* One card at a time, never beside the pulled state (STORY-05-03-03 AC 3); below the actions, so Pull stays in view (AC 4). */}
+      {linkPrompt && !pulled && (
+        <Suspense fallback={null}>
+          <LinkPrompt due={linkPrompt} deps={googleLinkDeps} onLinked={() => router.refresh()} />
+        </Suspense>
+      )}
       <SelectSheet
         open={picking !== null}
         onClose={() => setPicking(null)}

@@ -70,8 +70,13 @@
     "save": "Save name",
     "saved": "Saved.",
     "saveFailed": "Couldn't save your name. Your text is kept, so you can try again.",
-    "deviceTitle": "Your history",
-    "device": "Your shots and recipes are kept with this device's account for now. A way to take them to another device comes later.",
+    "accountTitle": "Account",
+    "account": "Your history lives on this phone. Link a Google account to keep it if you change phones or your browser clears its storage.",
+    "linkGoogle": "Link your Google account",
+    "linked": "Linked to Google",
+    "linkedBody": "Your history is kept even if you change phones.",
+    "linkFailed": "Couldn't link right now. Nothing has changed.",
+    "linkTaken": "That Google account already has a Tare history, so it can't be linked to this one. Your data here is unchanged. Use a different Google account.",
     "about": "About",
     "version": "Version {version}"
   },
@@ -127,10 +132,17 @@
       "addBag": "Add a bag",
       "logShot": "Log your first shot",
       "shotHint": "Pull it as you normally would, then note what you measured.",
-      "done": "Done"
+      "done": "Done",
+      "haveAccount": "Already use Tare? Sign in with Google"
     },
     "interimTitle": "Nothing to brew yet",
-    "interim": "Once your setup and a bag of coffee are in, your next shot starts here."
+    "interim": "Once your setup and a bag of coffee are in, your next shot starts here.",
+    "linkPrompt": {
+      "title": "Keep your history safe",
+      "body": "Link a Google account so your shots and recipes stay with you if you change phones.",
+      "action": "Link Google",
+      "dismiss": "Not now"
+    }
   },
   "log": {
     "titleNew": "New shot",
@@ -370,6 +382,13 @@
   "confirm": {
     "discardTitle": "Discard changes?",
     "discard": "What you've changed here won't be saved."
+  },
+  "switch": {
+    "title": "This Google account already has a Tare history",
+    "body": "Nothing is entered on this phone yet, so switching loses nothing.",
+    "confirm": "Switch to that history",
+    "failed": "Couldn't switch right now. Nothing has changed.",
+    "done": "Switched to your Tare history."
   },
   "start": {
     "slow": "Still setting up…",

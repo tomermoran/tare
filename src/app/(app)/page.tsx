@@ -10,6 +10,8 @@ import { setupLabel } from "@/domain/setupName";
 import { LOG_PATH } from "@/lib/logRoutes";
 import { changePartHref } from "@/lib/setupRoutes";
 import { PROFILE_PATH } from "@/lib/profileRoutes";
+import { SwitchedNote } from "@/components/home/SwitchedNote";
+import { getLinkPromptDue } from "@/server/dal/account";
 import { getPendingSuggestion } from "@/server/dal/logStart";
 import { getHome, type Home } from "@/server/dal/home";
 import { getProfile } from "@/server/dal/profile";
@@ -38,6 +40,7 @@ export default async function BrewPage() {
         </Suspense>
         <LogoMark size={24} className="text-ink" />
       </div>
+      <SwitchedNote label={t("switch.done")} />
       <Suspense fallback={<BrewSkeleton label={t("states.loading")} />}>
         <BrewBody />
       </Suspense>
@@ -130,6 +133,8 @@ async function Brew({ home }: { home: Home }) {
       secondary={secondary}
       pull={state.kind === "recipe" && home.coffee ? { drinkTypeId: home.drink.id, beanId: home.coffee.id } : undefined}
       addBagHref={addBag.href}
+      // Streams in after Brew; a failure just leaves the reminder out.
+      linkPrompt={getLinkPromptDue().catch(() => false)}
       drinks={home.drinks.map((d) => ({
         id: d.id,
         primary: drinkLabel(d, (key: DrinkKey) => t(key)),

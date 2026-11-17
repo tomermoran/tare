@@ -54,3 +54,37 @@ export function dismissSuggestion(shotId: string): void {
 export function isSuggestionDismissed(shotId: string): boolean {
   return memory.has(shotId) || read().includes(shotId);
 }
+
+/*
+ * Things dismissed for good on this device, such as the reminder to link
+ * Google (STORY-05-03-03 AC 2, DQ-40d). No schema change: a cleared browser
+ * may show them again, which is accepted.
+ */
+const FOR_GOOD = "tare:dismissedForGood";
+const forGoodMemory = new Set<string>();
+
+function readForGood(): string[] {
+  const s = store();
+  if (!s) return [];
+  try {
+    const list: unknown = JSON.parse(s.getItem(FOR_GOOD) ?? "[]");
+    return Array.isArray(list) ? list.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function dismissForGood(key: string): void {
+  const s = store();
+  try {
+    if (!s) throw new Error("no storage");
+    s.setItem(FOR_GOOD, JSON.stringify([...new Set([...readForGood(), key])]));
+  } catch {
+    // No storage or full: kept in memory for this page load.
+    forGoodMemory.add(key);
+  }
+}
+
+export function isDismissedForGood(key: string): boolean {
+  return forGoodMemory.has(key) || readForGood().includes(key);
+}
