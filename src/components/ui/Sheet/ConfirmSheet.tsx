@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "../Button/Button";
 import { Sheet } from "./Sheet";
 
@@ -17,6 +18,8 @@ export function ConfirmSheet({
   closeLabel,
   onConfirm,
   onCancel,
+  busy = false,
+  notice,
 }: {
   open: boolean;
   title: string;
@@ -27,6 +30,10 @@ export function ConfirmSheet({
   closeLabel: string;
   onConfirm: () => void;
   onCancel: () => void;
+  /** The confirm is under way: its button is busy and can't be pressed again. */
+  busy?: boolean;
+  /** E.g. a failure with a retry; the sheet stays open. */
+  notice?: ReactNode;
 }) {
   return (
     <Sheet
@@ -36,7 +43,7 @@ export function ConfirmSheet({
       closeLabel={closeLabel}
       footer={
         <>
-          <Button variant="primary" fullWidth onClick={onConfirm}>
+          <Button variant="primary" fullWidth onClick={onConfirm} disabled={busy} aria-busy={busy || undefined}>
             {confirmLabel}
           </Button>
           <Button variant="ghost" fullWidth onClick={onCancel}>
@@ -46,6 +53,7 @@ export function ConfirmSheet({
       }
     >
       <p className="text-ink-secondary">{children}</p>
+      {notice && <div className="mt-4">{notice}</div>}
     </Sheet>
   );
 }

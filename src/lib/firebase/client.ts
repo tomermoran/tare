@@ -10,7 +10,8 @@ const config = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-function firebaseAuth(): Auth {
+/** The app's Firebase Auth, created once. */
+export function firebaseAuth(): Auth {
   const app = getApps().length ? getApp() : initializeApp(config);
   return getAuth(app);
 }
