@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
+import { RunOutLineSkeleton } from "@/components/beans/RunOutLine";
 import { BeansFlow } from "@/components/beans/BeansFlow";
 import type { BagCard, BagGroup } from "@/components/screens/BeansScreen/BeansScreen";
 import { TriedRows, type TriedRow } from "@/components/screens/BeansScreen/TriedRows";
@@ -12,6 +14,7 @@ import { unlessSignedOut } from "@/server/dal/scope";
 import { getTried } from "@/server/dal/tried";
 import { ADD_BAG, beansLabels } from "./labels";
 import { bagRows } from "./rows";
+import { RunOut } from "./RunOut";
 
 /** SCR-PANTRY, the Beans tab: what's on hand, then what's been tried. */
 export default async function BeansPage() {
@@ -59,6 +62,11 @@ export default async function BeansPage() {
       groups={groups}
       addBagHref={ADD_BAG}
       info={info}
+      runOut={
+        <Suspense fallback={<RunOutLineSkeleton label={t("states.loading")} />}>
+          <RunOut />
+        </Suspense>
+      }
       tried={triedRows.length ? <TriedRows rows={triedRows} /> : undefined}
     />
   );

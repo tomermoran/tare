@@ -3,6 +3,7 @@ import { expect, within } from "storybook/test";
 import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { PhoneFrame } from "../PhoneFrame";
+import { RunOutLine } from "@/components/beans/RunOutLine";
 import { lastHadLabel } from "@/lib/lastHad";
 import { BeansScreen, type BagCard, type BagGroup, type BeansLabels } from "./BeansScreen";
 import { TriedRows, type TriedRow } from "./TriedRows";
@@ -10,6 +11,14 @@ import { TriedRows, type TriedRow } from "./TriedRows";
 const { beans, portion, states } = messages;
 const t = createTranslator({ locale: "en", messages });
 const grams = new Intl.NumberFormat("en", { style: "unit", unit: "gram", unitDisplay: "narrow" });
+
+const runOutLine = (
+  <RunOutLine
+    content={{ line: "About 5 weeks of coffee, 2 of them in the freezer", learning: false, rows: [] }}
+    labels={{ title: beans.runOutTitle, close: messages.actions.close, loadFailed: states.loadFailed, retry: messages.actions.retry }}
+    onRetry={() => {}}
+  />
+);
 
 const labels: BeansLabels = {
   title: beans.title,
@@ -178,3 +187,23 @@ export const Loading: Story = {
 };
 
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
+
+/** The run-out line sits under the On hand heading, before the groups (DES-03-05-01). */
+export const WithRunOut: Story = {
+  args: { runOut: runOutLine },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const line = canvas.getByRole("button", { name: "About 5 weeks of coffee, 2 of them in the freezer" });
+    const firstGroup = canvas.getAllByRole("heading", { level: 3 })[0];
+    await expect(line.compareDocumentPosition(firstGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await expect(primaries(canvasElement)).toHaveLength(1);
+  },
+};
+
+/** Nothing on hand: no run-out line (STORY-03-05-02 AC 4). */
+export const NothingOnHandNoRunOut: Story = {
+  args: { groups: [], tried, runOut: runOutLine },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByRole("button", { name: /of coffee/ })).toBeNull();
+  },
+};

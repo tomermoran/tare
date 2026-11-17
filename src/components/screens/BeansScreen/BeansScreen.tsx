@@ -60,6 +60,7 @@ export function BeansScreen({
   state = "ready",
   groups,
   tried,
+  runOut,
   addBagHref,
   onPortion,
   onWeigh,
@@ -74,6 +75,8 @@ export function BeansScreen({
   groups: BagGroup[];
   /** The Tried rows (EPIC-03-06); none means nothing has been brewed yet. */
   tried?: ReactNode;
+  /** The run-out line (EPIC-03-05), under the On hand heading while bags are on hand. */
+  runOut?: ReactNode;
   addBagHref: string;
 }) {
   if (state === "loading") {
@@ -131,14 +134,17 @@ export function BeansScreen({
             {labels.onHandEmpty}
           </EmptyState>
         ) : (
-          groups.map((group) => (
-            <section key={group.key} aria-labelledby={`beans-group-${group.key}`} className="flex flex-col gap-3">
-              <h3 id={`beans-group-${group.key}`} className="text-overline uppercase text-ink-secondary">
-                {group.title}
-              </h3>
-              <BagList bags={group.bags} onPortion={onPortion} onWeigh={onWeigh} />
-            </section>
-          ))
+          <>
+            {runOut && <div className="-mt-3">{runOut}</div>}
+            {groups.map((group) => (
+              <section key={group.key} aria-labelledby={`beans-group-${group.key}`} className="flex flex-col gap-3">
+                <h3 id={`beans-group-${group.key}`} className="text-overline uppercase text-ink-secondary">
+                  {group.title}
+                </h3>
+                <BagList bags={group.bags} onPortion={onPortion} onWeigh={onWeigh} />
+              </section>
+            ))}
+          </>
         )}
       </section>
 
