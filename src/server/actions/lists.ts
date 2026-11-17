@@ -4,7 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { runAction, type ActionError } from "@/lib/actionResult";
 import { drinkLabel, type DrinkKey, type NamedDrink } from "@/domain/drinkName";
 import { ListNameError } from "@/domain/listName";
+import { milkLabel, type MilkKey, type NamedMilk } from "@/domain/milkName";
 import { addDrink, KeepOneError, moveDrink, updateDrink, type DrinkChanges } from "@/server/dal/drinks";
+import { addMilk, MILK_KINDS, moveMilk, updateMilk, type MilkChanges, type MilkKind } from "@/server/dal/milks";
 
 /*
  * The household's lists (EPIC-02-05). A refused name or hiding the last
@@ -48,4 +50,27 @@ export async function addDrinkAction(input: { name: string; hasMilk: boolean; ty
 export async function moveDrinkAction(id: string, toIndex: number): Promise<ListResult> {
   if (!validId(id)) return { ok: false, error: "notFound" };
   return run(() => moveDrink(id, toIndex));
+}
+
+/** Starter milks are compared by the name they show in this language. */
+async function milkLabeler() {
+  const t = await getTranslations();
+  return (m: NamedMilk) => milkLabel(m, (key: MilkKey) => t(key));
+}
+
+export async function saveMilkAction(id: string, changes: MilkChanges): Promise<ListResult> {
+  if (!validId(id) || !changes || typeof changes !== "object") return { ok: false, error: "notFound" };
+  // Only these; a milk's kind is never changed.
+  const { name, hidden } = changes;
+  return run(async () => updateMilk(id, { name, hidden }, await milkLabeler()));
+}
+
+export async function addMilkAction(input: { name: string; kind: MilkKind }): Promise<ListResult<{ id: string }>> {
+  if (!input || typeof input.name !== "string" || !MILK_KINDS.includes(input.kind)) return { ok: false, error: "saveFailed" };
+  return run(async () => addMilk({ name: input.name, kind: input.kind }, await milkLabeler()));
+}
+
+export async function moveMilkAction(id: string, toIndex: number): Promise<ListResult> {
+  if (!validId(id)) return { ok: false, error: "notFound" };
+  return run(() => moveMilk(id, toIndex));
 }
