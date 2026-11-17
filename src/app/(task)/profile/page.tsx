@@ -1,9 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { ProfileFlow } from "@/components/profile/ProfileFlow";
-import { DRINKS_PATH, MILKS_PATH } from "@/lib/profileRoutes";
+import { DRINKS_PATH, MILKS_PATH, PEOPLE_PATH } from "@/lib/profileRoutes";
 import { getAccountLink } from "@/server/dal/account";
 import { getListSummaries } from "@/server/dal/lists";
+import { listPersonas } from "@/server/dal/persona";
 import { getProfile } from "@/server/dal/profile";
 import { unlessSignedOut } from "@/server/dal/scope";
 import pkg from "../../../../package.json";
@@ -18,11 +19,12 @@ export default function ProfilePage() {
 }
 
 async function Profile() {
-  const [t, profile, account, lists] = await Promise.all([
+  const [t, profile, account, lists, personas] = await Promise.all([
     getTranslations(),
     unlessSignedOut(getProfile()),
     unlessSignedOut(getAccountLink()),
     unlessSignedOut(getListSummaries()),
+    unlessSignedOut(listPersonas()),
   ]);
   if (!profile || !account) return null;
   return (
@@ -39,6 +41,7 @@ async function Profile() {
             }
           : undefined
       }
+      people={personas ? { href: PEOPLE_PATH, summary: t("profile.peopleSummary", { count: personas.length }) } : undefined}
       labels={{
         back: t("nav.brew"),
         title: t("profile.title"),
@@ -48,6 +51,8 @@ async function Profile() {
         saved: t("profile.saved"),
         saveFailed: t("profile.saveFailed"),
         listsTitle: t("profile.listsTitle"),
+        peopleTitle: t("profile.peopleTitle"),
+        people: t("profile.people"),
         drinks: t("profile.drinks"),
         milks: t("profile.milks"),
         accountTitle: t("profile.accountTitle"),

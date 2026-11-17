@@ -11,10 +11,13 @@ export const testContext: {
   firebaseUid: string | null;
   /** The device's current-setup cookie (src/server/setupChoice.ts). */
   setupChoice: SetupChoice | null;
+  /** The person chosen on Brew (src/server/personaChoice.ts). */
+  personaChoice: string | null;
 } = {
   db: null,
   firebaseUid: null,
   setupChoice: null,
+  personaChoice: null,
 };
 
 export function signInAs(firebaseUid: string | null) {

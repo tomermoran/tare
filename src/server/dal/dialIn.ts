@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import { canonicalBeans, canonicalHardware, extractions, ownedHardware, personas, setupParts } from "@/db/schema";
+import { canonicalBeans, canonicalHardware, extractions, ownedHardware, setupParts } from "@/db/schema";
 import type { BrewValues } from "@/domain/brewControls";
 import { parseCapabilities } from "@/domain/capabilities";
 import { carryOver, type SetupPartIds } from "@/domain/carryOver";
@@ -11,8 +11,9 @@ import type { Prep } from "@/domain/prep";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
 import { getBagOwnRecipe, listCurrentRecipesForBean } from "./recipes";
-import { assertOwned, NotFoundError, requireHousehold } from "./scope";
+import { assertOwned, requireHousehold } from "./scope";
 import { setupsLastUsed } from "./setups";
+import { actingPersona } from "./persona";
 
 /*
  * Where a dial-in starts when this setup has no recipe for the coffee and
@@ -43,11 +44,7 @@ export type DialInStart = {
 export async function getDialInStart(input: { beanId: string; drinkTypeId: string; setupId: string; batchId?: string | null }): Promise<DialInStart | null> {
   const { householdId } = await requireHousehold();
   await Promise.all([assertOwned("setups", input.setupId, householdId), assertOwned("drinkTypes", input.drinkTypeId, householdId)]);
-  const [persona] = await db
-    .select({ id: personas.id })
-    .from(personas)
-    .where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
-  if (!persona) throw new NotFoundError();
+  const persona = await actingPersona();
   const beanId = (await resolveEntity(db, canonicalBeans, input.beanId)) ?? input.beanId;
 
   const coffee = (await listCurrentRecipesForBean(beanId, persona.id)).filter((r) => r.drinkTypeId === input.drinkTypeId);

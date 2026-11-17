@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
-import { batches, batchPortions, canonicalBeans, extractions, personas, setups } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, extractions, setups } from "@/db/schema";
 import { portionState } from "@/domain/portionState";
 import { applyChange, type StartValues } from "@/domain/suggest/apply";
 import { suggest, type Suggestion } from "@/domain/suggest";
@@ -13,6 +13,7 @@ import { getCurrentRecipe } from "./recipes";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
 import { getSuggestContext, type SuggestContext } from "./suggestContext";
+import { actingPersonaId } from "./persona";
 
 /*
  * Where the shot log starts in fix and dial-in modes (STORY-02-03-02, 03,
@@ -33,12 +34,6 @@ export async function suggestionForShot(shotId: string): Promise<ShotSuggestion>
   return { ...suggest({ ...input, answers, tags: s.tasteTags ?? [] }), context };
 }
 
-async function defaultPersona(householdId: string) {
-  const [p] = await db.select({ id: personas.id }).from(personas).where(and(eq(personas.householdId, householdId), eq(personas.isDefault, true)));
-  if (!p) throw new NotFoundError();
-  return p.id;
-}
-
 /**
  * The suggestion from the latest shot on this coffee, setup and drink, when
  * it has a change (STORY-02-03-07 AC 3). Whether it was dismissed is known
@@ -46,7 +41,7 @@ async function defaultPersona(householdId: string) {
  */
 export async function getPendingSuggestion(key: { beanId: string; setupId: string; drinkTypeId: string }): Promise<{ shotId: string } | null> {
   const { householdId } = await requireHousehold();
-  const personaId = await defaultPersona(householdId);
+  const personaId = await actingPersonaId();
   const beans = await mergeGroup(db, canonicalBeans, key.beanId);
   const [latest] = await db
     .select({ id: extractions.id })

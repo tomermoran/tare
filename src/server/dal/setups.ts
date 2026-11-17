@@ -2,7 +2,7 @@ import "server-only";
 import { and, desc, eq, inArray, max } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { canonicalHardware, extractions, ownedHardware, personas, setupParts, setups } from "@/db/schema";
+import { canonicalHardware, extractions, ownedHardware, setupParts, setups } from "@/db/schema";
 import type { HardwareKind } from "@/domain/capabilities";
 import { currentSetupId, isOlder } from "@/domain/currentSetup";
 import { matchSetup, SETUP_KINDS, validateParts } from "@/domain/setup";
@@ -149,13 +149,15 @@ export async function createFirstSetup(): Promise<{ id: string }> {
   return resolveSetup(SETUP_KINDS.map((k) => suggestion.parts[k].id));
 }
 
-/** The setup of the default persona's latest shot, measured or one-tap (AC 1). */
+/**
+ * The setup of the household's latest shot, measured or one-tap, whoever it
+ * was for (AC 1; DQ-36): switching person never changes the setup.
+ */
 async function latestShotSetup(householdId: string) {
   const [row] = await db
     .select({ setupId: extractions.setupId, at: extractions.createdAt })
     .from(extractions)
-    .innerJoin(personas, eq(personas.id, extractions.personaId))
-    .where(and(eq(extractions.householdId, householdId), eq(personas.isDefault, true)))
+    .where(eq(extractions.householdId, householdId))
     .orderBy(desc(extractions.createdAt))
     .limit(1);
   return row ?? null;

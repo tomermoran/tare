@@ -5,7 +5,7 @@ describe("brewChoice (STORY-02-02-06 AC 6)", () => {
   const at = Date.UTC(2026, 2, 20, 8);
 
   it("round-trips through the cookie", () => {
-    const choice = { drinkId: "latte", beanId: "seed:bean:x", at };
+    const choice = { drinkId: "latte", beanId: "seed:bean:x", personaId: "p1", at };
     expect(decodeBrewChoice(encodeBrewChoice(choice))).toEqual(choice);
   });
 

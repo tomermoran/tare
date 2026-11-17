@@ -36,6 +36,9 @@ export type ProfileLabels = {
   saved: string;
   saveFailed: string;
   listsTitle: string;
+  /** The People section's title and row (EPIC-05-01). */
+  peopleTitle?: string;
+  people?: string;
   drinks: string;
   milks: string;
   accountTitle: string;
@@ -60,6 +63,7 @@ export function ProfileScreen({
   linked = false,
   linkAction,
   lists,
+  people,
 }: {
   labels: ProfileLabels;
   backHref: string;
@@ -74,6 +78,8 @@ export function ProfileScreen({
   linkAction?: ReactNode;
   /** Your lists; absent until they're known. */
   lists?: { drinks: ProfileList; milks: ProfileList };
+  /** The people brewed for, opening SCR-PEOPLE ("Just you"); absent until known. */
+  people?: ProfileList;
 }) {
   return (
     <div className="flex flex-col gap-10">
@@ -105,6 +111,15 @@ export function ProfileScreen({
           </p>
         </div>
       </form>
+
+      {people && (
+        <section aria-labelledby="profile-people" className="flex flex-col gap-2">
+          <h2 id="profile-people" className="text-h3 text-ink">
+            {labels.peopleTitle}
+          </h2>
+          <ListRow href={people.href} primary={labels.people} secondary={people.summary} end={<Icon name="chevron" className="text-ink-secondary" />} />
+        </section>
+      )}
 
       {lists && (
         <section aria-labelledby="profile-lists" className="flex flex-col gap-2">

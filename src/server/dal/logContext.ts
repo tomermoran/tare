@@ -1,19 +1,7 @@
 import "server-only";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { db } from "@/db/client";
-import {
-  batches,
-  batchPortions,
-  canonicalBeans,
-  canonicalHardware,
-  drinkTypes,
-  extractions,
-  milkTypes,
-  ownedHardware,
-  personas,
-  roasters,
-  setupParts,
-} from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, canonicalHardware, drinkTypes, extractions, milkTypes, ownedHardware, roasters, setupParts } from "@/db/schema";
 import { parseCapabilities, type GrindScale, type HardwareKind, type MachineCapabilities } from "@/domain/capabilities";
 import { NO_BREW_VALUES, type BrewValues } from "@/domain/brewControls";
 import { hasUnknowns } from "@/domain/capabilityFallbacks";
@@ -29,6 +17,7 @@ import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
 import { assertOwned, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
+import { actingPersonaId } from "./persona";
 
 /*
  * What the shot log opens with (STORY-01-03-01): the household's setups,
@@ -184,13 +173,13 @@ function firstUnknown(parts: SetupSummary["parts"], caps: Map<string, unknown>):
   return null;
 }
 
-/** The default persona's latest milk for each drink, from shots that had one. */
+/** The acting persona's latest milk for each drink, from shots that had one. */
 async function lastMilkByDrink(householdId: string): Promise<Map<string, string>> {
+  const personaId = await actingPersonaId();
   const rows = await db
     .select({ drinkTypeId: extractions.drinkTypeId, milkTypeId: extractions.milkTypeId })
     .from(extractions)
-    .innerJoin(personas, eq(personas.id, extractions.personaId))
-    .where(and(eq(extractions.householdId, householdId), eq(personas.isDefault, true), isNotNull(extractions.milkTypeId)))
+    .where(and(eq(extractions.householdId, householdId), eq(extractions.personaId, personaId), isNotNull(extractions.milkTypeId)))
     .orderBy(desc(extractions.createdAt));
   const last = new Map<string, string>();
   for (const r of rows) if (!last.has(r.drinkTypeId)) last.set(r.drinkTypeId, r.milkTypeId!);
@@ -252,14 +241,15 @@ export async function getLogContext(
       .where(and(eq(milkTypes.householdId, householdId), or(isNull(milkTypes.hidden), eq(milkTypes.hidden, false))))
       .orderBy(asc(milkTypes.sortOrder)),
     unfinishedPortions(householdId, now),
-    db
-      .select({ drinkTypeId: extractions.drinkTypeId, portionId: extractions.portionId })
-      .from(extractions)
-      .innerJoin(personas, eq(personas.id, extractions.personaId))
-      .where(and(eq(extractions.householdId, householdId), eq(personas.isDefault, true)))
-      .orderBy(desc(extractions.createdAt))
-      .limit(1)
-      .then((r) => r[0] ?? null),
+    actingPersonaId().then((personaId) =>
+      db
+        .select({ drinkTypeId: extractions.drinkTypeId, portionId: extractions.portionId })
+        .from(extractions)
+        .where(and(eq(extractions.householdId, householdId), eq(extractions.personaId, personaId)))
+        .orderBy(desc(extractions.createdAt))
+        .limit(1)
+        .then((r) => r[0] ?? null),
+    ),
   ]);
 
   const [caps, lastMilks] = await Promise.all([modelCapabilities(setupList), lastMilkByDrink(householdId)]);

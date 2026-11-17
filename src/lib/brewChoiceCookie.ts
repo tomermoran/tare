@@ -19,10 +19,15 @@ function write(choice: BrewChoice) {
   document.cookie = `${BREW_CHOICE_COOKIE}=${encodeBrewChoice(choice)}; path=/; max-age=${MAX_AGE_S}; samesite=lax`;
 }
 
-/** Choosing a drink or coffee: kept with what was chosen before. */
-export function saveBrewChoice(choice: { drinkId?: string; beanId?: string }, now = Date.now()) {
+/** Choosing a drink, coffee or person: kept with what was chosen before. */
+export function saveBrewChoice(choice: { drinkId?: string; beanId?: string; personaId?: string }, now = Date.now()) {
   const kept = liveBrewChoice(read(), new Date(now));
-  write({ drinkId: choice.drinkId ?? kept?.drinkId, beanId: choice.beanId ?? kept?.beanId, at: now });
+  write({
+    drinkId: choice.drinkId ?? kept?.drinkId,
+    beanId: choice.beanId ?? kept?.beanId,
+    personaId: choice.personaId ?? kept?.personaId,
+    at: now,
+  });
 }
 
 /** Brew was just on screen: the 30 minutes count from now. False when it had already lapsed. */
@@ -30,14 +35,21 @@ export function touchBrewChoice(now = Date.now()): boolean {
   const choice = read();
   if (!choice) return true;
   if (!liveBrewChoice(choice, new Date(now))) {
-    clearBrewChoice();
+    forget();
     return false;
   }
   write({ ...choice, at: now });
   return true;
 }
 
-/** A pull, or the lapse: back to the usual drink and coffee. */
-export function clearBrewChoice() {
+/** A pull: back to the usual drink and coffee, still for the person chosen (STORY-05-01-03 AC 6). */
+export function clearBrewChoice(now = Date.now()) {
+  const personaId = liveBrewChoice(read(), new Date(now))?.personaId;
+  if (personaId) write({ personaId, at: now });
+  else forget();
+}
+
+/** The lapse: everything goes back, the person too. */
+function forget() {
   document.cookie = `${BREW_CHOICE_COOKIE}=; path=/; max-age=0; samesite=lax`;
 }
