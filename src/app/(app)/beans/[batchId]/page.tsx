@@ -46,7 +46,7 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
 
   // Recipes belong to the coffee: every bag of it shows them (STORY-02-01-04).
   const inUse = bag.portions.find((p) => p.state !== "finished" && p.state !== "frozen");
-  const recipeRows = await recipeRowsFor(recipes, { batchId: bag.id, portionId: inUse?.id }, timeZone);
+  const recipeRows = await recipeRowsFor(recipes.coffee, { batchId: bag.id, portionId: inUse?.id }, timeZone);
 
   return (
     <BagFlow

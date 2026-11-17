@@ -33,6 +33,7 @@ export async function getSuggestContext(shotId: string, now = new Date()): Promi
       shot: extractions,
       milkDrink: drinkTypes.hasMilk,
       beanId: batches.beanId,
+      batchId: batches.id,
       roastDate: batches.roastDate,
       packedAt: batches.packedAt,
       bestBefore: batches.bestBefore,
@@ -61,7 +62,8 @@ export async function getSuggestContext(shotId: string, now = new Date()): Promi
   const temperature = machine ? machine.temperature.control === "exact" || machine.temperature.control === "steps" : false;
 
   const [recipe, previous, timeZone] = await Promise.all([
-    getCurrentRecipe({ beanId: r.beanId, personaId: s.personaId, setupId: s.setupId, drinkTypeId: s.drinkTypeId }),
+    // The shot's bag may have its own recipe (STORY-02-04-02).
+    getCurrentRecipe({ beanId: r.beanId, personaId: s.personaId, setupId: s.setupId, drinkTypeId: s.drinkTypeId }, r.batchId),
     previousInPeriod(householdId, s, r.beanId, grinder?.id ?? null),
     getTimeZone(),
   ]);

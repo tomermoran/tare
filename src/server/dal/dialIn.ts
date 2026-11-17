@@ -10,7 +10,7 @@ import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import type { Prep } from "@/domain/prep";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
-import { listCurrentRecipesForBean } from "./recipes";
+import { getBagOwnRecipe, listCurrentRecipesForBean } from "./recipes";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { setupsLastUsed } from "./setups";
 
@@ -35,8 +35,12 @@ export type DialInStart = {
   grindCarried: boolean;
 };
 
-/** Null when no setup has a recipe: the dial-in starts blank (AC 6). */
-export async function getDialInStart(input: { beanId: string; drinkTypeId: string; setupId: string }): Promise<DialInStart | null> {
+/**
+ * Null when no setup has a recipe: the dial-in starts blank (AC 6). With the
+ * bag in use (`batchId`), its own recipe on this setup wins (STORY-02-04-02);
+ * a new bag has none, so the coffee's applies (AC 3).
+ */
+export async function getDialInStart(input: { beanId: string; drinkTypeId: string; setupId: string; batchId?: string | null }): Promise<DialInStart | null> {
   const { householdId } = await requireHousehold();
   await Promise.all([assertOwned("setups", input.setupId, householdId), assertOwned("drinkTypes", input.drinkTypeId, householdId)]);
   const [persona] = await db
@@ -46,8 +50,12 @@ export async function getDialInStart(input: { beanId: string; drinkTypeId: strin
   if (!persona) throw new NotFoundError();
   const beanId = (await resolveEntity(db, canonicalBeans, input.beanId)) ?? input.beanId;
 
-  const recipes = (await listCurrentRecipesForBean(beanId, persona.id)).filter((r) => r.drinkTypeId === input.drinkTypeId);
-  if (!recipes.length) return null;
+  const coffee = (await listCurrentRecipesForBean(beanId, persona.id)).filter((r) => r.drinkTypeId === input.drinkTypeId);
+  if (!coffee.length) return null;
+  const bagOwn = input.batchId
+    ? await getBagOwnRecipe({ beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId }, input.batchId)
+    : null;
+  const recipes = bagOwn ? [bagOwn, ...coffee.filter((r) => r.setupId !== input.setupId)] : coffee;
   // A recipe here wins; otherwise the closest setup with one (AC 2).
   const setupList = await setupsOf(householdId, await partsOf(householdId));
   const target = setupList.find((s) => s.id === input.setupId)!;

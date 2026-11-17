@@ -9,7 +9,7 @@ import type { Remaining } from "@/domain/remaining";
 import { getTimeZone } from "@/server/time";
 import { resolveEntity } from "./catalogMerge";
 import { getLogContext, type LogDrink, type LogMilk, type LogPortion, type LogSetup } from "./logContext";
-import { getCurrentRecipe, listCurrentRecipesForBean, type Recipe } from "./recipes";
+import { getBagOwnRecipe, getCurrentRecipe, listCurrentRecipesForBean, type Recipe } from "./recipes";
 import { getRemaining } from "./remaining";
 import { setupsLastUsed } from "./setups";
 import { requireHousehold } from "./scope";
@@ -31,7 +31,8 @@ export type HomeCoffee = {
 
 export type HomeState =
   /** A recipe on this setup: the one-tap pull. */
-  | { kind: "recipe"; recipe: Recipe }
+  /** `bagOwn`: the recipe is the bag in use's own, not the coffee's (STORY-02-04-03 AC 1). */
+  | { kind: "recipe"; recipe: Recipe; bagOwn: boolean }
   /** No setup has a recipe for this drink and coffee (STORY-02-02-05). */
   | { kind: "noRecipe" }
   /** Another setup has one; dialling in starts from the closest (STORY-02-01-06). */
@@ -145,7 +146,11 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
   const remaining = (await getRemaining([portion.id])).get(portion.id) ?? null;
   const shown = { ...base, coffee: portion.bean, portion, remaining };
   const recipe = recipesHere.get(choice.beanId);
-  if (recipe) return { ...shown, state: { kind: "recipe", recipe } };
+  if (recipe) {
+    // The bag in use may have its own recipe; a bag recipe can't exist without the coffee's (STORY-02-04-02).
+    const own = await getBagOwnRecipe({ beanId: choice.beanId, personaId: persona.id, setupId: setup.id, drinkTypeId: drink.id }, portion.batchId);
+    return { ...shown, state: { kind: "recipe", recipe: own ?? recipe, bagOwn: own !== null } };
+  }
 
   const elsewhere = (await listCurrentRecipesForBean(choice.beanId, persona.id)).filter((r) => r.drinkTypeId === drink.id);
   const withRecipe = new Set(elsewhere.map((r) => r.setupId));

@@ -162,7 +162,7 @@ describe("hidden drinks and milks keep their data (STORY-02-05-08)", () => {
       },
     });
     await setDrinkHidden(latte, true, drinkLabelEn);
-    expect((await getBagRecipes(k.batch.id)).map((r) => r.drinkTypeId)).toEqual([latte]);
+    expect((await getBagRecipes(k.batch.id)).coffee.map((r) => r.drinkTypeId)).toEqual([latte]);
     await setDrinkHidden(latte, false, drinkLabelEn);
     expect((await getLogContext()).drinks.map((d) => d.id)).toContain(latte);
   });

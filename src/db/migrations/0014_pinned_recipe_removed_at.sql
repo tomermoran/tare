@@ -1,0 +1,1 @@
+ALTER TABLE `pinned_recipes` ADD `removed_at` integer;

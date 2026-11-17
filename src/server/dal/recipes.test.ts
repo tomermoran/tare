@@ -180,7 +180,7 @@ describe("re-pinning (STORY-02-01-03)", () => {
       state: { kind: "recipe", recipe: { id: second.id, grind: 13, yield: 40 } },
     });
     expect((await getDialInFromRecipe({ drinkTypeId: k.drinks.espresso.id, beanId: k.bean.id }))?.start).toMatchObject({ grind: 13, yield: 40 });
-    for (const recipes of [await getBagRecipes(k.batch.id), await getCoffeeRecipes(k.bean.id)]) {
+    for (const recipes of [(await getBagRecipes(k.batch.id)).coffee, await getCoffeeRecipes(k.bean.id)]) {
       expect(recipes.map((r) => [r.id, r.grind])).toEqual([[second.id, 13]]);
     }
   });
@@ -235,7 +235,7 @@ describe("bag and coffee recipes (STORY-02-01-04)", () => {
     await pinFromShot(await shot(), at(1));
     await pinFromShot(await shot({ grindSize: 14 }), at(2));
     await pinFromShot(await shot({ drinkTypeId: k.drinks.latte.id, milkTypeId: k.milk.id, milkMl: 150 }), at(3));
-    const rows = await getBagRecipes(k.batch.id);
+    const rows = (await getBagRecipes(k.batch.id)).coffee;
     expect(rows.map((r) => [r.drinkTypeId, r.grind])).toEqual([
       [k.drinks.latte.id, 15],
       [k.drinks.espresso.id, 14],
@@ -247,7 +247,7 @@ describe("bag and coffee recipes (STORY-02-01-04)", () => {
     await pinFromShot(await shot(), at(1));
     const newBag = newId();
     await db().insert(batches).values({ id: newBag, householdId: k.household.id, beanId: k.bean.id, bagWeight: 250, createdAt: at(5) });
-    expect(await getBagRecipes(newBag)).toHaveLength(1);
+    expect((await getBagRecipes(newBag)).coffee).toHaveLength(1);
   });
 
   it("includes recipes pinned on either side of a merge (AC 5)", async () => {
@@ -255,13 +255,13 @@ describe("bag and coffee recipes (STORY-02-01-04)", () => {
     const survivor = newId();
     await db().insert(canonicalBeans).values({ id: survivor, roasterId: k.bean.roasterId, name: "House Blend (verified)", source: "seed", status: "verified", createdAt: at(0) });
     await db().update(canonicalBeans).set({ mergedIntoId: survivor }).where(eq(canonicalBeans.id, k.bean.id));
-    expect(await getBagRecipes(k.batch.id)).toHaveLength(1);
+    expect((await getBagRecipes(k.batch.id)).coffee).toHaveLength(1);
     expect(await getCoffeeRecipes(survivor)).toHaveLength(1);
     expect(await getCoffeeRecipes(k.bean.id)).toHaveLength(1);
   });
 
   it("is empty with nothing pinned, and private to the household", async () => {
-    expect(await getBagRecipes(k.batch.id)).toEqual([]);
+    expect(await getBagRecipes(k.batch.id)).toEqual({ own: [], coffee: [] });
     await pinFromShot(await shot(), at(1));
     signInAs((await makeHousehold(db())).user.firebaseUid);
     await expect(getBagRecipes(k.batch.id)).rejects.toBeInstanceOf(NotFoundError);

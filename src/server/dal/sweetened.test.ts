@@ -225,7 +225,7 @@ describe("sweetened on Brew, the pull and recipe rows (STORY-02-01-09)", () => {
   it("gives the bag's and the coffee's rows the value (AC 2; STORY-02-01-04 AC 1)", async () => {
     await recipe({ sweetened: true });
     await recipe({ sweetened: false, drinkTypeId: k.drinks.latte.id });
-    const rows = await getBagRecipes(k.batch.id);
+    const rows = (await getBagRecipes(k.batch.id)).coffee;
     expect(rows.map((r) => [r.drinkTypeId, r.sweetened]).sort()).toEqual(
       [
         [k.drinks.espresso.id, true],
