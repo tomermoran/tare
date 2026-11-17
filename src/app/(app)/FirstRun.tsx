@@ -1,10 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { Checklist, type ChecklistStep } from "@/components/ui/Checklist/Checklist";
+import { FirstRunSignInLive } from "@/components/home/FirstRunSignInLive";
 import { SetupOffer } from "@/components/setup/SetupOffer";
 import { SETUP_KINDS } from "@/domain/setup";
 import { LOG_PATH } from "@/lib/logRoutes";
 import { ADD_PART_PATH, BUILDER_PATH } from "@/lib/setupRoutes";
 import { getSetupTab, type Part } from "@/server/dal/parts";
+import { getAccountLink, isThisDeviceEmpty } from "@/server/dal/account";
 import type { SetupProgress } from "@/server/dal/progress";
 import { suggestionFrom } from "@/server/dal/setups";
 
@@ -15,9 +17,13 @@ const HOME = "/";
  * shot. Step 1 walks through machine, grinder and basket in one pass and
  * ends back here (AC 2); with all three and no setup it offers to make them
  * the setup (AC 4). The first step not done is the one offered (AC 3).
+ * Below it, while nothing is entered and the account isn't linked, a quiet
+ * way back to a history on another phone (STORY-05-03-02 AC 3, AC 6).
  */
 export async function FirstRun({ progress }: { progress: SetupProgress }) {
-  const t = await getTranslations();
+  const [t, empty] = await Promise.all([getTranslations(), isThisDeviceEmpty()]);
+  // Firebase is asked only while the link could show.
+  const signIn = empty && !(await getAccountLink()).linked;
   const missing = SETUP_KINDS.find((k) => !{ machine: progress.hasMachine, grinder: progress.hasGrinder, basket: progress.hasBasket }[k]);
 
   let offer = null;
@@ -77,6 +83,7 @@ export async function FirstRun({ progress }: { progress: SetupProgress }) {
       </h1>
       <p className="text-body text-ink-secondary">{t("home.firstRun.body")}</p>
       <Checklist steps={steps} doneLabel={t("home.firstRun.done")} className="mt-4" />
+      {signIn && <FirstRunSignInLive label={t("home.firstRun.haveAccount")} />}
     </section>
   );
 }
