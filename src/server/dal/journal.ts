@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, gte, inArray, lt, lte, or, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lt, lte, or, type SQL } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   batches,
@@ -254,13 +254,19 @@ export type JournalFilterOptions = {
  * coffee on Brew, is offered too when the household has a bag of it, so the
  * default filter holds before its first shot (STORY-02-06-05 AC 1).
  */
-export async function getJournalFilterOptions({ beanId }: { beanId?: string } = {}): Promise<JournalFilterOptions> {
+export async function getJournalFilterOptions({ beanId, drinkId }: { beanId?: string; drinkId?: string } = {}): Promise<JournalFilterOptions> {
   const { householdId } = await requireHousehold();
   const [drinks, beanRows, setupList] = await Promise.all([
+    // Hidden drinks aren't offered, except the one whose shots are in view (STORY-02-05-02 AC 1, AC 2).
     db
       .select({ id: drinkTypes.id, name: drinkTypes.name, nameKey: drinkTypes.nameKey })
       .from(drinkTypes)
-      .where(eq(drinkTypes.householdId, householdId))
+      .where(
+        and(
+          eq(drinkTypes.householdId, householdId),
+          or(isNull(drinkTypes.hidden), eq(drinkTypes.hidden, false), drinkId ? eq(drinkTypes.id, drinkId) : undefined),
+        ),
+      )
       .orderBy(drinkTypes.sortOrder),
     db
       .selectDistinct({ beanId: batches.beanId })

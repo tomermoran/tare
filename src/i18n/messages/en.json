@@ -13,7 +13,8 @@
     "close": "Close",
     "discard": "Discard",
     "keepEditing": "Keep editing",
-    "back": "Back"
+    "back": "Back",
+    "done": "Done"
   },
   "shot": {
     "dose": "Dose",
@@ -90,6 +91,36 @@
     "cappuccino": "Cappuccino",
     "latte": "Latte",
     "macchiato": "Macchiato"
+  },
+  "drinkList": {
+    "title": "Drinks",
+    "intro": "These are the drinks you choose from. Hidden ones are kept for old shots.",
+    "add": "Add a drink",
+    "reorder": "Reorder",
+    "withMilk": "With milk, {amount} usual",
+    "withMilkNoAmount": "With milk",
+    "noMilk": "No milk",
+    "hidden": "Hidden",
+    "name": "Name",
+    "resetName": "Use the original name",
+    "nameTaken": "Another drink already has this name. Choose a different one.",
+    "nameRequired": "Give the drink a name.",
+    "usualMilk": "Usual milk",
+    "hasMilk": "Has milk",
+    "hasMilkLine": "With milk",
+    "noMilkLine": "Without milk",
+    "hasMilkFixed": "This can't be changed later.",
+    "hasMilkHint": "For a variation such as “Americano with froth”, add it as its own drink.",
+    "show": "Show in my lists",
+    "keepOne": "At least one drink has to stay visible.",
+    "editTitle": "Edit drink",
+    "addTitle": "Add a drink",
+    "reorderFailed": "Couldn't move that drink. It's back in its place.",
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "moved": "{name}, {position} of {count}",
+    "discardTitle": "Discard your changes?",
+    "discardBody": "What you changed in this drink won't be saved."
   },
   "home": {
     "pull": "Pull this shot",
