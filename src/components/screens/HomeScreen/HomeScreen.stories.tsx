@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { Button } from "@/components/ui/Button/Button";
 import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
@@ -97,5 +97,17 @@ export const Clocks: Story = {
     await expect(within(canvasElement).getByText("12 days since roast · open 3 days")).toBeVisible();
   },
 };
+
+/** The bag in use has its own recipe: the first quiet line says so, in words (STORY-02-04-03 AC 1). */
+export const BagOwnRecipe: Story = {
+  args: { lines: [messages.recipe.thisBagOnly, ...meta.args.lines] },
+  play: async ({ canvasElement }) => {
+    const line = within(canvasElement).getByText(messages.recipe.thisBagOnly);
+    await waitFor(() => expect(line).toBeVisible());
+    await expect(line.className).not.toContain("signal");
+  },
+};
+
+export const BagOwnRecipeRightToLeft: Story = { args: BagOwnRecipe.args, globals: { direction: "rtl" } };
 
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

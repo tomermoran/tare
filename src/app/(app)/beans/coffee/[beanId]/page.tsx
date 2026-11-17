@@ -7,6 +7,7 @@ import { CoffeeScreen, type CoffeeBagRow, type CoffeeShotRow } from "@/component
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
 import { journalHref } from "@/lib/journalFilters";
 import { getCoffee } from "@/server/dal/coffee";
+import { bagsWithOwnRecipe } from "@/server/dal/recipes";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
 import { recipeRowsFor } from "../../recipeRows";
@@ -62,12 +63,14 @@ async function Coffee({ params }: Pick<PageProps<"/beans/coffee/[beanId]">, "par
     secondary: format.dateTime(s.at, { dateStyle: "medium", timeZone }),
     values: s.values,
   }));
+  const ownRecipe = await bagsWithOwnRecipe(c.bags.map((b) => b.id));
   const bags: CoffeeBagRow[] = c.bags.map((b) => ({
     id: b.id,
     href: `/beans/${b.id}`,
     primary: b.roastDate ? t("portion.bagRoasted", { date: day(b.roastDate) }) : t("portion.bagAdded", { date: day(b.createdAt) }),
     secondary: rows.status(b),
     end: rows.grams(b.bagWeight),
+    note: ownRecipe.has(b.id) ? t("recipe.bagHasOwn") : undefined,
   }));
 
   return (

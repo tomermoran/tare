@@ -32,7 +32,15 @@ export type CoffeeLabels = {
 };
 
 export type CoffeeShotRow = { id: string; href: string; primary: string; secondary: string; values: ShotValuesData };
-export type CoffeeBagRow = { id: string; href: string; primary: string; secondary?: string; end: string };
+export type CoffeeBagRow = {
+  id: string;
+  href: string;
+  primary: string;
+  secondary?: string;
+  end: string;
+  /** E.g. "Has its own recipe" (STORY-02-04-03 AC 4), in words. */
+  note?: string;
+};
 
 export function CoffeeScreen({
   labels,
@@ -155,7 +163,13 @@ export function CoffeeScreen({
         <ul>
           {bags.map((b) => (
             <li key={b.id}>
-              <ListRow href={b.href} primary={b.primary} secondary={b.secondary} end={<span className="text-label text-ink-secondary">{b.end}</span>} />
+              <ListRow
+                href={b.href}
+                primary={b.primary}
+                secondary={b.secondary}
+                end={<span className="text-label text-ink-secondary">{b.end}</span>}
+                footer={b.note && <span className="text-label text-ink-secondary">{b.note}</span>}
+              />
             </li>
           ))}
         </ul>,

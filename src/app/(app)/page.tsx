@@ -117,7 +117,13 @@ async function Brew({ home }: { home: Home }) {
         values: recipe ? { grind: recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
         valuesKey: `${home.drink.id}|${home.coffee?.id ?? ""}`,
         quiet: state.kind === "finished",
-        lines: recipe ? recipeLines(recipe, { hasMilk: home.drink.hasMilk, milks: home.milks }, t, format) : [],
+        // A bag's own recipe says so first, in words (STORY-02-04-03 AC 1).
+        lines: recipe
+          ? [
+              ...(state.kind === "recipe" && state.bagOwn ? [t("recipe.thisBagOnly")] : []),
+              ...recipeLines(recipe, { hasMilk: home.drink.hasMilk, milks: home.milks }, t, format),
+            ]
+          : [],
         message,
         note: state.kind === "noRecipeOnSetup" ? t("home.startsFrom", { setup: setup(state.from) }) : undefined,
         setup: setup(home.setup),

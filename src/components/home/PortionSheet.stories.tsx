@@ -27,6 +27,7 @@ const meta = {
       grindFromFrozen: portion.grindFromFrozen,
       noneLeft: portion.noneLeft,
       addBag: home.addBag,
+      ownRecipe: messages.recipe.thisBagOnly,
     },
   },
 } satisfies Meta<typeof PortionSheet>;
@@ -54,5 +55,23 @@ export const NoneLeft: Story = {
     await expect(body.getByRole("link", { name: home.addBag })).toBeVisible();
   },
 };
+
+/** A bag with its own recipe says so in words (STORY-02-04-03 AC 3). */
+export const BagWithOwnRecipe: Story = {
+  args: {
+    portions: [
+      { id: "own", primary: bag("9 Mar"), secondary: portion.state.unopened, end: left(250), frozen: false, ownRecipe: true },
+      { id: "frozen", primary: bag("2 Mar"), secondary: portion.state.frozen, end: left(125), frozen: true },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const rows = await waitFor(() => body.getAllByRole("button", { name: /Roasted/ }));
+    await expect(rows[0]).toHaveTextContent(messages.recipe.thisBagOnly);
+    await expect(rows[1]).not.toHaveTextContent(messages.recipe.thisBagOnly);
+  },
+};
+
+export const BagWithOwnRecipeRightToLeft: Story = { args: BagWithOwnRecipe.args, globals: { direction: "rtl" } };
 
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

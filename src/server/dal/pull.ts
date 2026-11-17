@@ -6,7 +6,7 @@ import { isOpen } from "@/domain/portionState";
 import type { Remaining } from "@/domain/remaining";
 import { resolveEntity } from "./catalogMerge";
 import { unfinishedPortions, type LogPortion } from "./logContext";
-import { getCurrentRecipe } from "./recipes";
+import { bagsWithOwnRecipe, getCurrentRecipe } from "./recipes";
 import { getRemaining } from "./remaining";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
@@ -49,7 +49,8 @@ export type PullInput = {
   portionId?: string;
 };
 
-export type PortionChoice = LogPortion & { remaining: Remaining | null };
+/** `ownRecipe`: the portion's bag has its own recipe (STORY-02-04-03 AC 3). */
+export type PortionChoice = LogPortion & { remaining: Remaining | null; ownRecipe: boolean };
 
 export type PullResult =
   | { kind: "pulled"; shotId: string; openedPortion: boolean; sweetened: boolean }
@@ -133,8 +134,8 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
 }
 
 async function withRemaining(portions: LogPortion[]): Promise<PortionChoice[]> {
-  const remaining = await getRemaining(portions.map((p) => p.id));
-  return portions.map((p) => ({ ...p, remaining: remaining.get(p.id) ?? null }));
+  const [remaining, own] = await Promise.all([getRemaining(portions.map((p) => p.id)), bagsWithOwnRecipe(portions.map((p) => p.batchId))]);
+  return portions.map((p) => ({ ...p, remaining: remaining.get(p.id) ?? null, ownRecipe: own.has(p.batchId) }));
 }
 
 /**
