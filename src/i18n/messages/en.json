@@ -357,7 +357,27 @@
       "lastRated": "Last rated {rating} of 5",
       "noRatings": "No ratings yet"
     },
-    "portions": "Portions"
+    "portions": "Portions",
+    "runOut": "About {span} of coffee",
+    "runOutFrozen": "About {span} of coffee, {frozen} of them in the freezer",
+    "runOutLong": "More than {span} of coffee",
+    "learning": "Still learning how fast you use coffee",
+    "runOutTitle": "How we worked this out",
+    "runOutBy": "Around {date}",
+    "runOutLongSpan": "More than {span}",
+    "learningProgress": "Tare needs a few finished bags to work this out. {count} of {needed} so far.",
+    "onHandLabel": "Coffee on hand",
+    "onHandFrozen": "{grams}, {frozen} in the freezer",
+    "useRateLabel": "How much you use",
+    "useRate": "About {grams} a week",
+    "basedOnLabel": "Based on",
+    "basedOn": "{count, plural, one {# finished portion} other {# finished portions}} over {weeks, plural, one {# week} other {# weeks}}",
+    "coverage": {
+      "label": "Logged in shots",
+      "value": "{share} of finished coffee",
+      "unavailable": "Not available yet",
+      "meaning": "We drink more than we log, so coffee runs out sooner than shown."
+    }
   },
   "setup": {
     "title": "Setup",
