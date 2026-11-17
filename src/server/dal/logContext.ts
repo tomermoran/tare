@@ -63,7 +63,13 @@ export type LogDrink = {
   lastMilkTypeId: string | null;
 };
 
-export type LogMilk = { id: string; name: string | null; nameKey: string | null };
+export type LogMilk = {
+  id: string;
+  name: string | null;
+  nameKey: string | null;
+  /** A hidden milk, listed only because it's the one already chosen (STORY-02-05-08 AC 3). */
+  hidden?: boolean;
+};
 
 export type LogPortion = {
   id: string;
@@ -294,6 +300,22 @@ export async function getLogContext(
     missingSetup: setups.length === 0,
     missingCoffee: portions.length === 0,
   };
+}
+
+/**
+ * The log's milks with the one already chosen (a recipe's, or the shot's
+ * being fixed or edited) kept even when it's hidden, marked so (STORY-02-05-08
+ * AC 3, AC 4). A new choice never offers a hidden milk; hiding never swaps
+ * a chosen one silently.
+ */
+export async function withChosenMilk(milks: LogMilk[], milkTypeId: string | null | undefined): Promise<LogMilk[]> {
+  if (!milkTypeId || milks.some((m) => m.id === milkTypeId)) return milks;
+  const { householdId } = await requireHousehold();
+  const [milk] = await db
+    .select({ id: milkTypes.id, name: milkTypes.name, nameKey: milkTypes.nameKey })
+    .from(milkTypes)
+    .where(and(eq(milkTypes.id, milkTypeId), eq(milkTypes.householdId, householdId), eq(milkTypes.hidden, true)));
+  return milk ? [...milks, { ...milk, hidden: true }] : milks;
 }
 
 /** DQ-07: neutral starting values for a setup with no measured shot. */

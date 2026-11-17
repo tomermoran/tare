@@ -11,6 +11,8 @@ export type RecipeRow = {
   id: string;
   /** Drink and setup. */
   title: string;
+  /** "Hidden", when the drink is hidden: the row stays, quieter (STORY-02-05-08 AC 1). */
+  hidden?: string;
   values: ShotValuesData;
   /** Milk, puck prep, temperature and pressure, each a quiet line. */
   lines: string[];
@@ -39,7 +41,16 @@ export function RecipeRows({
         {rows.map((r) => (
           <li key={r.id}>
             <ListRow
-              primary={r.title}
+              primary={
+                r.hidden ? (
+                  <span className="flex flex-col text-ink-secondary">
+                    <span className="text-overline uppercase">{r.hidden}</span>
+                    <span>{r.title}</span>
+                  </span>
+                ) : (
+                  r.title
+                )
+              }
               secondary={r.date}
               end={<ShotValues values={r.values} size="compact" />}
               footer={
