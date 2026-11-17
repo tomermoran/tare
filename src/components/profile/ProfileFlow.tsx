@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, type ComponentProps } from "react";
 import { GoogleLink } from "@/components/account/GoogleLink";
 import { googleLinkDeps } from "@/components/account/googleLinkDeps";
 import type { GoogleLinkDeps } from "@/components/account/useGoogleLink";
@@ -22,6 +22,7 @@ export function ProfileFlow({
   linked: initialLinked,
   linkLabel,
   deps = googleLinkDeps,
+  lists,
 }: {
   labels: ProfileLabels;
   backHref: string;
@@ -29,6 +30,7 @@ export function ProfileFlow({
   linked: boolean;
   linkLabel: string;
   deps?: GoogleLinkDeps;
+  lists?: ComponentProps<typeof ProfileScreen>["lists"];
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
@@ -55,6 +57,7 @@ export function ProfileFlow({
       status={state.status}
       pending={pending}
       linked={linked}
+      lists={lists}
       linkAction={
         <GoogleLink
           deps={deps}

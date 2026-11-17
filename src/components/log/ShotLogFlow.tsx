@@ -17,6 +17,7 @@ import { prepAfterSetupChange, type Prep, type PrepKey } from "@/domain/prep";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/drafts";
 import { LOG_RESUME } from "@/lib/logRoutes";
 import { secondsToMs } from "@/lib/units";
+import { DRINKS_PATH, MILKS_PATH } from "@/lib/profileRoutes";
 import { withReturnTo } from "@/lib/returnTo";
 import { BUILDER_PATH, changePartHref, partHref } from "@/lib/setupRoutes";
 import type { HardwareKind } from "@/domain/capabilities";
@@ -413,6 +414,7 @@ export function ShotLogFlow({
           });
           setSheet(null);
         }}
+        footerRow={{ label: t("drinkList.manage"), icon: "chevron", onClick: () => sideTrip(DRINKS_PATH) }}
       />
       <SelectSheet
         open={sheet === "coffee"}
@@ -440,6 +442,7 @@ export function ShotLogFlow({
           setDraft((d) => ({ ...d, milkTypeId, milkTouched: [...new Set<MilkKey>([...d.milkTouched, "milkTypeId"])] }));
           setSheet(null);
         }}
+        footerRow={{ label: t("milkList.manage"), icon: "chevron", onClick: () => sideTrip(MILKS_PATH) }}
       />
       {confirm}
     </>

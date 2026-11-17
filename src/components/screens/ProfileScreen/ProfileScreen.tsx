@@ -3,13 +3,14 @@ import type { ReactNode } from "react";
 import { Button, buttonClass } from "@/components/ui/Button/Button";
 import { Icon } from "@/components/ui/Icon/Icon";
 import { Input } from "@/components/ui/Input/Input";
+import { ListRow } from "@/components/ui/ListRow/ListRow";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { cx } from "@/lib/cx";
 
 /*
- * SCR-PROFILE (STORY-01-01-03): the profile name, the Account section and
- * the app's name and version, in that order (design pattern 4; People and
- * Your lists are added by their epics). Props only. The name field is empty
+ * SCR-PROFILE (STORY-01-01-03): the profile name, Your lists, the Account
+ * section and the app's name and version, in that order (design pattern 4;
+ * People is added by its epic). Props only. The name field is empty
  * until renamed, with the role label in its hint, not as a placeholder.
  * A failed save keeps the typed name (AC 6).
  *
@@ -17,7 +18,13 @@ import { cx } from "@/lib/cx";
  * button with no Google logo or colour (`linkAction`, with its notices);
  * linked, a statement and nothing to unlink or sign out. Nothing from the
  * Google account is shown.
+ *
+ * Your lists (STORY-02-05-07): Drinks and Milks, each a row with a one-line
+ * summary ("9 drinks, 2 hidden") and a chevron that mirrors right to left.
  */
+
+/** A row of Your lists: where it goes and its summary, already formatted. */
+export type ProfileList = { href: string; summary: string };
 
 export type ProfileLabels = {
   back: string;
@@ -28,6 +35,9 @@ export type ProfileLabels = {
   save: string;
   saved: string;
   saveFailed: string;
+  listsTitle: string;
+  drinks: string;
+  milks: string;
   accountTitle: string;
   /** Not linked: where the history lives and what linking does. */
   account: string;
@@ -49,6 +59,7 @@ export function ProfileScreen({
   pending = false,
   linked = false,
   linkAction,
+  lists,
 }: {
   labels: ProfileLabels;
   backHref: string;
@@ -61,6 +72,8 @@ export function ProfileScreen({
   linked?: boolean;
   /** The link button and what it says when it fails; shown while not linked. */
   linkAction?: ReactNode;
+  /** Your lists; absent until they're known. */
+  lists?: { drinks: ProfileList; milks: ProfileList };
 }) {
   return (
     <div className="flex flex-col gap-10">
@@ -92,6 +105,18 @@ export function ProfileScreen({
           </p>
         </div>
       </form>
+
+      {lists && (
+        <section aria-labelledby="profile-lists" className="flex flex-col gap-2">
+          <h2 id="profile-lists" className="text-h3 text-ink">
+            {labels.listsTitle}
+          </h2>
+          <div className="flex flex-col">
+            <ListRow href={lists.drinks.href} primary={labels.drinks} secondary={lists.drinks.summary} end={<Icon name="chevron" className="text-ink-secondary" />} />
+            <ListRow href={lists.milks.href} primary={labels.milks} secondary={lists.milks.summary} end={<Icon name="chevron" className="text-ink-secondary" />} />
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="profile-account" className="flex flex-col gap-2">
         <h2 id="profile-account" className="text-h3 text-ink">
