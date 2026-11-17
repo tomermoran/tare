@@ -377,7 +377,26 @@
       "value": "{share} of finished coffee",
       "unavailable": "Not available yet",
       "meaning": "We drink more than we log, so coffee runs out sooner than shown."
-    }
+    },
+    "filters": "Filter coffees",
+    "filterAll": "All",
+    "filterRoaster": "Roaster",
+    "filterRoast": "Roast level",
+    "filterOrigin": "Origin",
+    "filterRating": "Rating",
+    "filterAnyRoaster": "Any roaster",
+    "filterAnyRoast": "Any roast",
+    "filterAnyOrigin": "Any origin",
+    "filterAnyRating": "Any rating",
+    "filterName": "{filter}: {value}",
+    "removeFilter": "Remove filter {filter}: {value}",
+    "filterCount": "{count, plural, one {# coffee} other {# coffees}}",
+    "originUnknown": "Not stated",
+    "filteredOnHandNone": "Nothing on hand matches these filters.",
+    "filteredTriedNone": "Nothing you've tried matches these filters.",
+    "filteredNoneTitle": "No coffee matches",
+    "filteredNone": "Try fewer filters, or clear them to see every coffee.",
+    "filterClear": "Clear filters"
   },
   "setup": {
     "title": "Setup",
