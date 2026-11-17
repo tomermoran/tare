@@ -6,7 +6,7 @@ import { milkLabel } from "@/domain/milkName";
 import type { ActionResult } from "@/lib/actionResult";
 import { msToSeconds } from "@/lib/units";
 import { pinEnteredRecipeAction, pinFromShotAction, pinPreviewAction, enteredPinPreviewAction } from "@/server/actions/recipes";
-import type { EnteredRecipe, PinPreview, RecipeField, RecipeValues } from "@/server/dal/recipes";
+import type { EnteredRecipe, PinPreview, PinScope, RecipeField, RecipeValues } from "@/server/dal/recipes";
 import { PinSheet, type PinRecipeView } from "./PinSheet";
 
 type Source = { kind: "shot"; shotId: string } | { kind: "entered"; input: EnteredRecipe };
@@ -29,6 +29,7 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
   const [preview, setPreview] = useState<PinPreview | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const [said, setSaid] = useState<string | null>(null);
+  const [scope, setScope] = useState<PinScope>("bean");
 
   const number = (n: number, unit?: "gram" | "second" | "celsius" | "milliliter", digits = 1) =>
     format.number(n, unit ? { style: "unit", unit, unitDisplay: "short", maximumFractionDigits: digits } : { maximumFractionDigits: digits });
@@ -103,6 +104,7 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
     if (!result.ok) return setSaid(t("states.saveFailed"));
     setSource(next);
     setPreview(result.data);
+    setScope(result.data.scope.default);
   };
   const close = () => {
     setPreview(null);
@@ -112,12 +114,29 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
   const confirm = async () => {
     if (!source) return;
     setState("saving");
-    const result = source.kind === "shot" ? await pinFromShotAction(source.shotId) : await pinEnteredRecipeAction(source.input);
+    const chosen = preview?.scope.offered ? scope : "bean";
+    const result = source.kind === "shot" ? await pinFromShotAction(source.shotId, chosen) : await pinEnteredRecipeAction(source.input, chosen);
     if (!result.ok) return setState("failed");
     close();
-    setSaid(t("recipe.pinned"));
+    setSaid(t(chosen === "batch" ? "recipe.pinnedBag" : "recipe.pinned"));
     onPinned?.();
   };
+
+  // What the chosen scope replaces (STORY-02-04-01, design step 5): swapped in place, with no loading.
+  const replaced = preview ? preview.scope.replaces[scope] : null;
+  const differences = preview ? preview.scope.differences[scope] : [];
+  const bagHasOwn = !!preview?.scope.replaces.batch && preview.scope.replaces.batch.id !== preview.scope.replaces.bean?.id;
+  // A bag with no recipe of its own keeps the coffee's: it is shown "instead of", not replaced.
+  const replacesLabel = scope === "batch" && !bagHasOwn ? t("recipe.insteadOf") : t("recipe.replaces");
+  const effect = !preview
+    ? ""
+    : preview.scope.finished
+      ? t("recipe.scope.bagFinished")
+      : scope === "batch"
+        ? t("recipe.scope.batchEffect")
+        : bagHasOwn
+          ? t("recipe.scope.bagKeeps")
+          : t("recipe.scope.beanEffect");
 
   const sheet = preview && (
     <PinSheet
@@ -127,13 +146,27 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
         title,
         close: t("actions.close"),
         newRecipe: t("recipe.newRecipe"),
-        replaces: t("recipe.replaces"),
+        replaces: replacesLabel,
         changes: t("recipe.changes"),
         confirm: t("recipe.confirmPin"),
       }}
+      scope={
+        preview.scope.offered
+          ? {
+              label: t("recipe.scope.label"),
+              options: [
+                { value: "bean", label: t("recipe.scope.bean") },
+                { value: "batch", label: t("recipe.scope.batch"), disabled: preview.scope.finished },
+              ],
+              value: scope,
+              onChange: (v) => setScope(v === "batch" ? "batch" : "bean"),
+              effect,
+            }
+          : undefined
+      }
       recipe={view(preview.values)}
-      replaces={preview.replaces ? view(preview.replaces) : null}
-      changes={preview.replaces ? preview.differences.map((f) => t("recipe.change", { field: LABEL[f], from: value(preview.replaces!, f), to: value(preview.values, f) })) : []}
+      replaces={replaced ? view(replaced) : null}
+      changes={replaced ? differences.map((f) => t("recipe.change", { field: LABEL[f], from: value(replaced, f), to: value(preview.values, f) })) : []}
       onConfirm={() => void confirm()}
       saving={state === "saving"}
       failure={state === "failed" ? { message: t("states.saveFailed"), retryLabel: t("actions.retry"), onRetry: () => void confirm() } : undefined}

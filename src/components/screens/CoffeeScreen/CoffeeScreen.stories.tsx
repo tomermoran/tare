@@ -114,4 +114,14 @@ export const LoadFailed: Story = {
   },
 };
 
+/** A bag with its own recipe says so on its row, in words; the recipes listed are the coffee's (STORY-02-04-03 AC 4). */
+export const BagWithOwnRecipe: Story = {
+  args: { bags: [{ ...bags[0], note: messages.recipe.bagHasOwn }, ...bags.slice(1)] },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getAllByText(messages.recipe.bagHasOwn)).toHaveLength(1);
+  },
+};
+
+export const BagWithOwnRecipeRightToLeft: Story = { args: BagWithOwnRecipe.args, globals: { direction: "rtl" } };
+
 export const RightToLeft: Story = { globals: { direction: "rtl" } };

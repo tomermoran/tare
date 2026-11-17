@@ -3,7 +3,8 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { cx } from "@/lib/cx";
 
-type Option = { value: string; label: string };
+/** `disabled`: shown but not choosable (single choice only); say why next to the group. */
+type Option = { value: string; label: string; disabled?: boolean };
 
 /** Words under the outer chips of a scale, e.g. "too sour" and "too bitter". */
 type Ends = { start: string; end?: string };
@@ -27,6 +28,7 @@ const chip =
   "min-h-10 rounded-full border px-4 text-label transition-colors";
 const off = "border-line-strong text-ink hover:bg-surface";
 const on = "border-ink bg-ink text-on-action";
+const unavailable = "border-line text-ink-secondary cursor-not-allowed";
 
 /**
  * Chips for choosing (NC-04). Single choice is a radio group: one tab stop,
@@ -80,10 +82,13 @@ export function ChipGroup(props: ChipGroupProps) {
     const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
     const forward = rtl ? "ArrowLeft" : "ArrowRight";
     const back = rtl ? "ArrowRight" : "ArrowLeft";
-    let next: number | null = null;
-    if (e.key === forward || e.key === "ArrowDown") next = (index + 1) % options.length;
-    if (e.key === back || e.key === "ArrowUp") next = (index - 1 + options.length) % options.length;
-    if (next === null) return;
+    const step = e.key === forward || e.key === "ArrowDown" ? 1 : e.key === back || e.key === "ArrowUp" ? -1 : 0;
+    if (!step) return;
+    // Arrow keys pass over a disabled chip.
+    let next = index;
+    do next = (next + step + options.length) % options.length;
+    while (options[next].disabled && next !== index);
+    if (next === index) return;
     e.preventDefault();
     if (!props.clearable) props.onChange(options[next].value);
     setFocused(next);
@@ -112,10 +117,11 @@ export function ChipGroup(props: ChipGroupProps) {
             role="radio"
             aria-checked={isOn}
             tabIndex={i === stop ? 0 : -1}
+            disabled={o.disabled}
             onClick={() => choose(i)}
             onFocus={() => setFocused(i)}
             onKeyDown={(e) => onKeyDown(e, i)}
-            className={cx(chip, isOn ? on : off)}
+            className={cx(chip, isOn ? on : o.disabled ? unavailable : off)}
           >
             {o.label}
           </button>

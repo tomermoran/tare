@@ -17,23 +17,50 @@ const tags = [
 
 function Single() {
   const [value, setValue] = useState<string | null>(null);
-  return <ChipGroup label={home.reactionLabel} options={reactions} value={value} onChange={setValue} />;
+  return (
+    <ChipGroup
+      label={home.reactionLabel}
+      options={reactions}
+      value={value}
+      onChange={setValue}
+    />
+  );
 }
 
 function Scale() {
   const [value, setValue] = useState<string | null>("4");
-  return <ChipGroup label={home.reactionLabel} options={scale} value={value} onChange={setValue} />;
+  return (
+    <ChipGroup
+      label={home.reactionLabel}
+      options={scale}
+      value={value}
+      onChange={setValue}
+    />
+  );
 }
 
 function Multiple() {
   const [value, setValue] = useState<string[]>([]);
-  return <ChipGroup multiple label={home.reactionLabel} options={tags} value={value} onChange={setValue} />;
+  return (
+    <ChipGroup
+      multiple
+      label={home.reactionLabel}
+      options={tags}
+      value={value}
+      onChange={setValue}
+    />
+  );
 }
 
 const meta = {
   title: "Components/ChipGroup",
   component: ChipGroup,
-  args: { label: home.reactionLabel, options: reactions, value: null, onChange: () => {} },
+  args: {
+    label: home.reactionLabel,
+    options: reactions,
+    value: null,
+    onChange: () => {},
+  },
 } satisfies Meta<typeof ChipGroup>;
 
 export default meta;
@@ -47,7 +74,9 @@ export const SingleChoice: Story = {
     await userEvent.click(good);
     await expect(good).toHaveAttribute("aria-checked", "true");
     await userEvent.keyboard("{ArrowRight}");
-    await expect(canvas.getByRole("radio", { name: home.reactionOff })).toHaveAttribute("aria-checked", "true");
+    await expect(
+      canvas.getByRole("radio", { name: home.reactionOff }),
+    ).toHaveAttribute("aria-checked", "true");
   },
 };
 
@@ -57,10 +86,45 @@ export const MultipleChoice: Story = {
   render: () => <Multiple />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const chip = canvas.getByRole("button", { name: messages.taste.tags.channelling });
+    const chip = canvas.getByRole("button", {
+      name: messages.taste.tags.channelling,
+    });
     await userEvent.click(chip);
     await expect(chip).toHaveAttribute("aria-pressed", "true");
   },
 };
 
-export const RightToLeft: Story = { render: () => <Single />, globals: { direction: "rtl" } };
+function WithDisabled() {
+  const [value, setValue] = useState<string | null>("good");
+  return (
+    <ChipGroup
+      label={home.reactionLabel}
+      options={[
+        reactions[0],
+        { ...reactions[1], disabled: true },
+        { value: "x", label: "3" },
+      ]}
+      value={value}
+      onChange={setValue}
+    />
+  );
+}
+
+/** A disabled chip can't be chosen, and arrow keys pass over it. */
+export const DisabledOption: Story = {
+  render: () => <WithDisabled />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("radio", { name: home.reactionOff }),
+    ).toBeDisabled();
+    canvas.getByRole("radio", { name: home.reactionGood }).focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(canvas.getByRole("radio", { name: "3" })).toBeChecked();
+  },
+};
+
+export const RightToLeft: Story = {
+  render: () => <Single />,
+  globals: { direction: "rtl" },
+};

@@ -15,6 +15,8 @@ export type PortionOption = {
   end?: string;
   /** In the freezer: listed last and marked as ground from frozen. */
   frozen: boolean;
+  /** The bag has its own recipe: said in words, never colour (STORY-02-04-03 AC 3). */
+  ownRecipe?: boolean;
 };
 
 /**
@@ -37,7 +39,7 @@ export function PortionSheet({
   portions: PortionOption[];
   onChoose: (portionId: string) => void;
   addBagHref: string;
-  labels: { title: string; body: string; close: string; grindFromFrozen: string; noneLeft: string; addBag: string };
+  labels: { title: string; body: string; close: string; grindFromFrozen: string; noneLeft: string; addBag: string; ownRecipe: string };
 }) {
   const ordered = [...portions.filter((p) => !p.frozen), ...portions.filter((p) => p.frozen)];
   return (
@@ -64,7 +66,14 @@ export function PortionSheet({
                   primary={p.primary}
                   secondary={p.secondary}
                   end={p.end && <span className="text-label text-ink-secondary">{p.end}</span>}
-                  footer={p.frozen && <span className="text-label text-ink-secondary">{labels.grindFromFrozen}</span>}
+                  footer={
+                    (p.frozen || p.ownRecipe) && (
+                      <>
+                        {p.ownRecipe && <span className="text-label text-ink-secondary">{labels.ownRecipe}</span>}
+                        {p.frozen && <span className="text-label text-ink-secondary">{labels.grindFromFrozen}</span>}
+                      </>
+                    )
+                  }
                   onClick={() => onChoose(p.id)}
                 />
               </li>

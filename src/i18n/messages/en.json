@@ -677,7 +677,26 @@
     "dialIn": "Dial in from this",
     "changeRecipe": "Change this recipe",
     "row": "{drink} · {setup}",
-    "pinnedOn": "Pinned {date}"
+    "pinnedOn": "Pinned {date}",
+    "insteadOf": "Instead of",
+    "pinnedBag": "Pinned for this bag only.",
+    "scope": {
+      "label": "Recipe for",
+      "bean": "This coffee",
+      "batch": "This bag only",
+      "beanEffect": "Every bag of this coffee uses it.",
+      "bagKeeps": "Every bag of this coffee uses it, except this bag, which keeps its own.",
+      "batchEffect": "Only this bag uses it. Other bags keep the coffee's recipe.",
+      "bagFinished": "This bag is finished, so a recipe for it alone can't be pinned."
+    },
+    "thisBagOnly": "For this bag only",
+    "coffeeDefault": "Other bags use",
+    "bagHasOwn": "Has its own recipe",
+    "bagRemove": "Use the coffee's recipe for this bag",
+    "bagRemoveTitle": "Use the coffee's recipe for this bag?",
+    "bagRemoveBody": "This bag goes back to the recipe every other bag uses. Its own recipe is kept with your older recipes, and your shots don't change.",
+    "bagRemoveConfirm": "Use the coffee's recipe",
+    "bagRemoved": "This bag now uses the coffee's recipe."
   },
   "taste": {
     "title": "Shot saved",

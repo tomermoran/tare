@@ -31,6 +31,7 @@ export function PortionChooser({
     secondary: portionStateLabel(t, p.state),
     end: p.remaining ? t("portion.remaining", { grams: format.number(p.remaining.grams, { style: "unit", unit: "gram", unitDisplay: "short", maximumFractionDigits: 0 }) }) : undefined,
     frozen: p.frozen,
+    ownRecipe: p.ownRecipe,
   }));
   return (
     <PortionSheet
@@ -46,6 +47,7 @@ export function PortionChooser({
         grindFromFrozen: t("portion.grindFromFrozen"),
         noneLeft: t("portion.noneLeft"),
         addBag: t("home.addBag"),
+        ownRecipe: t("recipe.thisBagOnly"),
       }}
     />
   );

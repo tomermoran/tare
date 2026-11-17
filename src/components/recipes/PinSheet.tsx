@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button/Button";
+import { ChipGroup } from "@/components/ui/ChipGroup/ChipGroup";
 import { Notice } from "@/components/ui/Notice/Notice";
 import { Sheet } from "@/components/ui/Sheet/Sheet";
 import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/ShotValues";
@@ -10,7 +11,22 @@ import { ShotValues, type ShotValuesData } from "@/components/ui/ShotValues/Shot
  * is for, its values with the milk and puck-prep lines, and the recipe it
  * replaces above it in ink-secondary, with what changes. One primary to
  * confirm; a failed pin keeps the sheet with a retry (STORY-02-01-01 AC 6).
+ *
+ * Scope (STORY-02-04-01): once the coffee has a recipe, a row under the
+ * title chooses the coffee or this bag only, always one chosen, with a
+ * polite line saying what the choice does. The bag chip is disabled when
+ * the bag is finished, and the line says why. The caller swaps the
+ * replaced block and the changes as the choice changes.
  */
+
+export type PinScopeView<S extends string = string> = {
+  label: string;
+  options: { value: S; label: string; disabled?: boolean }[];
+  value: S;
+  onChange: (value: S) => void;
+  /** What the choice does, or why the bag can't be chosen. */
+  effect: string;
+};
 
 export type PinRecipeView = {
   values: ShotValuesData;
@@ -45,6 +61,7 @@ export function PinSheet({
   onConfirm,
   saving = false,
   failure,
+  scope,
 }: {
   open: boolean;
   onClose: () => void;
@@ -57,6 +74,8 @@ export function PinSheet({
   onConfirm: () => void;
   saving?: boolean;
   failure?: Failure;
+  /** Absent when not offered: the coffee's first recipe (STORY-02-04-01 AC 2). */
+  scope?: PinScopeView;
 }) {
   return (
     <Sheet
@@ -71,6 +90,15 @@ export function PinSheet({
       }
     >
       <div className="flex flex-col gap-5">
+        {scope && (
+          <section className="flex flex-col gap-2">
+            <h3 className="text-overline uppercase text-ink-secondary">{scope.label}</h3>
+            <ChipGroup label={scope.label} options={scope.options} value={scope.value} onChange={scope.onChange} />
+            <p aria-live="polite" className="text-label text-ink-secondary">
+              {scope.effect}
+            </p>
+          </section>
+        )}
         {replaces && <RecipeBlock heading={labels.replaces} recipe={replaces} quiet />}
         <RecipeBlock heading={labels.newRecipe} recipe={recipe} />
         {replaces && changes.length > 0 && (

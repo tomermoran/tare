@@ -5,13 +5,13 @@ import { BagClock } from "@/components/beans/BagClock";
 import { BagFlow } from "@/components/beans/BagFlow";
 import { localDayKey } from "@/domain/localDay";
 import type { BagFact } from "@/components/screens/BagScreen/BagScreen";
-import { RecipeRows } from "@/components/recipes/RecipeRows";
+import { BagRecipesLive } from "@/components/recipes/BagRecipesLive";
 import { getBag } from "@/server/dal/bags";
 import { getBagRecipes } from "@/server/dal/recipes";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
 import { coffeeHref } from "@/lib/coffeeRoutes";
-import { recipeRowsFor } from "../recipeRows";
+import { recipeRowMaker } from "../recipeRows";
 import { bagRows } from "../rows";
 
 /** SCR-BAG: one bag's facts, portions and recipes. */
@@ -44,9 +44,10 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
     { label: t("bag.bagWeight"), value: grams(bag.bagWeight) },
   ];
 
-  // Recipes belong to the coffee: every bag of it shows them (STORY-02-01-04).
+  // The coffee's recipes show on every bag of it (STORY-02-01-04); this bag's own come first (STORY-02-04-03).
   const inUse = bag.portions.find((p) => p.state !== "finished" && p.state !== "frozen");
-  const recipeRows = await recipeRowsFor(recipes.coffee, { batchId: bag.id, portionId: inUse?.id }, timeZone);
+  const toRows = await recipeRowMaker({ batchId: bag.id, portionId: inUse?.id }, timeZone);
+  const [ownRows, coffeeRows] = [toRows(recipes.own), toRows(recipes.coffee)];
 
   return (
     <BagFlow
@@ -61,8 +62,28 @@ async function Bag({ params }: Pick<PageProps<"/beans/[batchId]">, "params">) {
       }}
       addRecipeHref={`/log?mode=recipe&batchId=${bag.id}`}
       recipes={
-        recipeRows.length ? (
-          <RecipeRows rows={recipeRows} labels={{ dialIn: t("recipe.dialIn"), change: t("recipe.changeRecipe"), close: t("actions.close") }} />
+        ownRows.length || coffeeRows.length ? (
+          <BagRecipesLive
+            batchId={bag.id}
+            own={ownRows}
+            coffee={coffeeRows}
+            labels={{
+              dialIn: t("recipe.dialIn"),
+              change: t("recipe.changeRecipe"),
+              close: t("actions.close"),
+              thisBagOnly: t("recipe.thisBagOnly"),
+              coffeeDefault: t("recipe.coffeeDefault"),
+            }}
+            removeLabels={{
+              action: t("recipe.bagRemove"),
+              title: t("recipe.bagRemoveTitle"),
+              body: t("recipe.bagRemoveBody"),
+              confirm: t("recipe.bagRemoveConfirm"),
+              cancel: t("actions.cancel"),
+              failed: t("states.saveFailed"),
+              retry: t("actions.retry"),
+            }}
+          />
         ) : undefined
       }
       backHref="/beans"

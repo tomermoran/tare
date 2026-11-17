@@ -1,8 +1,45 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { createTranslator } from "next-intl";
+import { useState, type ComponentProps } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { PinSheet, type PinRecipeView } from "./PinSheet";
+
+/** The scope choice with the swap the pin flow does: the replaced block, its label and the line follow it. */
+function WithScope({
+  start = "bean",
+  finished = false,
+  bagOwn = null,
+  ...props
+}: Omit<ComponentProps<typeof PinSheet>, "scope" | "replaces" | "changes"> & { start?: "bean" | "batch"; finished?: boolean; bagOwn?: PinRecipeView | null }) {
+  const [scope, setScope] = useState(start);
+  const batch = scope === "batch";
+  const effect = finished
+    ? recipe.scope.bagFinished
+    : batch
+      ? recipe.scope.batchEffect
+      : bagOwn
+        ? recipe.scope.bagKeeps
+        : recipe.scope.beanEffect;
+  return (
+    <PinSheet
+      {...props}
+      labels={{ ...props.labels, replaces: batch && !bagOwn ? recipe.insteadOf : recipe.replaces }}
+      replaces={batch ? (bagOwn ?? old) : old}
+      changes={batch && bagOwn ? [changes[0]] : changes}
+      scope={{
+        label: recipe.scope.label,
+        options: [
+          { value: "bean", label: recipe.scope.bean },
+          { value: "batch", label: recipe.scope.batch, disabled: finished },
+        ],
+        value: scope,
+        onChange: (v) => setScope(v === "batch" ? "batch" : "bean"),
+        effect,
+      }}
+    />
+  );
+}
 
 const t = createTranslator({ locale: "en", messages });
 const { recipe, actions, states, log } = messages;
@@ -95,6 +132,78 @@ export const ReplacesWithSweetened: Story = {
     const canvas = within(document.body);
     await waitFor(() => expect(canvas.getByText(sweetenedChange)).toBeVisible());
   },
+};
+
+/** The coffee already has a recipe: the scope row is offered, the coffee chosen, its effect said (STORY-02-04-01 AC 1). */
+export const ScopeCoffee: StoryObj<typeof WithScope> = {
+  render: (args) => <WithScope {...args} />,
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByRole("radiogroup", { name: recipe.scope.label })).toBeVisible());
+    await expect(canvas.getByRole("radio", { name: recipe.scope.bean })).toBeChecked();
+    await expect(canvas.getByText(recipe.scope.beanEffect)).toBeVisible();
+    await expect(canvas.getByText(recipe.replaces)).toBeVisible();
+    await expect(canvas.getByRole("button", { name: recipe.confirmPin })).toBeVisible();
+  },
+};
+
+/** Choosing this bag only: the line says so and the coffee's recipe shows "instead of", in place (AC 3). */
+export const ScopeChooseBag: StoryObj<typeof WithScope> = {
+  render: (args) => <WithScope {...args} />,
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByRole("radio", { name: recipe.scope.batch })).toBeVisible());
+    await userEvent.click(canvas.getByRole("radio", { name: recipe.scope.batch }));
+    await waitFor(() => expect(canvas.getByText(recipe.scope.batchEffect)).toBeVisible());
+    await expect(canvas.getByText(recipe.insteadOf)).toBeVisible();
+    await expect(canvas.queryByText(recipe.replaces)).toBeNull();
+  },
+};
+
+/** A bag that has its own recipe starts on the bag, which it replaces (AC 4). */
+export const ScopeBagDefault: StoryObj<typeof WithScope> = {
+  render: (args) => <WithScope {...args} start="batch" bagOwn={{ ...old, values: { ...old.values, grind: 16 } }} />,
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByRole("radio", { name: recipe.scope.batch })).toBeChecked());
+    await userEvent.click(canvas.getByRole("radio", { name: recipe.scope.bean }));
+    await waitFor(() => expect(canvas.getByText(recipe.scope.bagKeeps)).toBeVisible());
+  },
+};
+
+/** A finished bag: the bag chip can't be chosen, and the line says why (AC 6). */
+export const ScopeBagFinished: StoryObj<typeof WithScope> = {
+  render: (args) => <WithScope {...args} finished />,
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByRole("radio", { name: recipe.scope.batch })).toBeDisabled());
+    await waitFor(() => expect(canvas.getByText(recipe.scope.bagFinished)).toBeVisible());
+    await expect(canvas.getByRole("radio", { name: recipe.scope.bean })).toBeChecked();
+  },
+};
+
+/** The coffee's first recipe: no scope row (AC 2). */
+export const NoScopeForFirstPin: Story = {
+  play: async () => {
+    await waitFor(() => expect(within(document.body).getByRole("heading", { name: title })).toBeVisible());
+    await expect(within(document.body).queryByRole("radiogroup")).toBeNull();
+  },
+};
+
+/** The primary stays on screen on a small phone with the scope row. */
+export const ScopeSmallPhone: StoryObj<typeof WithScope> = {
+  render: (args) => <WithScope {...args} />,
+  parameters: { viewport: { options: { small: { name: "Small phone", styles: { width: "375px", height: "667px" } } } } },
+  globals: { viewport: { value: "small" } },
+  play: async () => {
+    const button = await within(document.body).findByRole("button", { name: recipe.confirmPin });
+    await waitFor(() => expect(button.getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight));
+  },
+};
+
+export const ScopeRightToLeft: StoryObj<typeof WithScope> = {
+  render: (args) => <WithScope {...args} start="batch" />,
+  globals: { direction: "rtl" },
 };
 
 export const RightToLeft: Story = {
