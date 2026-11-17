@@ -18,19 +18,32 @@ issue="${1:?usage: close-finished-parents.sh <issue-number>}"
 repo="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner)}"
 owner="${repo%/*}"
 name="${repo#*/}"
+closed_any=0
 
 while :; do
-  parent="$(gh api graphql \
-    -f query='query($owner:String!,$name:String!,$n:Int!){repository(owner:$owner,name:$name){issue(number:$n){parent{number state subIssuesSummary{total completed}}}}}' \
-    -f owner="$owner" -f name="$name" -F n="$issue" \
-    -q '.data.repository.issue.parent // empty | "\(.number) \(.state) \(.subIssuesSummary.completed) \(.subIssuesSummary.total)"')"
+  # Count closed sub-issues from their own states. GitHub's subIssuesSummary
+  # lags a few seconds after a close, so a parent we had just closed still
+  # looked unfinished to its own parent (#49 closed, epic #11 read 11/12).
+  # Retry a few times when the count is one short of done and we closed a
+  # parent earlier in this run, in case the listing lags too.
+  for attempt in 1 2 3 4 5 6; do
+    parent="$(gh api graphql \
+      -f query='query($owner:String!,$name:String!,$n:Int!){repository(owner:$owner,name:$name){issue(number:$n){parent{number state subIssues(first:100){totalCount nodes{state}}}}}}' \
+      -f owner="$owner" -f name="$name" -F n="$issue" \
+      -q '.data.repository.issue.parent // empty | "\(.number) \(.state) \([.subIssues.nodes[] | select(.state == "CLOSED")] | length) \(.subIssues.totalCount)"')"
+    [[ -z "$parent" ]] && break
+    read -r number state completed total <<<"$parent"
+    if [[ "$closed_any" == 1 && "$state" == "OPEN" && $((completed + 1)) -eq "$total" && "$attempt" -lt 6 ]]; then
+      sleep 5
+      continue
+    fi
+    break
+  done
 
   if [[ -z "$parent" ]]; then
     echo "#$issue has no parent."
     break
   fi
-
-  read -r number state completed total <<<"$parent"
 
   if [[ "$state" != "OPEN" ]]; then
     echo "Parent #$number is already closed."
@@ -48,6 +61,7 @@ while :; do
     gh issue close "$number" --repo "$repo" --reason completed \
       --comment "All sub-issues are done ($completed/$total). Closing automatically."
     echo "Closed parent #$number."
+    closed_any=1
   fi
 
   issue="$number"
