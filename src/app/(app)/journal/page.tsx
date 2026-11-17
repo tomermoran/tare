@@ -24,7 +24,7 @@ async function Journal({ searchParams }: Pick<PageProps<"/journal">, "searchPara
   const asked = readJournalFilters(await searchParams);
   // The 30-day window and "today" depend on the request time.
   await connection();
-  const [options, timeZone] = await Promise.all([unlessSignedOut(getJournalFilterOptions({ beanId: asked.beanId })), getTimeZone()]);
+  const [options, timeZone] = await Promise.all([unlessSignedOut(getJournalFilterOptions({ beanId: asked.beanId, drinkId: asked.drinkId })), getTimeZone()]);
   if (!options) return <RecentShotsScreen state="loading" items={[]} now={new Date(0)} />;
   // A filter that names nothing of this household's is dropped, never shown as a mystery.
   const filters: JournalFilters = {
