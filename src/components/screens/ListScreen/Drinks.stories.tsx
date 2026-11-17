@@ -5,7 +5,7 @@ import { ListSkeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Notice } from "@/components/ui/Notice/Notice";
 import messages from "@/i18n/messages/en.json";
 import { PhoneFrame } from "../PhoneFrame";
-import { DrinksScreen } from "./DrinksScreen";
+import { ListScreen } from "./ListScreen";
 
 const t = createTranslator({ locale: "en", messages });
 const { drinks, drinkList, actions } = messages;
@@ -14,7 +14,7 @@ const LONG = "A very long name for a weekend flat whit";
 
 const meta = {
   title: "Screens/Drinks",
-  component: DrinksScreen,
+  component: ListScreen,
   parameters: { layout: "centered" },
   args: {
     backHref: "/profile",
@@ -50,7 +50,7 @@ const meta = {
       </PhoneFrame>
     ),
   ],
-} satisfies Meta<typeof DrinksScreen>;
+} satisfies Meta<typeof ListScreen>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -18,6 +18,9 @@ const labels = {
   save: profile.save,
   saved: profile.saved,
   saveFailed: profile.saveFailed,
+  listsTitle: profile.listsTitle,
+  drinks: profile.drinks,
+  milks: profile.milks,
   accountTitle: profile.accountTitle,
   account: profile.account,
   linked: profile.linked,
@@ -25,6 +28,10 @@ const labels = {
   about: profile.about,
   appName: app.name,
   version: t("profile.version", { version: "0.1.0" }),
+};
+const lists = {
+  drinks: { href: "/profile/drinks", summary: t("profile.drinksSummary", { count: 9, hidden: 2 }) },
+  milks: { href: "/profile/milks", summary: t("profile.milksSummary", { count: 1, hidden: 0 }) },
 };
 
 function Controlled(props: {
@@ -47,6 +54,7 @@ function Controlled(props: {
       pending={props.pending}
       linked={props.linked}
       linkAction={<Button onClick={props.onLink}>{profile.linkGoogle}</Button>}
+      lists={lists}
     />
   );
 }
@@ -131,6 +139,18 @@ export const AccountLinked: Story = {
     await expect(canvas.queryByRole("button", { name: profile.linkGoogle })).toBeNull();
     // Only the name's own save button: nothing to unlink or sign out.
     await expect(canvas.getAllByRole("button").map((b) => b.textContent)).toEqual([profile.save]);
+  },
+};
+
+/** Your lists: Drinks and Milks with their summaries, each opening its list (STORY-02-05-07 AC 1). */
+export const YourLists: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("heading", { name: profile.listsTitle })).toBeVisible();
+    await expect(canvas.getByText("9 drinks, 2 hidden")).toBeVisible();
+    await expect(canvas.getByText("1 milk")).toBeVisible();
+    await expect(canvas.getByRole("link", { name: new RegExp(profile.drinks) })).toHaveAttribute("href", "/profile/drinks");
+    await expect(canvas.getByRole("link", { name: new RegExp(profile.milks) })).toHaveAttribute("href", "/profile/milks");
   },
 };
 

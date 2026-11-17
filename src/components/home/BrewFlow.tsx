@@ -22,6 +22,8 @@ import { googleLinkDeps } from "@/components/account/googleLinkDeps";
 import { LinkPrompt } from "./LinkPrompt";
 import { OffFlow } from "./OffFlow";
 import { PortionChooser } from "./PortionChooser";
+import { DRINKS_PATH } from "@/lib/profileRoutes";
+import { withReturnTo } from "@/lib/returnTo";
 
 type Field = "drink" | "coffee" | "setup";
 
@@ -325,7 +327,13 @@ export function BrewFlow({
         options={sheet.options}
         value={sheet.value}
         onChoose={(id) => picking && void choose(picking, id)}
-        footerRow={picking === "setup" ? { label: t("setup.changePart"), onClick: () => router.push(changePartHref) } : undefined}
+        footerRow={
+          picking === "setup"
+            ? { label: t("setup.changePart"), onClick: () => router.push(changePartHref) }
+            : picking === "drink"
+              ? { label: t("drinkList.manage"), icon: "chevron", onClick: () => router.push(withReturnTo(DRINKS_PATH, "/")) }
+              : undefined
+        }
       />
       {off && <OffFlow shotId={off.shotId} context={off.context} onClose={() => setOff(null)} />}
       <PortionChooser

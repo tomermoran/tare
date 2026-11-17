@@ -12,7 +12,7 @@ import { MILK_FALLBACK_ML, milkStart } from "@/domain/milk";
 import { NO_PREP } from "@/domain/prep";
 import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import { setupLabel } from "@/domain/setupName";
-import { getLogContext, getStartingValues, NEUTRAL_START, type LogContext, type LogPortion } from "@/server/dal/logContext";
+import { getLogContext, getStartingValues, NEUTRAL_START, withChosenMilk, type LogContext, type LogMilk, type LogPortion } from "@/server/dal/logContext";
 import { getDialInStart, lastGrindOnPart } from "@/server/dal/dialIn";
 import { getShot } from "@/server/dal/journal";
 import { getRecipeForBag } from "@/server/dal/recipes";
@@ -43,6 +43,12 @@ export default function LogPage({ searchParams }: PageProps<"/log">) {
 }
 
 const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
+
+type T = Awaited<ReturnType<typeof getTranslations<never>>>;
+
+/** The milk choices, a hidden one (only ever the one already chosen) marked so (STORY-02-05-08 AC 3). */
+const milkOptions = (milks: LogMilk[], t: T): SelectOption[] =>
+  milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)), marker: m.hidden ? t("milkList.hidden") : undefined }));
 
 async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   const params = await searchParams;
@@ -176,7 +182,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
           { hasMilk: d.hasMilk, typicalMilkMl: d.typicalMilkMl, lastMilkTypeId: d.lastMilkTypeId },
         ]),
       )}
-      milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
+      milks={milkOptions(await withChosenMilk(context.milks, p?.milkTypeId), t)}
       resume={one(params.resume) === "1"}
       portionClocks={Object.fromEntries(
         context.portions.flatMap((p): [string, string][] =>
@@ -219,7 +225,7 @@ async function EditShot({ shotId }: { shotId: string }) {
       sweetened={shot.sweetened}
       prep={shot.prep}
       milk={shot.milkDrink ? { milkTypeId: shot.milkTypeId, ml: milkMl ?? MILK_FALLBACK_ML } : null}
-      milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
+      milks={milkOptions(await withChosenMilk(context.milks, shot.milkTypeId), t)}
       milkDrink={shot.milkDrink}
       taste={{ rating: shot.rating, ...shot.taste, tags: shot.tags }}
       backTo={`/journal/${shot.id}`}
@@ -248,6 +254,7 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
   const stored = recipe ?? last!.lastBrew;
   const drinkName = drinkLabel(drink, (key: DrinkKey) => t(key));
   const setupName = setupLabel(setup, context.setups, list);
+  const milks = await withChosenMilk(context.milks, recipe?.milkTypeId);
 
   return (
     <RecipeLogFlow
@@ -260,7 +267,7 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
       coffee={bean.name}
       setups={context.setups.map((s) => ({ id: s.id, primary: setupLabel(s, context.setups, list) }))}
       drinks={context.drinks.map((d) => ({ id: d.id, primary: drinkLabel(d, (key: DrinkKey) => t(key)) }))}
-      milks={context.milks.map((m) => ({ id: m.id, primary: milkLabel(m, (key: MilkKey) => t(key)) }))}
+      milks={milkOptions(milks, t)}
       start={{ grind: start.grind, dose: start.dose, yield: start.yield, timeMs: start.timeMs }}
       grind={grind}
       brew={brew}
@@ -276,7 +283,7 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
         drink,
         recipe: recipe ? { milkTypeId: recipe.milkTypeId, ml: recipe.milkMl } : null,
         lastMilkOfDrink: drink.lastMilkTypeId,
-        milks: context.milks,
+        milks,
       })}
       pinTitle={t("recipe.pinTitle", { drink: drinkName, coffee: bean.name, setup: setupName })}
       backTo={`/beans/${batchId}`}

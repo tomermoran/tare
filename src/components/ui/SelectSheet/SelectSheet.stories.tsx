@@ -6,7 +6,7 @@ import messages from "@/i18n/messages/en.json";
 import { Button } from "../Button/Button";
 import { SelectSheet, type SelectOption } from "./SelectSheet";
 
-const { actions, drinks, home, log, portion } = messages;
+const { actions, drinks, home, log, portion, milks, milkList, drinkList } = messages;
 const t = createTranslator({ locale: "en", messages });
 const day = new Intl.DateTimeFormat("en", { day: "numeric", month: "short" });
 
@@ -112,6 +112,35 @@ export const Portions: Story = {
     await expect(rows.at(-2)).toHaveTextContent(portion.state.frozen);
     await userEvent.click(within(dialog).getByRole("button", { name: log.addBag }));
     await expect(args.footerRow!.onClick).toHaveBeenCalled();
+  },
+};
+
+/** Drinks with "Edit your drinks" at the foot, opening the list (STORY-02-05-07 AC 2). */
+export const ManageDrinks: Story = {
+  args: { footerRow: { label: drinkList.manage, icon: "chevron", onClick: fn() } },
+  play: async ({ canvasElement, args }) => {
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole("dialog", { name: log.drink });
+    await userEvent.click(within(dialog).getByRole("button", { name: drinkList.manage }));
+    await expect(args.footerRow!.onClick).toHaveBeenCalled();
+  },
+};
+
+/** Milks: a hidden milk shows only as the one already chosen, marked (STORY-02-05-08 AC 3). */
+export const HiddenChosenMilk: Story = {
+  args: {
+    title: log.milk,
+    options: [
+      { id: "oat", primary: milks.oat },
+      { id: "whole", primary: milks.whole, marker: milkList.hidden },
+    ],
+    initialValue: "whole",
+    footerRow: { label: milkList.manage, icon: "chevron", onClick: fn() },
+  },
+  play: async ({ canvasElement }) => {
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole("dialog", { name: log.milk });
+    const current = within(dialog).getByRole("button", { current: true });
+    await expect(current).toHaveTextContent(milks.whole);
+    await expect(current).toHaveTextContent(milkList.hidden);
   },
 };
 

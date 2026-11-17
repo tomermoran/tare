@@ -71,6 +71,11 @@
     "save": "Save name",
     "saved": "Saved.",
     "saveFailed": "Couldn't save your name. Your text is kept, so you can try again.",
+    "listsTitle": "Your lists",
+    "drinks": "Drinks",
+    "drinksSummary": "{count, plural, one {# drink} other {# drinks}}{hidden, plural, =0 {} other {, # hidden}}",
+    "milks": "Milks",
+    "milksSummary": "{count, plural, one {# milk} other {# milks}}{hidden, plural, =0 {} other {, # hidden}}",
     "accountTitle": "Account",
     "account": "Your history lives on this phone. Link a Google account to keep it if you change phones or your browser clears its storage.",
     "linkGoogle": "Link your Google account",
@@ -120,7 +125,8 @@
     "moveDown": "Move {name} down",
     "moved": "{name}, {position} of {count}",
     "discardTitle": "Discard your changes?",
-    "discardBody": "What you changed in this drink won't be saved."
+    "discardBody": "What you changed in this drink won't be saved.",
+    "manage": "Edit your drinks"
   },
   "home": {
     "pull": "Pull this shot",
@@ -838,5 +844,32 @@
     "bags": "Bags",
     "loading": "Loading this coffee",
     "details": "{roast} · {notes}"
+  },
+  "milkList": {
+    "title": "Milks",
+    "intro": "These are the milks you choose from. Hidden ones are kept for old shots.",
+    "add": "Add a milk",
+    "reorder": "Reorder",
+    "dairy": "Dairy",
+    "plant": "Plant",
+    "kind": "Kind",
+    "kindFixed": "This can't be changed later.",
+    "kindRequired": "Choose dairy or plant.",
+    "hidden": "Hidden",
+    "name": "Name",
+    "resetName": "Use the original name",
+    "nameTaken": "Another milk already has this name. Choose a different one.",
+    "nameRequired": "Give the milk a name.",
+    "show": "Show in my lists",
+    "keepOne": "At least one milk has to stay visible.",
+    "editTitle": "Edit milk",
+    "addTitle": "Add a milk",
+    "reorderFailed": "Couldn't move that milk. It's back in its place.",
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "moved": "{name}, {position} of {count}",
+    "discardTitle": "Discard your changes?",
+    "discardBody": "What you changed in this milk won't be saved.",
+    "manage": "Edit your milks"
   }
 }

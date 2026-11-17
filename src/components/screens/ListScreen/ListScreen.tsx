@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { ReorderList, type ReorderLabels } from "@/components/ui/ReorderList/ReorderList";
 import { cx } from "@/lib/cx";
 
-export type DrinksScreenLabels = {
+export type ListScreenLabels = {
   title: string;
   back: string;
   intro: string;
@@ -17,22 +17,22 @@ export type DrinksScreenLabels = {
   hidden: string;
 };
 
-export type DrinkRow = {
+export type ListScreenRow = {
   id: string;
   name: string;
-  /** "With milk, 120 ml usual" or "No milk". */
+  /** E.g. "With milk, 120 ml usual" for a drink, "Plant" for a milk. */
   secondary: string;
   hidden: boolean;
 };
 
 /**
- * SCR-DRINKS (DES-02-05-01): the household's drinks in its order, hidden
- * ones too, quieter and marked. Each row opens the drink; the list ends
- * with "Add a drink". Reorder mode swaps the taps for move buttons, and the
+ * SCR-DRINKS and SCR-MILKS (DES-02-05-01, DES-02-05-02): one of the
+ * household's lists in its order, hidden items too, quieter and marked.
+ * Each row opens its item; the list ends with "Add a drink" or "Add a milk". Reorder mode swaps the taps for move buttons, and the
  * header's Reorder becomes Done. No primary button: every row is an
  * action. Props only.
  */
-export function DrinksScreen({
+export function ListScreen({
   labels,
   reorderLabels,
   backHref,
@@ -45,10 +45,10 @@ export function DrinksScreen({
   onOpen,
   onAdd,
 }: {
-  labels: DrinksScreenLabels;
+  labels: ListScreenLabels;
   reorderLabels: ReorderLabels;
   backHref: string;
-  rows: DrinkRow[];
+  rows: ListScreenRow[];
   reordering?: boolean;
   announcement?: string;
   /** E.g. a failed move or save. */

@@ -3,7 +3,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 import messages from "@/i18n/messages/en.json";
 import { RecipeRows } from "./RecipeRows";
 
-const { recipe, actions, drinks, milks, shot, log, home } = messages;
+const { recipe, actions, drinks, milks, shot, log, home, drinkList } = messages;
 const ml = (n: number) => new Intl.NumberFormat("en", { style: "unit", unit: "milliliter", unitDisplay: "short" }).format(n);
 const row = (drink: string) => recipe.row.replace("{drink}", drink).replace("{setup}", "Daily espresso");
 
@@ -70,4 +70,17 @@ export const Sweetened: Story = {
   },
 };
 
+/** A hidden drink's recipe stays, quieter and marked; its milk is named even when hidden (STORY-02-05-08 AC 1, AC 3). */
+export const HiddenDrink: Story = {
+  args: { rows: [{ ...meta.args.rows[0], hidden: drinkList.hidden }, meta.args.rows[1]] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByText(drinkList.hidden)).toHaveLength(1);
+    await expect(canvas.getByText(row(drinks.latte)).closest("span.flex")?.className).toContain("text-ink-secondary");
+    await expect(canvas.getByText(new RegExp(milks.oat))).toBeVisible();
+  },
+};
+
 export const RightToLeft: Story = { globals: { direction: "rtl" } };
+
+export const HiddenDrinkRightToLeft: Story = { args: HiddenDrink.args, globals: { direction: "rtl" } };
