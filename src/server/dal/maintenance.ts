@@ -6,12 +6,15 @@ import { canonicalHardware, extractions, maintenanceEvents, ownedHardware, setup
 import { currentPeriodStart } from "@/domain/grindPeriods";
 import { isValidDayKey, localDayKey, localNoon } from "@/domain/localDay";
 import { canRecalibrate, isMaintenanceKind, recalibrationDefault, type MaintenanceKind } from "@/domain/maintenance";
+import type { RedialState } from "@/domain/redial";
+import { eventStates } from "./redial";
 import { assertOwned, requireHousehold } from "./scope";
 
 /*
  * Maintenance on a part (STORY-04-01-01): dated events on a machine,
  * grinder or basket. Servicing never makes a new setup, so no setup is
- * touched, and no grind offsets are written in the MVP.
+ * touched. A recalibrating grinder event's shift is set by re-dialling
+ * (EPIC-04-03, `redial.ts`).
  */
 
 export class InvalidMaintenanceError extends Error {
@@ -35,6 +38,10 @@ export type MaintenanceEvent = {
   at: Date;
   note: string | null;
   isRecalibration: boolean;
+  /** Re-dial state (TD-7, STORY-04-03-05 AC 1). */
+  redial: RedialState;
+  /** The confirmed shift in the grinder's units; null when none is stored. */
+  shift: number | null;
 };
 
 const NOTE_MAX = 500;
@@ -79,17 +86,18 @@ export async function addMaintenance(
 export async function listMaintenance(partId: string): Promise<MaintenanceEvent[]> {
   const { householdId } = await requireHousehold();
   await assertOwned("ownedHardware", partId, householdId);
-  const rows = await db
-    .select()
-    .from(maintenanceEvents)
-    .where(eq(maintenanceEvents.ownedHardwareId, partId))
-    .orderBy(desc(maintenanceEvents.occurredAt));
+  const [rows, states] = await Promise.all([
+    db.select().from(maintenanceEvents).where(eq(maintenanceEvents.ownedHardwareId, partId)).orderBy(desc(maintenanceEvents.occurredAt)),
+    eventStates(partId),
+  ]);
   return rows.map((r) => ({
     id: r.id,
     kind: isMaintenanceKind(r.kind) ? r.kind : "other",
     at: r.occurredAt,
     note: r.note,
     isRecalibration: r.isRecalibration,
+    redial: states.get(r.id) ?? "notRecalibration",
+    shift: r.grindShift,
   }));
 }
 

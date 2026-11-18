@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
-import { batches, batchPortions, canonicalBeans, extractions, setups } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, extractions, pinnedRecipes, setups } from "@/db/schema";
 import { portionState } from "@/domain/portionState";
 import { applyChange, type StartValues } from "@/domain/suggest/apply";
 import { suggest, type Suggestion } from "@/domain/suggest";
@@ -9,7 +9,8 @@ import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { getDialInStart } from "./dialIn";
 import { unfinishedPortions } from "./logContext";
 import { portionChoices, type PortionChoice } from "./pull";
-import { getCurrentRecipe } from "./recipes";
+import { getCurrentRecipe, toRecipe } from "./recipes";
+import { listRedialCandidates } from "./redial";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
 import { getSuggestContext, type SuggestContext } from "./suggestContext";
@@ -89,6 +90,8 @@ export type LogStart = {
   grindAdjustment?: GrindAdjustment | null;
   /** Starts from another profile's recipe, named in the log's note (STORY-05-01-05 AC 1). */
   borrowedFrom?: { name: string | null } | null;
+  /** Re-dialling after servicing: the event, for the log's banner and the offset sheet (STORY-04-03-04 AC 5). */
+  redialEventId?: string | null;
 };
 
 type Row = typeof extractions.$inferSelect;
@@ -265,5 +268,39 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
     from: dialIn.fromSetupId === setupId ? null : { setupId: dialIn.fromSetupId, grindCarried: dialIn.grindCarried },
     fromShot: null,
     borrowedFrom: dialIn.borrowedFrom && { name: dialIn.borrowedFrom.name },
+  };
+}
+
+/**
+ * A re-dial after servicing (STORY-04-03-04 AC 5): the old recipe's raw
+ * grind as the start and "was", its other values, prep, milk and
+ * sweetened, on the current setup. No drift adjustment: the old number
+ * only means something as a starting point.
+ */
+export async function getRedialStart(eventId: string, recipeId: string, portionId?: string): Promise<LogStart> {
+  const { householdId } = await requireHousehold();
+  const candidates = await listRedialCandidates(eventId);
+  if (!candidates.some((c) => c.recipeId === recipeId)) throw new NotFoundError();
+  const [row] = await db.select().from(pinnedRecipes).where(and(eq(pinnedRecipes.id, recipeId), eq(pinnedRecipes.householdId, householdId)));
+  const recipe = toRecipe(row);
+  const setupList = await db.select({ id: setups.id, createdAt: setups.createdAt }).from(setups).where(eq(setups.householdId, householdId));
+  const setupId = (await currentSetupOf(householdId, setupList)) ?? recipe.setupId;
+  const start = valuesOf(recipe, "recipe");
+  // Temperature and pressure belong to the recipe's machine; on another setup they start blank.
+  if (setupId !== recipe.setupId) start.brew = { brewTempC: null, brewTempStep: null, pressureBar: null, pressureStep: null };
+  return {
+    setupId,
+    drinkTypeId: recipe.drinkTypeId,
+    portionId: portionId ?? null,
+    locked: false,
+    start,
+    applied: start,
+    milkTypeId: recipe.milkTypeId,
+    sweetened: recipe.sweetened,
+    suggestion: null,
+    from: null,
+    fromShot: null,
+    grindAdjustment: null,
+    redialEventId: eventId,
   };
 }
