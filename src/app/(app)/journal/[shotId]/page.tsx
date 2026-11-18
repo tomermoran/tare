@@ -18,6 +18,7 @@ import { tastePhraseKeys } from "@/domain/tastePhrase";
 import { getShot } from "@/server/dal/journal";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getTimeZone } from "@/server/time";
+import { personaLabel } from "@/domain/personaLabel";
 
 /**
  * SCR-SHOT: one shot. Edit is primary on a one-tap shot and a quiet ghost
@@ -39,7 +40,15 @@ export default async function ShotPage({ params }: PageProps<"/journal/[shotId]"
     (p): p is string => !!p,
   );
 
+  // Whose taste and who logged it, in words, with more than one profile (STORY-05-01-06 AC 3).
+  const role = t("profile.defaultName");
   const facts: ShotFact[] = [
+    ...(shot.people
+      ? [
+          { label: t("shot.forPerson"), value: personaLabel(shot.people.forPerson, role) },
+          { label: t("shot.loggedBy"), value: personaLabel(shot.people.loggedBy, role) },
+        ]
+      : []),
     { label: t("shot.coffee"), value: format.list([shot.coffee.name, shot.coffee.roasterName], { type: "unit" }) },
     ...(shot.setup.name ? [{ label: t("log.setup"), value: shot.setup.name }] : []),
     ...shot.setup.parts.map((p) => ({

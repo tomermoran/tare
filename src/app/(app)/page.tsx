@@ -171,6 +171,7 @@ async function Brew({ home }: { home: Home }) {
       changePartHref={`${changePartHref(home.setup.id)}&${new URLSearchParams({ returnTo: "/" })}`}
       drinkId={home.drink.id}
       beanId={home.coffee?.id ?? null}
+      personaId={home.multiplePersonas ? home.personaId : undefined}
     />
   );
 }

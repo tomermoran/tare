@@ -134,6 +134,56 @@ export const EmptyFiltered: Story = {
   },
 };
 
+/** Several profiles: a shot for someone else says so; the main profile's carry nothing (STORY-05-01-06 AC 1). */
+const forGuest = t("journal.forPerson", { name: "Person A" });
+const personRow = (
+  <FilterChips
+    label={messages.journal.filters}
+    chips={[
+      { id: "drink", text: messages.journal.filterAnyDrink, name: t("journal.filterName", { filter: messages.journal.filterDrink, value: messages.journal.filterAnyDrink }) },
+      { id: "coffee", text: messages.journal.filterAnyCoffee, name: t("journal.filterName", { filter: messages.journal.filterCoffee, value: messages.journal.filterAnyCoffee }) },
+      {
+        id: "person",
+        text: "Person A",
+        name: t("journal.filterName", { filter: messages.journal.filterPerson, value: "Person A" }),
+        remove: t("journal.removeFilter", { filter: messages.journal.filterPerson, value: "Person A" }),
+      },
+    ]}
+    all={messages.journal.filterAll}
+    onOpen={() => {}}
+    onRemove={() => {}}
+    onClearAll={() => {}}
+  />
+);
+
+export const SeveralProfiles: Story = {
+  args: {
+    filters: personRow,
+    items: exampleShots.map((item, i) => (item.kind === "shot" && i % 2 === 0 ? { ...item, person: forGuest } : item)),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByText(forGuest).length).toBeGreaterThan(0);
+    await expect(canvas.getByRole("button", { name: t("journal.filterName", { filter: messages.journal.filterPerson, value: "Person A" }) })).toBeVisible();
+  },
+};
+
+/** The Person filter leaves nothing: the filtered empty state offers to clear it (STORY-05-01-06 AC 4). */
+export const PersonFilteredEmpty: Story = {
+  args: {
+    items: [],
+    filters: personRow,
+    emptyFiltered: {
+      title: messages.journal.emptyFilteredTitle,
+      body: t("journal.emptyFiltered", { filters: "Person A" }),
+      action: { label: messages.journal.clearFilters, onClick: fn() },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: messages.journal.clearFilters })).toBeVisible();
+  },
+};
+
 /**
  * A re-zero among a day's shots, at its time: a list item read aloud, with
  * the recalibration in words, opening the grinder (STORY-04-01-04).

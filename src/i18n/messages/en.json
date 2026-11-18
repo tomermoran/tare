@@ -54,7 +54,9 @@
     "dateTime": "{date} at {time}",
     "fromFrozen": "Ground from frozen",
     "reaction": "How it was",
-    "noticed": "Noticed"
+    "noticed": "Noticed",
+    "forPerson": "For",
+    "loggedBy": "Logged by"
   },
   "nav": {
     "label": "Main",
@@ -263,7 +265,10 @@
     "filterAll": "All",
     "emptyFilteredTitle": "No matching shots",
     "emptyFiltered": "No shots of {filters} yet.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "forPerson": "for {name}",
+    "filterPerson": "Person",
+    "filterAnyPerson": "Anyone"
   },
   "maintenance": {
     "title": "Maintenance",
@@ -407,7 +412,8 @@
     "filteredTriedNone": "Nothing you've tried matches these filters.",
     "filteredNoneTitle": "No coffee matches",
     "filteredNone": "Try fewer filters, or clear them to see every coffee.",
-    "filterClear": "Clear filters"
+    "filterClear": "Clear filters",
+    "triedFor": "How the shots went for {name}."
   },
   "setup": {
     "title": "Setup",

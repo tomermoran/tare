@@ -13,6 +13,7 @@ import { daysBetween, localNoon } from "@/domain/localDay";
 import { milkLabel, type MilkKey } from "@/domain/milkName";
 import { milkLine } from "@/lib/milkLine";
 import { setupLabel } from "@/domain/setupName";
+import { personaLabel } from "@/domain/personaLabel";
 import { shotWarnings } from "@/domain/shotWarnings";
 import { journalHref } from "@/lib/journalFilters";
 import { LOG_PATH } from "@/lib/logRoutes";
@@ -28,7 +29,7 @@ import type { JournalCursor, JournalDivider, JournalFilterOptions, JournalFilter
  * STORY-02-06-05 AC 3); setup is offered only with more than one setup.
  */
 
-type Kind = "drinkId" | "beanId" | "setupId";
+type Kind = "drinkId" | "beanId" | "setupId" | "personaId";
 
 export function JournalList({
   shots: initial,
@@ -64,11 +65,14 @@ export function JournalList({
     drinkId: (options?.drinks ?? []).map((d) => ({ id: d.id, primary: drinkLabel(d, (key: DrinkKey) => t(key)) })),
     beanId: (options?.coffees ?? []).map((c) => ({ id: c.id, primary: c.name, secondary: c.roasterName })),
     setupId: (options?.setups ?? []).map((s) => ({ id: s.id, primary: setupLabel(s, options!.setups, list) })),
+    personaId: (options?.people ?? []).map((p) => ({ id: p.id, primary: personaLabel(p, t("profile.defaultName")) })),
   };
   const kinds: { kind: Kind; filter: string; any: string }[] = [
     { kind: "drinkId", filter: t("journal.filterDrink"), any: t("journal.filterAnyDrink") },
     { kind: "beanId", filter: t("journal.filterCoffee"), any: t("journal.filterAnyCoffee") },
     ...((options?.setups.length ?? 0) > 1 ? [{ kind: "setupId" as const, filter: t("journal.filterSetup"), any: t("journal.filterAnySetup") }] : []),
+    // A Person chip only with more than one profile (STORY-05-01-06 AC 2, AC 5).
+    ...((options?.people.length ?? 0) > 1 ? [{ kind: "personaId" as const, filter: t("journal.filterPerson"), any: t("journal.filterAnyPerson") }] : []),
   ];
   const valueOf = (kind: Kind) => choices[kind].find((o) => o.id === filters[kind])?.primary ?? null;
   const chips: FilterChip[] = kinds.map(({ kind, filter, any }) => {
@@ -106,6 +110,7 @@ export function JournalList({
     reaction: s.reaction ?? undefined,
     fromFrozen: s.fromFrozen,
     channelling: shotWarnings(s.tags).includes("channelling"),
+    person: s.person ? t("journal.forPerson", { name: personaLabel(s.person, t("profile.defaultName")) }) : undefined,
   }));
   // Dividers sit among the shots at their time, newest first (AC 2).
   const items: RecentItem[] = [
