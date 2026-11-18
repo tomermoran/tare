@@ -20,6 +20,9 @@ import type { PortionChoice } from "@/server/dal/pull";
 import type { OffContext } from "@/server/dal/reaction";
 import { googleLinkDeps } from "@/components/account/googleLinkDeps";
 import { LinkPrompt } from "./LinkPrompt";
+import { RedialCard, type RedialCardLabels } from "./RedialCard";
+import { RedialPick } from "@/components/redial/RedialPick";
+import { dismissForGood, isDismissedForGood } from "@/lib/dismissals";
 import { GrindReasonLine, GrindTrailSheet } from "@/components/recipes/GrindTrailSheet";
 import type { GrindTrailView } from "@/lib/grindTrail";
 import { OffFlow } from "./OffFlow";
@@ -86,7 +89,10 @@ export function BrewFlow({
   linkPrompt,
   personaId,
   grind,
+  redial,
 }: {
+  /** A grinder event awaiting a re-dial on this setup (STORY-04-03-04 AC 2); options are recipe IDs. */
+  redial?: { eventId: string; labels: RedialCardLabels & { pick: string }; options: SelectOption[] };
   /** The suggested grind (STORY-04-02-06): `screen.values` shows it; the recipe's is one tap away for one pull. */
   grind?: { recipe: number; trail: GrindTrailView };
   /** Who Brew is for, only with more than one profile: the Journal's Person filter starts there. */
@@ -121,6 +127,14 @@ export function BrewFlow({
   // "Use my recipe's grind" lasts one pull and is never saved (STORY-04-02-08 AC 5).
   const [useRecipeGrind, setUseRecipeGrind] = useState(false);
   const [trailOpen, setTrailOpen] = useState(false);
+  // "Not now" hides the card for this event on this device (AC 3); unknown until the device store is read.
+  const [redialShown, setRedialShown] = useState<boolean | null>(null);
+  const [redialPicking, setRedialPicking] = useState(false);
+  const redialKey = redial && `redial:${redial.eventId}`;
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read the device store on mount
+    setRedialShown(!!redialKey && !isDismissedForGood(redialKey));
+  }, [redialKey]);
   const adjusted = grind && !useRecipeGrind ? grind : null;
   const pendingShotId = [primary, secondary].find((a): a is DialInAction => a?.kind === "dialIn")?.pendingShotId ?? null;
   // Dismissals live on this device, so they're read after hydration.
@@ -329,7 +343,29 @@ export function BrewFlow({
         }
       />
       {/* One card at a time, never beside the pulled state (STORY-05-03-03 AC 3); below the actions, so Pull stays in view (AC 4). */}
-      {linkPrompt && !pulled && (
+      {/* One card at a time: the re-dial card wins over the link card (STORY-04-03-04 AC 6). */}
+      {redial && redialShown && !pulled && (
+        <div className="mt-8">
+          <RedialCard
+            labels={redial.labels}
+            onStart={() => setRedialPicking(true)}
+            onLater={() => {
+              dismissForGood(redialKey!);
+              setRedialShown(false);
+            }}
+          />
+        </div>
+      )}
+      {redial && (
+        <RedialPick
+          open={redialPicking}
+          onClose={() => setRedialPicking(false)}
+          eventId={redial.eventId}
+          options={redial.options}
+          labels={{ title: redial.labels.pick, close: t("actions.close") }}
+        />
+      )}
+      {linkPrompt && !pulled && redialShown === false && (
         <Suspense fallback={null}>
           <LinkPrompt due={linkPrompt} deps={googleLinkDeps} onLinked={() => router.refresh()} />
         </Suspense>

@@ -111,6 +111,7 @@ export function ShotLogFlow({
   applied,
   locked = false,
   note,
+  banner,
   grindTrail,
   forPerson,
   tasteFrom,
@@ -151,6 +152,8 @@ export function ShotLogFlow({
   /** Fix mode: setup, drink and coffee stay the one-tap shot's. */
   locked?: boolean;
   note?: string[];
+  /** One quiet line under the header, e.g. re-dialling after servicing (STORY-04-03-04 AC 5). */
+  banner?: string;
   /** Why the grind isn't the recipe's (STORY-04-02-06 AC 3); only on the setup it was worked out for. */
   grindTrail?: GrindTrailView;
   forPerson?: string;
@@ -358,6 +361,7 @@ export function ShotLogFlow({
         }
         milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: recipeMilk?.wasMl ?? startMilk.ml } : null}
         note={note}
+        banner={banner}
         grindReason={grindTrail && draft.setupId === setupId ? <GrindReasonLine label={grindTrail.line} onClick={() => setTrailOpen(true)} /> : undefined}
         forPerson={forPerson}
         sweetened={draft.sweetened}

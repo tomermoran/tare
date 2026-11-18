@@ -60,3 +60,23 @@ export const GrinderEvents: Story = {
 };
 
 export const GrinderEventsRightToLeft: Story = { ...GrinderEvents, globals: { direction: "rtl" } };
+
+/** A recalibrating event with recipes before it: the status above the events, offering one re-dial (STORY-04-03-04 AC 1). */
+export const AwaitingRedial: Story = {
+  args: {
+    ...GrinderEvents.args,
+    status: (
+      <div className="flex flex-col items-start gap-3 pt-1 pb-3">
+        <p className="text-body text-ink">{maintenance.redialAwaiting}</p>
+        <button type="button" className="text-body text-ink underline" onClick={fn()}>
+          {maintenance.redialStart}
+        </button>
+      </div>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(maintenance.redialAwaiting)).toBeVisible();
+    await expect(canvas.getByRole("button", { name: maintenance.redialStart })).toBeVisible();
+  },
+};

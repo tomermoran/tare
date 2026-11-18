@@ -533,3 +533,11 @@ export const ForSomeoneElse: Story = {
     await expect(await within(canvasElement).getByText("for Person A")).toBeVisible();
   },
 };
+
+/** Re-dialling after servicing: one quiet line under the header; the old grind is the "was" (STORY-04-03-04 AC 5). */
+export const Redialling: Story = {
+  args: { mode: "dialIn", banner: t("log.redialing") },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(t("log.redialing"))).toBeVisible();
+  },
+};

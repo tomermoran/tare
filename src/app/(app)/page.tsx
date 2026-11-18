@@ -24,6 +24,7 @@ import { openedClockLabel, roastingClockLabel } from "@/lib/clockLabels";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { grindTrailView, roastDays } from "@/lib/grindTrail";
 import { getTimeZone } from "@/server/time";
+import { getBrewRedialCard, listRedialCandidates } from "@/server/dal/redial";
 import { FirstRun } from "./FirstRun";
 import { recipeLines } from "./recipeLines";
 
@@ -119,8 +120,34 @@ async function Brew({ home }: { home: Home }) {
           ? [addBag]
           : [dialIn];
 
+  // A serviced grinder on this setup invites one re-dial (STORY-04-03-04); a failure just leaves the card out.
+  const card = await getBrewRedialCard(home.setup.id).catch(() => null);
+  const candidates = card ? await listRedialCandidates(card.eventId, home.coffee?.id).catch(() => []) : [];
+  const redial =
+    card && candidates.length
+      ? {
+          eventId: card.eventId,
+          labels: {
+            title: card.grinder ? t("home.redial.titleNamed", { grinder: card.grinder.nickname ?? card.grinder.model }) : t("home.redial.title"),
+            body: t("home.redial.body"),
+            start: t("home.redial.start"),
+            later: t("home.redial.later"),
+            pick: t("redial.pick"),
+          },
+          options: candidates.map((c) => {
+            const on = home.setups.find((s) => s.id === c.setupId);
+            return {
+              id: c.recipeId,
+              primary: c.bean.name,
+              secondary: t("redial.candidate", { drink: drinkLabel(c.drink, (key: DrinkKey) => t(key)), setup: on ? setup(on) : "" }),
+            };
+          }),
+        }
+      : undefined;
+
   return (
     <BrewFlow
+      redial={redial}
       screen={{
         drink,
         coffee: home.coffee ? t("home.coffeeLine", { bean: home.coffee.name, roaster: home.coffee.roasterName }) : null,
