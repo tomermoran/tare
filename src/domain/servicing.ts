@@ -7,7 +7,8 @@
  */
 
 export type ServicingEvent = { id: string; at: Date; grindShift: number | null; grindScale: number | null };
-export type ServicingStep = { eventId: string; at: Date; from: number; to: number };
+/** One event's change to a grind; `scale` is its stretch factor, 1 for a shift alone (EPIC-04-04). */
+export type ServicingStep = { eventId: string; at: Date; from: number; to: number; scale: number };
 
 const tidy = (n: number) => Number(n.toFixed(6));
 
@@ -23,7 +24,7 @@ export function applyServicing(
   let g = grind;
   for (const e of after) {
     const to = tidy(g * (e.grindScale ?? 1) + (e.grindShift ?? 0));
-    if (to !== g) steps.push({ eventId: e.id, at: e.at, from: g, to });
+    if (to !== g) steps.push({ eventId: e.id, at: e.at, from: g, to, scale: e.grindScale ?? 1 });
     g = to;
   }
   return { grind: g, steps };
