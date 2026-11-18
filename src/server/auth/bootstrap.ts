@@ -40,46 +40,59 @@ export async function ensureAccount(
   }
 }
 
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+
 function createAccount(db: Db, firebaseUid: string): Promise<Account> {
   return db.transaction(
     async (tx) => {
       const now = new Date();
       const userId = newId();
-      const householdId = newId();
       await tx.insert(users).values({ id: userId, firebaseUid, createdAt: now });
-      await tx.insert(households).values({ id: householdId, createdAt: now });
-      await tx.insert(householdMembers).values({
-        householdId,
-        userId,
-        role: "owner",
-        joinedAt: now,
-      });
-      await tx.insert(personas).values({
-        id: newId(),
-        householdId,
-        userId,
-        isDefault: true,
-      });
-      await tx.insert(drinkTypes).values(
-        STARTER_DRINKS.map((drink, sortOrder) => ({
-          id: newId(),
-          householdId,
-          ...drink,
-          sortOrder,
-        })),
-      );
-      await tx.insert(milkTypes).values(
-        STARTER_MILKS.map((milk, sortOrder) => ({
-          id: newId(),
-          householdId,
-          ...milk,
-          sortOrder,
-        })),
-      );
+      const householdId = await createHousehold(tx, userId, now);
       return { userId, householdId };
     },
     { behavior: "immediate" },
   );
+}
+
+/**
+ * A new household for a user, inside the caller's transaction: the
+ * household, the owner membership, the default persona (the user's own) and
+ * the starter drinks and milks. Shared by the first sign-in and by leaving a
+ * household (TASK-05-02-07-BE1). Returns the household ID.
+ */
+export async function createHousehold(tx: Tx, userId: string, now: Date): Promise<string> {
+  const householdId = newId();
+  await tx.insert(households).values({ id: householdId, createdAt: now });
+  await tx.insert(householdMembers).values({
+    householdId,
+    userId,
+    role: "owner",
+    joinedAt: now,
+  });
+  await tx.insert(personas).values({
+    id: newId(),
+    householdId,
+    userId,
+    isDefault: true,
+  });
+  await tx.insert(drinkTypes).values(
+    STARTER_DRINKS.map((drink, sortOrder) => ({
+      id: newId(),
+      householdId,
+      ...drink,
+      sortOrder,
+    })),
+  );
+  await tx.insert(milkTypes).values(
+    STARTER_MILKS.map((milk, sortOrder) => ({
+      id: newId(),
+      householdId,
+      ...milk,
+      sortOrder,
+    })),
+  );
+  return householdId;
 }
 
 /** The account for a Firebase uid, or null before its first sign-in. */
