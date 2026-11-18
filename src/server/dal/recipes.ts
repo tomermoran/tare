@@ -75,7 +75,7 @@ export type RecipeField = (typeof RECIPE_FIELDS)[number];
 
 type Row = typeof pinnedRecipes.$inferSelect;
 
-const toRecipe = (r: Row): Recipe => ({
+export const toRecipe = (r: Row): Recipe => ({
   id: r.id,
   beanId: r.beanId,
   personaId: r.personaId,
