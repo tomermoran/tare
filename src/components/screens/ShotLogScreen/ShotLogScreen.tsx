@@ -69,6 +69,8 @@ type ShotLogScreenProps = {
   notice?: ReactNode;
   /** One quiet line under the context: where the values came from, e.g. "suggested: grind 2 steps finer". */
   note?: string[];
+  /** "for {name}" under the header, with more than one profile (STORY-05-01-04 AC 2). */
+  forPerson?: string;
   saving?: boolean;
   onCancel?: () => void;
   onSave?: (values: ShotValuesData, sweetened: boolean, brew: BrewDial, prep: Prep) => void;
@@ -115,6 +117,7 @@ export function ShotLogScreen({
   taste,
   notice,
   note = [],
+  forPerson,
   saving = false,
   onCancel = noop,
   onSave = noop,
@@ -222,6 +225,7 @@ export function ShotLogScreen({
           </Button>
         }
       />
+      {forPerson && <p className="text-label text-ink-secondary">{forPerson}</p>}
       <div data-testid="log-context" className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
         <SelectField label={t("setup")} value={setup} onClick={pick("setup")} />
         <SelectField label={t("drink")} value={drink} onClick={pick("drink")} />

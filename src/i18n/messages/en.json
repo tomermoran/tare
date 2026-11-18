@@ -232,7 +232,8 @@
     "milkAmount": "Milk",
     "milkNone": "Choose a milk",
     "capUnknown": "Tell us about your {kind, select, machine {machine} grinder {grinder} other {basket}}",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "forPerson": "for {name}"
   },
   "journal": {
     "title": "Journal",
@@ -755,7 +756,8 @@
     "bagRemoveTitle": "Use the coffee's recipe for this bag?",
     "bagRemoveBody": "This bag goes back to the recipe every other bag uses. Its own recipe is kept with your older recipes, and your shots don't change.",
     "bagRemoveConfirm": "Use the coffee's recipe",
-    "bagRemoved": "This bag now uses the coffee's recipe."
+    "bagRemoved": "This bag now uses the coffee's recipe.",
+    "forPerson": "for {name}"
   },
   "taste": {
     "title": "Shot saved",

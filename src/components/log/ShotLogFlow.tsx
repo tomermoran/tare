@@ -109,6 +109,7 @@ export function ShotLogFlow({
   applied,
   locked = false,
   note,
+  forPerson,
   tasteFrom,
   portionClocks = {},
 }: {
@@ -147,6 +148,7 @@ export function ShotLogFlow({
   /** Fix mode: setup, drink and coffee stay the one-tap shot's. */
   locked?: boolean;
   note?: string[];
+  forPerson?: string;
   /** Tasting after a fix or dial-in offers pinning first (STORY-02-03-02 AC 4). */
   tasteFrom?: "fix" | "dialIn";
   /** By portion: how long it's been open, or "from frozen" (STORY-03-03-03 AC 1). */
@@ -350,6 +352,7 @@ export function ShotLogFlow({
         }
         milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: recipeMilk?.wasMl ?? startMilk.ml } : null}
         note={note}
+        forPerson={forPerson}
         sweetened={draft.sweetened}
         onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened, sweetenedTouched: true }))}
         prep={draft.prep}

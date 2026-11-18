@@ -8,6 +8,8 @@ import { partHref } from "@/lib/setupRoutes";
 import { getShot } from "@/server/dal/journal";
 import { getSuggestContext } from "@/server/dal/suggestContext";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
+import { forPersona } from "@/server/dal/persona";
+import { forPersonLine } from "@/lib/forPerson";
 
 /**
  * SCR-TASTE: say how a just-saved measured shot tasted (EPIC-01-05).
@@ -30,7 +32,12 @@ async function Taste({ params, searchParams }: Pick<PageProps<"/taste/[shotId]">
   });
   if (!shot) return null;
   if (shot.entryMode !== "measured") redirect(`/journal/${shot.id}`);
-  const [t, format, { grinderPartId, ...context }] = await Promise.all([getTranslations(), getFormatter(), getSuggestContext(shot.id)]);
+  const [t, format, { grinderPartId, ...context }, persona] = await Promise.all([
+    getTranslations(),
+    getFormatter(),
+    getSuggestContext(shot.id),
+    forPersona(shot.personaId),
+  ]);
   const directionHref = grinderPartId ? `${partHref(grinderPartId)}?${new URLSearchParams({ returnTo: `/taste/${shot.id}` })}` : null;
   const pinTitle = t("recipe.pinTitle", {
     drink: drinkLabel(shot.drink, (key: DrinkKey) => t(key)),
@@ -48,6 +55,7 @@ async function Taste({ params, searchParams }: Pick<PageProps<"/taste/[shotId]">
       pinTitle={pinTitle}
       suggestion={{ context, directionHref }}
       pinFirst={from === "fix" || from === "dialIn"}
+      forPerson={forPersonLine(t, persona)}
     />
   );
 }

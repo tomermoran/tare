@@ -22,6 +22,8 @@ import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { notFound, redirect } from "next/navigation";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { getTimeZone } from "@/server/time";
+import { forPersona } from "@/server/dal/persona";
+import { forPersonLine } from "@/lib/forPerson";
 
 /**
  * SCR-LOG, a new shot: /log?drinkId=…&portionId=…, a saved one in edit
@@ -81,7 +83,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     // No recipe anywhere: the dial-in starts blank (STORY-02-01-06 AC 6).
     if (start) prefilled = { start, mode: "dialIn" };
   }
-  const [context, t, format, timeZone] = await Promise.all([
+  const [context, t, format, timeZone, persona] = await Promise.all([
     unlessSignedOut(
       getLogContext({
         drinkId: prefilled?.start.drinkTypeId ?? one(params.drinkId),
@@ -91,6 +93,8 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     getTranslations(),
     getFormatter(),
     getTimeZone(),
+    // The log is for whoever Brew is for (STORY-05-01-04 AC 1).
+    unlessSignedOut(forPersona()),
   ]);
   // The open clocks count to today, which depends on the request time.
   await connection();
@@ -160,6 +164,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       brewStart={p ? brewToDial(brew, p.start.brew) : undefined}
       locked={prefilled?.mode === "fix"}
       note={note}
+      forPerson={forPersonLine(t, persona ?? null)}
       tasteFrom={prefilled?.mode}
       setupId={setup?.id ?? null}
       setup={setup ? setupLabel(setup, context.setups, list) : null}
@@ -205,6 +210,7 @@ async function EditShot({ shotId }: { shotId: string }) {
     getFormatter(),
   ]);
   if (!shot || !context) return null;
+  const persona = await forPersona(shot.personaId);
 
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
   const setup = context.setups.find((s) => s.id === shot.setup.id);
@@ -229,6 +235,7 @@ async function EditShot({ shotId }: { shotId: string }) {
       milkDrink={shot.milkDrink}
       taste={{ rating: shot.rating, ...shot.taste, tags: shot.tags }}
       backTo={`/journal/${shot.id}`}
+      forPerson={forPersonLine(t, persona)}
     />
   );
 }
@@ -254,7 +261,7 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
   const stored = recipe ?? last!.lastBrew;
   const drinkName = drinkLabel(drink, (key: DrinkKey) => t(key));
   const setupName = setupLabel(setup, context.setups, list);
-  const milks = await withChosenMilk(context.milks, recipe?.milkTypeId);
+  const [milks, persona] = await Promise.all([withChosenMilk(context.milks, recipe?.milkTypeId), forPersona()]);
 
   return (
     <RecipeLogFlow
@@ -287,6 +294,7 @@ async function RecipeLog({ batchId, setupId, drinkId }: { batchId: string; setup
       })}
       pinTitle={t("recipe.pinTitle", { drink: drinkName, coffee: bean.name, setup: setupName })}
       backTo={`/beans/${batchId}`}
+      forPerson={forPersonLine(t, persona)}
     />
   );
 }

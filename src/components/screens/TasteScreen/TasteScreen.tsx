@@ -30,6 +30,7 @@ export type TasteAction = { label: string; onClick: () => void };
 export function TasteScreen({
   labels,
   values,
+  forPerson,
   rating,
   onRatingChange,
   questions,
@@ -46,6 +47,8 @@ export function TasteScreen({
 }: {
   labels: TasteScreenLabels;
   values: ShotValuesData;
+  /** "for {name}" under the title, with more than one profile (STORY-05-01-04 AC 2). */
+  forPerson?: string;
   rating: number | null;
   onRatingChange: (rating: number | null) => void;
   /** The four just-right rows and "all just right". */
@@ -76,6 +79,7 @@ export function TasteScreen({
         </Button>
         <header className="flex flex-col gap-2">
           <h1 className="text-h2">{labels.title}</h1>
+          {forPerson && <p className="text-label text-ink-secondary">{forPerson}</p>}
           <ShotValues values={values} size="compact" align="start" />
         </header>
       </div>

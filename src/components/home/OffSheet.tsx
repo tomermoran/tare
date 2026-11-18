@@ -32,7 +32,10 @@ export function OffSheet({
   onSkip,
   state = "idle",
   onRetry,
+  forPerson,
 }: {
+  /** "for {name}" at the top, with more than one profile (STORY-05-01-04 AC 2). */
+  forPerson?: string;
   open: boolean;
   /** Close saves too, like every other way out (AC 2). */
   onClose: () => void;
@@ -73,6 +76,7 @@ export function OffSheet({
       }
     >
       <div className="flex flex-col gap-8 pb-2">
+        {forPerson && <p className="-mb-6 text-label text-ink-secondary">{forPerson}</p>}
         {questions}
         <div className="flex flex-col gap-3">
           {tags}

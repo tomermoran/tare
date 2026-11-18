@@ -62,7 +62,10 @@ export function PinSheet({
   saving = false,
   failure,
   scope,
+  forPerson,
 }: {
+  /** "for {name}" at the top, with more than one profile (STORY-05-01-04 AC 2). */
+  forPerson?: string;
   open: boolean;
   onClose: () => void;
   labels: { title: string; close: string; newRecipe: string; replaces: string; changes: string; confirm: string };
@@ -90,6 +93,7 @@ export function PinSheet({
       }
     >
       <div className="flex flex-col gap-5">
+        {forPerson && <p className="text-label text-ink-secondary">{forPerson}</p>}
         {scope && (
           <section className="flex flex-col gap-2">
             <h3 className="text-overline uppercase text-ink-secondary">{scope.label}</h3>

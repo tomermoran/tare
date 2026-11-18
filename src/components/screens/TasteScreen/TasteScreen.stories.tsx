@@ -1,3 +1,4 @@
+import { createTranslator } from "next-intl";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState, type ComponentProps } from "react";
 import { expect, fn, userEvent, within } from "storybook/test";
@@ -14,6 +15,8 @@ import { useLiveSuggestion, type SuggestContextInput } from "@/components/sugges
 import { SuggestionCard } from "@/components/ui/SuggestionCard/SuggestionCard";
 import { NO_PREP } from "@/domain/prep";
 import { TasteScreen } from "./TasteScreen";
+
+const tFor = createTranslator({ locale: "en", messages });
 
 const { actions, taste } = messages;
 
@@ -236,5 +239,13 @@ export const NoBasketRange: Story = {
     const body = canvas.getByRole("radiogroup", { name: taste.question.body });
     await userEvent.click(within(body).getByRole("radio", { name: taste.body.muchLess }));
     await expect(canvas.queryByText(messages.suggest.title)).toBeNull();
+  },
+};
+
+/** For someone else, with more than one profile: one quiet line says whose it is (STORY-05-01-04 AC 2). */
+export const ForSomeoneElse: Story = {
+  args: { forPerson: tFor("log.forPerson", { name: "Person A" }) },
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).getByText("for Person A")).toBeVisible();
   },
 };
