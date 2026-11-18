@@ -40,8 +40,11 @@ const view = (a: GrindAdjustment | null, roastDays: number | null = 18, useRecip
   grindTrailView({ adjustment: a, servicing, wheel }, t, format, { roastDays, timeZone: "UTC", useRecipe })!;
 
 /** New burrs on 9 October moved the dial 3 finer; a re-zero on 2 November, 1 coarser. */
-const serviced: ServicingStep[] = [{ eventId: "e1", at: new Date(Date.UTC(2026, 9, 9, 12)), from: 18, to: 15 }];
-const twice: ServicingStep[] = [...serviced, { eventId: "e2", at: new Date(Date.UTC(2026, 10, 2, 12)), from: 15, to: 16 }];
+const serviced: ServicingStep[] = [{ eventId: "e1", at: new Date(Date.UTC(2026, 9, 9, 12)), from: 18, to: 15, scale: 1 }];
+const twice: ServicingStep[] = [...serviced, { eventId: "e2", at: new Date(Date.UTC(2026, 10, 2, 12)), from: 15, to: 16, scale: 1 }];
+
+/** New burrs of another design: steps 10% larger, then the shift, as one step (18 x 1.1 - 3 = 16.8). */
+const stretched: ServicingStep[] = [{ eventId: "e3", at: new Date(Date.UTC(2026, 9, 9, 12)), from: 18, to: 16.8, scale: 1.1 }];
 
 export const exampleTrails = {
   aged: view(adjustment()),
@@ -66,4 +69,5 @@ export const exampleTrails = {
   serviced: view(null, 18, true, serviced),
   servicedTwice: view(null, 18, true, twice),
   servicedAndAged: view(adjustment(), 18, true, serviced),
+  servicedStretch: view(null, 18, true, stretched),
 };

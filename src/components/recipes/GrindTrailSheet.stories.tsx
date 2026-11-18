@@ -139,3 +139,15 @@ export const ServicedTwice: Story = {
 
 /** Servicing first, then the drift steps on top. */
 export const ServicedAndAged: Story = { args, render: () => <Trail view={exampleTrails.servicedAndAged} onUseRecipe={fn()} /> };
+
+/** A stretch and a shift from one burrs event read as one labelled step (STORY-04-04-02 AC 3). */
+export const ServicedStretch: Story = {
+  args,
+  render: () => <Trail view={exampleTrails.servicedStretch} />,
+  play: async () => {
+    const sheet = await opened(exampleTrails.servicedStretch);
+    const rows = sheet.getAllByRole("listitem").filter((li) => li.textContent?.includes("Grinder serviced"));
+    await expect(rows).toHaveLength(1);
+    await expect(sheet.getByText("Grinder serviced on October 9: steps 10% larger")).toBeVisible();
+  },
+};

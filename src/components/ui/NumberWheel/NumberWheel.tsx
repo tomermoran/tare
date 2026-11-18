@@ -46,6 +46,8 @@ type NumberWheelProps = {
    * "coarser". They follow the ruler, so they mirror in right-to-left.
    */
   endCaptions?: { lower: string; higher: string };
+  /** Show "+" on positive values, for a change such as a stretch in percent. */
+  signed?: boolean;
   className?: string;
 };
 
@@ -77,6 +79,7 @@ export function NumberWheel({
   unit,
   unitLabel,
   endCaptions,
+  signed = false,
   className,
 }: NumberWheelProps) {
   const locale = useLocale();
@@ -332,7 +335,7 @@ export function NumberWheel({
 
   // Display the snapped value even mid-drag, so digits change in whole steps.
   const shown = snap(position);
-  const parts = formatValueParts(locale, shown, decimals, unit);
+  const parts = formatValueParts(locale, shown, decimals, unit, signed);
   const unitText = unitLabel?.symbol ?? parts.unit;
   const fieldText = draft ?? parts.number;
   const valueText = unitLabel
@@ -340,6 +343,7 @@ export function NumberWheel({
     : new Intl.NumberFormat(locale, {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
+        ...(signed && { signDisplay: "exceptZero" as const }),
         ...(unit && { style: "unit", unit, unitDisplay: "long" }),
       }).format(shown);
 

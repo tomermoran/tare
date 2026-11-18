@@ -16,7 +16,7 @@ import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { getSetups } from "@/server/dal/setups";
 import { getTimeZone } from "@/server/time";
 import { drinkLabel, type DrinkKey } from "@/domain/drinkName";
-import { getGrinderRedial, listRedialCandidates } from "@/server/dal/redial";
+import { getGrinderRedial, getGrinderRedialMore, listRedialCandidates, type RedialCandidate } from "@/server/dal/redial";
 
 /**
  * SCR-UNIT: one part, with the setups it's in (STORY-01-02-02 AC 5).
@@ -46,6 +46,8 @@ async function Part({ params, searchParams }: PageProps<"/setup/parts/[unitId]">
       period: part.kind === "grinder" ? await getGrindPeriod(unitId, now) : null,
       // A recalibrating event with recipes before it waits for one re-dial (STORY-04-03-04 AC 1).
       redial: part.kind === "grinder" ? await getGrinderRedial(unitId) : null,
+      // A burrs event with one re-dial invites a second coffee, on this screen only (STORY-04-04-03).
+      redialMore: part.kind === "grinder" ? await getGrinderRedialMore(unitId) : null,
     })),
   ).catch((e) => {
     if (e instanceof NotFoundError) notFound();
@@ -53,10 +55,22 @@ async function Part({ params, searchParams }: PageProps<"/setup/parts/[unitId]">
   });
   if (!found) return null;
   const { part, setups, events, period } = found;
-  const candidates = found.redial ? await listRedialCandidates(found.redial.eventId, null, now) : [];
+  const [candidates, moreCandidates] = await Promise.all([
+    found.redial ? listRedialCandidates(found.redial.eventId, null, now) : [],
+    found.redialMore ? listRedialCandidates(found.redialMore.eventId, null, now) : [],
+  ]);
   const date = (at: Date) => format.dateTime(at, { day: "numeric", month: "long", timeZone });
 
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
+  const option = (c: RedialCandidate) => {
+    const on = setups.find((s) => s.id === c.setupId);
+    return {
+      id: c.recipeId,
+      primary: c.bean.name,
+      secondary: t("redial.candidate", { drink: drinkLabel(c.drink, (key: DrinkKey) => t(key)), setup: on ? setupLabel(on, setups, list) : "" }),
+      ...(c.farFromFirst && { marker: t("offset.farFromFirst") }),
+    };
+  };
   const facts: UnitFact[] = [
     ...(part.nickname ? [{ label: t("unit.nickname"), value: part.nickname }] : []),
     ...(part.acquiredAt
@@ -92,21 +106,8 @@ async function Part({ params, searchParams }: PageProps<"/setup/parts/[unitId]">
           partId={part.id}
           partKind={part.kind}
           today={localDayKey(now, timeZone)}
-          redial={
-            found.redial
-              ? {
-                  eventId: found.redial.eventId,
-                  options: candidates.map((c) => {
-                    const on = setups.find((s) => s.id === c.setupId);
-                    return {
-                      id: c.recipeId,
-                      primary: c.bean.name,
-                      secondary: t("redial.candidate", { drink: drinkLabel(c.drink, (key: DrinkKey) => t(key)), setup: on ? setupLabel(on, setups, list) : "" }),
-                    };
-                  }),
-                }
-              : undefined
-          }
+          redial={found.redial ? { eventId: found.redial.eventId, options: candidates.map(option) } : undefined}
+          redialMore={found.redialMore ? { eventId: found.redialMore.eventId, options: moreCandidates.map(option) } : undefined}
           events={events.map((e) => ({
             id: e.id,
             kind: t(`maintenance.kind.${e.kind}`),
@@ -115,6 +116,7 @@ async function Part({ params, searchParams }: PageProps<"/setup/parts/[unitId]">
             recalibration: e.isRecalibration,
             redial: e.redial,
             shift: e.shift,
+            stretch: e.stretch,
           }))}
           period={
             period

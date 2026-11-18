@@ -66,6 +66,15 @@ export function grindTrailView(
     return coarser === null ? t("drift.bag") : t(coarser ? "drift.bagSlow" : "drift.bagFast");
   };
   const day = (d: Date) => format.dateTime(d, { day: "numeric", month: "long", timeZone: opts.timeZone });
+  const servicedLabel = (s: ServicingStep) => {
+    const percent = Math.round((s.scale - 1) * 100);
+    if (!percent) return t("drift.serviced", { date: day(s.at) });
+    return t("drift.servicedStretch", {
+      date: day(s.at),
+      percent: format.number(Math.abs(percent), { style: "unit", unit: "percent" }),
+      direction: percent > 0 ? "larger" : "smaller",
+    });
+  };
 
   const kinds = new Set(a?.rows.map((r) => r.kind));
   const drift: Reason | null = !a ? null : kinds.has("aged") && kinds.has("bag") ? "both" : kinds.has("aged") ? "aged" : "bag";
@@ -98,7 +107,8 @@ export function grindTrailView(
     close: t("actions.close"),
     recipe: { label: t("drift.recipe"), value: grind(stored) },
     rows: [
-      ...servicing.map((s) => ({ label: t("drift.serviced", { date: day(s.at) }), value: signed(Number((s.to - s.from).toFixed(6))) })),
+      // A stretch and a shift read as one step (STORY-04-04-02 AC 3).
+      ...servicing.map((s) => ({ label: servicedLabel(s), value: signed(Number((s.to - s.from).toFixed(6))) })),
       ...(a?.rows ?? []).map((r) => ({ label: label(r), value: signed(r.delta) })),
     ],
     shown: { label: t("drift.shown"), value: grind(shown) },
