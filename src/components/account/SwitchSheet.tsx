@@ -14,9 +14,10 @@ export type SwitchSheetLabels = {
 };
 
 /**
- * SH-SWITCH (DES-05-03-02): this Google account already has a Tare history,
- * and this device has nothing entered, so switching loses nothing. One
- * explicit confirmation; cancelling changes nothing. A failed switch keeps
+ * SH-SWITCH (DES-05-03-02): this Google account already has a Tare history.
+ * The body says what switching costs: nothing on an empty device, or this
+ * device's own history left behind. One explicit confirmation; cancelling
+ * changes nothing. A failed switch keeps
  * the sheet with a retry (STORY-05-03-04).
  */
 export function SwitchSheet({

@@ -3251,10 +3251,13 @@ SCR-START unchanged.
      the primary `switch.confirm` [switch to that history] and a ghost
      `actions.cancel`. Because this phone is empty, nothing is lost. This is the
      new-phone path: STORY-05-03-02.
-   - **This device has history:** a neutral Notice, `profile.linkTaken` [that
-     Google account already has a Tare history, so it can't be linked to this
-     one. Your data here is unchanged. Use a different Google account]. Tare
-     never merges two histories (S-02 has no rule for it).
+   - **This device has history:** the same SH-SWITCH, with `switch.leaveBody`
+     [this phone's shots stay behind and can't be reached after switching;
+     nothing is merged; cancel and link a different Google account to keep
+     them] and the primary `switch.leaveConfirm` [switch and leave this phone's
+     shots]. Tare never merges two histories (S-02 has no rule for it). Google's
+     account chooser always shows, so a different account can be picked.
+     (Revised 2026-11-18; it used to refuse with `profile.linkTaken`.)
 6. **One gentle prompt on Brew.** A Card (outline, `padding md`) shows once,
    after the first recipe is pinned or the tenth shot is logged, whichever
    comes first: `home.linkPrompt.title` [keep your history safe], one sentence,
@@ -3285,7 +3288,7 @@ SCR-START unchanged.
 | Offline | Linking fails with the failure Notice. |
 
 **Copy direction.** Keys `profile.accountTitle`, `profile.linkGoogle`,
-`profile.linked*`, `profile.linkFailed`, `profile.linkTaken`, `switch.*`,
+`profile.linked*`, `profile.linkFailed`, `switch.*`,
 `home.linkPrompt.*`, `home.firstRun.haveAccount`. Factual, never alarming
 (7a "data-loss risk"); no mention of a name or email.
 
