@@ -5,6 +5,8 @@ import { SWITCHED_FLAG } from "@/components/account/GoogleLink";
 
 /** Set by SCR-JOIN after a claim, for Brew's one-time "you've joined" (STORY-05-02-03 AC 3). */
 export const JOINED_FLAG = "tare:joinedHousehold";
+/** Set after leaving a household, for Brew's one-time "you've left" (STORY-05-02-07). */
+export const LEFT_FLAG = "tare:leftHousehold";
 
 /**
  * After switching to another history (DES-05-03-02), or joining a

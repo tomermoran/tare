@@ -64,6 +64,7 @@ export function ProfileScreen({
   linkAction,
   lists,
   people,
+  leaveAction,
 }: {
   labels: ProfileLabels;
   backHref: string;
@@ -80,6 +81,8 @@ export function ProfileScreen({
   lists?: { drinks: ProfileList; milks: ProfileList };
   /** The people brewed for, opening SCR-PEOPLE ("Just you"); absent until known. */
   people?: ProfileList;
+  /** "Leave this household", only with more than one login (STORY-05-02-07 AC 1). */
+  leaveAction?: ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-10">
@@ -148,6 +151,7 @@ export function ProfileScreen({
             {linkAction && <div className="mt-2 flex flex-col items-start gap-4">{linkAction}</div>}
           </>
         )}
+        {leaveAction && <div className="mt-2 flex flex-col items-start">{leaveAction}</div>}
       </section>
 
       <section aria-labelledby="profile-about" className="flex flex-col gap-2">
