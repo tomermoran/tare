@@ -302,6 +302,8 @@ export async function getJournalFilterOptions({ beanId, drinkId }: { beanId?: st
 }
 
 export type ShotDetail = Omit<JournalShot, "day" | "grinderId"> & {
+  /** Whose taste the shot is. */
+  personaId: string;
   setup: {
     id: string;
     name: string | null;
@@ -370,6 +372,7 @@ export async function getShot(id: string): Promise<ShotDetail> {
   const s = r.shot;
   return {
     id: s.id,
+    personaId: s.personaId,
     at: s.createdAt,
     drink: { name: r.drinkName, nameKey: r.drinkKey },
     coffee,

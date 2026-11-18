@@ -10,7 +10,7 @@ import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { setupMachine } from "./logContext";
 import { assertOwned, requireHousehold } from "./scope";
 import { checkValues } from "./shots";
-import { actingPersona, actingPersonaId } from "./persona";
+import { actingPersona, actingPersonaId, forPersona } from "./persona";
 
 /*
  * Pinned recipes (EPIC-02-01). A recipe is keyed by coffee, persona, setup
@@ -199,6 +199,8 @@ export type PinPreview = {
   /** The milks named, for the milk lines. */
   milks: Record<string, NamedMilk>;
   scope: ScopeChoice;
+  /** Whose recipe, to say "for {name}"; null with one profile (STORY-05-01-04 AC 2). */
+  persona: { name: string | null } | null;
 };
 
 /** A bag-only pin can't be saved. */
@@ -222,11 +224,12 @@ async function bagFinished(batchId: string): Promise<boolean> {
 }
 
 async function preview(key: RecipeKey, values: RecipeValues, batchId: string): Promise<PinPreview> {
-  const [bean, batch, [bag], finished] = await Promise.all([
+  const [bean, batch, [bag], finished, persona] = await Promise.all([
     newestFor(key, null),
     newestFor(key, batchId),
     db.select({ roastDate: batches.roastDate }).from(batches).where(eq(batches.id, batchId)),
     bagFinished(batchId),
+    forPersona(key.personaId),
   ]);
   const offered = bean !== null;
   const scopeDefault: PinScope = offered && batch !== null && !finished ? "batch" : "bean";
@@ -245,6 +248,7 @@ async function preview(key: RecipeKey, values: RecipeValues, batchId: string): P
     differences: differences[scopeDefault],
     milks,
     scope: { offered, default: scopeDefault, batchId, roastDate: bag?.roastDate ?? null, finished, replaces, differences },
+    persona,
   };
 }
 

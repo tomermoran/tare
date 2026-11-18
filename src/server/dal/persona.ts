@@ -48,4 +48,17 @@ export async function actingPersona(account?: Account): Promise<PersonaRow> {
   return list.find((p) => p.id === chosen) ?? pickMain(list, a.userId);
 }
 
+/**
+ * Whose a log, tasting, answer or pin is, to say "for {name}" (STORY-05-01-04
+ * AC 2): the given persona, else the acting one. Null with only one profile,
+ * when saying so would be noise.
+ */
+export async function forPersona(personaId?: string, account?: Account): Promise<{ name: string | null } | null> {
+  const a = account ?? (await requireHousehold());
+  const [list, chosen] = await Promise.all([rows(a.householdId), personaId ? null : readPersonaChoice()]);
+  if (list.length < 2) return null;
+  const p = list.find((x) => x.id === (personaId ?? chosen)) ?? pickMain(list, a.userId);
+  return { name: p.name };
+}
+
 export const actingPersonaId = async (account?: Account) => (await actingPersona(account)).id;
