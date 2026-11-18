@@ -4168,8 +4168,11 @@ before build.
      is lost because this device was empty.
   2. Given the same, when I decline, then nothing changes.
   3. Given this device has history of its own, when I try to link an account that
-     already has a history, then I'm told it can't be linked, that my data here is
-     unchanged and to use a different Google account; nothing is merged.
+     already has a history, then I'm still offered the switch, warned that this
+     device's shots stay behind and can't be reached after switching, and told I
+     can cancel and link a different Google account instead; nothing is merged.
+     (Revised by the Head of Product, 2026-11-18: the old refusal left no way to
+     reach a history already linked to Google.)
   4. Given switching fails, when I look, then I stay as I was, nothing has changed
      and I can try again.
   5. Given I'm offline, when I try, then I'm told it failed and nothing changes.

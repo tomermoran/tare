@@ -10,7 +10,8 @@ import { GoogleLink } from "./GoogleLink";
 /*
  * The link-or-switch flow (EPIC-05-03) with Firebase and the server stood
  * in for: link, cancel, fail, offline, an account that already has a history
- * on an empty device and on one with history, decline, and a failed switch.
+ * on an empty device and on one with history (warned), decline, and a failed
+ * switch.
  */
 
 const { profile, actions } = messages;
@@ -102,14 +103,33 @@ export const Failed: Story = {
   },
 };
 
-/** This device has history: told it can't be linked, nothing merged (STORY-05-03-04 AC 3). */
-export const AccountTakenHere: Story = {
+/**
+ * This device has history: the switch is still offered, with a warning that
+ * this phone's shots stay behind; nothing is merged (STORY-05-03-04 AC 3).
+ */
+export const SwitchFromDeviceWithHistory: Story = {
   args: { result: taken, empty: false },
   play: async ({ canvasElement, args }) => {
     await link(canvasElement);
-    await waitFor(() => expect(within(canvasElement).getByText(profile.linkTaken)).toBeVisible());
-    await expect(body().queryByRole("dialog")).toBeNull();
+    await waitFor(() => expect(body().getByRole("dialog", { name: sw.title })).toBeInTheDocument());
+    await expect(body().getByText(sw.leaveBody)).toBeInTheDocument();
+    await expect(body().queryByText(sw.body)).toBeNull();
+    await userEvent.click(body().getByRole("button", { name: sw.leaveConfirm }));
+    await waitFor(() => expect(args.onSwitched).toHaveBeenCalled());
+    await expect(args.switchTo).toHaveBeenCalledWith(credential);
+  },
+};
+
+/** Declining on a device with history keeps it as it was (AC 2, AC 3). */
+export const DeclineOnDeviceWithHistory: Story = {
+  args: { result: taken, empty: false },
+  play: async ({ canvasElement, args }) => {
+    await link(canvasElement);
+    await waitFor(() => expect(body().getByRole("dialog", { name: sw.title })).toBeInTheDocument());
+    await userEvent.click(body().getByRole("button", { name: actions.cancel }));
+    await waitFor(() => expect(body().queryByRole("dialog")).toBeNull());
     await expect(args.switchTo).not.toHaveBeenCalled();
+    await expect(within(canvasElement).getByRole("button", { name: profile.linkGoogle })).toBeEnabled();
   },
 };
 
@@ -169,5 +189,14 @@ export const SwitchSheetRightToLeft: Story = {
   play: async ({ canvasElement }) => {
     await link(canvasElement);
     await waitFor(() => expect(body().getByRole("dialog", { name: sw.title })).toBeVisible());
+  },
+};
+
+export const LeaveHistoryRightToLeft: Story = {
+  args: { result: taken, empty: false },
+  globals: { direction: "rtl" },
+  play: async ({ canvasElement }) => {
+    await link(canvasElement);
+    await waitFor(() => expect(body().getByText(sw.leaveBody)).toBeInTheDocument());
   },
 };

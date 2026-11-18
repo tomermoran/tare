@@ -12,8 +12,8 @@ export const SWITCHED_FLAG = "tare:switchedHistory";
 /**
  * One place for the link-or-switch flow and what it says: the trigger is
  * the caller's (a button in Profile, a link on first-run Brew, the reminder
- * Card), drawn by `children`; the failure or "already has a history" Notice
- * goes under it, and SH-SWITCH opens when switching is possible.
+ * Card), drawn by `children`; the failure Notice goes under it, and SH-SWITCH
+ * opens when the Google account already has a history.
  */
 /** After a switch: note it for Brew, then a full reload so every page reads the other history (DES-05-03-02). */
 function reloadToBrew() {
@@ -52,7 +52,6 @@ export function GoogleLink({
           {t("profile.linkFailed")}
         </Notice>
       )}
-      {status === "taken" && <Notice urgent>{t("profile.linkTaken")}</Notice>}
       <SwitchSheet
         open={switchState.open}
         busy={switchState.busy}
@@ -61,8 +60,8 @@ export function GoogleLink({
         onCancel={switchState.cancel}
         labels={{
           title: t("switch.title"),
-          body: t("switch.body"),
-          confirm: t("switch.confirm"),
+          body: switchState.leavesHistory ? t("switch.leaveBody") : t("switch.body"),
+          confirm: switchState.leavesHistory ? t("switch.leaveConfirm") : t("switch.confirm"),
           cancel: t("actions.cancel"),
           close: t("actions.close"),
           failed: t("switch.failed"),

@@ -84,7 +84,6 @@
     "linked": "Linked to Google",
     "linkedBody": "Your history is kept even if you change phones.",
     "linkFailed": "Couldn't link right now. Nothing has changed.",
-    "linkTaken": "That Google account already has a Tare history, so it can't be linked to this one. Your data here is unchanged. Use a different Google account.",
     "about": "About",
     "version": "Version {version}",
     "peopleTitle": "People",
@@ -509,6 +508,8 @@
     "title": "This Google account already has a Tare history",
     "body": "Nothing is entered on this phone yet, so switching loses nothing.",
     "confirm": "Switch to that history",
+    "leaveBody": "This phone has shots of its own. Switching leaves them behind, and you won't be able to get back to them. Nothing is merged. To keep them, cancel and link a different Google account.",
+    "leaveConfirm": "Switch and leave this phone's shots",
     "failed": "Couldn't switch right now. Nothing has changed.",
     "done": "Switched to your Tare history."
   },

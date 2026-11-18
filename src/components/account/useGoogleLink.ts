@@ -12,9 +12,10 @@ import type { LinkResult } from "@/lib/firebase/google";
  * - Linked: `onLinked` (the uid is unchanged; the page refreshes).
  * - Cancelled: back to idle with no message (STORY-05-03-01 AC 3).
  * - Failed or offline: "nothing has changed", with retry (AC 4).
- * - The Google account already has a history: an empty device is offered the
- *   switch (STORY-05-03-04 AC 1); a device with history is told it can't be
- *   linked (AC 3). Nothing is ever merged.
+ * - The Google account already has a history: the switch is offered. An empty
+ *   device loses nothing (STORY-05-03-04 AC 1); a device with history is
+ *   warned that its own history stays behind and can't be reached after
+ *   switching (AC 3). Nothing is ever merged.
  */
 
 export type GoogleLinkDeps = {
@@ -27,13 +28,23 @@ export type GoogleLinkDeps = {
   switchTo: (credential: AuthCredential) => Promise<void>;
 };
 
-export type LinkStatus = "idle" | "linking" | "failed" | "taken";
+export type LinkStatus = "idle" | "linking" | "failed";
 
-export type SwitchState = { open: boolean; busy: boolean; failed: boolean; confirm: () => void; cancel: () => void };
+export type SwitchState = {
+  open: boolean;
+  /** This device has history of its own, which switching leaves behind. */
+  leavesHistory: boolean;
+  busy: boolean;
+  failed: boolean;
+  confirm: () => void;
+  cancel: () => void;
+};
+
+type Pending = { credential: AuthCredential; leavesHistory: boolean; busy: boolean; failed: boolean };
 
 export function useGoogleLink(deps: GoogleLinkDeps, on: { linked: () => void; switched: () => void }) {
   const [status, setStatus] = useState<LinkStatus>("idle");
-  const [pending, setPending] = useState<{ credential: AuthCredential; busy: boolean; failed: boolean } | null>(null);
+  const [pending, setPending] = useState<Pending | null>(null);
   const latest = useRef({ deps, on });
   useEffect(() => {
     latest.current = { deps, on };
@@ -59,8 +70,8 @@ export function useGoogleLink(deps: GoogleLinkDeps, on: { linked: () => void; sw
       case "accountTaken": {
         const empty = await deps.canSwitch();
         if (empty === null) return setStatus("failed");
-        setStatus(empty ? "idle" : "taken");
-        if (empty) setPending({ credential: result.credential, busy: false, failed: false });
+        setStatus("idle");
+        setPending({ credential: result.credential, leavesHistory: !empty, busy: false, failed: false });
       }
     }
   }, []);
@@ -89,6 +100,7 @@ export function useGoogleLink(deps: GoogleLinkDeps, on: { linked: () => void; sw
 
   const switchState: SwitchState = {
     open: pending !== null,
+    leavesHistory: pending?.leavesHistory ?? false,
     busy: pending?.busy ?? false,
     failed: pending?.failed ?? false,
     confirm: () => void confirm(),
