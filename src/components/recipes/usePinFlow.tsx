@@ -9,6 +9,7 @@ import { pinEnteredRecipeAction, pinFromShotAction, pinPreviewAction, enteredPin
 import type { EnteredRecipe, PinPreview, PinScope, RecipeField, RecipeValues } from "@/server/dal/recipes";
 import { PinSheet, type PinRecipeView } from "./PinSheet";
 import { forPersonLine } from "@/lib/forPerson";
+import { useOffsetFlow } from "./useOffsetFlow";
 
 type Source = { kind: "shot"; shotId: string } | { kind: "entered"; input: EnteredRecipe };
 
@@ -18,7 +19,16 @@ type Source = { kind: "shot"; shotId: string } | { kind: "entered"; input: Enter
  * names the drink, coffee and setup. A failed preview or pin is said in the
  * same place, or on the sheet with a retry.
  */
-export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () => void }): {
+export function usePinFlow({
+  title,
+  onPinned,
+  redial = false,
+}: {
+  title: string;
+  onPinned?: () => void;
+  /** Came to re-dial after servicing: with no baseline, the offset sheet says why (STORY-04-03-01 AC 4). */
+  redial?: boolean;
+}): {
   pinShot: (shotId: string) => Promise<void>;
   pinEntered: (input: EnteredRecipe) => Promise<void>;
   sheet: ReactNode;
@@ -31,6 +41,8 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const [said, setSaid] = useState<string | null>(null);
   const [scope, setScope] = useState<PinScope>("bean");
+  // A pin after a grinder was serviced may propose a shift (STORY-04-03-01); onPinned waits for it.
+  const offset = useOffsetFlow({ onDone: onPinned });
 
   const number = (n: number, unit?: "gram" | "second" | "celsius" | "milliliter", digits = 1) =>
     format.number(n, unit ? { style: "unit", unit, unitDisplay: "short", maximumFractionDigits: digits } : { maximumFractionDigits: digits });
@@ -120,7 +132,7 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
     if (!result.ok) return setState("failed");
     close();
     setSaid(t(chosen === "batch" ? "recipe.pinnedBag" : "recipe.pinned"));
-    onPinned?.();
+    await offset.afterPin(result.data.id, { redial });
   };
 
   // What the chosen scope replaces (STORY-02-04-01, design step 5): swapped in place, with no loading.
@@ -139,7 +151,7 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
           ? t("recipe.scope.bagKeeps")
           : t("recipe.scope.beanEffect");
 
-  const sheet = preview && (
+  const pinSheet = preview && (
     <PinSheet
       open
       forPerson={forPersonLine(t, preview.persona, "recipe.forPerson")}
@@ -177,14 +189,19 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
 
   const status = (
     <p role="status" className="text-label text-ink-secondary empty:hidden">
-      {said}
+      {offset.said ?? said}
     </p>
   );
 
   return {
     pinShot: (shotId) => open({ kind: "shot", shotId }, () => pinPreviewAction(shotId)),
     pinEntered: (input) => open({ kind: "entered", input }, () => enteredPinPreviewAction(input)),
-    sheet,
+    sheet: (
+      <>
+        {pinSheet}
+        {offset.sheet}
+      </>
+    ),
     status,
   };
 }

@@ -172,6 +172,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       locked={prefilled?.mode === "fix"}
       note={note}
       banner={p?.redialEventId ? t("log.redialing") : undefined}
+      redial={!!p?.redialEventId}
       grindTrail={
         p?.grindAdjustment
           ? grindTrailView(p.grindAdjustment, t, format, { roastDays: roastDays(context.portions.find((x) => x.id === p.portionId)?.roasting), timeZone })

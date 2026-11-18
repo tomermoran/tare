@@ -25,7 +25,8 @@ export default function TastePage({ params, searchParams }: PageProps<"/taste/[s
 
 async function Taste({ params, searchParams }: Pick<PageProps<"/taste/[shotId]">, "params" | "searchParams">) {
   const { shotId } = await params;
-  const from = (await searchParams).from;
+  const query = await searchParams;
+  const from = query.from;
   const shot = await unlessSignedOut(getShot(shotId)).catch((e) => {
     if (e instanceof NotFoundError) notFound();
     throw e;
@@ -56,6 +57,7 @@ async function Taste({ params, searchParams }: Pick<PageProps<"/taste/[shotId]">
       suggestion={{ context, directionHref }}
       pinFirst={from === "fix" || from === "dialIn"}
       forPerson={forPersonLine(t, persona)}
+      redial={query.redial === "1"}
     />
   );
 }

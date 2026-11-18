@@ -162,11 +162,14 @@ export type OffsetProposal =
   | ({
       kind: "proposal";
       eventId: string;
+      /** The re-dialled coffee, for "your recipe for {coffee} was 15 and is now 12". */
+      coffee: string;
       baseline: { recipeId: string; grind: number; pinnedAt: Date };
       newGrind: number;
-      wheel: ShiftWheel;
+      wheel: ShiftWheel & { min: number; max: number };
     } & ShiftProposal)
-  | { kind: "noBaseline"; eventId: string }
+  /** The grinder, so "pick another coffee" can open its screen (STORY-04-03-01 AC 4). */
+  | { kind: "noBaseline"; eventId: string; grinderId: string }
   | { kind: "none" };
 
 /** The bean-ageing change between two pins, from the old period's shots; null without an estimate (AC 2). */
@@ -236,19 +239,21 @@ export async function getOffsetProposal(recipeId: string): Promise<OffsetProposa
   if (!event) return { kind: "none" };
   // Already re-dialled since the event: that earlier pin was the re-dial, not this one.
   if (previous && !pinnedBefore(previous.pinnedAt, event.occurredAt)) return { kind: "none" };
-  if (!previous) return { kind: "noBaseline", eventId: event.id };
+  if (!previous) return { kind: "noBaseline", eventId: event.id, grinderId: grinder.id };
 
   const earlier = events.filter((e) => e.occurredAt.getTime() < event.occurredAt.getTime()).map((e) => ({ id: e.id, at: e.occurredAt, grindShift: e.grindShift, grindScale: e.grindScale }));
   const oldGrind = applyServicing(previous.grind, previous.pinnedAt, earlier).grind;
   const wheel = grindWheelConfig(await grindScaleOf(grinder.id));
   const age = await ageChange(householdId, grinder.id, recipe.beanId, event.occurredAt, previous, recipe).catch(() => null);
   const proposal = proposeShift({ oldGrind, newGrind: recipe.grind, ageChange: age, wheel: { step: wheel.step, coarser: wheel.coarser } });
+  const [bean] = await db.select({ name: canonicalBeans.name }).from(canonicalBeans).where(eq(canonicalBeans.id, recipe.beanId));
   return {
     kind: "proposal",
     eventId: event.id,
+    coffee: bean?.name ?? "",
     baseline: { recipeId: previous.id, grind: oldGrind, pinnedAt: previous.pinnedAt },
     newGrind: recipe.grind,
-    wheel: { step: wheel.step, coarser: wheel.coarser },
+    wheel: { step: wheel.step, coarser: wheel.coarser, min: wheel.min, max: wheel.max },
     ...proposal,
   };
 }

@@ -146,7 +146,7 @@ describe("getOffsetProposal (TASK-04-03-01-BE2)", () => {
 
   it("has no baseline when the coffee had no recipe before (AC 4)", async () => {
     const id = await event(5);
-    expect(await getOffsetProposal(await pin(6))).toEqual({ kind: "noBaseline", eventId: id });
+    expect(await getOffsetProposal(await pin(6))).toEqual({ kind: "noBaseline", eventId: id, grinderId: grinder() });
   });
 
   it("uses the most recent of two events, and none once re-dialled", async () => {
