@@ -26,23 +26,23 @@ export async function addMaintenanceAction(partId: string, input: MaintenanceInp
   }
 }
 
-/** SH-OFFSET's confirm, edit or decline (STORY-04-03-02); 0 declines. */
-export async function confirmShiftAction(eventId: string, shift: number, sourceRecipeId: string | null): Promise<ActionResult<null>> {
+/** SH-OFFSET's confirm, edit or decline (STORY-04-03-02); 0 declines. A stretch is a percent (STORY-04-04-02). */
+export async function confirmShiftAction(eventId: string, shift: number, sourceRecipeId: string | null, stretch = 0): Promise<ActionResult<null>> {
   if (typeof eventId !== "string" || !eventId || typeof shift !== "number") return fail("notFound");
   if (sourceRecipeId !== null && typeof sourceRecipeId !== "string") return fail("notFound");
-  return shiftResult(() => confirmShift(eventId, shift, sourceRecipeId));
+  return shiftResult(() => confirmShift(eventId, shift, sourceRecipeId, stretch));
 }
 
 /** SH-OFFSET in edit mode, from the grinder's screen (STORY-04-03-05); 0 removes the shift. */
-export async function setEventShiftAction(eventId: string, shift: number): Promise<ActionResult<null>> {
+export async function setEventShiftAction(eventId: string, shift: number, stretch = 0): Promise<ActionResult<null>> {
   if (typeof eventId !== "string" || !eventId || typeof shift !== "number") return fail("notFound");
-  return shiftResult(() => setEventShift(eventId, shift));
+  return shiftResult(() => setEventShift(eventId, shift, stretch));
 }
 
 /** What a shift would change, as the wheel moves (STORY-04-03-02 AC 1). */
-export async function previewShiftAction(eventId: string, shift: number, exceptRecipeId: string | null): Promise<ActionResult<ShiftPreview>> {
+export async function previewShiftAction(eventId: string, shift: number, exceptRecipeId: string | null, stretch = 0): Promise<ActionResult<ShiftPreview>> {
   if (typeof eventId !== "string" || !eventId || typeof shift !== "number" || !Number.isFinite(shift)) return fail("notFound");
-  return runAction(() => previewShift(eventId, shift, exceptRecipeId));
+  return runAction(() => previewShift(eventId, shift, exceptRecipeId, stretch));
 }
 
 /** The proposal after a pin (STORY-04-03-01); a failure tells the sheet no shift could be proposed (AC 6). */
