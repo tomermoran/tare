@@ -2,9 +2,10 @@ import "server-only";
 import { and, count, eq, max } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { extractions, personas, pinnedRecipes } from "@/db/schema";
+import { extractions, invites, personas, pinnedRecipes } from "@/db/schema";
 import { checkListName } from "@/domain/listName";
 import { personaLabel } from "@/domain/personaLabel";
+import { pendingInvitePersonas } from "./invites";
 import { pickMain } from "./persona";
 import { renamePersona } from "./profile";
 import { NotFoundError, requireHousehold } from "./scope";
@@ -25,6 +26,8 @@ export type Person = {
   main: boolean;
   /** Someone has signed up as this person. */
   claimed: boolean;
+  /** An invite link for this profile is waiting to be used (STORY-05-02-06 AC 1). */
+  invitePending: boolean;
   shots: number;
   lastShotAt: Date | null;
   recipes: number;
@@ -39,7 +42,7 @@ export class PersonInUseError extends Error {
 }
 
 async function people(householdId: string, userId: string): Promise<Person[]> {
-  const [rows, shots, recipes] = await Promise.all([
+  const [rows, shots, recipes, pending] = await Promise.all([
     db
       .select({ id: personas.id, name: personas.name, userId: personas.userId, isDefault: personas.isDefault })
       .from(personas)
@@ -54,6 +57,7 @@ async function people(householdId: string, userId: string): Promise<Person[]> {
       .from(pinnedRecipes)
       .where(eq(pinnedRecipes.householdId, householdId))
       .groupBy(pinnedRecipes.personaId),
+    pendingInvitePersonas(householdId),
   ]);
   const main = pickMain(
     rows.map((r) => ({ ...r, isDefault: r.isDefault === true })),
@@ -66,6 +70,7 @@ async function people(householdId: string, userId: string): Promise<Person[]> {
     name: r.name,
     main: r.id === main.id,
     claimed: r.userId !== null,
+    invitePending: r.userId === null && pending.has(r.id),
     shots: shotsOf.get(r.id)?.n ?? 0,
     lastShotAt: shotsOf.get(r.id)?.last ? new Date(shotsOf.get(r.id)!.last!) : null,
     recipes: recipesOf.get(r.id) ?? 0,
@@ -117,5 +122,9 @@ export async function removePerson(id: string): Promise<void> {
   const person = (await people(householdId, userId)).find((p) => p.id === id);
   if (!person || person.main || person.claimed) throw new NotFoundError();
   if (person.shots || person.recipes) throw new PersonInUseError({ shots: person.shots, recipes: person.recipes });
-  await db.delete(personas).where(and(eq(personas.id, id), eq(personas.householdId, householdId)));
+  // Its invites are no history: they go with it, so the link stops working.
+  await db.transaction(async (tx) => {
+    await tx.delete(invites).where(eq(invites.personaId, id));
+    await tx.delete(personas).where(and(eq(personas.id, id), eq(personas.householdId, householdId)));
+  });
 }
