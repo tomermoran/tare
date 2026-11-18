@@ -11,6 +11,7 @@ import { getRemaining } from "./remaining";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
 import { actingPersona } from "./persona";
+import { getGrindAdjustment } from "./grindAdjustment";
 
 /*
  * The one-tap pull (STORY-02-02-02), choosing a bag when none is open
@@ -48,6 +49,8 @@ export type PullInput = {
   beanId: string;
   /** Chosen on SH-PORTION when none was open. */
   portionId?: string;
+  /** "Use my recipe's grind for this shot": this pull only, never stored (STORY-04-02-08 AC 5). */
+  useRecipeGrind?: boolean;
 };
 
 /** `ownRecipe`: the portion's bag has its own recipe (STORY-02-04-03 AC 3). */
@@ -92,6 +95,10 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
   if (!portion) return { kind: "needsPortion", portions: await withRemaining(portions) };
   // The portion's bag may have its own recipe (STORY-02-04-02 AC 1); split and frozen portions share it (AC 4).
   const recipe = (await getCurrentRecipe(key, portion.batchId))!;
+  // The grind Brew showed, worked out again here (TD-4); the client never sends one. Any failure is the recipe's.
+  const adjusted = input.useRecipeGrind
+    ? null
+    : await getGrindAdjustment({ recipe: { beanId, setupId, grind: recipe.grind }, portionId: portion.id, now });
 
   const shot = db.insert(extractions).values({
     id: input.clientId,
@@ -102,7 +109,7 @@ export async function pullShot(input: PullInput, now = new Date()): Promise<Pull
     portionId: portion.id,
     drinkTypeId: input.drinkTypeId,
     entryMode: "one-tap",
-    grindSize: recipe.grind,
+    grindSize: adjusted?.shown ?? recipe.grind,
     doseWeight: recipe.dose,
     yieldWeight: recipe.yield,
     yieldTime: recipe.timeMs,

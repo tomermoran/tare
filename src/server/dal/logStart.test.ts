@@ -213,3 +213,29 @@ describe("getDialInFromRecipe (STORY-02-03-03, STORY-02-01-06)", () => {
     expect(s).toMatchObject({ setupId: other, from: { setupId: k.setup.id, grindCarried: false } });
   });
 });
+
+describe("getDialInFromRecipe with a suggested grind (STORY-04-02-06 AC 3)", () => {
+  const ago = (days: number) => new Date(Date.now() - days * 86_400_000);
+  const key = () => ({ drinkTypeId: k.drinks.espresso.id, beanId: k.bean.id, portionId: k.portion.id });
+
+  beforeEach(async () => {
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    await db().update(batchPortions).set({ openedAt: ago(20) });
+    await recipe({ grindSize: 15, yieldTime: 28_000, pinnedAt: ago(30) });
+    for (const d of [0.1, 1, 2]) await shot({ grindSize: 15, yieldTime: 22_000, usedWdt: true, createdAt: ago(d) });
+  });
+
+  it("starts at the suggested grind, with the recipe's as the start", async () => {
+    const s = (await getDialInFromRecipe(key()))!;
+    expect(s.grindAdjustment?.shown).toBeLessThan(15);
+    expect(s.applied.grind).toBe(s.grindAdjustment!.shown);
+    expect(s.start.grind).toBe(15);
+  });
+
+  it("a fix starts from the one-tap shot as it was, never adjusted", async () => {
+    const id = await shot({ entryMode: "one-tap", grindSize: 15, createdAt: ago(0.01) });
+    const s = (await getFixStart(id))!;
+    expect(s.applied.grind).toBe(15);
+    expect(s.grindAdjustment ?? null).toBeNull();
+  });
+});

@@ -9,7 +9,15 @@ export async function pullShotAction(input: PullInput): Promise<ActionResult<Pul
   const ids = [input?.clientId, input?.drinkTypeId, input?.beanId];
   if (!ids.every((id) => typeof id === "string" && id)) return fail("notFound");
   if (input.portionId !== undefined && typeof input.portionId !== "string") return fail("notFound");
-  return runAction(() => pullShot({ clientId: input.clientId, drinkTypeId: input.drinkTypeId, beanId: input.beanId, portionId: input.portionId }));
+  return runAction(() =>
+    pullShot({
+      clientId: input.clientId,
+      drinkTypeId: input.drinkTypeId,
+      beanId: input.beanId,
+      portionId: input.portionId,
+      useRecipeGrind: input.useRecipeGrind === true,
+    }),
+  );
 }
 
 /** Undo on the pulled state, within its window (STORY-02-02-04). */
