@@ -286,12 +286,15 @@ export async function getRedialStart(eventId: string, recipeId: string, portionI
   const setupList = await db.select({ id: setups.id, createdAt: setups.createdAt }).from(setups).where(eq(setups.householdId, householdId));
   const setupId = (await currentSetupOf(householdId, setupList)) ?? recipe.setupId;
   const start = valuesOf(recipe, "recipe");
+  // The coffee's open bag, else any unfinished one, so the log doesn't pick another coffee.
+  const bags = (await unfinishedPortions(householdId, new Date())).filter((p) => p.bean.id === recipe.beanId);
+  const portion = portionId ? bags.find((p) => p.id === portionId) : (bags.find((p) => p.openedAt !== null) ?? bags[0]);
   // Temperature and pressure belong to the recipe's machine; on another setup they start blank.
   if (setupId !== recipe.setupId) start.brew = { brewTempC: null, brewTempStep: null, pressureBar: null, pressureStep: null };
   return {
     setupId,
     drinkTypeId: recipe.drinkTypeId,
-    portionId: portionId ?? null,
+    portionId: portion?.id ?? null,
     locked: false,
     start,
     applied: start,

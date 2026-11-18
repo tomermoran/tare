@@ -69,6 +69,8 @@ type ShotLogScreenProps = {
   notice?: ReactNode;
   /** One quiet line under the context: where the values came from, e.g. "suggested: grind 2 steps finer". */
   note?: string[];
+  /** One quiet line under the header, e.g. re-dialling after servicing (STORY-04-03-04 AC 5). */
+  banner?: string;
   /** The suggested grind's reason line under the notes (STORY-04-02-06 AC 3). */
   grindReason?: ReactNode;
   /** "for {name}" under the header, with more than one profile (STORY-05-01-04 AC 2). */
@@ -119,6 +121,7 @@ export function ShotLogScreen({
   taste,
   notice,
   note = [],
+  banner,
   grindReason,
   forPerson,
   saving = false,
@@ -228,6 +231,7 @@ export function ShotLogScreen({
           </Button>
         }
       />
+      {banner && <p className="text-label text-ink-secondary">{banner}</p>}
       {forPerson && <p className="text-label text-ink-secondary">{forPerson}</p>}
       <div data-testid="log-context" className="mt-2 grid gap-px overflow-hidden rounded-md bg-line">
         <SelectField label={t("setup")} value={setup} onClick={pick("setup")} />

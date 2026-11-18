@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button/Button";
 import { ListRow } from "@/components/ui/ListRow/ListRow";
 
@@ -21,8 +22,11 @@ export function MaintenanceSection({
   labels,
   period,
   events,
+  status,
   onAdd,
 }: {
+  /** Above the events: a grinder awaiting a re-dial (STORY-04-03-04 AC 1). */
+  status?: ReactNode;
   labels: { title: string; none: string; add: string; recalibration: string };
   /** The grind period line and its shot count, for grinders only. */
   period?: { line: string; shots?: string };
@@ -40,6 +44,7 @@ export function MaintenanceSection({
           {period.shots && <span className="text-label text-ink-secondary">{period.shots}</span>}
         </p>
       )}
+      {status}
       {events.length ? (
         <>
           <ul>

@@ -6,6 +6,9 @@ import { useState } from "react";
 import { MaintenanceSection, type MaintenanceRow } from "@/components/screens/UnitScreen/MaintenanceSection";
 import { canRecalibrate, MAINTENANCE_KINDS, recalibrationDefault, type MaintenanceKind } from "@/domain/maintenance";
 import { addMaintenanceAction } from "@/server/actions/maintenance";
+import { RedialPick } from "@/components/redial/RedialPick";
+import { Button } from "@/components/ui/Button/Button";
+import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
 import { MaintenanceSheet, RecalibrationToggle, type MaintenanceDraft } from "./MaintenanceSheet";
 
 /*
@@ -20,7 +23,10 @@ export function MaintenanceFlow({
   events,
   period,
   today,
+  redial,
 }: {
+  /** The grinder's event awaiting a re-dial, with the coffees to pick from (recipe IDs). */
+  redial?: { eventId: string; options: SelectOption[] };
   partId: string;
   partKind: string;
   events: MaintenanceRow[];
@@ -35,6 +41,7 @@ export function MaintenanceFlow({
   const [draft, setDraft] = useState(blank);
   const [touched, setTouched] = useState<boolean | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
+  const [picking, setPicking] = useState(false);
   const grinder = canRecalibrate(partKind);
   const recalibration = touched ?? (draft.kind ? recalibrationDefault(partKind, draft.kind) : false);
 
@@ -71,8 +78,29 @@ export function MaintenanceFlow({
         }}
         period={period}
         events={events}
+        status={
+          redial ? (
+            <div className="flex flex-col items-start gap-3 pt-1 pb-3">
+              <p className="text-body text-ink">{t("maintenance.redialAwaiting")}</p>
+              {redial.options.length > 0 && (
+                <Button variant="secondary" onClick={() => setPicking(true)}>
+                  {t("maintenance.redialStart")}
+                </Button>
+              )}
+            </div>
+          ) : undefined
+        }
         onAdd={start}
       />
+      {redial && (
+        <RedialPick
+          open={picking}
+          onClose={() => setPicking(false)}
+          eventId={redial.eventId}
+          options={redial.options}
+          labels={{ title: t("redial.pick"), close: t("actions.close") }}
+        />
+      )}
       <MaintenanceSheet
         open={open}
         onClose={() => setOpen(false)}

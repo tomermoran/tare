@@ -16,7 +16,7 @@ import { getLogContext, getStartingValues, NEUTRAL_START, withChosenMilk, type L
 import { getDialInStart, lastGrindOnPart } from "@/server/dal/dialIn";
 import { getShot } from "@/server/dal/journal";
 import { getRecipeForBag } from "@/server/dal/recipes";
-import { getDialInFromRecipe, getDialInFromShot, getFixStart, type LogStart } from "@/server/dal/logStart";
+import { getDialInFromRecipe, getDialInFromShot, getFixStart, getRedialStart, type LogStart } from "@/server/dal/logStart";
 import { suggestionWords } from "@/lib/suggestionWords";
 import { NotFoundError, unlessSignedOut } from "@/server/dal/scope";
 import { notFound, redirect } from "next/navigation";
@@ -77,7 +77,11 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
     const fromShot = one(params.fromShot);
     const drinkTypeId = one(params.drinkId);
     const beanId = one(params.beanId);
-    const start = fromShot
+    const redial = one(params.redial);
+    const recipeId = one(params.recipeId);
+    const start = redial && recipeId
+      ? await unlessSignedOut(getRedialStart(redial, recipeId, one(params.portionId))).catch(notFoundIfMissing)
+      : fromShot
       ? await unlessSignedOut(getDialInFromShot(fromShot, suggested, one(params.portionId))).catch(notFoundIfMissing)
       : drinkTypeId && beanId
         ? await unlessSignedOut(getDialInFromRecipe({ drinkTypeId, beanId, portionId: one(params.portionId), suggested }))
@@ -167,6 +171,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       brewStart={p ? brewToDial(brew, p.start.brew) : undefined}
       locked={prefilled?.mode === "fix"}
       note={note}
+      banner={p?.redialEventId ? t("log.redialing") : undefined}
       grindTrail={
         p?.grindAdjustment
           ? grindTrailView(p.grindAdjustment, t, format, { roastDays: roastDays(context.portions.find((x) => x.id === p.portionId)?.roasting), timeZone })
