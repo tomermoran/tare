@@ -52,6 +52,7 @@ export function ShotEditFlow({
   milkDrink,
   taste,
   backTo,
+  forPerson,
 }: {
   shotId: string;
   oneTap: boolean;
@@ -71,6 +72,7 @@ export function ShotEditFlow({
   taste: TasteAnswers;
   /** The shot's detail, where saving and leaving go. */
   backTo: string;
+  forPerson?: string;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -135,6 +137,7 @@ export function ShotEditFlow({
   return (
     <>
       <ShotLogScreen
+        forPerson={forPerson}
         mode="edit"
         setup={setup}
         drink={drink}

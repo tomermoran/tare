@@ -7,6 +7,7 @@ import type { TasteTag } from "@/domain/taste";
 import type { Answers } from "@/domain/suggest";
 import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { getSuggestContext, type SuggestContext } from "./suggestContext";
+import { forPersona } from "./persona";
 
 /*
  * Good or off on a one-tap shot (STORY-02-03-01), and what was off
@@ -55,6 +56,8 @@ export type OffContext = {
   suggest: SuggestContext;
   answers: Answers;
   tags: TasteTag[];
+  /** Whose taste, to say "for {name}"; null with one profile (STORY-05-01-04 AC 2). */
+  persona: { name: string | null } | null;
 };
 
 /** What SH-OFF opens with: the one-tap shot's answers so far and the suggestion's context. */
@@ -64,5 +67,6 @@ export async function getOffContext(shotId: string, now = new Date()): Promise<O
     suggest: await getSuggestContext(shotId, now),
     answers: { balance: shot.tasteBalance, strength: shot.tasteStrength, body: shot.tasteBody, sweetness: shot.tasteSweetness },
     tags: shot.tasteTags ?? [],
+    persona: await forPersona(shot.personaId),
   };
 }

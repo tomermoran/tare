@@ -8,6 +8,7 @@ import { msToSeconds } from "@/lib/units";
 import { pinEnteredRecipeAction, pinFromShotAction, pinPreviewAction, enteredPinPreviewAction } from "@/server/actions/recipes";
 import type { EnteredRecipe, PinPreview, PinScope, RecipeField, RecipeValues } from "@/server/dal/recipes";
 import { PinSheet, type PinRecipeView } from "./PinSheet";
+import { forPersonLine } from "@/lib/forPerson";
 
 type Source = { kind: "shot"; shotId: string } | { kind: "entered"; input: EnteredRecipe };
 
@@ -141,6 +142,7 @@ export function usePinFlow({ title, onPinned }: { title: string; onPinned?: () =
   const sheet = preview && (
     <PinSheet
       open
+      forPerson={forPersonLine(t, preview.persona, "recipe.forPerson")}
       onClose={close}
       labels={{
         title,

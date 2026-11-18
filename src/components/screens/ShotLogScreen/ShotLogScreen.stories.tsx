@@ -525,3 +525,11 @@ export const FullyNotSureRightToLeft: Story = {
   args: { grind: grindWheelConfig(notSureGrinder), brew: brewTabs(notSureMachine), capLink },
   globals: { direction: "rtl" },
 };
+
+/** For someone else, with more than one profile: one quiet line says whose it is (STORY-05-01-04 AC 2). */
+export const ForSomeoneElse: Story = {
+  args: { forPerson: t("log.forPerson", { name: "Person A" }) },
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).getByText("for Person A")).toBeVisible();
+  },
+};

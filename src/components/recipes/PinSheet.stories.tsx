@@ -210,3 +210,12 @@ export const RightToLeft: Story = {
   args: { recipe: { ...next, lines: [...next.lines, recipe.sweetenedLine] }, replaces: old, changes: [...changes, sweetenedChange] },
   globals: { direction: "rtl" },
 };
+
+/** For someone else, with more than one profile: one quiet line says whose it is (STORY-05-01-04 AC 2). */
+export const ForSomeoneElse: Story = {
+  args: { forPerson: t("recipe.forPerson", { name: "Person A" }) },
+  play: async () => {
+    const canvas = within(document.body);
+    await waitFor(() => expect(canvas.getByText("for Person A")).toBeVisible());
+  },
+};

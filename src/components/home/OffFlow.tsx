@@ -18,6 +18,7 @@ import { partHref } from "@/lib/setupRoutes";
 import { saveOffAnswersAction } from "@/server/actions/reaction";
 import type { OffContext } from "@/server/dal/reaction";
 import { OffSheet } from "./OffSheet";
+import { forPersonLine } from "@/lib/forPerson";
 
 type Answers = TasteAnswerValues & { tags: TasteTag[] };
 
@@ -73,6 +74,7 @@ export function OffFlow({ shotId, context, onClose }: { shotId: string; context:
   const directionHref = grinderPartId ? `${partHref(grinderPartId)}?${new URLSearchParams({ returnTo: "/" })}` : null;
   return (
     <OffSheet
+      forPerson={forPersonLine(t, context.persona)}
       open
       onClose={() => void saveThen(onClose)}
       labels={{ title: t("off.title"), close: t("actions.close"), skip: t("off.skip"), saveFailed: t("off.saveFailed"), retry: t("actions.retry") }}

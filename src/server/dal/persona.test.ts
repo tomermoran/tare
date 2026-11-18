@@ -6,9 +6,10 @@ import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
 import { getHome } from "./home";
-import { actingPersona, mainPersona } from "./persona";
+import { actingPersona, forPersona, mainPersona } from "./persona";
+import { getOffContext } from "./reaction";
 import { pullShot } from "./pull";
-import { getCoffeeRecipes, pinEnteredRecipe } from "./recipes";
+import { getCoffeeRecipes, pinEnteredRecipe, pinFromShot, pinPreview } from "./recipes";
 
 /*
  * Whose taste a read or write is for (TASK-05-01-03-BE1, BE2): the main
@@ -122,5 +123,52 @@ describe("two personas never mix (TASK-05-01-03-BE2)", () => {
     expect((await getHome({}, NOW))?.usual.drinkId).toBe(k.drinks.latte.id);
     testContext.personaChoice = guest;
     expect((await getHome({}, NOW))?.usual.drinkId).not.toBe(k.drinks.latte.id);
+  });
+});
+
+describe("saying whose it is (TASK-05-01-04-BE1)", () => {
+  const measured = (personaId: string) =>
+    db().insert(extractions).values({
+      id: newId(),
+      ...shotValues(k),
+      personaId,
+      grindSize: 11,
+      loggedByUserId: k.user.id,
+      portionId: k.portion.id,
+      entryMode: "measured",
+      createdAt: NOW,
+    }).returning({ id: extractions.id }).then(([r]) => r.id);
+
+  it("says nothing with only the main profile (AC 2)", async () => {
+    await db().delete(personas).where(eq(personas.id, guest));
+    expect(await forPersona()).toBeNull();
+  });
+
+  it("names the acting persona, or the one given", async () => {
+    expect(await forPersona()).toEqual({ name: null });
+    testContext.personaChoice = guest;
+    expect(await forPersona()).toEqual({ name: "Guest" });
+    expect(await forPersona(k.persona.id)).toEqual({ name: null });
+  });
+
+  it("pins a guest's shot as the guest's recipe, leaving the main persona's alone (AC 3)", async () => {
+    await pin(12);
+    const shotId = await measured(guest);
+    expect((await pinPreview(shotId)).persona).toEqual({ name: "Guest" });
+    await pinFromShot(shotId, NOW);
+    expect((await getCoffeeRecipes(k.bean.id)).map((r) => r.grind)).toEqual([12]);
+    testContext.personaChoice = guest;
+    expect((await getCoffeeRecipes(k.bean.id)).map((r) => r.grind)).toEqual([11]);
+  });
+
+  it("says whose taste a one-tap shot's answers are", async () => {
+    await pin(12);
+    testContext.personaChoice = guest;
+    await pin(14);
+    await db().update(batchPortions).set({ openedAt: NOW }).where(eq(batchPortions.id, k.portion.id));
+    const pulled = await pullShot({ clientId: newId(), drinkTypeId: k.drinks.espresso.id, beanId: k.bean.id }, NOW);
+    testContext.personaChoice = null;
+    expect(pulled.kind).toBe("pulled");
+    if (pulled.kind === "pulled") expect((await getOffContext(pulled.shotId, NOW)).persona).toEqual({ name: "Guest" });
   });
 });

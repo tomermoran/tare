@@ -42,6 +42,7 @@ export function RecipeLogFlow({
   milk,
   pinTitle,
   backTo,
+  forPerson,
 }: {
   batchId: string;
   setupId: string;
@@ -63,6 +64,7 @@ export function RecipeLogFlow({
   pinTitle: string;
   /** The bag, where cancelling and pinning go. */
   backTo: string;
+  forPerson?: string;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -123,6 +125,7 @@ export function RecipeLogFlow({
   return (
     <>
       <ShotLogScreen
+        forPerson={forPerson}
         mode="recipe"
         setup={setup}
         drink={drink}

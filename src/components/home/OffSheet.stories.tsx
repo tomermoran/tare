@@ -1,3 +1,4 @@
+import { createTranslator } from "next-intl";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
@@ -13,6 +14,8 @@ import type { TasteTag } from "@/domain/taste";
 import messages from "@/i18n/messages/en.json";
 import { OffSheet } from "./OffSheet";
 
+const tFor = createTranslator({ locale: "en", messages });
+
 const { actions, off, suggest, taste } = messages;
 const labels = { title: off.title, close: actions.close, skip: off.skip, saveFailed: off.saveFailed, retry: actions.retry };
 
@@ -25,7 +28,19 @@ const context: SuggestContextInput = {
   clocks: { roasting: null, opened: null },
 };
 
-function Off({ state, initialTags = [], onFix = fn(), onSkip = fn() }: { state?: "idle" | "failed"; initialTags?: TasteTag[]; onFix?: () => void; onSkip?: () => void }) {
+function Off({
+  state,
+  initialTags = [],
+  onFix = fn(),
+  onSkip = fn(),
+  forPerson,
+}: {
+  state?: "idle" | "failed";
+  initialTags?: TasteTag[];
+  onFix?: () => void;
+  onSkip?: () => void;
+  forPerson?: string;
+}) {
   const words = useTasteLabels(true);
   const [answers, setAnswers] = useState<TasteAnswerValues>({ balance: null, strength: null, body: null, sweetness: null });
   const [tags, setTags] = useState<TasteTag[]>(initialTags);
@@ -43,6 +58,7 @@ function Off({ state, initialTags = [], onFix = fn(), onSkip = fn() }: { state?:
       onSkip={onSkip}
       state={state}
       onRetry={fn()}
+      forPerson={forPerson}
     />
   );
 }
@@ -116,3 +132,13 @@ export const SaveFailed: Story = {
 };
 
 export const RightToLeft: Story = { args, render: () => <Off initialTags={["flat"]} />, globals: { direction: "rtl" } };
+
+/** For someone else, with more than one profile: one quiet line says whose it is (STORY-05-01-04 AC 2). */
+export const ForSomeoneElse: Story = {
+  args,
+  render: () => <Off forPerson={tFor("log.forPerson", { name: "Person A" })} />,
+  play: async () => {
+    const sheet = await opened();
+    await expect(sheet.getByText("for Person A")).toBeVisible();
+  },
+};

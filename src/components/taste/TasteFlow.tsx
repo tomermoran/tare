@@ -55,6 +55,7 @@ export function TasteFlow({
   pinTitle,
   suggestion,
   pinFirst = false,
+  forPerson,
 }: {
   shotId: string;
   values: ShotValuesData;
@@ -68,6 +69,8 @@ export function TasteFlow({
   suggestion?: { context: SuggestContextInput; directionHref: string | null };
   /** After a fix or dial-in, pinning is why the user came (STORY-02-03-02 AC 4). */
   pinFirst?: boolean;
+  /** "for {name}": whose taste the answers are (STORY-05-01-04 AC 2). */
+  forPerson?: string;
 }) {
   const t = useTranslations();
   const words = useTasteLabels(milkDrink);
@@ -169,6 +172,7 @@ export function TasteFlow({
   return (
     <>
       <TasteScreen
+        forPerson={forPerson}
         labels={{
           title: t("taste.title"),
           close: t("actions.close"),
