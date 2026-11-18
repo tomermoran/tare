@@ -30,6 +30,14 @@ export function saveBrewChoice(choice: { drinkId?: string; beanId?: string; pers
   });
 }
 
+/**
+ * Choosing who it's for: Brew shows that person's usual drink and coffee, so
+ * a drink or coffee picked for someone else is dropped (STORY-05-01-03 AC 3).
+ */
+export function choosePersona(personaId: string, now = Date.now()) {
+  write({ personaId, at: now });
+}
+
 /** Brew was just on screen: the 30 minutes count from now. False when it had already lapsed. */
 export function touchBrewChoice(now = Date.now()): boolean {
   const choice = read();
