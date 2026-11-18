@@ -231,3 +231,153 @@ describe("changing a shift later (TASK-04-03-05-BE1)", () => {
     expect(await getEvent(id)).toMatchObject({ state: "awaiting", canRedial: true, wheel: { step: 0.5, coarser: "higher" } });
   });
 });
+
+/** A second coffee, with a bag on hand. */
+async function coffee(name: string) {
+  const id = newId();
+  await db().insert(canonicalBeans).values({ ...k.bean, id, name });
+  const batchId = newId();
+  await db().insert(batches).values({ id: batchId, householdId: k.household.id, beanId: id, bagWeight: 250, createdAt: at(1) });
+  await db().insert(batchPortions).values({ id: newId(), batchId, weight: 250, createdAt: at(1) });
+  return id;
+}
+
+describe("proposing a stretch (TASK-04-04-01-BE2)", () => {
+  it("proposes no stretch for one coffee (AC 2)", async () => {
+    await pin(1, { grindSize: 15 });
+    await event(5);
+    const p = await getOffsetProposal(await pin(6, { grindSize: 13 }));
+    expect(p).toMatchObject({ kind: "proposal", shift: -2 });
+    expect(p).not.toHaveProperty("stretch");
+  });
+
+  it("fits a stretch and shift through two coffees, re-proposed after the first was confirmed (AC 1)", async () => {
+    const second = await coffee("Second Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(2, { beanId: second, grindSize: 30 });
+    const id = await event(5);
+    const first = await pin(6, { grindSize: 13 });
+    await confirmShift(id, -2, first);
+    const p = await getOffsetProposal(await pin(7, { beanId: second, grindSize: 26.5 }));
+    expect(p).toMatchObject({
+      kind: "proposal",
+      eventId: id,
+      coffee: "Second Coffee",
+      shift: -0.5,
+      words: { steps: 1, direction: "finer" },
+      stretch: {
+        percent: -10,
+        uncertain: false,
+        tooClose: false,
+        shiftAlone: -2.5,
+        coffees: [
+          { coffee: "House Blend", was: 15, now: 13 },
+          { coffee: "Second Coffee", was: 30, now: 26.5 },
+        ],
+      },
+    });
+  });
+
+  it("rests on three coffees with noise", async () => {
+    const second = await coffee("Second Coffee");
+    const third = await coffee("Third Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(1, { beanId: second, grindSize: 30, pinnedAt: at(1, 9) });
+    await pin(1, { beanId: third, grindSize: 22, pinnedAt: at(1, 10) });
+    await event(5);
+    await pin(6, { grindSize: 13 });
+    await pin(6, { beanId: second, grindSize: 26.5, pinnedAt: at(6, 9) });
+    const p = await getOffsetProposal(await pin(7, { beanId: third, grindSize: 19.5 }));
+    if (p.kind !== "proposal" || !p.stretch) throw new Error("expected a stretch");
+    expect(p.stretch.coffees).toHaveLength(3);
+    expect(p.stretch.percent).toBeGreaterThanOrEqual(-11);
+    expect(p.stretch.percent).toBeLessThanOrEqual(-9);
+    expect(p.stretch.uncertain).toBe(false);
+  });
+
+  it("keeps the stretch at none when the old grinds are too close (AC 4)", async () => {
+    const second = await coffee("Second Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(2, { beanId: second, grindSize: 15.5 });
+    await event(5);
+    await pin(6, { grindSize: 13 });
+    const p = await getOffsetProposal(await pin(7, { beanId: second, grindSize: 13.5 }));
+    expect(p).toMatchObject({ shift: -2, stretch: { percent: 0, tooClose: true } });
+  });
+
+  it("never proposes a stretch for an event that is not burrs (AC 5)", async () => {
+    const second = await coffee("Second Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(2, { beanId: second, grindSize: 30 });
+    const id = await event(5, { kind: "rezero" });
+    const first = await pin(6, { grindSize: 13 });
+    expect(await getOffsetProposal(first)).not.toHaveProperty("stretch");
+    await confirmShift(id, -2, first);
+    expect(await getOffsetProposal(await pin(7, { beanId: second, grindSize: 26.5 }))).toEqual({ kind: "none" });
+  });
+});
+
+describe("saving the stretch (TASK-04-04-02-BE1)", () => {
+  it("stores a percent as its factor, previews and reads it back, and declines to the shift alone (AC 1, AC 2, AC 4)", async () => {
+    const second = await coffee("Second Coffee");
+    const third = await coffee("Third Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(2, { beanId: second, grindSize: 30 });
+    await pin(3, { beanId: third, grindSize: 20 });
+    const id = await event(5);
+    await pin(6, { grindSize: 13 });
+    const redial = await pin(7, { beanId: second, grindSize: 26.5 });
+    expect((await previewShift(id, -0.5, redial, -10)).rows.find((r) => r.bean === "Third Coffee")).toMatchObject({ from: 20, to: 17.5 });
+    await confirmShift(id, -0.5, redial, -10);
+    const [row] = await db().select().from(maintenanceEvents).where(eq(maintenanceEvents.id, id));
+    expect(row).toMatchObject({ grindShift: -0.5, grindScale: 0.9 });
+    expect(await getEvent(id)).toMatchObject({ state: "confirmed", kind: "burrs", stretchPercent: -10, redials: 2, redialMore: false });
+    await setEventShift(id, -0.5, 30);
+    expect((await getEvent(id)).stretchPercent).toBe(30);
+    await confirmShift(id, -2.5, redial, 0);
+    expect(await getEvent(id)).toMatchObject({ shift: -2.5, stretchPercent: 0 });
+    // A stretch alone is still a mapping.
+    await setEventShift(id, 0, -5);
+    expect((await getEvent(id)).state).toBe("confirmed");
+  });
+
+  it("refuses a stretch out of range or not whole", async () => {
+    await pin(1);
+    const id = await event(5);
+    await expect(setEventShift(id, -1, 31)).rejects.toBeInstanceOf(InvalidShiftError);
+    await expect(setEventShift(id, -1, -31)).rejects.toBeInstanceOf(InvalidShiftError);
+    await expect(setEventShift(id, -1, 1.5)).rejects.toBeInstanceOf(InvalidShiftError);
+    await setEventShift(id, -1, -30);
+    expect((await getEvent(id)).stretchPercent).toBe(-30);
+  });
+});
+
+describe("the second coffee (TASK-04-04-03-BE1)", () => {
+  it("invites a second coffee after one re-dial of burrs, farthest first (AC 1, AC 2)", async () => {
+    const near = await coffee("Near Coffee");
+    const far = await coffee("Far Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(2, { beanId: near, grindSize: 16 });
+    await pin(3, { beanId: far, grindSize: 30 });
+    const id = await event(5);
+    await confirmShift(id, -2, await pin(6, { grindSize: 13 }));
+    expect(await getEvent(id)).toMatchObject({ redials: 1, redialMore: true });
+    const list = await listRedialCandidates(id, null, at(8));
+    expect(list.map((c) => [c.bean.name, c.farFromFirst ?? false])).toEqual([
+      ["Far Coffee", true],
+      ["Near Coffee", false],
+    ]);
+  });
+
+  it("neither invites nor orders for another kind of event (AC 3)", async () => {
+    const far = await coffee("Far Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(3, { beanId: far, grindSize: 30 });
+    const id = await event(5, { kind: "rezero" });
+    await confirmShift(id, -2, await pin(6, { grindSize: 13 }));
+    expect((await getEvent(id)).redialMore).toBe(false);
+    const list = await listRedialCandidates(id, null, at(8));
+    expect(list.map((c) => c.bean.name)).toEqual(["Far Coffee"]);
+    expect(list[0].farFromFirst).toBeUndefined();
+  });
+});
