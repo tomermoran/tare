@@ -23,6 +23,7 @@ import { unlessSignedOut } from "@/server/dal/scope";
 import { openedClockLabel, roastingClockLabel } from "@/lib/clockLabels";
 import { portionStateLabel } from "@/lib/portionStateLabel";
 import { grindTrailView, roastDays } from "@/lib/grindTrail";
+import { grindWheelConfig } from "@/domain/grind";
 import { getTimeZone } from "@/server/time";
 import { getBrewRedialCard, listRedialCandidates } from "@/server/dal/redial";
 import { FirstRun } from "./FirstRun";
@@ -98,9 +99,17 @@ async function Brew({ home }: { home: Home }) {
   const recipe = state.kind === "recipe" ? state.recipe : state.kind === "finished" ? state.recipe : null;
   // The suggested grind takes the recipe's place, with its reason one tap away (STORY-04-02-06).
   const adjustment = state.kind === "recipe" ? state.adjustment : null;
-  const grind = adjustment
-    ? { recipe: adjustment.recipeGrind, trail: grindTrailView(adjustment, t, format, { roastDays: roastDays(home.portion?.roasting), timeZone, useRecipe: true }) }
-    : undefined;
+  // A confirmed servicing shift is labelled the same way, its trail first (STORY-04-03-03 AC 1).
+  const trail =
+    state.kind === "recipe"
+      ? grindTrailView(
+          { adjustment, servicing: state.recipe.servicing, wheel: grindWheelConfig(home.setup.grind) },
+          t,
+          format,
+          { roastDays: roastDays(home.portion?.roasting), timeZone, useRecipe: true },
+        )
+      : null;
+  const grind = trail && recipe ? { recipe: adjustment?.recipeGrind ?? recipe.grind, trail } : undefined;
   const message = {
     recipe: undefined,
     noRecipe: t("home.noRecipe"),

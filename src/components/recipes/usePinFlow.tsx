@@ -179,7 +179,15 @@ export function usePinFlow({
           : undefined
       }
       recipe={view(preview.values)}
-      replaces={replaced ? view(replaced) : null}
+      replaces={
+        replaced
+          ? (() => {
+              // The replaced recipe as it reads now, its servicing shift said (STORY-04-03-03 AC 1).
+              const v = view(replaced);
+              return replaced.servicing?.length ? { ...v, lines: [t("recipe.servicedLine", { grind: number(replaced.servicing[0].from) }), ...v.lines] } : v;
+            })()
+          : null
+      }
       changes={replaced ? differences.map((f) => t("recipe.change", { field: LABEL[f], from: value(replaced, f), to: value(preview.values, f) })) : []}
       onConfirm={() => void confirm()}
       saving={state === "saving"}

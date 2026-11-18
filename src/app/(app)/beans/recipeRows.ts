@@ -41,7 +41,11 @@ export async function recipeRowMaker(bag: { batchId: string; portionId?: string 
         title: t("recipe.row", { drink: drinkName, setup: setupLabel(setup, context.setups, list) }),
         values: { grind: r.grind, dose: r.dose, yield: r.yield, timeMs: r.timeMs },
         hidden: drink.hidden ? t("drinkList.hidden") : undefined,
-        lines: recipeLines(r, { hasMilk: drink.hasMilk, milks }, t, format),
+        // A shifted grind says so, with what was stored (STORY-04-03-03 AC 1).
+        lines: [
+          ...(r.servicing?.length ? [t("recipe.servicedLine", { grind: format.number(r.servicing[0].from, { maximumFractionDigits: 2 }) })] : []),
+          ...recipeLines(r, { hasMilk: drink.hasMilk, milks }, t, format),
+        ],
         date: t("recipe.pinnedOn", { date: day(r.pinnedAt) }),
         dialInHref: `${LOG_PATH}?${new URLSearchParams({ drinkId: drink.id, ...(bag.portionId ? { portionId: bag.portionId } : {}) })}`,
         changeHref: `${LOG_PATH}?${new URLSearchParams({ mode: "recipe", batchId: bag.batchId, setupId: setup.id, drinkId: drink.id })}`,

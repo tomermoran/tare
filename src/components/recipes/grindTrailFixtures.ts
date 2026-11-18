@@ -1,6 +1,7 @@
 import { createFormatter, createTranslator } from "next-intl";
 import type { DriftEvidence, GrindAdjustment } from "@/domain/drift";
 import messages from "@/i18n/messages/en.json";
+import type { ServicingStep } from "@/domain/servicing";
 import { grindTrailView, type GrindTrailView } from "@/lib/grindTrail";
 
 /*
@@ -34,8 +35,13 @@ const adjustment = (over: Partial<GrindAdjustment> = {}): GrindAdjustment => ({
   ...over,
 });
 
-const view = (a: GrindAdjustment, roastDays: number | null = 18, useRecipe = true): GrindTrailView =>
-  grindTrailView(a, t, format, { roastDays, timeZone: "UTC", useRecipe });
+const wheel = { step: 0.5, coarser: "higher" as const };
+const view = (a: GrindAdjustment | null, roastDays: number | null = 18, useRecipe = true, servicing: ServicingStep[] = []): GrindTrailView =>
+  grindTrailView({ adjustment: a, servicing, wheel }, t, format, { roastDays, timeZone: "UTC", useRecipe })!;
+
+/** New burrs on 9 October moved the dial 3 finer; a re-zero on 2 November, 1 coarser. */
+const serviced: ServicingStep[] = [{ eventId: "e1", at: new Date(Date.UTC(2026, 9, 9, 12)), from: 18, to: 15 }];
+const twice: ServicingStep[] = [...serviced, { eventId: "e2", at: new Date(Date.UTC(2026, 10, 2, 12)), from: 15, to: 16 }];
 
 export const exampleTrails = {
   aged: view(adjustment()),
@@ -57,4 +63,7 @@ export const exampleTrails = {
     }),
   ),
   log: view(adjustment(), 18, false),
+  serviced: view(null, 18, true, serviced),
+  servicedTwice: view(null, 18, true, twice),
+  servicedAndAged: view(adjustment(), 18, true, serviced),
 };

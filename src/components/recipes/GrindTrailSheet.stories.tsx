@@ -112,3 +112,30 @@ export const InTheLog: Story = {
   },
 };
 export const RightToLeft: Story = { args, render: () => <Trail view={exampleTrails.both} onUseRecipe={fn()} />, globals: { direction: "rtl" } };
+
+/** A confirmed servicing shift on its own: the step with its date, no drift evidence, no footer (STORY-04-03-03 AC 1). */
+export const Serviced: Story = {
+  args,
+  render: () => <Trail view={exampleTrails.serviced} onUseRecipe={fn()} />,
+  play: async () => {
+    const sheet = await opened(exampleTrails.serviced);
+    await expect(sheet.getByText("Grinder serviced on October 9")).toBeVisible();
+    await expect(sheet.getByText("3.0 finer")).toBeVisible();
+    await expect(sheet.queryByRole("button", { name: /Use my recipe/ })).toBeNull();
+  },
+};
+
+/** Several events, in date order, each with its date (AC 4). */
+export const ServicedTwice: Story = {
+  args,
+  render: () => <Trail view={exampleTrails.servicedTwice} />,
+  play: async () => {
+    const sheet = await opened(exampleTrails.servicedTwice);
+    const rows = sheet.getAllByRole("listitem").filter((li) => li.textContent?.includes("Grinder serviced"));
+    await expect(rows[0]).toHaveTextContent("October 9");
+    await expect(rows[1]).toHaveTextContent("November 2");
+  },
+};
+
+/** Servicing first, then the drift steps on top. */
+export const ServicedAndAged: Story = { args, render: () => <Trail view={exampleTrails.servicedAndAged} onUseRecipe={fn()} /> };

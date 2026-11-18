@@ -74,6 +74,7 @@ describe("getDialInStart (STORY-02-01-06)", () => {
       sweetened: false,
       grindCarried: true,
       borrowedFrom: null,
+      servicing: [],
     });
   });
 
