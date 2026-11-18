@@ -8,6 +8,7 @@ import { isValidDayKey, localDayKey, localNoon } from "@/domain/localDay";
 import { canRecalibrate, isMaintenanceKind, recalibrationDefault, type MaintenanceKind } from "@/domain/maintenance";
 import type { RedialState } from "@/domain/redial";
 import { eventStates } from "./redial";
+import { stretchPercent } from "@/domain/offsetFit";
 import { assertOwned, requireHousehold } from "./scope";
 
 /*
@@ -42,6 +43,8 @@ export type MaintenanceEvent = {
   redial: RedialState;
   /** The confirmed shift in the grinder's units; null when none is stored. */
   shift: number | null;
+  /** The confirmed stretch in percent, 0 for none (EPIC-04-04). */
+  stretch: number;
 };
 
 const NOTE_MAX = 500;
@@ -98,6 +101,7 @@ export async function listMaintenance(partId: string): Promise<MaintenanceEvent[
     isRecalibration: r.isRecalibration,
     redial: states.get(r.id) ?? "notRecalibration",
     shift: r.grindShift,
+    stretch: stretchPercent(r.grindScale),
   }));
 }
 

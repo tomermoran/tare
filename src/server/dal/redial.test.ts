@@ -12,6 +12,7 @@ import {
   getBrewRedialCard,
   getEvent,
   getGrinderRedial,
+  getGrinderRedialMore,
   getOffsetProposal,
   InvalidShiftError,
   listRedialCandidates,
@@ -379,5 +380,19 @@ describe("the second coffee (TASK-04-04-03-BE1)", () => {
     const list = await listRedialCandidates(id, null, at(8));
     expect(list.map((c) => c.bean.name)).toEqual(["Far Coffee"]);
     expect(list[0].farFromFirst).toBeUndefined();
+  });
+});
+
+describe("getGrinderRedialMore (TASK-04-04-03-FE1)", () => {
+  it("finds a confirmed burrs event with one re-dial, and not after a second", async () => {
+    const second = await coffee("Second Coffee");
+    await pin(1, { grindSize: 15 });
+    await pin(2, { beanId: second, grindSize: 30 });
+    const id = await event(5);
+    expect(await getGrinderRedialMore(grinder())).toBeNull();
+    await confirmShift(id, -2, await pin(6, { grindSize: 13 }));
+    expect(await getGrinderRedialMore(grinder())).toEqual({ eventId: id });
+    await pin(7, { beanId: second, grindSize: 26.5 });
+    expect(await getGrinderRedialMore(grinder())).toBeNull();
   });
 });

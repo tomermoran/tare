@@ -107,6 +107,23 @@ export async function getGrinderRedial(grinderPartId: string): Promise<{ eventId
 }
 
 /**
+ * The grinder's burrs event that would gain from a second re-dial
+ * (STORY-04-04-03 AC 1): the newest with a confirmed shift and one re-dial.
+ * Shown on its screen only, never as Brew's card (AC 4).
+ */
+export async function getGrinderRedialMore(grinderPartId: string): Promise<{ eventId: string } | null> {
+  const { householdId } = await requireHousehold();
+  await assertOwned("ownedHardware", grinderPartId, householdId);
+  if ((await partKind(grinderPartId)) !== "grinder") return null;
+  const [events, pins] = await Promise.all([
+    db.select().from(maintenanceEvents).where(eq(maintenanceEvents.ownedHardwareId, grinderPartId)).orderBy(desc(maintenanceEvents.occurredAt)),
+    pinsOnGrinder(householdId, grinderPartId),
+  ]);
+  const more = events.find((e) => e.kind === "burrs" && stateOf(e, true, pins) === "confirmed" && derivedRedials(e, events, pins).length === 1);
+  return more ? { eventId: more.id } : null;
+}
+
+/**
  * Brew's re-dial card (STORY-04-03-04 AC 2): when the current setup's
  * grinder has an event awaiting a re-dial. Names the grinder only when the
  * household has two or more.
@@ -217,6 +234,8 @@ export type OffsetProposal =
   | ({
       kind: "proposal";
       eventId: string;
+      /** The grinder, so "pick another coffee" can open its screen when two are too close (STORY-04-04-01 AC 4). */
+      grinderId: string;
       /** The re-dialled coffee, for "your recipe for {coffee} was 15 and is now 12". */
       coffee: string;
       baseline: { recipeId: string; grind: number; pinnedAt: Date };
@@ -337,6 +356,7 @@ export async function getOffsetProposal(recipeId: string): Promise<OffsetProposa
   const base = {
     kind: "proposal" as const,
     eventId: event.id,
+    grinderId: grinder.id,
     coffee: names.get(recipe.beanId) ?? "",
     baseline: { recipeId: previous.id, grind: oldGrind, pinnedAt: previous.pinnedAt },
     newGrind: recipe.grind,
