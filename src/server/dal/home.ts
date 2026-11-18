@@ -44,6 +44,8 @@ export type HomeState =
   | { kind: "noCoffee" };
 
 export type Home = {
+  /** Who Brew is for (STORY-05-01-03). */
+  personaId: string;
   drinks: LogDrink[];
   drink: LogDrink;
   /** What Brew would show with nothing chosen, marked "usual" in the selects. */
@@ -123,6 +125,7 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
     .sort((a, b) => rank(a) - rank(b));
 
   const base = {
+    personaId: persona.id,
     drinks: context.drinks,
     drink,
     usual: { drinkId: usualDrinkId, beanId: usual.kind === "coffee" ? usual.beanId : null },
