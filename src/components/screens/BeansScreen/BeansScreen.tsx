@@ -70,6 +70,7 @@ export function BeansScreen({
   state = "ready",
   groups,
   tried,
+  triedFor,
   runOut,
   filters,
   filtering,
@@ -87,6 +88,8 @@ export function BeansScreen({
   groups: BagGroup[];
   /** The Tried rows (EPIC-03-06); none means nothing has been brewed yet. */
   tried?: ReactNode;
+  /** Whose shots Tried describes, when it isn't the main profile's (STORY-05-01-07 AC 2). */
+  triedFor?: string;
   /** The run-out line (EPIC-03-05), under the On hand heading while bags are on hand. */
   runOut?: ReactNode;
   /** The filter row (EPIC-03-07), when there are enough coffees for it. */
@@ -181,6 +184,7 @@ export function BeansScreen({
         <h2 id="beans-tried" className="text-h2 text-ink">
           {labels.tried}
         </h2>
+        {triedFor && <p className="-mt-2 text-label text-ink-secondary">{triedFor}</p>}
         {tried ?? <p className="text-body text-ink-secondary">{filtering ? filtering.triedNone : labels.triedEmpty}</p>}
       </section>
     </div>

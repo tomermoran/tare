@@ -61,4 +61,11 @@ export async function forPersona(personaId?: string, account?: Account): Promise
   return { name: p.name };
 }
 
+/** The acting persona when it isn't the main one, to say whose a list is (STORY-05-01-07 AC 2); else null. */
+export async function actingOther(account?: Account): Promise<{ name: string | null } | null> {
+  const a = account ?? (await requireHousehold());
+  const [acting, main] = await Promise.all([actingPersona(a), mainPersona(a)]);
+  return acting.id === main.id ? null : { name: acting.name };
+}
+
 export const actingPersonaId = async (account?: Account) => (await actingPersona(account)).id;

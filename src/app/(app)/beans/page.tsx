@@ -18,19 +18,23 @@ import { getBeanFacets } from "@/server/dal/beanFacets";
 import { getOnHand, type BagView } from "@/server/dal/bags";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { getTried } from "@/server/dal/tried";
+import { actingOther } from "@/server/dal/persona";
+import { personaLabel } from "@/domain/personaLabel";
 import { ADD_BAG, beansLabels } from "./labels";
 import { bagRows } from "./rows";
 import { RunOut } from "./RunOut";
 
 /** SCR-PANTRY, the Beans tab: what's on hand, then what's been tried, narrowed by its filters (EPIC-03-07). */
 export default async function BeansPage({ searchParams }: PageProps<"/beans">) {
-  const [t, locale, onHand, tried, timeZone, params] = await Promise.all([
+  const [t, locale, onHand, tried, timeZone, params, other] = await Promise.all([
     getTranslations(),
     getLocale(),
     unlessSignedOut(getOnHand()),
     unlessSignedOut(getTried()),
     getTimeZone(),
     searchParams,
+    // Tried and its rating filter follow the person chosen on Brew (STORY-05-01-07).
+    unlessSignedOut(actingOther()),
   ]);
   const facets = onHand && tried ? await getBeanFacets({ onHand: onHand.flatMap((g) => g.bags.map((b) => b.bean.id)), tried }) : [];
   // Filters only apply while the row is offered, so a stale link can't hide everything.
@@ -95,6 +99,7 @@ export default async function BeansPage({ searchParams }: PageProps<"/beans">) {
           : undefined
       }
       tried={triedRows.length ? <TriedRows rows={triedRows} /> : undefined}
+      triedFor={other ? t("beans.triedFor", { name: personaLabel(other, t("profile.defaultName")) }) : undefined}
     />
   );
 }
