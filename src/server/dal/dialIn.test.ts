@@ -73,6 +73,7 @@ describe("getDialInStart (STORY-02-01-06)", () => {
       milk: { milkTypeId: null, milkMl: null },
       sweetened: false,
       grindCarried: true,
+      borrowedFrom: null,
     });
   });
 

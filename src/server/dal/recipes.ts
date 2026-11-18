@@ -10,7 +10,7 @@ import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { setupMachine } from "./logContext";
 import { assertOwned, requireHousehold } from "./scope";
 import { checkValues } from "./shots";
-import { actingPersona, actingPersonaId, forPersona } from "./persona";
+import { actingPersona, actingPersonaId, forPersona, listPersonas, mainPersona } from "./persona";
 
 /*
  * Pinned recipes (EPIC-02-01). A recipe is keyed by coffee, persona, setup
@@ -139,6 +139,23 @@ export function getBagOwnRecipe(key: RecipeKey, batchId: string): Promise<Recipe
 export async function getCurrentRecipe(key: RecipeKey, batchId?: string | null): Promise<Recipe | null> {
   const own = batchId ? await newestFor(key, batchId) : null;
   return own ?? newestFor(key, null);
+}
+
+/**
+ * Another profile's recipe for the same coffee, drink and setup, for a persona
+ * with none of its own here (STORY-05-01-05): the main persona's if it has
+ * one, else the most recently pinned. Null when nobody else has one.
+ */
+export async function getBorrowedRecipe(key: RecipeKey): Promise<{ recipe: Recipe; persona: { id: string; name: string | null } } | null> {
+  const account = await requireHousehold();
+  const [list, main] = await Promise.all([listPersonas(account), mainPersona(account)]);
+  const others = list.filter((p) => p.id !== key.personaId);
+  const found = await Promise.all(others.map(async (p) => ({ p, recipe: await getCurrentRecipe({ ...key, personaId: p.id }) })));
+  const withRecipe = found.filter((f): f is { p: (typeof found)[number]["p"]; recipe: Recipe } => f.recipe !== null);
+  if (!withRecipe.length) return null;
+  const pick =
+    withRecipe.find((f) => f.p.id === main.id) ?? withRecipe.sort((a, b) => b.recipe.pinnedAt.getTime() - a.recipe.pinnedAt.getTime())[0];
+  return { recipe: pick.recipe, persona: { id: pick.p.id, name: pick.p.name } };
 }
 
 /** A coffee's current recipes for a persona: the newest per setup and drink. */

@@ -9,7 +9,7 @@ import type { Remaining } from "@/domain/remaining";
 import { getTimeZone } from "@/server/time";
 import { resolveEntity } from "./catalogMerge";
 import { getLogContext, type LogDrink, type LogMilk, type LogPortion, type LogSetup } from "./logContext";
-import { getBagOwnRecipe, getCurrentRecipe, listCurrentRecipesForBean, type Recipe } from "./recipes";
+import { getBagOwnRecipe, getBorrowedRecipe, getCurrentRecipe, listCurrentRecipesForBean, type Recipe } from "./recipes";
 import { getRemaining } from "./remaining";
 import { setupsLastUsed } from "./setups";
 import { requireHousehold } from "./scope";
@@ -36,6 +36,8 @@ export type HomeState =
   | { kind: "recipe"; recipe: Recipe; bagOwn: boolean }
   /** No setup has a recipe for this drink and coffee (STORY-02-02-05). */
   | { kind: "noRecipe" }
+  /** Only another profile has one here: dialling in starts from theirs, never a one-tap pull (STORY-05-01-05). */
+  | { kind: "borrowed"; from: { name: string | null } }
   /** Another setup has one; dialling in starts from the closest (STORY-02-01-06). */
   | { kind: "noRecipeOnSetup"; from: LogSetup }
   /** The last pull's coffee is finished (AC 6); its recipe, if any, shows quietly. */
@@ -152,6 +154,9 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
     const own = await getBagOwnRecipe({ beanId: choice.beanId, personaId: persona.id, setupId: setup.id, drinkTypeId: drink.id }, portion.batchId);
     return { ...shown, state: { kind: "recipe", recipe: own ?? recipe, bagOwn: own !== null } };
   }
+
+  const borrowed = await getBorrowedRecipe({ beanId: choice.beanId, personaId: persona.id, setupId: setup.id, drinkTypeId: drink.id });
+  if (borrowed) return { ...shown, state: { kind: "borrowed", from: { name: borrowed.persona.name } } };
 
   const elsewhere = (await listCurrentRecipesForBean(choice.beanId, persona.id)).filter((r) => r.drinkTypeId === drink.id);
   const withRecipe = new Set(elsewhere.map((r) => r.setupId));

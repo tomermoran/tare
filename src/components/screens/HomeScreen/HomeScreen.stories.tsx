@@ -82,6 +82,22 @@ export const NoRecipeOnSetup: Story = {
   },
 };
 
+/** Only another profile has a recipe here: Dial in only, never a one-tap pull, and whose it starts from (STORY-05-01-05 AC 1, AC 3). */
+export const Borrowed: Story = {
+  args: {
+    values: undefined,
+    lines: [],
+    message: home.noRecipe,
+    note: t("home.startsFromPerson", { name: "Person A" }),
+    actions: buttons(home.dialIn),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByText("Dialling in starts from the recipe for Person A.")).toBeVisible());
+    await expect(canvas.queryByRole("button", { name: home.pull })).toBeNull();
+  },
+};
+
 /** The recipe stays, quietly; choose another coffee or add a bag. */
 export const Finished: Story = {
   args: { quiet: true, message: home.coffeeFinished, footnote: undefined, actions: buttons(home.chooseCoffee, home.addBag) },

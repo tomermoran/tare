@@ -10,7 +10,7 @@ import { grindWheelConfig, middleGrind } from "@/domain/grind";
 import type { Prep } from "@/domain/prep";
 import { resolveEntity } from "./catalogMerge";
 import { partsOf, setupsOf, type SetupSummary } from "./parts";
-import { getBagOwnRecipe, listCurrentRecipesForBean } from "./recipes";
+import { getBagOwnRecipe, getBorrowedRecipe, listCurrentRecipesForBean } from "./recipes";
 import { assertOwned, requireHousehold } from "./scope";
 import { setupsLastUsed } from "./setups";
 import { actingPersona } from "./persona";
@@ -34,6 +34,8 @@ export type DialInStart = {
   sweetened: boolean;
   /** False when grind didn't carry over, so the log says so (AC 4). */
   grindCarried: boolean;
+  /** Another profile's recipe on this setup, said on Brew and the log (STORY-05-01-05 AC 1). */
+  borrowedFrom: { personaId: string; name: string | null } | null;
 };
 
 /**
@@ -48,6 +50,23 @@ export async function getDialInStart(input: { beanId: string; drinkTypeId: strin
   const beanId = (await resolveEntity(db, canonicalBeans, input.beanId)) ?? input.beanId;
 
   const coffee = (await listCurrentRecipesForBean(beanId, persona.id)).filter((r) => r.drinkTypeId === input.drinkTypeId);
+  // None of their own here: another profile's on this setup wins over the closest setup (STORY-05-01-05, Q4).
+  if (!coffee.some((r) => r.setupId === input.setupId)) {
+    const borrowed = await getBorrowedRecipe({ beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId });
+    if (borrowed) {
+      const r = borrowed.recipe;
+      return {
+        fromSetupId: input.setupId,
+        values: { grind: r.grind, dose: r.dose, yield: r.yield, timeMs: r.timeMs },
+        brew: { brewTempC: r.brewTempC, brewTempStep: r.brewTempStep, pressureBar: r.pressureBar, pressureStep: r.pressureStep },
+        prep: { wdt: r.usedWdt, puckScreen: r.usedPuckScreen },
+        milk: { milkTypeId: r.milkTypeId, milkMl: r.milkMl },
+        sweetened: r.sweetened,
+        grindCarried: true,
+        borrowedFrom: { personaId: borrowed.persona.id, name: borrowed.persona.name },
+      };
+    }
+  }
   if (!coffee.length) return null;
   const bagOwn = input.batchId
     ? await getBagOwnRecipe({ beanId, personaId: persona.id, setupId: input.setupId, drinkTypeId: input.drinkTypeId }, input.batchId)
@@ -82,6 +101,7 @@ export async function getDialInStart(input: { beanId: string; drinkTypeId: strin
     milk: { milkTypeId: recipe.milkTypeId, milkMl: recipe.milkMl },
     sweetened: recipe.sweetened,
     grindCarried: carried.grindCarried,
+    borrowedFrom: null,
   };
 }
 
