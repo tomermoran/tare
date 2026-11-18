@@ -26,13 +26,16 @@ export function MaintenanceFlow({
   period,
   today,
   redial,
+  redialMore,
 }: {
   /** The grinder's event awaiting a re-dial, with the coffees to pick from (recipe IDs). */
   redial?: { eventId: string; options: SelectOption[] };
+  /** A burrs event with one re-dial, with the coffees for a second, farthest first (STORY-04-04-03). */
+  redialMore?: { eventId: string; options: SelectOption[] };
   partId: string;
   partKind: string;
   /** Each with its re-dial state and shift, for a grinder (STORY-04-03-05). */
-  events: (Omit<MaintenanceRow, "state" | "onOpen"> & { redial?: RedialState; shift?: number | null })[];
+  events: (Omit<MaintenanceRow, "state" | "onOpen"> & { redial?: RedialState; shift?: number | null; stretch?: number })[];
   period?: { line: string; shots?: string };
   /** Today in the device's zone, YYYY-MM-DD. */
   today: string;
@@ -44,7 +47,7 @@ export function MaintenanceFlow({
   const [draft, setDraft] = useState(blank);
   const [touched, setTouched] = useState<boolean | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
-  const [picking, setPicking] = useState(false);
+  const [picking, setPicking] = useState<"redial" | "more" | null>(null);
   const format = useFormatter();
   const offset = useOffsetFlow();
   const [opening, setOpening] = useState<"idle" | "failed">("idle");
@@ -54,14 +57,22 @@ export function MaintenanceFlow({
     setOpening("idle");
     const result = await getEventAction(id);
     if (!result.ok) return setOpening("failed");
-    offset.edit(result.data, { onRedial: redial?.options.length ? () => setPicking(true) : undefined });
+    offset.edit(result.data, {
+      onRedial: redial?.options.length ? () => setPicking("redial") : undefined,
+      onRedialMore: redialMore?.eventId === id && redialMore.options.length ? () => setPicking("more") : undefined,
+    });
   };
   const stateWords = (e: (typeof events)[number]): string | undefined => {
     switch (e.redial) {
       case "awaiting":
         return t("maintenance.state.awaiting");
-      case "confirmed":
-        return t("maintenance.state.shift", { value: format.number(e.shift ?? 0, { signDisplay: "exceptZero", maximumFractionDigits: 2 }) });
+      case "confirmed": {
+        const value = format.number(e.shift ?? 0, { signDisplay: "exceptZero", maximumFractionDigits: 2 });
+        // With one coffee the stretch is none and isn't shown (DES-04-04-01).
+        return e.stretch
+          ? t("maintenance.state.shiftStretch", { value, percent: format.number(e.stretch, { style: "unit", unit: "percent", signDisplay: "exceptZero" }) })
+          : t("maintenance.state.shift", { value });
+      }
       case "noAdjustment":
         return t("maintenance.state.noAdjustment");
       case "nothingToMap":
@@ -70,9 +81,9 @@ export function MaintenanceFlow({
         return undefined;
     }
   };
-  const rows: MaintenanceRow[] = events.map(({ redial: state, shift: _shift, ...e }) => ({
+  const rows: MaintenanceRow[] = events.map(({ redial: state, shift: _shift, stretch: _stretch, ...e }) => ({
     ...e,
-    state: stateWords({ ...e, redial: state, shift: _shift }),
+    state: stateWords({ ...e, redial: state, shift: _shift, stretch: _stretch }),
     onOpen: state === "awaiting" || state === "confirmed" || state === "noAdjustment" ? () => void openEvent(e.id) : undefined,
   }));
   const grinder = canRecalibrate(partKind);
@@ -116,7 +127,7 @@ export function MaintenanceFlow({
             <div className="flex flex-col items-start gap-3 pt-1 pb-3">
               <p className="text-body text-ink">{t("maintenance.redialAwaiting")}</p>
               {redial.options.length > 0 && (
-                <Button variant="secondary" onClick={() => setPicking(true)}>
+                <Button variant="secondary" onClick={() => setPicking("redial")}>
                   {t("maintenance.redialStart")}
                 </Button>
               )}
@@ -131,10 +142,19 @@ export function MaintenanceFlow({
       </p>
       {redial && (
         <RedialPick
-          open={picking}
-          onClose={() => setPicking(false)}
+          open={picking === "redial"}
+          onClose={() => setPicking(null)}
           eventId={redial.eventId}
           options={redial.options}
+          labels={{ title: t("redial.pick"), close: t("actions.close") }}
+        />
+      )}
+      {redialMore && (
+        <RedialPick
+          open={picking === "more"}
+          onClose={() => setPicking(null)}
+          eventId={redialMore.eventId}
+          options={redialMore.options}
           labels={{ title: t("redial.pick"), close: t("actions.close") }}
         />
       )}

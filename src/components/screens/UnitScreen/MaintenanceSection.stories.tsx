@@ -101,4 +101,16 @@ export const EventStates: Story = {
   },
 };
 
+/** A burrs event with a confirmed stretch shows both parts; one coffee's shows the shift alone (DES-04-04-01). */
+export const EventWithStretch: Story = {
+  args: {
+    events: [
+      { id: "e5", kind: maintenance.kind.burrs, date: "9 October", note: null, recalibration: true, state: t("maintenance.state.shiftStretch", { value: "−1", percent: "+10%" }), onOpen: fn() },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText("Shift −1, steps +10%")).toBeVisible();
+  },
+};
+
 export const EventStatesRightToLeft: Story = { ...EventStates, play: undefined, globals: { direction: "rtl" } };
