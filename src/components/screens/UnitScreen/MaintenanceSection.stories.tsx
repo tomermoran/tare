@@ -80,3 +80,25 @@ export const AwaitingRedial: Story = {
     await expect(canvas.getByRole("button", { name: maintenance.redialStart })).toBeVisible();
   },
 };
+
+/** A grinder's events with their state in words; those that can have a shift open it (STORY-04-03-05 AC 1). */
+export const EventStates: Story = {
+  args: {
+    events: [
+      { id: "e4", kind: maintenance.kind.burrs, date: "18 November", note: null, recalibration: true, state: maintenance.state.awaiting, onOpen: fn() },
+      { id: "e3", kind: maintenance.kind.rezero, date: "9 October", note: null, recalibration: true, state: t("maintenance.state.shift", { value: "−3" }), onOpen: fn() },
+      { id: "e2", kind: maintenance.kind.burrs, date: "2 August", note: null, recalibration: true, state: maintenance.state.noAdjustment, onOpen: fn() },
+      { id: "e1", kind: maintenance.kind.rezero, date: "1 June", note: null, recalibration: true, state: maintenance.state.nothingToMap },
+    ],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const awaiting = canvas.getByRole("button", { name: new RegExp(maintenance.state.awaiting) });
+    await userEvent.click(awaiting);
+    await expect(args.events[0].onOpen).toHaveBeenCalled();
+    await expect(canvas.getByText("Shift −3")).toBeVisible();
+    await expect(canvas.getAllByRole("button").filter((b) => b.textContent?.includes(maintenance.state.nothingToMap))).toHaveLength(0);
+  },
+};
+
+export const EventStatesRightToLeft: Story = { ...EventStates, play: undefined, globals: { direction: "rtl" } };

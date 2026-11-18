@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { MaintenanceSection, type MaintenanceRow } from "@/components/screens/UnitScreen/MaintenanceSection";
 import { canRecalibrate, MAINTENANCE_KINDS, recalibrationDefault, type MaintenanceKind } from "@/domain/maintenance";
-import { addMaintenanceAction } from "@/server/actions/maintenance";
+import { addMaintenanceAction, getEventAction } from "@/server/actions/maintenance";
+import { useOffsetFlow } from "@/components/recipes/useOffsetFlow";
+import type { RedialState } from "@/domain/redial";
 import { RedialPick } from "@/components/redial/RedialPick";
 import { Button } from "@/components/ui/Button/Button";
 import type { SelectOption } from "@/components/ui/SelectSheet/SelectSheet";
@@ -29,7 +31,8 @@ export function MaintenanceFlow({
   redial?: { eventId: string; options: SelectOption[] };
   partId: string;
   partKind: string;
-  events: MaintenanceRow[];
+  /** Each with its re-dial state and shift, for a grinder (STORY-04-03-05). */
+  events: (Omit<MaintenanceRow, "state" | "onOpen"> & { redial?: RedialState; shift?: number | null })[];
   period?: { line: string; shots?: string };
   /** Today in the device's zone, YYYY-MM-DD. */
   today: string;
@@ -42,6 +45,36 @@ export function MaintenanceFlow({
   const [touched, setTouched] = useState<boolean | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const [picking, setPicking] = useState(false);
+  const format = useFormatter();
+  const offset = useOffsetFlow();
+  const [opening, setOpening] = useState<"idle" | "failed">("idle");
+
+  // A grinder event that can have a shift opens SH-OFFSET (STORY-04-03-05 AC 1, AC 2, AC 4, AC 5).
+  const openEvent = async (id: string) => {
+    setOpening("idle");
+    const result = await getEventAction(id);
+    if (!result.ok) return setOpening("failed");
+    offset.edit(result.data, { onRedial: redial?.options.length ? () => setPicking(true) : undefined });
+  };
+  const stateWords = (e: (typeof events)[number]): string | undefined => {
+    switch (e.redial) {
+      case "awaiting":
+        return t("maintenance.state.awaiting");
+      case "confirmed":
+        return t("maintenance.state.shift", { value: format.number(e.shift ?? 0, { signDisplay: "exceptZero", maximumFractionDigits: 2 }) });
+      case "noAdjustment":
+        return t("maintenance.state.noAdjustment");
+      case "nothingToMap":
+        return t("maintenance.state.nothingToMap");
+      default:
+        return undefined;
+    }
+  };
+  const rows: MaintenanceRow[] = events.map(({ redial: state, shift: _shift, ...e }) => ({
+    ...e,
+    state: stateWords({ ...e, redial: state, shift: _shift }),
+    onOpen: state === "awaiting" || state === "confirmed" || state === "noAdjustment" ? () => void openEvent(e.id) : undefined,
+  }));
   const grinder = canRecalibrate(partKind);
   const recalibration = touched ?? (draft.kind ? recalibrationDefault(partKind, draft.kind) : false);
 
@@ -77,7 +110,7 @@ export function MaintenanceFlow({
           recalibration: t("maintenance.recalibration"),
         }}
         period={period}
-        events={events}
+        events={rows}
         status={
           redial ? (
             <div className="flex flex-col items-start gap-3 pt-1 pb-3">
@@ -92,6 +125,10 @@ export function MaintenanceFlow({
         }
         onAdd={start}
       />
+      {offset.sheet}
+      <p role="status" className="text-label text-ink-secondary empty:hidden">
+        {opening === "failed" ? t("states.loadFailed") : offset.said}
+      </p>
       {redial && (
         <RedialPick
           open={picking}
