@@ -5,7 +5,7 @@
  * localised symbol ("g", "s", "°C") and no unit strings live in our code.
  * Pressure (bar) has no Intl unit; pass its label from the messages instead.
  */
-export type CanonicalUnit = "gram" | "second" | "celsius" | "fahrenheit" | "milliliter";
+export type CanonicalUnit = "gram" | "second" | "celsius" | "fahrenheit" | "milliliter" | "percent";
 
 /** Stored shot time (ms) → displayed seconds, to one decimal like a scale timer. */
 export function msToSeconds(ms: number) {
@@ -82,16 +82,21 @@ export function decimalsOf(step: number) {
   return (String(step).split(".")[1] ?? "").length;
 }
 
-/** Splits a formatted value into number and unit parts, for different type sizes. */
+/**
+ * Splits a formatted value into number and unit parts, for different type
+ * sizes. `signed` shows "+" on positive values (a change, such as a stretch).
+ */
 export function formatValueParts(
   locale: string,
   value: number,
   decimals: number,
   unit?: CanonicalUnit,
+  signed = false,
 ) {
   const parts = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
+    ...(signed && { signDisplay: "exceptZero" as const }),
     // Narrow drops the scale for temperature ("93°"), so °C and °F use short.
     ...(unit && { style: "unit", unit, unitDisplay: unit === "celsius" || unit === "fahrenheit" ? "short" : "narrow" }),
   }).formatToParts(value);

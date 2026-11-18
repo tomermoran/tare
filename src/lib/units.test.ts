@@ -34,3 +34,12 @@ describe("decimal entry across locales (STORY-01-03-05)", () => {
     expect(formatValueParts("en", msToSeconds(27_600), 1, "second")).toMatchObject({ number: "27.6" });
   });
 });
+
+describe("percent (TASK-04-04-02-FE1)", () => {
+  it("formats a signed percent through Intl, with 0 unsigned", () => {
+    expect(formatValueParts("en", 10, 0, "percent", true)).toEqual({ number: "+10", unit: "%" });
+    expect(formatValueParts("en", -30, 0, "percent", true)).toEqual({ number: "-30", unit: "%" });
+    expect(formatValueParts("en", 0, 0, "percent", true)).toEqual({ number: "0", unit: "%" });
+    expect(formatValueParts("de-DE", 10, 0, "percent", true).unit).toBe("%");
+  });
+});

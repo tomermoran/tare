@@ -231,3 +231,18 @@ export const SignedShift: Story = {
     await expect(args.onChange).toHaveBeenLastCalledWith(0.5);
   },
 };
+
+/** A stretch in percent, signed, -30 to +30 (TASK-04-04-02-FE1); 0 means steps mean the same. */
+export const Percent: Story = {
+  args: { label: messages.offset.stretch.label, value: 0, min: -30, max: 30, step: 1, unit: "percent", signed: true, onChange: fn() },
+  play: async ({ canvasElement, args }) => {
+    const slider = within(canvasElement).getByRole("slider", { name: messages.offset.stretch.label });
+    await expect(slider).toHaveAttribute("aria-valuenow", "0");
+    await expect(slider).toHaveAttribute("aria-valuetext", "0 percent");
+    slider.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(args.onChange).toHaveBeenLastCalledWith(1);
+  },
+};
+
+export const PercentRightToLeft: Story = { args: { ...Percent.args!, value: 10 } as Story["args"], globals: { direction: "rtl" } };

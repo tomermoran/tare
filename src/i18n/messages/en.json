@@ -317,7 +317,12 @@
       "awaiting": "Awaiting re-dial",
       "shift": "Shift {value}",
       "noAdjustment": "No adjustment",
-      "nothingToMap": "Nothing to map"
+      "nothingToMap": "Nothing to map",
+      "shiftStretch": "Shift {value}, steps {percent}"
+    },
+    "redialMore": {
+      "action": "Re-dial a second coffee",
+      "body": "Changed to a different kind of burrs? Re-dial a second coffee, one much finer or coarser than the first, and Tare can tell whether each step now means something different."
     }
   },
   "unit": {
@@ -1031,7 +1036,8 @@
     "perRecipe": "Applied to your recipe, not to everyone's.",
     "useRecipe": "Use my recipe's {grind} for this shot",
     "serviced": "Grinder serviced on {date}",
-    "servicedNote": "Your grinder's servicing shift applies to recipes pinned before it."
+    "servicedNote": "Your grinder's servicing shift applies to recipes pinned before it.",
+    "servicedStretch": "Grinder serviced on {date}: steps {percent} {direction, select, larger {larger} other {smaller}}"
   },
   "redial": {
     "pick": "Which coffee?",
@@ -1060,6 +1066,19 @@
     "save": "Save",
     "remove": "Remove the shift",
     "saved": "Saved.",
-    "to": "to"
+    "to": "to",
+    "lineMany": "Your recipes moved: {list}.",
+    "evidence": "{coffee} {was} to {now}",
+    "stretch": {
+      "label": "How much each step changed",
+      "none": "Steps mean the same as before.",
+      "more": "Each step now moves your grind about {percent} more than before, so coarse recipes move further than fine ones.",
+      "less": "Each step now moves your grind about {percent} less than before, so coarse recipes move less than fine ones."
+    },
+    "basedOn": "{count, plural, other {Based on # coffees}}",
+    "uncertain": "These coffees don't quite agree, so treat these numbers as a guess.",
+    "tooClose": "Those two coffees are too similar in grind to tell whether the steps changed. Try one much finer or coarser.",
+    "declineStretch": "Keep the shift only",
+    "farFromFirst": "Very different grind"
   }
 }
