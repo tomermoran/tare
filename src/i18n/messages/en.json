@@ -196,6 +196,13 @@
       "aged": "beans have aged",
       "bag": "this bag's recent shots",
       "both": "beans have aged and this bag's recent shots"
+    },
+    "redial": {
+      "title": "Your grinder was serviced",
+      "titleNamed": "Your {grinder} was serviced",
+      "body": "Re-dial one coffee and the rest follow.",
+      "start": "Re-dial a coffee",
+      "later": "Not now"
     }
   },
   "log": {
@@ -243,7 +250,8 @@
     "capUnknown": "Tell us about your {kind, select, machine {machine} grinder {grinder} other {basket}}",
     "saveChanges": "Save changes",
     "forPerson": "for {name}",
-    "fromPersonRecipe": "Starting from the recipe for {name}."
+    "fromPersonRecipe": "Starting from the recipe for {name}.",
+    "redialing": "Re-dialling after servicing your grinder"
   },
   "journal": {
     "title": "Journal",
@@ -300,7 +308,9 @@
     "saveFailed": "Couldn't save the maintenance. Check your connection and try again.",
     "periodSince": "Current grind period since {date}",
     "periodShots": "{count, plural, =0 {No shots in it yet} one {# shot in it} other {# shots in it}}",
-    "periodAll": "All shots are in one grind period"
+    "periodAll": "All shots are in one grind period",
+    "redialAwaiting": "Recipes pinned before this still use the old numbers. Re-dial one coffee and they all follow.",
+    "redialStart": "Re-dial a coffee"
   },
   "unit": {
     "finer": "Finer",
@@ -1011,5 +1021,9 @@
     "acrossSetups": "Includes shots on your other setup with this grinder.",
     "perRecipe": "Applied to your recipe, not to everyone's.",
     "useRecipe": "Use my recipe's {grind} for this shot"
+  },
+  "redial": {
+    "pick": "Which coffee?",
+    "candidate": "{drink} · {setup}"
   }
 }
