@@ -15,6 +15,8 @@ import { getLinkPromptDue } from "@/server/dal/account";
 import { getPendingSuggestion } from "@/server/dal/logStart";
 import { getHome, type Home } from "@/server/dal/home";
 import { getProfile } from "@/server/dal/profile";
+import { getBrewPeople, type BrewPerson } from "@/server/dal/brewPeople";
+import { PersonaSelectLive } from "@/components/home/PersonaSelectLive";
 import { getSetupProgress } from "@/server/dal/progress";
 import { readBrewChoice } from "@/server/brewChoice";
 import { unlessSignedOut } from "@/server/dal/scope";
@@ -24,7 +26,8 @@ import { FirstRun } from "./FirstRun";
 import { recipeLines } from "./recipeLines";
 
 /**
- * Brew (SCR-HOME): the persona label, which opens Profile (STORY-01-01-03),
+ * Brew (SCR-HOME): the persona label, which opens Profile (STORY-01-01-03)
+ * or, with more than one profile, chooses who it's for (STORY-05-01-03),
  * then the first-run checklist until the first shot (STORY-01-01-07), then
  * the daily shot (STORY-02-02-01): the drink for this time of day, the
  * coffee in use, the recipe on the current setup and what's left.
@@ -115,7 +118,8 @@ async function Brew({ home }: { home: Home }) {
         coffee: home.coffee ? t("home.coffeeLine", { bean: home.coffee.name, roaster: home.coffee.roasterName }) : null,
         clocks,
         values: recipe ? { grind: recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
-        valuesKey: `${home.drink.id}|${home.coffee?.id ?? ""}`,
+        // A new person, drink or coffee cross-fades the values in place (STORY-05-01-03 AC 3).
+        valuesKey: `${home.personaId}|${home.drink.id}|${home.coffee?.id ?? ""}`,
         quiet: state.kind === "finished",
         // A bag's own recipe says so first, in words (STORY-02-04-03 AC 1).
         lines: recipe
@@ -166,10 +170,32 @@ async function Brew({ home }: { home: Home }) {
 }
 
 async function PersonaLink() {
-  const [t, profile] = await Promise.all([getTranslations("profile"), unlessSignedOut(getProfile())]);
+  const [t, profile, people] = await Promise.all([
+    getTranslations(),
+    unlessSignedOut(getProfile()),
+    unlessSignedOut(getBrewPeople()),
+  ]);
+  const role = t("profile.defaultName");
+  // One persona: the label opens Profile, as before (STORY-05-01-03 AC 1).
+  if (!people)
+    return (
+      <Link href={PROFILE_PATH} className="py-1.5 text-label text-ink-secondary hover:text-ink">
+        {personaLabel({ name: profile?.name ?? null }, role)}
+      </Link>
+    );
+  const name = (p: BrewPerson) => personaLabel(p, role);
+  const chosen = people.people.find((p) => p.id === people.actingId)!;
   return (
-    <Link href={PROFILE_PATH} className="py-1.5 text-label text-ink-secondary hover:text-ink">
-      {personaLabel({ name: profile?.name ?? null }, t("defaultName"))}
-    </Link>
+    <PersonaSelectLive
+      value={chosen.main ? name(chosen) : t("home.brewingFor", { name: name(chosen) })}
+      chosenId={chosen.id}
+      options={people.people.map((p) => ({
+        id: p.id,
+        primary: name(p),
+        marker: p.main ? t("home.usual") : undefined,
+        secondary: p.usualDrink ? t("home.personUsual", { drink: drinkLabel(p.usualDrink, (key: DrinkKey) => t(key)) }) : undefined,
+      }))}
+      labels={{ change: t("home.changePerson"), title: t("home.whoFor"), close: t("actions.close"), profileAndPeople: t("home.profileAndPeople") }}
+    />
   );
 }

@@ -182,7 +182,12 @@
       "body": "Link a Google account so your shots and recipes stay with you if you change phones.",
       "action": "Link Google",
       "dismiss": "Not now"
-    }
+    },
+    "changePerson": "Change who it's for",
+    "whoFor": "Who is it for?",
+    "brewingFor": "for {name}",
+    "personUsual": "Usually {drink}",
+    "profileAndPeople": "Profile and people"
   },
   "log": {
     "titleNew": "New shot",
