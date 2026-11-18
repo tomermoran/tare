@@ -136,7 +136,8 @@ export async function lastGrindOnPart(grinderPartId: string): Promise<number | n
   return lastGrindOn(householdId, grinderPartId);
 }
 
-async function grindScaleOf(grinderPartId: string | null) {
+/** A grinder part's scale, null when it isn't known. */
+export async function grindScaleOf(grinderPartId: string | null) {
   if (!grinderPartId) return null;
   const [row] = await db
     .select({ capabilities: canonicalHardware.capabilities })

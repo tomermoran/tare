@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
+    "evals:drift": "tsx scripts/evalsDrift.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
