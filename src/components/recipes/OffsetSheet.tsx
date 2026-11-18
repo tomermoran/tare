@@ -18,6 +18,12 @@ type Action = { label: string; onClick: () => void };
  * secondary actions differ by mode (confirm or decline after a pin; save or
  * remove from the grinder's screen; pick another coffee with no baseline).
  * A failed save keeps the sheet with a retry. Props only; ink only.
+ *
+ * After new burrs (EPIC-04-04, DES-04-04-01): the stretch as a second
+ * control in percent with a plain sentence, what it rests on, a neutral
+ * notice when the fit is a guess (never signal), a quiet line with another
+ * coffee to try when two are too close, and the invitation to re-dial a
+ * second coffee in edit mode.
  */
 export function OffsetSheet({
   open,
@@ -33,7 +39,26 @@ export function OffsetSheet({
   secondary,
   saving = false,
   failure,
+  notice,
+  stretch,
+  tooClose,
+  invite,
 }: {
+  /** Leads the sheet, neutral: "treat these numbers as a guess" (STORY-04-04-01 AC 3). */
+  notice?: string;
+  /** How much each step changed, in percent (STORY-04-04-01, 02). */
+  stretch?: {
+    label: string;
+    wheel: { value: number; onChange: (v: number) => void; min: number; max: number };
+    /** "Each step now moves your grind about 10% more…", or "steps mean the same". */
+    explain: string;
+    /** "Based on 3 coffees", for three or more. */
+    basedOn?: string;
+  };
+  /** Two coffees too close to tell a stretch, with another to try (AC 4). */
+  tooClose?: { message: string; action: Action };
+  /** A burrs event with one re-dial: re-dial a second coffee (STORY-04-04-03 AC 1). */
+  invite?: { body: string; action: Action };
   open: boolean;
   onClose: () => void;
   labels: { title: string; close: string; shift: string; preview: string; /** Read out for the arrow: "15 to 12". */ to: string };
@@ -74,6 +99,7 @@ export function OffsetSheet({
       }
     >
       <div className="flex flex-col gap-6">
+        {notice && <Notice>{notice}</Notice>}
         {line && <p className="text-body text-ink">{line}</p>}
         {message && <p className="text-body text-ink-secondary">{message}</p>}
         {wheel && (
@@ -81,6 +107,30 @@ export function OffsetSheet({
             <NumberWheel label={labels.shift} value={wheel.value} onChange={wheel.onChange} min={wheel.min} max={wheel.max} step={wheel.step} />
             {words && <p className="text-body text-ink">{words}</p>}
             {agedNote && <p className="text-label text-ink-secondary">{agedNote}</p>}
+          </div>
+        )}
+        {stretch && (
+          <div className="flex flex-col gap-1">
+            <NumberWheel
+              label={stretch.label}
+              value={stretch.wheel.value}
+              onChange={stretch.wheel.onChange}
+              min={stretch.wheel.min}
+              max={stretch.wheel.max}
+              step={1}
+              unit="percent"
+              signed
+            />
+            <p className="text-body text-ink">{stretch.explain}</p>
+            {stretch.basedOn && <p className="text-label text-ink-secondary">{stretch.basedOn}</p>}
+          </div>
+        )}
+        {tooClose && (
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-body text-ink-secondary">{tooClose.message}</p>
+            <Button variant="ghost" className="-ms-4" onClick={tooClose.action.onClick}>
+              {tooClose.action.label}
+            </Button>
           </div>
         )}
         {preview && (
@@ -106,6 +156,14 @@ export function OffsetSheet({
             )}
             {preview.more && <p className="text-label text-ink-secondary">{preview.more}</p>}
           </section>
+        )}
+        {invite && (
+          <div className="flex flex-col items-start gap-3 border-t border-line pt-4">
+            <p className="text-body text-ink-secondary">{invite.body}</p>
+            <Button variant="ghost" className="-ms-4" onClick={invite.action.onClick} disabled={saving}>
+              {invite.action.label}
+            </Button>
+          </div>
         )}
       </div>
     </Sheet>
