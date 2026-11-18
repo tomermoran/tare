@@ -1,4 +1,5 @@
 import "server-only";
+import type { ServicingStep } from "@/domain/servicing";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { canonicalBeans, canonicalHardware, extractions, ownedHardware, setupParts } from "@/db/schema";
@@ -36,6 +37,8 @@ export type DialInStart = {
   grindCarried: boolean;
   /** Another profile's recipe on this setup, said on Brew and the log (STORY-05-01-05 AC 1). */
   borrowedFrom: { personaId: string; name: string | null } | null;
+  /** Confirmed servicing shifts in the grind, when it carried over (STORY-04-03-03 AC 1). */
+  servicing?: ServicingStep[];
 };
 
 /**
@@ -64,6 +67,7 @@ export async function getDialInStart(input: { beanId: string; drinkTypeId: strin
         sweetened: r.sweetened,
         grindCarried: true,
         borrowedFrom: { personaId: borrowed.persona.id, name: borrowed.persona.name },
+        servicing: r.servicing ?? [],
       };
     }
   }
@@ -102,6 +106,7 @@ export async function getDialInStart(input: { beanId: string; drinkTypeId: strin
     sweetened: recipe.sweetened,
     grindCarried: carried.grindCarried,
     borrowedFrom: null,
+    servicing: carried.grindCarried ? (recipe.servicing ?? []) : [],
   };
 }
 

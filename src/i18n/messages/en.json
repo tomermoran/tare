@@ -195,7 +195,9 @@
     "grindReason": {
       "aged": "beans have aged",
       "bag": "this bag's recent shots",
-      "both": "beans have aged and this bag's recent shots"
+      "both": "beans have aged and this bag's recent shots",
+      "serviced": "grinder serviced",
+      "servicedAnd": "grinder serviced, and more"
     },
     "redial": {
       "title": "Your grinder was serviced",
@@ -310,7 +312,13 @@
     "periodShots": "{count, plural, =0 {No shots in it yet} one {# shot in it} other {# shots in it}}",
     "periodAll": "All shots are in one grind period",
     "redialAwaiting": "Recipes pinned before this still use the old numbers. Re-dial one coffee and they all follow.",
-    "redialStart": "Re-dial a coffee"
+    "redialStart": "Re-dial a coffee",
+    "state": {
+      "awaiting": "Awaiting re-dial",
+      "shift": "Shift {value}",
+      "noAdjustment": "No adjustment",
+      "nothingToMap": "Nothing to map"
+    }
   },
   "unit": {
     "finer": "Finer",
@@ -781,7 +789,8 @@
     "bagRemoveBody": "This bag goes back to the recipe every other bag uses. Its own recipe is kept with your older recipes, and your shots don't change.",
     "bagRemoveConfirm": "Use the coffee's recipe",
     "bagRemoved": "This bag now uses the coffee's recipe.",
-    "forPerson": "for {name}"
+    "forPerson": "for {name}",
+    "servicedLine": "Grind shifted from {grind} after servicing"
   },
   "taste": {
     "title": "Shot saved",
@@ -1020,7 +1029,9 @@
     "pooled": "Includes shots made for {count} people.",
     "acrossSetups": "Includes shots on your other setup with this grinder.",
     "perRecipe": "Applied to your recipe, not to everyone's.",
-    "useRecipe": "Use my recipe's {grind} for this shot"
+    "useRecipe": "Use my recipe's {grind} for this shot",
+    "serviced": "Grinder serviced on {date}",
+    "servicedNote": "Your grinder's servicing shift applies to recipes pinned before it."
   },
   "redial": {
     "pick": "Which coffee?",

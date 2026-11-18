@@ -113,6 +113,8 @@ async function Part({ params, searchParams }: PageProps<"/setup/parts/[unitId]">
             date: date(e.at),
             note: e.note,
             recalibration: e.isRecalibration,
+            redial: e.redial,
+            shift: e.shift,
           }))}
           period={
             period

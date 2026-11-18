@@ -15,7 +15,8 @@ type Wheel = { step: number; coarser: "higher" | "lower" | null; min: number; ma
 type Open =
   | { mode: "propose"; eventId: string; recipeId: string; line: string; aged: number | null; wheel: Wheel; proposed: number }
   | { mode: "edit"; eventId: string; line: string | null; wheel: Wheel; current: number }
-  | { mode: "noBaseline"; grinderId: string };
+  | { mode: "noBaseline"; grinderId: string }
+  | { mode: "awaiting"; eventId: string; onRedial?: () => void };
 
 const decimals = (step: number) => (step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
 
@@ -30,7 +31,8 @@ const decimals = (step: number) => (step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.
  */
 export function useOffsetFlow({ onDone }: { onDone?: () => void } = {}): {
   afterPin: (recipeId: string, opts?: { redial?: boolean }) => Promise<void>;
-  edit: (event: EventDetail) => void;
+  /** From the grinder's screen; an event awaiting a re-dial offers to start one (STORY-04-03-05 AC 5). */
+  edit: (event: EventDetail, opts?: { onRedial?: () => void }) => void;
   sheet: ReactNode;
   said: string | null;
 } {
@@ -59,7 +61,7 @@ export function useOffsetFlow({ onDone }: { onDone?: () => void } = {}): {
     setOpen(next);
     setShift(value);
     setPreview(null);
-    if (next.mode !== "noBaseline") void loadPreview(next.eventId, value, next.mode === "propose" ? next.recipeId : null);
+    if (next.mode === "propose" || next.mode === "edit") void loadPreview(next.eventId, value, next.mode === "propose" ? next.recipeId : null);
   };
 
   const finish = (message: string | null) => {
@@ -93,8 +95,10 @@ export function useOffsetFlow({ onDone }: { onDone?: () => void } = {}): {
     );
   };
 
-  const edit = (event: EventDetail) =>
-    show(
+  const edit = (event: EventDetail, opts: { onRedial?: () => void } = {}) =>
+    event.state === "awaiting"
+      ? show({ mode: "awaiting", eventId: event.id, onRedial: opts.onRedial }, 0)
+      : show(
       {
         mode: "edit",
         eventId: event.id,
@@ -107,12 +111,13 @@ export function useOffsetFlow({ onDone }: { onDone?: () => void } = {}): {
 
   const save = async (value: number) => {
     if (!open || open.mode === "noBaseline") return;
+    const mode = open.mode;
     tried.current = value;
     setState("saving");
     const result = open.mode === "propose" ? await confirmShiftAction(open.eventId, value, open.recipeId) : await setEventShiftAction(open.eventId, value);
     if (!result.ok) return setState("failed");
     setState("idle");
-    finish(open.mode === "edit" ? t("offset.saved") : value === 0 ? t("offset.declined") : t("offset.confirmed"));
+    finish(mode === "edit" ? t("offset.saved") : value === 0 ? t("offset.declined") : t("offset.confirmed"));
   };
 
   const close = () => {
@@ -131,6 +136,31 @@ export function useOffsetFlow({ onDone }: { onDone?: () => void } = {}): {
           labels={labels}
           message={t("offset.noBaseline")}
           primary={{ label: t("offset.pickAnother"), onClick: () => router.push(partHref(open.grinderId)) }}
+        />
+      );
+    } else if (open.mode === "awaiting") {
+      const decline = { label: t("offset.decline"), onClick: () => void save(0) };
+      const redial = open.onRedial;
+      sheet = (
+        <OffsetSheet
+          open
+          onClose={close}
+          labels={labels}
+          message={t("maintenance.redialAwaiting")}
+          primary={
+            redial
+              ? {
+                  label: t("maintenance.redialStart"),
+                  onClick: () => {
+                    setOpen(null);
+                    redial();
+                  },
+                }
+              : decline
+          }
+          secondary={redial ? decline : undefined}
+          saving={state === "saving"}
+          failure={state === "failed" ? { message: t("states.saveFailed"), retryLabel: t("actions.retry"), onRetry: () => void save(0) } : undefined}
         />
       );
     } else {

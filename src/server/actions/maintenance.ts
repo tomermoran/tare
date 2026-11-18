@@ -8,6 +8,8 @@ import {
   InvalidShiftError,
   previewShift,
   setEventShift,
+  getEvent,
+  type EventDetail,
   type OffsetProposal,
   type ShiftPreview,
 } from "@/server/dal/redial";
@@ -57,4 +59,10 @@ async function shiftResult(write: () => Promise<void>): Promise<ActionResult<nul
     if (e instanceof InvalidShiftError) return fail("saveFailed");
     return runAction(() => Promise.reject(e));
   }
+}
+
+/** One event's shift and state, to open it from the grinder's screen (STORY-04-03-05). */
+export async function getEventAction(eventId: string): Promise<ActionResult<EventDetail>> {
+  if (typeof eventId !== "string" || !eventId) return fail("notFound");
+  return runAction(() => getEvent(eventId));
 }

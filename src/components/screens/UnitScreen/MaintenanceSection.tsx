@@ -10,6 +10,10 @@ export type MaintenanceRow = {
   date: string;
   note: string | null;
   recalibration: boolean;
+  /** A grinder event's re-dial state in words: "Awaiting re-dial", "Shift −3" (STORY-04-03-05 AC 1). */
+  state?: string;
+  /** Opens the event, for a grinder event that can have a shift. */
+  onOpen?: () => void;
 };
 
 /**
@@ -58,9 +62,13 @@ export function MaintenanceSection({
                       {e.note && <span className="line-clamp-1 break-words">{e.note}</span>}
                     </>
                   }
+                  onClick={e.onOpen}
                   end={
-                    e.recalibration ? (
-                      <span className="text-overline uppercase text-ink-secondary">{labels.recalibration}</span>
+                    e.recalibration || e.state ? (
+                      <span className="flex flex-col items-end gap-0.5 text-end">
+                        {e.recalibration && <span className="text-overline uppercase text-ink-secondary">{labels.recalibration}</span>}
+                        {e.state && <span className="text-label text-ink">{e.state}</span>}
+                      </span>
                     ) : undefined
                   }
                 />

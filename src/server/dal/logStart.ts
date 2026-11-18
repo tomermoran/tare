@@ -1,4 +1,5 @@
 import "server-only";
+import type { ServicingStep } from "@/domain/servicing";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { batches, batchPortions, canonicalBeans, extractions, pinnedRecipes, setups } from "@/db/schema";
@@ -90,6 +91,8 @@ export type LogStart = {
   grindAdjustment?: GrindAdjustment | null;
   /** Starts from another profile's recipe, named in the log's note (STORY-05-01-05 AC 1). */
   borrowedFrom?: { name: string | null } | null;
+  /** Confirmed servicing shifts already in the start's grind, to label it (STORY-04-03-03 AC 1). */
+  servicing?: ServicingStep[];
   /** Re-dialling after servicing: the event, for the log's banner and the offset sheet (STORY-04-03-04 AC 5). */
   redialEventId?: string | null;
 };
@@ -160,6 +163,7 @@ export async function getFixStart(shotId: string, suggested?: string): Promise<L
     locked: true,
     start,
     applied: applyChange(start, suggestion?.change ?? null),
+    servicing: recipe?.servicing ?? [],
     milkTypeId: recipe ? recipe.milkTypeId : s.milkTypeId,
     sweetened: recipe ? recipe.sweetened : s.sweetened === true,
     suggestion,
@@ -262,6 +266,7 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
     start,
     applied: grindAdjustment ? { ...applied, grind: grindAdjustment.shown } : applied,
     grindAdjustment,
+    servicing: dialIn.servicing ?? [],
     milkTypeId: dialIn.milk.milkTypeId,
     sweetened: dialIn.sweetened,
     suggestion,

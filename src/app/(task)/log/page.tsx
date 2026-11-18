@@ -174,9 +174,14 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       banner={p?.redialEventId ? t("log.redialing") : undefined}
       redial={!!p?.redialEventId}
       grindTrail={
-        p?.grindAdjustment
-          ? grindTrailView(p.grindAdjustment, t, format, { roastDays: roastDays(context.portions.find((x) => x.id === p.portionId)?.roasting), timeZone })
-          : undefined
+        (p &&
+          grindTrailView(
+            { adjustment: p.grindAdjustment ?? null, servicing: p.servicing, wheel: grind },
+            t,
+            format,
+            { roastDays: roastDays(context.portions.find((x) => x.id === p.portionId)?.roasting), timeZone },
+          )) ??
+        undefined
       }
       forPerson={forPersonLine(t, persona ?? null)}
       tasteFrom={prefilled?.mode}
