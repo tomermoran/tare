@@ -1103,5 +1103,36 @@
     "withdraw": "Withdraw the link",
     "withdrawn": "Link withdrawn.",
     "withdrawFailed": "The link couldn't be withdrawn, so it still works."
+  },
+  "join": {
+    "title": "You've been invited to share a coffee kitchen",
+    "summaryTitle": "{name}'s profile",
+    "shots": "{count, plural, =0 {No shots yet} one {# shot} other {# shots}}",
+    "drinks": "Mostly {drinks}",
+    "lastBrewed": "Last brewed for {when}",
+    "sharesIntro": "If you join:",
+    "shares": {
+      "signIn": "You sign in with Google.",
+      "takeOver": "You take over this profile, with its shots and recipes.",
+      "household": "You share this household's machine, grinder, beans and recipes, and everyone's shots."
+    },
+    "signIn": "Sign in with Google to continue",
+    "notNow": "Not now",
+    "loading": "Loading the invitation",
+    "invalidTitle": "This link no longer works",
+    "invalid": "Ask them for a new one.",
+    "openTare": "Open Tare",
+    "hasHistory": "You already use Tare with your own history, and one login belongs to one household for now. Sign in with a different Google account to join this one.",
+    "failed": "That didn't work, and nothing was joined. Try again."
+  },
+  "claim": {
+    "title": "Take over {name}'s profile?",
+    "becomesYours": "It becomes yours, with its shots and recipes.",
+    "othersBrew": "Others in the household can still brew for you.",
+    "consent": "Your shots stay private to this household. If sharing with other brewers ever comes, it will be your choice.",
+    "confirm": "Yes, this is my profile",
+    "cancel": "Cancel",
+    "final": "This is final and can't be undone here. You can leave the household later from your profile.",
+    "done": "You've joined. This profile is yours now."
   }
 }
