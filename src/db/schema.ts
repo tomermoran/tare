@@ -82,6 +82,34 @@ export const personas = sqliteTable("personas", {
   isDefault: integer("is_default", { mode: "boolean" }).default(false),
 });
 
+// An invitation to claim a profile (TD-11, EPIC-05-02). The link is the row's
+// ID with an HMAC over it, recomputed on demand, so no token is stored; its
+// state (pending, used, withdrawn, expired) is derived from these timestamps.
+export const invites = sqliteTable(
+  "invites",
+  {
+    id: text("id").primaryKey(),
+    householdId: text("household_id")
+      .references(() => households.id)
+      .notNull(),
+    personaId: text("persona_id")
+      .references(() => personas.id)
+      .notNull(),
+    createdByUserId: text("created_by_user_id")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    usedAt: integer("used_at", { mode: "timestamp_ms" }),
+    usedByUserId: text("used_by_user_id").references(() => users.id),
+    withdrawnAt: integer("withdrawn_at", { mode: "timestamp_ms" }),
+  },
+  (t) => [
+    index("invites_persona_time").on(t.personaId, t.createdAt),
+    index("invites_household").on(t.householdId),
+  ],
+);
+
 // --- HOUSEHOLD LISTS ---
 
 // Drinks a household makes. Each new household gets the starter list (Espresso,
