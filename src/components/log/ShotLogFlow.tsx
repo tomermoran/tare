@@ -112,6 +112,7 @@ export function ShotLogFlow({
   locked = false,
   note,
   banner,
+  redial = false,
   grindTrail,
   forPerson,
   tasteFrom,
@@ -154,6 +155,8 @@ export function ShotLogFlow({
   note?: string[];
   /** One quiet line under the header, e.g. re-dialling after servicing (STORY-04-03-04 AC 5). */
   banner?: string;
+  /** Re-dialling after servicing: tasting and pinning carry it to the offset sheet. */
+  redial?: boolean;
   /** Why the grind isn't the recipe's (STORY-04-02-06 AC 3); only on the setup it was worked out for. */
   grindTrail?: GrindTrailView;
   forPerson?: string;
@@ -323,7 +326,8 @@ export function ShotLogFlow({
     }
     clearDraft(DRAFT);
     // The shot is saved; tasting is optional (SCR-TASTE).
-    proceed(() => router.replace(`/taste/${result.data.id}${tasteFrom ? `?from=${tasteFrom}` : ""}`));
+    const query = new URLSearchParams({ ...(tasteFrom && { from: tasteFrom }), ...(redial && { redial: "1" }) }).toString();
+    proceed(() => router.replace(`/taste/${result.data.id}${query ? `?${query}` : ""}`));
   };
   const retry = () => {
     const v = draft.values;

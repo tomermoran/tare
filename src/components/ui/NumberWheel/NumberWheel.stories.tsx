@@ -219,3 +219,15 @@ export const EnglishDecimalPoint: Story = {
     await expect(args.onChange).toHaveBeenLastCalledWith(18.5);
   },
 };
+
+/** A signed range around zero, for a grinder shift after servicing (DES-04-03-05): it starts below zero and steps both ways. */
+export const SignedShift: Story = {
+  args: { label: messages.offset.shift, value: -1.5, min: -25, max: 25, step: 0.5, onChange: fn() },
+  play: async ({ canvasElement, args }) => {
+    const slider = within(canvasElement).getByRole("slider", { name: messages.offset.shift });
+    await expect(slider).toHaveAttribute("aria-valuenow", "-1.5");
+    slider.focus();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}");
+    await expect(args.onChange).toHaveBeenLastCalledWith(0.5);
+  },
+};

@@ -55,6 +55,7 @@ export function TasteFlow({
   pinTitle,
   suggestion,
   pinFirst = false,
+  redial = false,
   forPerson,
 }: {
   shotId: string;
@@ -69,6 +70,8 @@ export function TasteFlow({
   suggestion?: { context: SuggestContextInput; directionHref: string | null };
   /** After a fix or dial-in, pinning is why the user came (STORY-02-03-02 AC 4). */
   pinFirst?: boolean;
+  /** Re-dialling after servicing: a pin with no baseline says why (STORY-04-03-01 AC 4). */
+  redial?: boolean;
   /** "for {name}": whose taste the answers are (STORY-05-01-04 AC 2). */
   forPerson?: string;
 }) {
@@ -78,7 +81,7 @@ export function TasteFlow({
   const [answers, setAnswers] = useState(initial);
   // What the shot holds now: the answers it opened with, then each save.
   const [saved, setSaved] = useState(initial);
-  const pin = usePinFlow({ title: pinTitle });
+  const pin = usePinFlow({ title: pinTitle, redial });
   const [state, setState] = useState<"idle" | "saving" | "failed">("idle");
   const pending = useRef<() => void>(() => {});
   const guarded = useRef(false);

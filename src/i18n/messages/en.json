@@ -1025,5 +1025,30 @@
   "redial": {
     "pick": "Which coffee?",
     "candidate": "{drink} · {setup}"
+  },
+  "offset": {
+    "title": "What did the servicing change?",
+    "line": "Your recipe for {coffee} was {was} and is now {now}.",
+    "shift": "Shift on the dial",
+    "finer": "{count, plural, one {# step finer} other {# steps finer}}",
+    "coarser": "{count, plural, one {# step coarser} other {# steps coarser}}",
+    "noChange": "No change",
+    "agedNote": "{amount} of that was the beans ageing, taken off first.",
+    "preview": "Your other recipes",
+    "previewRow": "{coffee}, {drink}",
+    "more": "and {count} more",
+    "noOthers": "No other recipes from before the servicing.",
+    "confirm": "Use this for my other recipes",
+    "decline": "Don't adjust my old recipes",
+    "confirmed": "Your other recipes now follow.",
+    "declined": "Old recipes stay as they were.",
+    "noBaseline": "This coffee had no recipe before the servicing, so there's nothing to compare. Pick one that did.",
+    "pickAnother": "Pick another coffee",
+    "failed": "Pinned. No shift could be proposed.",
+    "editFrom": "From your re-dial of {coffee} on {date}.",
+    "save": "Save",
+    "remove": "Remove the shift",
+    "saved": "Saved.",
+    "to": "to"
   }
 }
