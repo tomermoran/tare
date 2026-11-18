@@ -1134,5 +1134,18 @@
     "cancel": "Cancel",
     "final": "This is final and can't be undone here. You can leave the household later from your profile.",
     "done": "You've joined. This profile is yours now."
+  },
+  "leave": {
+    "row": "Leave this household",
+    "title": "Leave this household?",
+    "staysBehind": "Your profile, with its shots and recipes, stays with this household as a profile nobody has claimed, so the others can keep using it.",
+    "startFresh": "You start a new, empty household of your own, with a fresh profile. The machine, grinder, beans, setups and recipes here stay with this household.",
+    "account": "You stay signed in with the same Google account.",
+    "canReturn": "Nothing is deleted, and the household can invite you back to take your old profile over again.",
+    "ownerNote": "The member who has been here longest becomes the owner.",
+    "confirm": "Leave this household",
+    "failed": "Couldn't leave right now. Nothing has changed.",
+    "alone": "You're the only one here, so there's nothing to leave.",
+    "done": "You've left. This is your own household now."
   }
 }

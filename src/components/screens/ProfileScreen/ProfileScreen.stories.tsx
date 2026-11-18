@@ -43,6 +43,8 @@ function Controlled(props: {
   linked?: boolean;
   onSave: (name: string) => void;
   onLink?: () => void;
+  /** More than one login: the account section offers to leave. */
+  canLeave?: boolean;
 }) {
   const [name, setName] = useState(props.initial);
   return (
@@ -58,6 +60,7 @@ function Controlled(props: {
       linkAction={<Button onClick={props.onLink}>{profile.linkGoogle}</Button>}
       lists={lists}
       people={{ href: "/profile/people", summary: t("profile.peopleSummary", { count: 3 }) }}
+      leaveAction={props.canLeave ? <Button variant="ghost">{messages.leave.row}</Button> : undefined}
     />
   );
 }
@@ -171,6 +174,14 @@ export const Saving: Story = {
   args: { initial: "Sam", pending: true },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole("button", { name: profile.save })).toBeDisabled();
+  },
+};
+
+/** With more than one login, the account section offers to leave (STORY-05-02-07 AC 1); a household of one never sees it. */
+export const CanLeave: Story = {
+  args: { initial: "Sam", linked: true, canLeave: true },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: messages.leave.row })).toBeVisible();
   },
 };
 
