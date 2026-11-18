@@ -30,7 +30,12 @@ const CANCELLED = new Set(["auth/popup-closed-by-user", "auth/cancelled-popup-re
 
 function provider() {
   // Only sign-in; no extra scopes, so Google shares nothing beyond the basics Firebase needs.
-  return new GoogleAuthProvider();
+  const p = new GoogleAuthProvider();
+  // Always show Google's account chooser. Without it Google reuses the account
+  // the browser is signed in to, so after "already has a Tare history" there was
+  // no way to pick a different one (STORY-05-03-04 AC 3).
+  p.setCustomParameters({ prompt: "select_account" });
+  return p;
 }
 
 function codeOf(error: unknown): string {
