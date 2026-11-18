@@ -24,6 +24,7 @@ const EXPECTED: Record<string, string> = {
   hardware_makers: "id:text! name:text! source:text! status:text! merged_into_id:text created_by_household_id:text created_at:integer!",
   household_members: "household_id:text! user_id:text! role:text! joined_at:integer!",
   households: "id:text! name:text created_at:integer!",
+  invites: "id:text! household_id:text! persona_id:text! created_by_user_id:text! created_at:integer! expires_at:integer! used_at:integer used_by_user_id:text withdrawn_at:integer",
   maintenance_events: "id:text! owned_hardware_id:text! kind:text! is_recalibration:integer! note:text occurred_at:integer! grind_shift:real grind_scale:real offset_source_recipe_id:text",
   milk_types: "id:text! household_id:text! name_key:text name:text kind:text! hidden:integer sort_order:integer!",
   owned_hardware: "id:text! household_id:text! hardware_id:text! nickname:text acquired_at:integer retired_at:integer created_at:integer!",

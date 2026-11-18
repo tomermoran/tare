@@ -5,6 +5,7 @@ import {
   canonicalBeans,
   canonicalHardware,
   extractions,
+  invites,
   maintenanceEvents,
   pinnedRecipes,
   roasters,
@@ -47,6 +48,8 @@ async function addRows(k: Kitchen): Promise<Record<OwnedTable, string>> {
   await db.insert(stockChecks).values(check);
   const event = { id: newId(), ownedHardwareId: k.parts[1].id, kind: "clean", occurredAt: new Date() };
   await db.insert(maintenanceEvents).values(event);
+  const invite = { id: newId(), householdId: k.household.id, personaId: k.persona.id, createdByUserId: k.user.id, createdAt: new Date(), expiresAt: new Date(Date.now() + 86_400_000) };
+  await db.insert(invites).values(invite);
   return {
     drinkTypes: k.drinks.espresso.id,
     milkTypes: k.milk.id,
@@ -59,6 +62,7 @@ async function addRows(k: Kitchen): Promise<Record<OwnedTable, string>> {
     pinnedRecipes: recipe.id,
     stockChecks: check.id,
     maintenanceEvents: event.id,
+    invites: invite.id,
   };
 }
 
@@ -96,6 +100,7 @@ describe("household isolation", () => {
     "pinnedRecipes",
     "stockChecks",
     "maintenanceEvents",
+    "invites",
   ] as const satisfies readonly OwnedTable[];
 
   it.each(tables)("accepts my own %s", async (table) => {

@@ -9,6 +9,7 @@ import {
   drinkTypes,
   extractions,
   hardwareMakers,
+  invites,
   maintenanceEvents,
   milkTypes,
   ownedHardware,
@@ -66,6 +67,7 @@ const direct = {
   batches,
   extractions,
   pinnedRecipes,
+  invites,
 } as const;
 
 /** Tables owned through a parent row. */
