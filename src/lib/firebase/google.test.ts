@@ -13,6 +13,7 @@ const fa = vi.hoisted(() => ({
   getRedirectResult: vi.fn(),
   signInWithCredential: vi.fn(),
   credentialFromError: vi.fn(),
+  customParameters: vi.fn(),
 }));
 
 vi.mock("firebase/auth", () => ({
@@ -22,6 +23,9 @@ vi.mock("firebase/auth", () => ({
   signInWithCredential: fa.signInWithCredential,
   GoogleAuthProvider: class {
     static credentialFromError = fa.credentialFromError;
+    setCustomParameters(params: Record<string, string>) {
+      fa.customParameters(params);
+    }
   },
 }));
 vi.mock("./client", () => ({ ensureSignedIn: async () => user, firebaseAuth: () => auth }));
@@ -38,6 +42,8 @@ describe("linkGoogle", () => {
     fa.linkWithPopup.mockResolvedValue({ user });
     expect(await linkGoogle({ redirect: false })).toEqual({ kind: "linked" });
     expect(fa.linkWithPopup).toHaveBeenCalledWith(user, expect.anything());
+    // Google shows its account chooser, so a different account can be picked.
+    expect(fa.customParameters).toHaveBeenCalledWith({ prompt: "select_account" });
   });
 
   it("is quietly cancelled when the window is closed", async () => {
