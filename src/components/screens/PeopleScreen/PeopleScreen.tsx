@@ -10,10 +10,11 @@ import { cx } from "@/lib/cx";
  * SCR-PEOPLE (DES-05-01-02): every profile the household brews for, the
  * user's own first with the overline "you", then by most recently brewed
  * for, each with how many shots and when last. Each row opens its sheet;
- * the list ends with "Add someone". A name is all Tare asks. Props only.
+ * the list ends with "Add someone". A name is all Tare asks. A profile with
+ * a pending invite says so in its overline (STORY-05-02-06). Props only.
  */
 
-export type PeopleScreenLabels = { title: string; back: string; intro: string; you: string; add: string };
+export type PeopleScreenLabels = { title: string; back: string; intro: string; you: string; add: string; invitePending?: string };
 
 export type PeopleRow = {
   id: string;
@@ -21,6 +22,8 @@ export type PeopleRow = {
   /** "12 shots, last 3 days ago" or "No shots yet". */
   secondary: string;
   main: boolean;
+  /** An invite link is waiting to be used (STORY-05-02-06 AC 1). */
+  invitePending?: boolean;
 };
 
 export function PeopleScreen({
@@ -62,6 +65,9 @@ export function PeopleScreen({
               primary={
                 <span className="flex flex-col">
                   {r.main && <span className="text-overline uppercase text-ink-secondary">{labels.you}</span>}
+                  {!r.main && r.invitePending && labels.invitePending && (
+                    <span className="text-overline uppercase text-ink-secondary">{labels.invitePending}</span>
+                  )}
                   <span className="break-words">{r.name}</span>
                 </span>
               }

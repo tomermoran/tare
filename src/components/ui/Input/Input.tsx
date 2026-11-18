@@ -1,4 +1,4 @@
-import { useId, type ComponentProps } from "react";
+import { useId, type ComponentProps, type ReactNode } from "react";
 import { cx } from "@/lib/cx";
 
 type InputProps = Omit<ComponentProps<"input">, "size"> & {
@@ -9,6 +9,8 @@ type InputProps = Omit<ComponentProps<"input">, "size"> & {
   error?: string;
   /** Unit shown at the inline end of the field, e.g. "g". */
   unit?: string;
+  /** An action at the inline end of the field, e.g. copy for a read-only link. */
+  end?: ReactNode;
 };
 
 /*
@@ -20,6 +22,7 @@ export function Input({
   hint,
   error,
   unit,
+  end,
   id,
   className,
   ...props
@@ -58,6 +61,7 @@ export function Input({
             {unit}
           </span>
         )}
+        {end}
       </div>
       {message && (
         <p

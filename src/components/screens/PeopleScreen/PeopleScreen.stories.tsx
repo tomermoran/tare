@@ -23,7 +23,7 @@ const meta = {
   parameters: { layout: "centered" },
   decorators: [(Story) => <PhoneFrame><Story /></PhoneFrame>],
   args: {
-    labels: { title: people.title, back: actions.back, intro: people.intro, you: people.you, add: people.add },
+    labels: { title: people.title, back: actions.back, intro: people.intro, you: people.you, add: people.add, invitePending: people.invitePending },
     backHref: "/profile",
     rows,
     onOpen: fn(),
@@ -49,6 +49,14 @@ export const List: Story = {
 };
 
 /** Just the user: their own profile and "Add someone". */
+/** A profile with a pending invite says so in its row (STORY-05-02-06 AC 1). */
+export const InvitePending: Story = {
+  args: { rows: [rows[0], { ...rows[2], invitePending: true }] },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: /Person B/ })).toHaveTextContent(people.invitePending);
+  },
+};
+
 export const JustYou: Story = { args: { rows: rows.slice(0, 1) } };
 
 export const Loading: Story = { render: () => <ListSkeleton label={states.loading} rows={3} /> };

@@ -1010,7 +1010,11 @@
     "removeTitle": "Remove this profile?",
     "removeBody": "It has no shots or recipes, so nothing else changes.",
     "removeConfirm": "Remove",
-    "cantRemove": "{shots, plural, one {# shot} other {# shots}} and {recipes, plural, one {# recipe} other {# recipes}} belong to this profile, so it stays. You can rename it."
+    "cantRemove": "{shots, plural, one {# shot} other {# shots}} and {recipes, plural, one {# recipe} other {# recipes}} belong to this profile, so it stays. You can rename it.",
+    "invite": "Invite {name} to take over",
+    "claimed": "Has their own login",
+    "invitePending": "Invite pending",
+    "showInvite": "See the invite link"
   },
   "drift": {
     "title": "Why this grind",
@@ -1080,5 +1084,24 @@
     "tooClose": "Those two coffees are too similar in grind to tell whether the steps changed. Try one much finer or coarser.",
     "declineStretch": "Keep the shift only",
     "farFromFirst": "Very different grind"
+  },
+  "invite": {
+    "title": "Invite {name}",
+    "sharesIntro": "If they join:",
+    "shares": {
+      "signIn": "They sign in with Google.",
+      "takeOver": "They take over this profile, with its shots and recipes.",
+      "household": "They share this household's machine, grinder, beans and recipes, and everyone's shots."
+    },
+    "create": "Create a link",
+    "link": "Invite link",
+    "copy": "Copy",
+    "copied": "Link copied.",
+    "share": "Share",
+    "valid": "Works once, until {date}.",
+    "sendYourself": "Tare doesn't send it. Pass it on yourself.",
+    "withdraw": "Withdraw the link",
+    "withdrawn": "Link withdrawn.",
+    "withdrawFailed": "The link couldn't be withdrawn, so it still works."
   }
 }
