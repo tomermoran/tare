@@ -3,19 +3,25 @@
 import { useEffect, useState } from "react";
 import { SWITCHED_FLAG } from "@/components/account/GoogleLink";
 
-/** After switching to another history, Brew says so once, politely (DES-05-03-02). */
-export function SwitchedNote({ label }: { label: string }) {
+/** Set by SCR-JOIN after a claim, for Brew's one-time "you've joined" (STORY-05-02-03 AC 3). */
+export const JOINED_FLAG = "tare:joinedHousehold";
+
+/**
+ * After switching to another history (DES-05-03-02), or joining a
+ * household, Brew says so once, politely. `flag` names which.
+ */
+export function SwitchedNote({ label, flag = SWITCHED_FLAG }: { label: string; flag?: string }) {
   const [shown, setShown] = useState(false);
   useEffect(() => {
     try {
-      if (sessionStorage.getItem(SWITCHED_FLAG) !== "1") return;
-      sessionStorage.removeItem(SWITCHED_FLAG);
+      if (sessionStorage.getItem(flag) !== "1") return;
+      sessionStorage.removeItem(flag);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- read the one-time flag on mount
       setShown(true);
     } catch {
       // No storage: nothing to say.
     }
-  }, []);
+  }, [flag]);
   return (
     <p role="status" className="text-label text-ink-secondary">
       {shown ? label : ""}

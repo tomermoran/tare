@@ -10,7 +10,7 @@ import { setupLabel } from "@/domain/setupName";
 import { LOG_PATH } from "@/lib/logRoutes";
 import { changePartHref } from "@/lib/setupRoutes";
 import { PROFILE_PATH } from "@/lib/profileRoutes";
-import { SwitchedNote } from "@/components/home/SwitchedNote";
+import { JOINED_FLAG, SwitchedNote } from "@/components/home/SwitchedNote";
 import { getLinkPromptDue } from "@/server/dal/account";
 import { getPendingSuggestion } from "@/server/dal/logStart";
 import { getHome, type Home } from "@/server/dal/home";
@@ -48,6 +48,7 @@ export default async function BrewPage() {
         <LogoMark size={24} className="text-ink" />
       </div>
       <SwitchedNote label={t("switch.done")} />
+      <SwitchedNote label={t("claim.done")} flag={JOINED_FLAG} />
       <Suspense fallback={<BrewSkeleton label={t("states.loading")} />}>
         <BrewBody />
       </Suspense>
