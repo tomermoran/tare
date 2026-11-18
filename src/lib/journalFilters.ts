@@ -6,7 +6,7 @@ import type { JournalFilters } from "@/server/dal/journal";
  */
 
 export const JOURNAL_PATH = "/journal";
-const KEYS = ["drinkId", "beanId", "setupId"] as const;
+const KEYS = ["drinkId", "beanId", "setupId", "personaId"] as const;
 
 /** The filters in search params; anything else is ignored. */
 export function readJournalFilters(params: Record<string, string | string[] | undefined>): JournalFilters {
