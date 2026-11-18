@@ -14,6 +14,7 @@ import { getRemaining } from "./remaining";
 import { setupsLastUsed } from "./setups";
 import { requireHousehold } from "./scope";
 import { actingPersona, listPersonas } from "./persona";
+import { getGrindAdjustment, type GrindAdjustment } from "./grindAdjustment";
 
 /*
  * Brew (STORY-02-02-01): the drink usually made at this time of day, the
@@ -33,7 +34,7 @@ export type HomeCoffee = {
 export type HomeState =
   /** A recipe on this setup: the one-tap pull. */
   /** `bagOwn`: the recipe is the bag in use's own, not the coffee's (STORY-02-04-03 AC 1). */
-  | { kind: "recipe"; recipe: Recipe; bagOwn: boolean }
+  | { kind: "recipe"; recipe: Recipe; bagOwn: boolean; /** The suggested grind, when it moves at least a step (STORY-04-02-06). */ adjustment: GrindAdjustment | null }
   /** No setup has a recipe for this drink and coffee (STORY-02-02-05). */
   | { kind: "noRecipe" }
   /** Only another profile has one here: dialling in starts from theirs, never a one-tap pull (STORY-05-01-05). */
@@ -155,7 +156,9 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
   if (recipe) {
     // The bag in use may have its own recipe; a bag recipe can't exist without the coffee's (STORY-02-04-02).
     const own = await getBagOwnRecipe({ beanId: choice.beanId, personaId: persona.id, setupId: setup.id, drinkTypeId: drink.id }, portion.batchId);
-    return { ...shown, state: { kind: "recipe", recipe: own ?? recipe, bagOwn: own !== null } };
+    const inForce = own ?? recipe;
+    const adjustment = await getGrindAdjustment({ recipe: { beanId: choice.beanId, setupId: setup.id, grind: inForce.grind }, portionId: portion.id, now });
+    return { ...shown, state: { kind: "recipe", recipe: inForce, bagOwn: own !== null, adjustment } };
   }
 
   const borrowed = await getBorrowedRecipe({ beanId: choice.beanId, personaId: persona.id, setupId: setup.id, drinkTypeId: drink.id });

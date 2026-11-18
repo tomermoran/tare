@@ -5,6 +5,8 @@ import { createTranslator } from "next-intl";
 import messages from "@/i18n/messages/en.json";
 import { exampleCoffee, exampleRecipe, exampleSetup } from "../fixtures";
 import { PhoneFrame } from "../PhoneFrame";
+import { GrindReasonLine } from "@/components/recipes/GrindTrailSheet";
+import { exampleTrails } from "@/components/recipes/grindTrailFixtures";
 import { HomeScreen } from "./HomeScreen";
 
 const { home } = messages;
@@ -83,6 +85,18 @@ export const NoRecipeOnSetup: Story = {
 };
 
 /** Only another profile has a recipe here: Dial in only, never a one-tap pull, and whose it starts from (STORY-05-01-05 AC 1, AC 3). */
+/** The suggested grind in the recipe's place, its reason one tap away (STORY-04-02-06 AC 1). */
+export const GrindAdjusted: Story = {
+  args: {
+    values: { ...exampleRecipe, grind: 14.5 },
+    grindReason: <GrindReasonLine label={exampleTrails.aged.line} onClick={fn()} />,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByRole("button", { name: exampleTrails.aged.line })).toBeVisible());
+  },
+};
+
 export const Borrowed: Story = {
   args: {
     values: undefined,

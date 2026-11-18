@@ -14,6 +14,7 @@ import { assertOwned, NotFoundError, requireHousehold } from "./scope";
 import { currentSetupOf } from "./setups";
 import { getSuggestContext, type SuggestContext } from "./suggestContext";
 import { actingPersonaId } from "./persona";
+import { getGrindAdjustment, type GrindAdjustment } from "./grindAdjustment";
 
 /*
  * Where the shot log starts in fix and dial-in modes (STORY-02-03-02, 03,
@@ -84,6 +85,8 @@ export type LogStart = {
   from: { setupId: string; grindCarried: boolean } | null;
   /** "Dial in from this": when the past shot was made, for the log's note (STORY-02-06-06 AC 1). */
   fromShot: { at: Date } | null;
+  /** The suggested grind the dial-in starts at, the recipe's as "was" (STORY-04-02-06 AC 3). */
+  grindAdjustment?: GrindAdjustment | null;
   /** Starts from another profile's recipe, named in the log's note (STORY-05-01-05 AC 1). */
   borrowedFrom?: { name: string | null } | null;
 };
@@ -242,13 +245,20 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
   if (!dialIn) return null;
   const start: StartValues = { ...dialIn.values, brew: dialIn.brew, prep: dialIn.prep, milkMl: dialIn.milk.milkMl };
   const suggestion = await applying(key.suggested);
+  // Drift and suggestions never meet (DQ-34); a different grinder gets none.
+  const grindAdjustment =
+    suggestion || !dialIn.grindCarried
+      ? null
+      : await getGrindAdjustment({ recipe: { beanId, setupId: dialIn.fromSetupId, grind: start.grind }, portionId: key.portionId ?? null });
+  const applied = applyChange(start, suggestion?.change ?? null);
   return {
     setupId,
     drinkTypeId: key.drinkTypeId,
     portionId: key.portionId ?? null,
     locked: false,
     start,
-    applied: applyChange(start, suggestion?.change ?? null),
+    applied: grindAdjustment ? { ...applied, grind: grindAdjustment.shown } : applied,
+    grindAdjustment,
     milkTypeId: dialIn.milk.milkTypeId,
     sweetened: dialIn.sweetened,
     suggestion,

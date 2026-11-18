@@ -58,6 +58,8 @@ export type GrindAdjustment = {
   rows: TrailRow[];
   limited: boolean;
   evidence: DriftEvidence;
+  /** The grinder's step and direction, for formatting and the finer or coarser words. */
+  wheel: { step: number; coarser: "higher" | "lower" | null };
 };
 
 export type DriftOutcome =
@@ -115,7 +117,7 @@ export function adjustGrind(input: DriftInput): DriftOutcome {
     people: new Set(w.map((s) => s.personaId)).size,
     acrossSetups: new Set(w.map((s) => s.setupId)).size > 1,
   };
-  const adjustment = { shown, recipeGrind, rows, limited, evidence };
+  const adjustment = { shown, recipeGrind, rows, limited, evidence, wheel: { step: wheel.step, coarser: wheel.coarser } };
   return { kind: limited ? "limited" : "applied", adjustment };
 }
 

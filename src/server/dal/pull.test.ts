@@ -220,3 +220,40 @@ describe("undoPull (STORY-02-02-04)", () => {
     await expect(undoPull(shotId, NOW)).rejects.toBeInstanceOf(NotFoundError);
   });
 });
+
+describe("pullShot with a suggested grind (STORY-04-02-06, TASK-04-02-06-BE1)", () => {
+  beforeEach(async () => {
+    await pinLatte();
+    await setPortion(k.portion.id, { openedAt: at(1) });
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    // Three measured shots this bag, running fast at the recipe's grind.
+    for (const [day, hour] of [[18, 8], [19, 8], [20, 7]] as const)
+      await db().insert(extractions).values({
+        id: newId(),
+        ...shotValues(k),
+        drinkTypeId: k.drinks.latte.id,
+        grindSize: 15,
+        yieldTime: 22_000,
+        usedWdt: true,
+        loggedByUserId: k.user.id,
+        portionId: k.portion.id,
+        entryMode: "measured",
+        createdAt: at(day, hour),
+      });
+  });
+
+  it("records the grind Brew shows, worked out again on the server (AC 2)", async () => {
+    const result = await pull();
+    const row = await shotRow((result as { shotId: string }).shotId);
+    expect(row.grindSize).toBeLessThan(15);
+    expect(row.entryMode).toBe("one-tap");
+  });
+
+  it("records the recipe's grind for one pull when asked, and stores nothing else (STORY-04-02-08 AC 5)", async () => {
+    const result = await pullShot({ clientId: newId(), drinkTypeId: k.drinks.latte.id, beanId: k.bean.id, useRecipeGrind: true }, NOW);
+    const row = await shotRow((result as { shotId: string }).shotId);
+    expect(row.grindSize).toBe(15);
+    const next = await shotRow(((await pull()) as { shotId: string }).shotId);
+    expect(next.grindSize).toBeLessThan(15);
+  });
+});

@@ -19,6 +19,8 @@ import { LOG_RESUME } from "@/lib/logRoutes";
 import { secondsToMs } from "@/lib/units";
 import { DRINKS_PATH, MILKS_PATH } from "@/lib/profileRoutes";
 import { withReturnTo } from "@/lib/returnTo";
+import type { GrindTrailView } from "@/lib/grindTrail";
+import { GrindReasonLine, GrindTrailSheet } from "@/components/recipes/GrindTrailSheet";
 import { BUILDER_PATH, changePartHref, partHref } from "@/lib/setupRoutes";
 import type { HardwareKind } from "@/domain/capabilities";
 import { saveMeasuredShotAction } from "@/server/actions/shots";
@@ -109,6 +111,7 @@ export function ShotLogFlow({
   applied,
   locked = false,
   note,
+  grindTrail,
   forPerson,
   tasteFrom,
   portionClocks = {},
@@ -148,6 +151,8 @@ export function ShotLogFlow({
   /** Fix mode: setup, drink and coffee stay the one-tap shot's. */
   locked?: boolean;
   note?: string[];
+  /** Why the grind isn't the recipe's (STORY-04-02-06 AC 3); only on the setup it was worked out for. */
+  grindTrail?: GrindTrailView;
   forPerson?: string;
   /** Tasting after a fix or dial-in offers pinning first (STORY-02-03-02 AC 4). */
   tasteFrom?: "fix" | "dialIn";
@@ -181,6 +186,7 @@ export function ShotLogFlow({
   const [draft, setDraft] = useState<Draft>(fresh);
   // What the log opened with: leaving with nothing changed asks nothing.
   const [initial] = useState<Draft>(fresh);
+  const [trailOpen, setTrailOpen] = useState(false);
   const [sheet, setSheet] = useState<"setup" | "drink" | "coffee" | "milk" | null>(null);
   const [missing, setMissing] = useState<"setup" | "coffee" | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "failed" | "portionFinished">("idle");
@@ -352,6 +358,7 @@ export function ShotLogFlow({
         }
         milk={startMilk ? { name: label(milks, draft.milkTypeId) || null, startMl: recipeMilk?.wasMl ?? startMilk.ml } : null}
         note={note}
+        grindReason={grindTrail && draft.setupId === setupId ? <GrindReasonLine label={grindTrail.line} onClick={() => setTrailOpen(true)} /> : undefined}
         forPerson={forPerson}
         sweetened={draft.sweetened}
         onSweetenedChange={(sweetened) => setDraft((d) => ({ ...d, sweetened, sweetenedTouched: true }))}
@@ -447,6 +454,7 @@ export function ShotLogFlow({
         }}
         footerRow={{ label: t("milkList.manage"), icon: "chevron", onClick: () => sideTrip(MILKS_PATH) }}
       />
+      {grindTrail && <GrindTrailSheet open={trailOpen} onClose={() => setTrailOpen(false)} view={grindTrail} />}
       {confirm}
     </>
   );

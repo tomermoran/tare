@@ -69,6 +69,8 @@ type ShotLogScreenProps = {
   notice?: ReactNode;
   /** One quiet line under the context: where the values came from, e.g. "suggested: grind 2 steps finer". */
   note?: string[];
+  /** The suggested grind's reason line under the notes (STORY-04-02-06 AC 3). */
+  grindReason?: ReactNode;
   /** "for {name}" under the header, with more than one profile (STORY-05-01-04 AC 2). */
   forPerson?: string;
   saving?: boolean;
@@ -117,6 +119,7 @@ export function ShotLogScreen({
   taste,
   notice,
   note = [],
+  grindReason,
   forPerson,
   saving = false,
   onCancel = noop,
@@ -237,6 +240,7 @@ export function ShotLogScreen({
           {line}
         </p>
       ))}
+      {grindReason && <div className="mt-1 flex">{grindReason}</div>}
       <ShotDial
         label={t("values")}
         fields={fields}

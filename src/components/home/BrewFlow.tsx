@@ -20,6 +20,8 @@ import type { PortionChoice } from "@/server/dal/pull";
 import type { OffContext } from "@/server/dal/reaction";
 import { googleLinkDeps } from "@/components/account/googleLinkDeps";
 import { LinkPrompt } from "./LinkPrompt";
+import { GrindReasonLine, GrindTrailSheet } from "@/components/recipes/GrindTrailSheet";
+import type { GrindTrailView } from "@/lib/grindTrail";
 import { OffFlow } from "./OffFlow";
 import { PortionChooser } from "./PortionChooser";
 import { DRINKS_PATH } from "@/lib/profileRoutes";
@@ -83,7 +85,10 @@ export function BrewFlow({
   addBagHref,
   linkPrompt,
   personaId,
+  grind,
 }: {
+  /** The suggested grind (STORY-04-02-06): `screen.values` shows it; the recipe's is one tap away for one pull. */
+  grind?: { recipe: number; trail: GrindTrailView };
   /** Who Brew is for, only with more than one profile: the Journal's Person filter starts there. */
   personaId?: string;
   screen: Omit<ComponentProps<typeof HomeScreen>, "actions" | "onChangeDrink" | "onChangeCoffee">;
@@ -113,6 +118,10 @@ export function BrewFlow({
   const [said, setSaid] = useState("");
   const [off, setOff] = useState<{ shotId: string; context: OffContext } | null>(null);
   const [dismissedShot, setDismissedShot] = useState<string | null>(null);
+  // "Use my recipe's grind" lasts one pull and is never saved (STORY-04-02-08 AC 5).
+  const [useRecipeGrind, setUseRecipeGrind] = useState(false);
+  const [trailOpen, setTrailOpen] = useState(false);
+  const adjusted = grind && !useRecipeGrind ? grind : null;
   const pendingShotId = [primary, secondary].find((a): a is DialInAction => a?.kind === "dialIn")?.pendingShotId ?? null;
   // Dismissals live on this device, so they're read after hydration.
   useEffect(() => {
@@ -174,7 +183,7 @@ export function BrewFlow({
     // Optimistic: the buttons give way at once (AC 1, AC 4).
     setPulled({ shotId: null, undo: true });
     setSaid(t("home.pulled"));
-    const result = await pullShotAction({ clientId: clientId.current, ...pull, portionId });
+    const result = await pullShotAction({ clientId: clientId.current, ...pull, portionId, useRecipeGrind: !!grind && useRecipeGrind });
     busy.current = false;
     if (!result.ok) {
       setPulled(null);
@@ -190,6 +199,7 @@ export function BrewFlow({
       return;
     }
     clientId.current = null;
+    setUseRecipeGrind(false);
     // What was pulled becomes the usual through history (AC 5).
     clearBrewChoice();
     setPulled({ shotId: outcome.shotId, undo: true, sweetened: outcome.sweetened });
@@ -271,6 +281,8 @@ export function BrewFlow({
     <>
       <HomeScreen
         {...screen}
+        values={screen.values && grind && useRecipeGrind ? { ...screen.values, grind: grind.recipe } : screen.values}
+        grindReason={adjusted ? <GrindReasonLine label={adjusted.trail.line} onClick={() => setTrailOpen(true)} /> : undefined}
         onChangeDrink={() => setPicking("drink")}
         onChangeCoffee={coffees.length ? () => setPicking("coffee") : undefined}
         onChangeSetup={() => setPicking("setup")}
@@ -338,6 +350,17 @@ export function BrewFlow({
               : undefined
         }
       />
+      {grind && (
+        <GrindTrailSheet
+          open={trailOpen}
+          onClose={() => setTrailOpen(false)}
+          view={grind.trail}
+          onUseRecipe={() => {
+            setUseRecipeGrind(true);
+            setTrailOpen(false);
+          }}
+        />
+      )}
       {off && <OffFlow shotId={off.shotId} context={off.context} onClose={() => setOff(null)} />}
       <PortionChooser
         portions={choosing?.portions ?? null}
