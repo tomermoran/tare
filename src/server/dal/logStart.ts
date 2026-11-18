@@ -84,6 +84,8 @@ export type LogStart = {
   from: { setupId: string; grindCarried: boolean } | null;
   /** "Dial in from this": when the past shot was made, for the log's note (STORY-02-06-06 AC 1). */
   fromShot: { at: Date } | null;
+  /** Starts from another profile's recipe, named in the log's note (STORY-05-01-05 AC 1). */
+  borrowedFrom?: { name: string | null } | null;
 };
 
 type Row = typeof extractions.$inferSelect;
@@ -252,5 +254,6 @@ export async function getDialInFromRecipe(key: { drinkTypeId: string; beanId: st
     suggestion,
     from: dialIn.fromSetupId === setupId ? null : { setupId: dialIn.fromSetupId, grindCarried: dialIn.grindCarried },
     fromShot: null,
+    borrowedFrom: dialIn.borrowedFrom && { name: dialIn.borrowedFrom.name },
   };
 }

@@ -8,6 +8,8 @@ import { signInAs, testContext } from "@/test/mocks/context";
 import { getHome } from "./home";
 import { actingPersona, forPersona, mainPersona } from "./persona";
 import { getOffContext } from "./reaction";
+import { getDialInStart } from "./dialIn";
+import { getDialInFromRecipe } from "./logStart";
 import { pullShot } from "./pull";
 import { getCoffeeRecipes, pinEnteredRecipe, pinFromShot, pinPreview } from "./recipes";
 
@@ -170,5 +172,64 @@ describe("saying whose it is (TASK-05-01-04-BE1)", () => {
     testContext.personaChoice = null;
     expect(pulled.kind).toBe("pulled");
     if (pulled.kind === "pulled") expect((await getOffContext(pulled.shotId, NOW)).persona).toEqual({ name: "Guest" });
+  });
+});
+
+describe("starting from another profile's recipe (TASK-05-01-05-BE1, QA1)", () => {
+  const espresso = () => ({ drinkTypeId: k.drinks.espresso.id, beanId: k.bean.id });
+  const third = async () => {
+    const id = newId();
+    await db().insert(personas).values({ id, householdId: k.household.id, name: "Person B", isDefault: false });
+    return id;
+  };
+
+  it("offers only Dial in, from the main persona's recipe, and says whose (AC 1, AC 3)", async () => {
+    await pin(12);
+    testContext.personaChoice = guest;
+    const home = await getHome(espresso(), NOW);
+    expect(home?.state).toEqual({ kind: "borrowed", from: { name: null } });
+    const start = await getDialInFromRecipe(espresso());
+    expect(start).toMatchObject({ start: { grind: 12 }, borrowedFrom: { name: null }, from: null });
+  });
+
+  it("takes the main persona's when several have one, else the most recently pinned (AC 2)", async () => {
+    const b = await third();
+    testContext.personaChoice = b;
+    await pin(14);
+    testContext.personaChoice = guest;
+    await pinEnteredRecipe({ batchId: k.batch.id, setupId: k.setup.id, drinkTypeId: k.drinks.espresso.id, values: values(16) }, new Date(NOW.getTime() + 1000));
+    // The main persona has none: the newest of the others.
+    testContext.personaChoice = null;
+    expect(await getDialInFromRecipe(espresso())).toMatchObject({ start: { grind: 16 }, borrowedFrom: { name: "Guest" } });
+    // Once the main persona has one, theirs wins over a newer one for someone without.
+    await pin(12);
+    const c = await third();
+    testContext.personaChoice = c;
+    expect(await getDialInStart({ ...espresso(), setupId: k.setup.id })).toMatchObject({ values: { grind: 12 }, borrowedFrom: { name: null } });
+    // Their own recipe still comes first.
+    testContext.personaChoice = b;
+    expect(await getDialInStart({ ...espresso(), setupId: k.setup.id })).toMatchObject({ values: { grind: 14 }, borrowedFrom: null });
+  });
+
+  it("brings prep, milk and sweetened with it (AC 4)", async () => {
+    await pinEnteredRecipe(
+      { batchId: k.batch.id, setupId: k.setup.id, drinkTypeId: k.drinks.espresso.id, values: { ...values(12), usedWdt: true, sweetened: true } },
+      NOW,
+    );
+    testContext.personaChoice = guest;
+    expect(await getDialInStart({ ...espresso(), setupId: k.setup.id })).toMatchObject({ prep: { wdt: true }, sweetened: true });
+  });
+
+  it("starts as before when nobody has one (AC 5)", async () => {
+    testContext.personaChoice = guest;
+    expect((await getHome(espresso(), NOW))?.state.kind).toBe("noRecipe");
+    expect(await getDialInFromRecipe(espresso())).toBeNull();
+  });
+
+  it("gives the persona their own recipe once they pin (AC 6)", async () => {
+    await pin(12);
+    testContext.personaChoice = guest;
+    await pin(13);
+    expect((await getHome(espresso(), NOW))?.state).toMatchObject({ kind: "recipe", recipe: { grind: 13 } });
   });
 });
