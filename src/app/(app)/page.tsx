@@ -22,6 +22,8 @@ import { readBrewChoice } from "@/server/brewChoice";
 import { unlessSignedOut } from "@/server/dal/scope";
 import { openedClockLabel, roastingClockLabel } from "@/lib/clockLabels";
 import { portionStateLabel } from "@/lib/portionStateLabel";
+import { grindTrailView, roastDays } from "@/lib/grindTrail";
+import { getTimeZone } from "@/server/time";
 import { FirstRun } from "./FirstRun";
 import { recipeLines } from "./recipeLines";
 
@@ -62,7 +64,7 @@ async function BrewBody() {
 }
 
 async function Brew({ home }: { home: Home }) {
-  const [t, format] = await Promise.all([getTranslations(), getFormatter()]);
+  const [t, format, timeZone] = await Promise.all([getTranslations(), getFormatter(), getTimeZone()]);
   const list = (items: string[]) => format.list(items, { type: "conjunction" });
   const drink = drinkLabel(home.drink, (key: DrinkKey) => t(key));
   const setup = (s: Home["setup"]) => setupLabel(s, home.setups, list);
@@ -93,6 +95,11 @@ async function Brew({ home }: { home: Home }) {
   const chooseCoffee: BrewAction = { kind: "chooseCoffee", label: t("home.chooseCoffee") };
 
   const recipe = state.kind === "recipe" ? state.recipe : state.kind === "finished" ? state.recipe : null;
+  // The suggested grind takes the recipe's place, with its reason one tap away (STORY-04-02-06).
+  const adjustment = state.kind === "recipe" ? state.adjustment : null;
+  const grind = adjustment
+    ? { recipe: adjustment.recipeGrind, trail: grindTrailView(adjustment, t, format, { roastDays: roastDays(home.portion?.roasting), timeZone, useRecipe: true }) }
+    : undefined;
   const message = {
     recipe: undefined,
     noRecipe: t("home.noRecipe"),
@@ -118,7 +125,7 @@ async function Brew({ home }: { home: Home }) {
         drink,
         coffee: home.coffee ? t("home.coffeeLine", { bean: home.coffee.name, roaster: home.coffee.roasterName }) : null,
         clocks,
-        values: recipe ? { grind: recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
+        values: recipe ? { grind: adjustment?.shown ?? recipe.grind, dose: recipe.dose, yield: recipe.yield, timeMs: recipe.timeMs } : undefined,
         // A new person, drink or coffee cross-fades the values in place (STORY-05-01-03 AC 3).
         valuesKey: `${home.personaId}|${home.drink.id}|${home.coffee?.id ?? ""}`,
         quiet: state.kind === "finished",
@@ -172,6 +179,7 @@ async function Brew({ home }: { home: Home }) {
       drinkId={home.drink.id}
       beanId={home.coffee?.id ?? null}
       personaId={home.multiplePersonas ? home.personaId : undefined}
+      grind={grind}
     />
   );
 }

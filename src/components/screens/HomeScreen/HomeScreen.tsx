@@ -13,6 +13,8 @@ type HomeScreenProps = {
   clocks?: string;
   /** The recipe on this setup; with `quiet`, shown in ink-secondary (finished coffee). */
   values?: ShotValuesData;
+  /** The suggested grind's reason line under the values (STORY-04-02-06 AC 1); absent, Brew is as before. */
+  grindReason?: ReactNode;
   quiet?: boolean;
   /** Changes when the drink or coffee does, so the values cross-fade in place. */
   valuesKey?: string;
@@ -50,6 +52,7 @@ export function HomeScreen({
   lines = [],
   message,
   note,
+  grindReason,
   setup,
   actions,
   footnote,
@@ -88,6 +91,7 @@ export function HomeScreen({
             <ShotValues values={values} quiet={quiet} lines={lines} />
           </div>
         )}
+        {values && grindReason && <div className="mt-2 flex">{grindReason}</div>}
       </div>
       {onChangeSetup ? (
         <SelectField

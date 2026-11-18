@@ -24,6 +24,7 @@ import { portionStateLabel } from "@/lib/portionStateLabel";
 import { getTimeZone } from "@/server/time";
 import { forPersona } from "@/server/dal/persona";
 import { forPersonLine } from "@/lib/forPerson";
+import { grindTrailView, roastDays } from "@/lib/grindTrail";
 import { personaLabel } from "@/domain/personaLabel";
 
 /**
@@ -166,6 +167,11 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
       brewStart={p ? brewToDial(brew, p.start.brew) : undefined}
       locked={prefilled?.mode === "fix"}
       note={note}
+      grindTrail={
+        p?.grindAdjustment
+          ? grindTrailView(p.grindAdjustment, t, format, { roastDays: roastDays(context.portions.find((x) => x.id === p.portionId)?.roasting), timeZone })
+          : undefined
+      }
       forPerson={forPersonLine(t, persona ?? null)}
       tasteFrom={prefilled?.mode}
       setupId={setup?.id ?? null}
