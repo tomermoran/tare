@@ -31,6 +31,7 @@ async function Journal({ searchParams }: Pick<PageProps<"/journal">, "searchPara
     ...(asked.drinkId && options.drinks.some((d) => d.id === asked.drinkId) && { drinkId: asked.drinkId }),
     ...(options.beanId && { beanId: options.beanId }),
     ...(asked.setupId && options.setups.length > 1 && options.setups.some((s) => s.id === asked.setupId) && { setupId: asked.setupId }),
+    ...(asked.personaId && options.people.length > 1 && options.people.some((p) => p.id === asked.personaId) && { personaId: asked.personaId }),
   };
   const page = await listJournal({ filters });
   return (

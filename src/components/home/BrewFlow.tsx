@@ -82,7 +82,10 @@ export function BrewFlow({
   changePartHref,
   addBagHref,
   linkPrompt,
+  personaId,
 }: {
+  /** Who Brew is for, only with more than one profile: the Journal's Person filter starts there. */
+  personaId?: string;
   screen: Omit<ComponentProps<typeof HomeScreen>, "actions" | "onChangeDrink" | "onChangeCoffee">;
   primary: BrewAction;
   secondary?: BrewAction;
@@ -133,8 +136,8 @@ export function BrewFlow({
 
   // The Journal tab opens on what's shown here (STORY-02-06-05 AC 1).
   useEffect(() => {
-    rememberBrewSelection(beanId ? { drinkId, beanId } : null);
-  }, [drinkId, beanId]);
+    rememberBrewSelection(beanId ? { drinkId, beanId, ...(personaId && { personaId }) } : null);
+  }, [drinkId, beanId, personaId]);
 
   // The 30 minutes away count from when Brew was last on screen (AC 6).
   useEffect(() => {

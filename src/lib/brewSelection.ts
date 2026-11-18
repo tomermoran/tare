@@ -10,7 +10,8 @@ const KEY = "tare:brewSelection";
 const EVENT = "tare:brewSelection";
 let memory: string | null = null;
 
-export type BrewSelection = { drinkId: string; beanId: string };
+/** `personaId` only with more than one profile, so the Journal's Person filter starts there (STORY-05-01-06 AC 2). */
+export type BrewSelection = { drinkId: string; beanId: string; personaId?: string };
 
 function store(): Storage | null {
   try {
@@ -46,7 +47,8 @@ export function parseBrewSelection(raw: string | null): BrewSelection | null {
   if (!raw) return null;
   try {
     const v = JSON.parse(raw);
-    return typeof v?.drinkId === "string" && typeof v?.beanId === "string" ? { drinkId: v.drinkId, beanId: v.beanId } : null;
+    if (typeof v?.drinkId !== "string" || typeof v?.beanId !== "string") return null;
+    return { drinkId: v.drinkId, beanId: v.beanId, ...(typeof v.personaId === "string" && { personaId: v.personaId }) };
   } catch {
     return null;
   }

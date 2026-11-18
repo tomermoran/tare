@@ -4,12 +4,15 @@ import { db } from "@/db/client";
 import { batches, batchPortions, canonicalBeans, extractions, roasters } from "@/db/schema";
 import { triedSummary, type TriedShot, type TriedSummary } from "@/domain/triedSummary";
 import { resolveEntity } from "./catalogMerge";
+import { actingPersonaId } from "./persona";
 import { requireHousehold } from "./scope";
 
 /*
  * Tried (STORY-03-06-01, DQ-27): every coffee the household has brewed at
  * least once, measured or one-tap, newest-had first. Merged catalog entries
  * are one coffee. Worked out from the shots on every read, never stored.
+ * How its shots went is the acting persona's alone (STORY-05-01-07): a
+ * coffee only someone else brewed stays listed, with no ratings yet.
  */
 
 export type TriedCoffee = {
@@ -24,10 +27,18 @@ export type TriedCoffee = {
 };
 
 export async function getTried(): Promise<TriedCoffee[]> {
-  const { householdId } = await requireHousehold();
+  const account = await requireHousehold();
+  const { householdId } = account;
+  const personaId = await actingPersonaId(account);
   const [shots, bags] = await Promise.all([
     db
-      .select({ beanId: batches.beanId, at: extractions.createdAt, rating: extractions.userRating, reaction: extractions.reaction })
+      .select({
+        beanId: batches.beanId,
+        personaId: extractions.personaId,
+        at: extractions.createdAt,
+        rating: extractions.userRating,
+        reaction: extractions.reaction,
+      })
       .from(extractions)
       .innerJoin(batchPortions, eq(batchPortions.id, extractions.portionId))
       .innerJoin(batches, eq(batches.id, batchPortions.batchId))
@@ -44,7 +55,7 @@ export async function getTried(): Promise<TriedCoffee[]> {
   for (const s of shots) {
     const id = survivors.get(s.beanId)!;
     const entry = byCoffee.get(id) ?? byCoffee.set(id, { lastHad: s.at, shots: [] }).get(id)!;
-    entry.shots.push({ rating: s.rating, reaction: s.reaction ?? null });
+    if (s.personaId === personaId) entry.shots.push({ rating: s.rating, reaction: s.reaction ?? null });
   }
   if (byCoffee.size === 0) return [];
 

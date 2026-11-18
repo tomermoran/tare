@@ -166,6 +166,14 @@ export const Tried: Story = {
   },
 };
 
+/** Brewing for someone else: a line says whose shots Tried describes (STORY-05-01-07 AC 2). */
+export const TriedForSomeoneElse: Story = {
+  args: { tried, triedFor: t("beans.triedFor", { name: "Person A" }) },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText("How the shots went for Person A.")).toBeVisible();
+  },
+};
+
 export const TriedRightToLeft: Story = { args: { tried }, globals: { direction: "rtl" } };
 
 /** Only what's left is shown: no open or unopened bags, so only Frozen (STORY-03-02-05 AC 5). */

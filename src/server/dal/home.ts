@@ -13,7 +13,7 @@ import { getBagOwnRecipe, getBorrowedRecipe, getCurrentRecipe, listCurrentRecipe
 import { getRemaining } from "./remaining";
 import { setupsLastUsed } from "./setups";
 import { requireHousehold } from "./scope";
-import { actingPersona } from "./persona";
+import { actingPersona, listPersonas } from "./persona";
 
 /*
  * Brew (STORY-02-02-01): the drink usually made at this time of day, the
@@ -48,6 +48,8 @@ export type HomeState =
 export type Home = {
   /** Who Brew is for (STORY-05-01-03). */
   personaId: string;
+  /** More than one profile: the Journal's Person filter follows Brew (STORY-05-01-06 AC 2). */
+  multiplePersonas: boolean;
   drinks: LogDrink[];
   drink: LogDrink;
   /** What Brew would show with nothing chosen, marked "usual" in the selects. */
@@ -75,7 +77,7 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
   const setup = context.setups.find((s) => s.id === context.defaultSetupId);
   if (!setup || !context.drinks.length) return null;
 
-  const persona = await actingPersona();
+  const [persona, personaList] = await Promise.all([actingPersona(), listPersonas()]);
   const timeZone = await getTimeZone();
 
   // DQ-02: the last 14 days, plus the latest shot for the fallback.
@@ -128,6 +130,7 @@ export async function getHome(chosen: { drinkId?: string; beanId?: string } = {}
 
   const base = {
     personaId: persona.id,
+    multiplePersonas: personaList.length > 1,
     drinks: context.drinks,
     drink,
     usual: { drinkId: usualDrinkId, beanId: usual.kind === "coffee" ? usual.beanId : null },

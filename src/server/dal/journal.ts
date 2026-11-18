@@ -26,6 +26,7 @@ import { getTimeZone } from "@/server/time";
 import { mergeGroup, resolveEntity } from "./catalogMerge";
 import { assertOwned, requireHousehold } from "./scope";
 import { PART_KINDS, partsOf, setupsOf, type SetupSummary } from "./parts";
+import { listPersonas, mainPersona } from "./persona";
 
 /*
  * The Journal (STORY-02-06-01): the household's shots, newest first. The
@@ -59,6 +60,8 @@ export type JournalShot = {
   fromFrozen: boolean;
   /** The setup's grinder, for grind period dividers (EPIC-04-01). */
   grinderId: string | null;
+  /** Whose taste, only when it isn't the main profile's (STORY-05-01-06 AC 1). */
+  person: { name: string | null } | null;
 };
 
 /**
@@ -79,7 +82,7 @@ export type JournalDivider = {
 export type JournalPage = { shots: JournalShot[]; dividers: JournalDivider[]; older: JournalCursor | null };
 
 /** Journal filters (STORY-02-06-04); unset means any. A coffee covers its merged catalog entries. */
-export type JournalFilters = { drinkId?: string; beanId?: string; setupId?: string };
+export type JournalFilters = { drinkId?: string; beanId?: string; setupId?: string; personaId?: string };
 
 /** Before a cursor, in (created_at, id) order. */
 const beforeCursor = (c: JournalCursor): SQL =>
@@ -91,8 +94,9 @@ export async function listJournal({
   now = new Date(),
   filters = {},
 }: { before?: JournalCursor; limit?: number; now?: Date; filters?: JournalFilters } = {}): Promise<JournalPage> {
-  const { householdId } = await requireHousehold();
-  const timeZone = await getTimeZone();
+  const account = await requireHousehold();
+  const { householdId } = account;
+  const [timeZone, people, main] = await Promise.all([getTimeZone(), listPersonas(account), mainPersona(account)]);
   const windowStart = new Date(now.getTime() - JOURNAL_WINDOW_DAYS * DAY_MS);
   // Filters hold for every page, "show older" too (AC 3).
   const beanIds = filters.beanId ? await mergeGroup(db, canonicalBeans, filters.beanId) : null;
@@ -100,6 +104,7 @@ export async function listJournal({
     eq(extractions.householdId, householdId),
     filters.drinkId ? eq(extractions.drinkTypeId, filters.drinkId) : undefined,
     filters.setupId ? eq(extractions.setupId, filters.setupId) : undefined,
+    filters.personaId ? eq(extractions.personaId, filters.personaId) : undefined,
     beanIds ? inArray(batches.beanId, beanIds.length ? beanIds : [filters.beanId!]) : undefined,
   );
 
@@ -108,6 +113,7 @@ export async function listJournal({
       id: extractions.id,
       at: extractions.createdAt,
       setupId: extractions.setupId,
+      personaId: extractions.personaId,
       drinkName: drinkTypes.name,
       drinkKey: drinkTypes.nameKey,
       beanId: batches.beanId,
@@ -166,6 +172,7 @@ export async function listJournal({
     : [];
   const grinderOf = new Map(grinders.map((g) => [g.setupId, g.id]));
 
+  const names = new Map(people.map((p) => [p.id, p.name]));
   const dividers = await dividersFor(own, rows.at(-1)?.at ?? null, before ? new Date(before.at) : now, !before, timeZone);
 
   return {
@@ -183,6 +190,7 @@ export async function listJournal({
       tags: r.tags ?? [],
       fromFrozen: isFromFrozen(r.at, r),
       grinderId: grinderOf.get(r.setupId) ?? null,
+      person: r.personaId === main.id ? null : { name: names.get(r.personaId) ?? null },
     })),
     older: more ? edge : null,
   };
@@ -247,6 +255,8 @@ export type JournalFilterOptions = {
   setups: SetupSummary[];
   /** The asked-for coffee as listed in `coffees` (a merged duplicate becomes its survivor); null when not this household's. */
   beanId: string | null;
+  /** The profiles, main first; offered as a filter only when there's more than one (STORY-05-01-06 AC 2, AC 5). */
+  people: { id: string; name: string | null; main: boolean }[];
 };
 
 /**
@@ -255,8 +265,9 @@ export type JournalFilterOptions = {
  * default filter holds before its first shot (STORY-02-06-05 AC 1).
  */
 export async function getJournalFilterOptions({ beanId, drinkId }: { beanId?: string; drinkId?: string } = {}): Promise<JournalFilterOptions> {
-  const { householdId } = await requireHousehold();
-  const [drinks, beanRows, setupList] = await Promise.all([
+  const account = await requireHousehold();
+  const { householdId } = account;
+  const [drinks, beanRows, setupList, personaList, main] = await Promise.all([
     // Hidden drinks aren't offered, except the one whose shots are in view (STORY-02-05-02 AC 1, AC 2).
     db
       .select({ id: drinkTypes.id, name: drinkTypes.name, nameKey: drinkTypes.nameKey })
@@ -275,7 +286,12 @@ export async function getJournalFilterOptions({ beanId, drinkId }: { beanId?: st
       .innerJoin(batches, eq(batches.id, batchPortions.batchId))
       .where(eq(extractions.householdId, householdId)),
     partsOf(householdId).then((parts) => setupsOf(householdId, parts)),
+    listPersonas(account),
+    mainPersona(account),
   ]);
+  const people = personaList
+    .map((p) => ({ id: p.id, name: p.name, main: p.id === main.id }))
+    .sort((a, b) => Number(b.main) - Number(a.main) || (a.name ?? "").localeCompare(b.name ?? ""));
   const ids = beanRows.map((r) => r.beanId);
   if (beanId) {
     const group = await mergeGroup(db, canonicalBeans, beanId);
@@ -298,12 +314,14 @@ export async function getJournalFilterOptions({ beanId, drinkId }: { beanId?: st
         .where(inArray(canonicalBeans.id, survivors))
     : [];
   coffees.sort((a, b) => a.name.localeCompare(b.name));
-  return { drinks, coffees, setups: setupList.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()), beanId: asked };
+  return { drinks, coffees, setups: setupList.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()), beanId: asked, people };
 }
 
-export type ShotDetail = Omit<JournalShot, "day" | "grinderId"> & {
+export type ShotDetail = Omit<JournalShot, "day" | "grinderId" | "person"> & {
   /** Whose taste the shot is. */
   personaId: string;
+  /** With more than one profile: whose taste and who logged it, in words (STORY-05-01-06 AC 3). */
+  people: { forPerson: { name: string | null }; loggedBy: { name: string | null } } | null;
   setup: {
     id: string;
     name: string | null;
@@ -370,9 +388,19 @@ export async function getShot(id: string): Promise<ShotDetail> {
   parts.sort((a, b) => PART_KINDS.indexOf(a.kind) - PART_KINDS.indexOf(b.kind));
 
   const s = r.shot;
+  // The logger's own profile in this household, else unnamed (shown with the role label).
+  const personaList = await listPersonas();
+  const people =
+    personaList.length > 1
+      ? {
+          forPerson: { name: personaList.find((p) => p.id === s.personaId)?.name ?? null },
+          loggedBy: { name: personaList.find((p) => p.userId === s.loggedByUserId)?.name ?? null },
+        }
+      : null;
   return {
     id: s.id,
     personaId: s.personaId,
+    people,
     at: s.createdAt,
     drink: { name: r.drinkName, nameKey: r.drinkKey },
     coffee,

@@ -27,6 +27,8 @@ export type RecentItem =
       reaction?: "good" | "off";
       fromFrozen?: boolean;
       channelling?: boolean;
+      /** "for {name}", for a shot that isn't the main profile's (STORY-05-01-06 AC 1). */
+      person?: string;
     }
   | {
       kind: "maintenance";
@@ -172,8 +174,9 @@ export function RecentShotsScreen({
                     end={<ShotValues values={item.values} size="compact" />}
                     onClick={onOpen ? () => onOpen(item.id) : undefined}
                     footer={
-                      item.oneTap || item.reaction || item.fromFrozen || item.channelling ? (
+                      item.oneTap || item.reaction || item.fromFrozen || item.channelling || item.person ? (
                         <>
+                          {item.person && marker(item.person)}
                           {item.oneTap && marker(t("oneTap"))}
                           {item.reaction && marker(t(item.reaction))}
                           {item.fromFrozen && marker(tBag("fromFrozen"))}

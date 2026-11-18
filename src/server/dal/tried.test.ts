@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { newId } from "@/db/ids";
-import { batches, batchPortions, canonicalBeans, extractions } from "@/db/schema";
+import { batches, batchPortions, canonicalBeans, extractions, personas } from "@/db/schema";
 import { createTestDb } from "@/test/db";
 import { makeHousehold, makeKitchen, shotValues } from "@/test/fixtures";
 import { signInAs, testContext } from "@/test/mocks/context";
@@ -8,6 +8,7 @@ import { getTried } from "./tried";
 
 vi.mock("@/db/client", () => import("@/test/mocks/db"));
 vi.mock("@/server/auth/session", () => import("@/test/mocks/session"));
+vi.mock("@/server/personaChoice", () => import("@/test/mocks/personaChoice"));
 
 let k: Awaited<ReturnType<typeof makeKitchen>>;
 const db = () => testContext.db!;
@@ -15,6 +16,7 @@ const at = (day: number) => new Date(Date.UTC(2026, 2, day, 8));
 
 beforeEach(async () => {
   testContext.db = await createTestDb();
+  testContext.personaChoice = null;
   k = await makeKitchen(testContext.db);
   signInAs(k.user.firebaseUid);
 });
@@ -76,5 +78,28 @@ describe("getTried (STORY-03-06-01)", () => {
     const other = await makeHousehold(db());
     signInAs(other.user.firebaseUid);
     expect(await getTried()).toEqual([]);
+  });
+});
+
+describe("Tried per profile (TASK-05-01-07-BE1, QA1)", () => {
+  it("summarises only the shots of the person chosen on Brew, keeping coffees others brewed", async () => {
+    const guest = newId();
+    await db().insert(personas).values({ id: guest, householdId: k.household.id, name: "Guest", isDefault: false });
+    const loved = await coffee("Loved by one");
+    const theirs = await coffee("Only theirs");
+    const a = await bagOf(loved);
+    const b = await bagOf(theirs);
+    for (const day of [2, 3, 4]) await shot(a, day, { userRating: 5 });
+    for (const day of [5, 6, 7]) await shot(a, day, { userRating: 1, personaId: guest });
+    await shot(b, 8, { userRating: 5, personaId: guest });
+
+    const mine = new Map((await getTried()).map((c) => [c.name, c.summary.kind]));
+    expect(mine.get("Loved by one")).toBe("mostlyGood");
+    expect(mine.get("Only theirs")).toBe("noRatings");
+
+    testContext.personaChoice = guest;
+    const guests = new Map((await getTried()).map((c) => [c.name, c.summary.kind]));
+    expect(guests.get("Loved by one")).toBe("mostlyOff");
+    expect(guests.get("Only theirs")).toBe("lastRated");
   });
 });
