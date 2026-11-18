@@ -190,7 +190,13 @@
     "brewingFor": "for {name}",
     "personUsual": "Usually {drink}",
     "profileAndPeople": "Profile and people",
-    "startsFromPerson": "Dialling in starts from the recipe for {name}."
+    "startsFromPerson": "Dialling in starts from the recipe for {name}.",
+    "grindAdjusted": "Recipe {grind} · {reason}",
+    "grindReason": {
+      "aged": "beans have aged",
+      "bag": "this bag's recent shots",
+      "both": "beans have aged and this bag's recent shots"
+    }
   },
   "log": {
     "titleNew": "New shot",
@@ -981,5 +987,29 @@
     "removeBody": "It has no shots or recipes, so nothing else changes.",
     "removeConfirm": "Remove",
     "cantRemove": "{shots, plural, one {# shot} other {# shots}} and {recipes, plural, one {# recipe} other {# recipes}} belong to this profile, so it stays. You can rename it."
+  },
+  "drift": {
+    "title": "Why this grind",
+    "recipe": "Your recipe",
+    "aged": "Beans have aged",
+    "agedDays": "Beans have aged, roasted {days, plural, one {# day} other {# days}} ago",
+    "bagFast": "This bag has been running fast, from its recent shots",
+    "bagSlow": "This bag has been running slow, from its recent shots",
+    "bag": "This bag's recent shots",
+    "limit": "Limited to {steps, plural, one {# step} other {# steps}}",
+    "shown": "Grind for this shot",
+    "finer": "{value} finer",
+    "coarser": "{value} coarser",
+    "basedOn": "Based on {count, plural, one {# measured shot} other {# measured shots}} in the last {days} days.",
+    "basedOnSince": "Based on {count, plural, one {# measured shot} other {# measured shots}} since {date}.",
+    "sinceServicing": "Based on {count, plural, one {# measured shot} other {# measured shots}} since your grinder was serviced.",
+    "onlyMeasured": "One-tap shots aren't counted.",
+    "recentMore": "Today's shots count about twice as much as shots from 3 days ago.",
+    "prepLeftOut": "{count, plural, one {# shot was} other {# shots were}} left out for different puck prep.",
+    "noRecipeLeftOut": "{count, plural, one {# shot was} other {# shots were}} left out for having no recipe yet.",
+    "pooled": "Includes shots made for {count} people.",
+    "acrossSetups": "Includes shots on your other setup with this grinder.",
+    "perRecipe": "Applied to your recipe, not to everyone's.",
+    "useRecipe": "Use my recipe's {grind} for this shot"
   }
 }
