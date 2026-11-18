@@ -5,6 +5,7 @@ import { batches, batchPortions, canonicalBeans, extractions, maintenanceEvents,
 import { CLEAN_STARTS_PERIOD, POOL_WITHIN_BASKET } from "@/domain/drift/constants";
 import type { DriftPin, DriftShot } from "@/domain/drift/types";
 import { currentPeriodStart } from "@/domain/grindPeriods";
+import { applyServicing } from "@/domain/servicing";
 import { openedClock } from "@/domain/openedClock";
 import type { PortionDates } from "@/domain/portionState";
 import { roastingClock, type BagDates } from "@/domain/roastingClock";
@@ -50,7 +51,7 @@ export async function readDrift(input: {
   const { householdId, grinderId, now, timeZone } = input;
   const [events, withGrinder, withBasket, group] = await Promise.all([
     db
-      .select({ at: maintenanceEvents.occurredAt })
+      .select({ id: maintenanceEvents.id, at: maintenanceEvents.occurredAt, grindShift: maintenanceEvents.grindShift, grindScale: maintenanceEvents.grindScale, kind: maintenanceEvents.kind })
       .from(maintenanceEvents)
       .where(and(eq(maintenanceEvents.ownedHardwareId, grinderId), CLEAN_STARTS_PERIOD ? undefined : ne(maintenanceEvents.kind, "clean"))),
     db.select({ setupId: setupParts.setupId }).from(setupParts).where(eq(setupParts.ownedHardwareId, grinderId)),
@@ -122,7 +123,7 @@ export async function readDrift(input: {
       prep: { wdt: r.wdt, puckScreen: r.puckScreen },
       ...agesAt(r, r, r.at, timeZone),
     })),
-    // Servicing applied on read joins with EPIC-04-03 (TD-5); until then the stored grind is the recipe's.
+    // Each shot is judged against its recipe with servicing applied (TD-2, TD-5), so a confirmed shift is never absorbed by the age term.
     pins: pins.map((p) => ({
       id: p.id,
       personaId: p.personaId,
@@ -131,7 +132,7 @@ export async function readDrift(input: {
       batchId: p.batchId,
       pinnedAt: p.pinnedAt,
       removedAt: p.removedAt ?? null,
-      grind: p.grindSize,
+      grind: applyServicing(p.grindSize, p.pinnedAt, events).grind,
       timeMs: p.yieldTime,
       prep: { wdt: p.usedWdt, puckScreen: p.usedPuckScreen },
     })),

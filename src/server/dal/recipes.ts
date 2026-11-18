@@ -1,8 +1,21 @@
 import "server-only";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { db } from "@/db/client";
 import { newId } from "@/db/ids";
-import { batches, batchPortions, canonicalBeans, drinkTypes, extractions, milkTypes, pinnedRecipes } from "@/db/schema";
+import {
+  batches,
+  batchPortions,
+  canonicalBeans,
+  canonicalHardware,
+  drinkTypes,
+  extractions,
+  maintenanceEvents,
+  milkTypes,
+  ownedHardware,
+  pinnedRecipes,
+  setupParts,
+} from "@/db/schema";
+import { applyServicing, type ServicingStep } from "@/domain/servicing";
 import { validateBrewControls, type BrewValues } from "@/domain/brewControls";
 import { validateMilk } from "@/domain/milk";
 import type { NamedMilk } from "@/domain/milkName";
@@ -46,6 +59,12 @@ export type Recipe = RecipeKey &
     batchId: string | null;
     sourceExtractionId: string | null;
     pinnedAt: Date;
+    /**
+     * Confirmed grinder shifts since the pin, already applied to `grind`
+     * (TD-5); the stored grind is the first step's `from`. Empty or absent
+     * when none applies.
+     */
+    servicing?: ServicingStep[];
   };
 
 /** Pinning a one-tap shot, which has no measured values (STORY-02-01-01 AC 5). */
@@ -99,6 +118,42 @@ export const toRecipe = (r: Row): Recipe => ({
   pinnedAt: r.pinnedAt,
 });
 
+/**
+ * Servicing on read (TD-5, STORY-04-03-03): each recipe's grind with every
+ * confirmed shift on its setup's grinder after the pin applied, in date
+ * order. The one reader for a recipe's grind: Brew, the log start, the pin
+ * sheet, the recipe rows and the pull all come through here. Stored
+ * recipes are never rewritten.
+ */
+export async function resolveRecipeGrind<T extends Pick<Recipe, "grind" | "pinnedAt" | "setupId">>(recipes: T[]): Promise<(T & { servicing: ServicingStep[] })[]> {
+  if (!recipes.length) return [];
+  const grinders = await db
+    .select({ setupId: setupParts.setupId, grinderId: setupParts.ownedHardwareId })
+    .from(setupParts)
+    .innerJoin(ownedHardware, eq(ownedHardware.id, setupParts.ownedHardwareId))
+    .innerJoin(canonicalHardware, eq(canonicalHardware.id, ownedHardware.hardwareId))
+    .where(and(inArray(setupParts.setupId, [...new Set(recipes.map((r) => r.setupId))]), eq(canonicalHardware.kind, "grinder")));
+  const grinderOf = new Map(grinders.map((g) => [g.setupId, g.grinderId]));
+  const events = grinders.length
+    ? await db
+        .select({ id: maintenanceEvents.id, grinderId: maintenanceEvents.ownedHardwareId, at: maintenanceEvents.occurredAt, grindShift: maintenanceEvents.grindShift, grindScale: maintenanceEvents.grindScale })
+        .from(maintenanceEvents)
+        .where(
+          and(
+            inArray(maintenanceEvents.ownedHardwareId, [...new Set(grinders.map((g) => g.grinderId))]),
+            or(isNotNull(maintenanceEvents.grindShift), isNotNull(maintenanceEvents.grindScale)),
+          ),
+        )
+    : [];
+  return recipes.map((r) => {
+    const own = events.filter((e) => e.grinderId === grinderOf.get(r.setupId));
+    const { grind, steps } = applyServicing(r.grind, r.pinnedAt, own);
+    return { ...r, grind, servicing: steps };
+  });
+}
+
+const resolved = async (rows: Row[]): Promise<Recipe[]> => resolveRecipeGrind(rows.map(toRecipe));
+
 /** Newest pin first; the same millisecond is settled by ID, so the answer never wobbles. */
 const NEWEST = [desc(pinnedRecipes.pinnedAt), desc(pinnedRecipes.id)];
 
@@ -122,7 +177,7 @@ async function newestFor(key: RecipeKey, batchId: string | null): Promise<Recipe
     )
     .orderBy(...NEWEST)
     .limit(1);
-  return row ? toRecipe(row) : null;
+  return row ? (await resolved([row]))[0] : null;
 }
 
 /** A bag's own recipe for a key (STORY-02-04-01), none when it has none or it was removed. */
@@ -175,7 +230,7 @@ export async function listCurrentRecipesForBean(beanId: string, personaId: strin
       ),
     )
     .orderBy(...NEWEST);
-  return newestPerSetupAndDrink(rows).map(toRecipe);
+  return resolved(newestPerSetupAndDrink(rows));
 }
 
 /** The first (newest) row per setup and drink of rows already newest first. */
@@ -457,7 +512,7 @@ async function listBagOwnRecipes(batchId: string, personaId: string): Promise<Re
       ),
     )
     .orderBy(...NEWEST);
-  return newestPerSetupAndDrink(rows).map(toRecipe);
+  return resolved(newestPerSetupAndDrink(rows));
 }
 
 export type BagRecipes = {
