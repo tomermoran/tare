@@ -24,6 +24,7 @@ import { portionStateLabel } from "@/lib/portionStateLabel";
 import { getTimeZone } from "@/server/time";
 import { forPersona } from "@/server/dal/persona";
 import { forPersonLine } from "@/lib/forPerson";
+import { personaLabel } from "@/domain/personaLabel";
 
 /**
  * SCR-LOG, a new shot: /log?drinkId=…&portionId=…, a saved one in edit
@@ -147,6 +148,7 @@ async function Log({ searchParams }: Pick<PageProps<"/log">, "searchParams">) {
   if (p) {
     const words = p.suggestion && suggestionWords(p.suggestion, { milkDrink: p.suggestion.context.shot.milkDrink, clocks: p.suggestion.context.clocks }, t, format);
     if (words?.change) note.push(t("log.fromSuggestion", { change: words.change }));
+    else if (p.borrowedFrom) note.push(t("log.fromPersonRecipe", { name: personaLabel(p.borrowedFrom, t("profile.defaultName")) }));
     else if (p.from) {
       const fromSetup = context.setups.find((s) => s.id === p.from!.setupId);
       if (fromSetup) note.push(t("log.fromRecipeOn", { setup: setupLabel(fromSetup, context.setups, list) }));

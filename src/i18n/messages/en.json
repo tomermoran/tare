@@ -187,7 +187,8 @@
     "whoFor": "Who is it for?",
     "brewingFor": "for {name}",
     "personUsual": "Usually {drink}",
-    "profileAndPeople": "Profile and people"
+    "profileAndPeople": "Profile and people",
+    "startsFromPerson": "Dialling in starts from the recipe for {name}."
   },
   "log": {
     "titleNew": "New shot",
@@ -233,7 +234,8 @@
     "milkNone": "Choose a milk",
     "capUnknown": "Tell us about your {kind, select, machine {machine} grinder {grinder} other {basket}}",
     "saveChanges": "Save changes",
-    "forPerson": "for {name}"
+    "forPerson": "for {name}",
+    "fromPersonRecipe": "Starting from the recipe for {name}."
   },
   "journal": {
     "title": "Journal",

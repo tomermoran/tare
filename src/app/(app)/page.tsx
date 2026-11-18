@@ -96,6 +96,7 @@ async function Brew({ home }: { home: Home }) {
   const message = {
     recipe: undefined,
     noRecipe: t("home.noRecipe"),
+    borrowed: t("home.noRecipe"),
     noRecipeOnSetup: t("home.noRecipeOnSetup"),
     finished: t("home.coffeeFinished"),
     noCoffee: t("home.noCoffee"),
@@ -129,7 +130,12 @@ async function Brew({ home }: { home: Home }) {
             ]
           : [],
         message,
-        note: state.kind === "noRecipeOnSetup" ? t("home.startsFrom", { setup: setup(state.from) }) : undefined,
+        note:
+          state.kind === "noRecipeOnSetup"
+            ? t("home.startsFrom", { setup: setup(state.from) })
+            : state.kind === "borrowed"
+              ? t("home.startsFromPerson", { name: personaLabel(state.from, t("profile.defaultName")) })
+              : undefined,
         setup: setup(home.setup),
         footnote:
           home.remaining && state.kind !== "finished"
