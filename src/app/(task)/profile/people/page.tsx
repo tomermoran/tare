@@ -30,6 +30,7 @@ async function People({ searchParams }: Pick<PageProps<"/profile/people">, "sear
     id: p.id,
     name: personaLabel(p, t("profile.defaultName")),
     main: p.main,
+    invitePending: p.invitePending,
     secondary: p.lastShotAt
       ? t("people.summary", { count: p.shots, when: lastHadLabel(daysBetween(localDayKey(p.lastShotAt, timeZone), today), locale) })
       : t("people.noShots"),
@@ -37,6 +38,9 @@ async function People({ searchParams }: Pick<PageProps<"/profile/people">, "sear
     sheet: {
       removable: !p.main && !p.claimed && p.shots === 0 && p.recipes === 0,
       cantRemove: !p.main && (p.shots > 0 || p.recipes > 0) ? t("people.cantRemove", { shots: p.shots, recipes: p.recipes }) : undefined,
+      // Invites (EPIC-05-02): a claimed profile has its own login; one without can be invited for.
+      status: p.main ? undefined : p.claimed ? t("people.claimed") : p.invitePending ? t("people.invitePending") : undefined,
+      invite: p.main || p.claimed ? undefined : p.invitePending ? "pending" : "can",
     },
   }));
   return <PeopleFlow rows={rows} backHref={safeReturnTo(returnTo, PROFILE_PATH)} />;

@@ -103,4 +103,34 @@ export const MainProfile: Story = {
   },
 };
 
+/** A profile with no login can be invited for, by any member (STORY-05-02-01 AC 3). */
+export const CanInvite: Story = {
+  args: { person: { name: "Guest", removable: false, invite: { label: t("people.invite", { name: "Guest" }), onClick: fn() } } },
+  play: async ({ args }) => {
+    const sheet = await dialog(people.editTitle);
+    await userEvent.click(sheet.getByRole("button", { name: "Invite Guest to take over" }));
+    await expect(args.person!.invite!.onClick).toHaveBeenCalled();
+  },
+};
+
+/** A pending invite says so, and shows the link again (STORY-05-02-06 AC 2). */
+export const InvitePending: Story = {
+  args: { person: { name: "Guest", removable: false, status: people.invitePending, invite: { label: people.showInvite, onClick: fn() } } },
+  play: async () => {
+    const sheet = await dialog(people.editTitle);
+    await expect(sheet.getByText(people.invitePending)).toBeVisible();
+    await expect(sheet.getByRole("button", { name: people.showInvite })).toBeVisible();
+  },
+};
+
+/** A claimed profile has its own login and nothing to invite (STORY-05-02-01 AC 4). */
+export const Claimed: Story = {
+  args: { person: { name: "Person A", removable: false, status: people.claimed } },
+  play: async () => {
+    const sheet = await dialog(people.editTitle);
+    await expect(sheet.getByText(people.claimed)).toBeVisible();
+    await expect(sheet.queryByRole("button", { name: /Invite/ })).toBeNull();
+  },
+};
+
 export const RightToLeft: Story = { args: Removable.args, globals: { direction: "rtl" } };

@@ -12,7 +12,9 @@ import { LIST_NAME_MAX } from "@/domain/listName";
  * SH-PERSON (DES-05-01-02): add or rename a profile with just a name (a
  * nickname works). Edit offers a quiet remove only while the profile has
  * no shots and no recipes, asked once; otherwise a line says why it stays.
- * The main profile has no remove. A failed save keeps the name. Props only.
+ * The main profile has no remove. A failed save keeps the name. A profile
+ * with no login can be invited for; a claimed one says it has its own
+ * login, and a pending invite says so (EPIC-05-02). Props only.
  */
 
 export type PersonSheetLabels = {
@@ -38,6 +40,10 @@ export type SheetPerson = {
   /** Set when it can't be removed: why it stays (the main one has none, and no remove). */
   cantRemove?: string;
   removable: boolean;
+  /** "Has their own login" or "Invite pending" (STORY-05-02-01 AC 4, 05-02-06). */
+  status?: string;
+  /** Invite for, or see the pending link of, a profile with no login (STORY-05-02-01 AC 3). */
+  invite?: { label: string; onClick: () => void };
 };
 
 export type PersonSheetError = "nameRequired" | "nameTaken" | "saveFailed" | null;
@@ -95,6 +101,16 @@ export function PersonSheet({
             }}
           />
           {error === "saveFailed" && <Notice urgent>{labels.saveFailed}</Notice>}
+          {(person?.status || person?.invite) && (
+            <div className="flex flex-col items-start gap-2">
+              {person.status && <p className="text-body text-ink-secondary">{person.status}</p>}
+              {person.invite && (
+                <Button variant="secondary" onClick={person.invite.onClick}>
+                  {person.invite.label}
+                </Button>
+              )}
+            </div>
+          )}
           {person?.removable && onRemove && (
             <Button variant="ghost" className="self-start" onClick={() => setConfirming(true)}>
               {labels.remove}
