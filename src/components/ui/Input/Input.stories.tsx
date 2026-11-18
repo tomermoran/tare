@@ -3,6 +3,7 @@ import { expect, within } from "storybook/test";
 import { defaultLocale } from "@/i18n/config";
 import messages from "@/i18n/messages/en.json";
 import { unitSymbol } from "@/lib/units";
+import { Button } from "../Button/Button";
 import { Input } from "./Input";
 
 const { shot, beans, setup } = messages;
@@ -88,6 +89,28 @@ export const UrlField: Story = {
     autoComplete: "url",
   },
 };
+
+/** A read-only link with copy at its end (SH-INVITE, TASK-05-02-01-FE1); the URL stays left to right. */
+export const ReadOnlyWithCopy: Story = {
+  args: {
+    label: messages.invite.link,
+    value: "https://tare.example/join/an-example-token",
+    readOnly: true,
+    dir: "ltr",
+    end: (
+      <Button variant="ghost" size="sm" className="-me-3 shrink-0">
+        {messages.invite.copy}
+      </Button>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByLabelText(messages.invite.link)).toHaveAttribute("readonly");
+    await expect(canvas.getByRole("button", { name: messages.invite.copy })).toBeVisible();
+  },
+};
+
+export const ReadOnlyWithCopyRightToLeft: Story = { ...ReadOnlyWithCopy, play: undefined, globals: { direction: "rtl" } };
 
 export const RightToLeft: Story = {
   ...WithUnitAndHint,
